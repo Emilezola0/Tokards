@@ -1,4 +1,4 @@
-import { card, cardImage, tagIcons } from "../data/cards";
+import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
 
 type Props = {
   id?: string;
@@ -26,7 +26,7 @@ export default function CardView({ id, hidden, size = "m", highlight, selected, 
       onClick={onClick}
       title={`${c.name}\n\n${c.text}`}
     >
-      <img src={cardImage(id)} alt="" loading="lazy" onError={(e) => (e.currentTarget.src = "/cards/placeholder.svg")} />
+      <img src={cardImage(id)} alt="" loading="lazy" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
       <span className="card-tags">{c.kind === "victory" ? "🏁" : tagIcons(c.tags)}</span>
       {badge && <span className="card-badge">{badge}</span>}
       <span className="card-name">{c.name}</span>

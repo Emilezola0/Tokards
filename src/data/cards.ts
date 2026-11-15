@@ -42,8 +42,11 @@ export function card(id: string): CardDef {
   );
 }
 
+// BASE_URL = "./" : le site marche à la racine (Firebase) comme dans un sous-dossier (GitHub Pages).
+export const PLACEHOLDER = `${import.meta.env.BASE_URL}cards/placeholder.svg`;
+
 export function cardImage(id: string): string {
-  return CARDS[id]?.image ? `/cards/${id}.webp` : "/cards/placeholder.svg";
+  return CARDS[id]?.image ? `${import.meta.env.BASE_URL}cards/${id}.webp` : PLACEHOLDER;
 }
 
 export function tagIcons(t: Tags): string {

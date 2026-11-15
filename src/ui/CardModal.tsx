@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { card, cardImage, tagIcons } from "../data/cards";
+import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
@@ -68,7 +68,7 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose }: {
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal panel card-modal" onClick={(e) => e.stopPropagation()}>
-        <img src={cardImage(id)} alt="" onError={(e) => (e.currentTarget.src = "/cards/placeholder.svg")} />
+        <img src={cardImage(id)} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
         <div className="card-detail">
           <h2>{c.name}</h2>
           <p className="muted small">

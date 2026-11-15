@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PLAYABLE_DECKS, cardImage } from "../data/cards";
+import { PLACEHOLDER, PLAYABLE_DECKS, cardImage } from "../data/cards";
 import { launch, update } from "../game/room";
 import type { Room } from "../game/types";
 
@@ -91,7 +91,7 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
                   disabled={!!holder && !mine}
                   onClick={() => pickDeck(mine ? null : d.name)}
                 >
-                  <img src={cardImage(d.cards[0])} alt="" onError={(e) => (e.currentTarget.src = "/cards/placeholder.svg")} />
+                  <img src={cardImage(d.cards[0])} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
                   <span className="deck-name">{d.name}</span>
                   <span className="small muted">{holder ? (mine ? "Ton deck ✔" : `pris par ${holder.name}`) : `${d.cards.length} cartes`}</span>
                 </button>
