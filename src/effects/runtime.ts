@@ -15,7 +15,9 @@ export type GameEvent =
   | { type: "goldGained"; uid: string; amount: number }
   | { type: "goldLost"; uid: string; amount: number }
   | { type: "sentience"; uid: string; v: boolean }
-  | { type: "blackHole"; uid: string; from: BlackHole; to: BlackHole };
+  | { type: "blackHole"; uid: string; from: BlackHole; to: BlackHole }
+  /** un effet lancé par `actor` touche quelque chose de `target` (gold, sentience, trou noir, cartes…) */
+  | { type: "interaction"; actor: string; target: string; what: string };
 
 type Handlers = { [K in GameEvent["type"]]: (x: Ctx, self: Self, e: Extract<GameEvent, { type: K }>) => void };
 export type CardScript = {
@@ -39,6 +41,9 @@ export class Ctx {
   private ai = 0;
   private ri = 0;
   private depth = 0;
+  /** joueur dont l'effet est en train de s'appliquer */
+  actor: string | null = null;
+  private muteInteractions = 0;
 
   /** Mode aperçu : les questions reçoivent une réponse par défaut et sont mémorisées. */
   public preview: Prompt[] | null = null;
@@ -154,13 +159,55 @@ export class Ctx {
         for (const id of [...this.p(uid).terrain]) {
           const h = SCRIPTS[id]?.on?.[e.type] as ((x: Ctx, s: Self, e: GameEvent) => void) | undefined;
           if (!h || !this.p(uid).terrain.includes(id)) continue;
-          h(this, { id, me: uid }, e);
+          const prevActor = this.actor;
+          this.actor = uid;
+          if (e.type === "interaction") this.muteInteractions++;
+          try {
+            h(this, { id, me: uid }, e);
+          } finally {
+            this.actor = prevActor;
+            if (e.type === "interaction") this.muteInteractions--;
+          }
         }
       }
     } finally {
       this.depth--;
     }
   }
+  /** Un effet touche quelque chose de `target` : compte l'interaction et prévient les passifs. */
+  interact(target: string, what: string) {
+    const actor = this.actor;
+    if (!actor || this.muteInteractions > 0 || !this.p(actor)) return;
+    const p = this.p(actor);
+    p.stats = { interactions: (p.stats?.interactions ?? 0) + 1, goldMoved: p.stats?.goldMoved ?? 0 };
+    this.emit({ type: "interaction", actor, target, what });
+  }
+  /** Gold passés d'un joueur à un autre à cause de l'acteur. */
+  moved(n: number) {
+    const actor = this.actor;
+    if (!actor || n <= 0 || !this.p(actor)) return;
+    const p = this.p(actor);
+    p.stats = { interactions: p.stats?.interactions ?? 0, goldMoved: (p.stats?.goldMoved ?? 0) + n };
+  }
+
+  // ----- outils de calcul -----
+  /** 10 % (ou autre pourcentage) arrondi à l'inférieur. */
+  pct(n: number, percent = 10) {
+    return Math.floor((Math.max(0, n) * percent) / 100);
+  }
+  /** Le plus riche parmi `list` (égalité : tirage au hasard). */
+  richest(list: string[]): string | null {
+    if (!list.length) return null;
+    const max = Math.max(...list.map((u) => this.p(u).gold));
+    return this.random(list.filter((u) => this.p(u).gold === max));
+  }
+  poorest(list: string[]): string | null {
+    if (!list.length) return null;
+    const min = Math.min(...list.map((u) => this.p(u).gold));
+    return this.random(list.filter((u) => this.p(u).gold === min));
+  }
+  isBlazard = (u: string) => this.p(u).blackHole === "Blazard";
+
   /** À appeler par un passif qui se déclenche, pour l'effet visuel et le journal. */
   triggered(self: Self, what: string) {
     this.fx({ k: "activate", card: self.id, uid: self.me });
@@ -176,6 +223,7 @@ export class Ctx {
     p.goldGainedSince = (p.goldGainedSince ?? 0) + n;
     this.fx({ k: "gold", uid, delta: n });
     this.log(`${this.name(uid)} gagne ${n} gold (${p.gold}).`);
+    this.interact(uid, "gold");
     this.emit({ type: "goldGained", uid, amount: n });
     return n;
   }
@@ -187,6 +235,7 @@ export class Ctx {
     p.gold -= real;
     this.fx({ k: "gold", uid, delta: -real });
     this.log(`${this.name(uid)} perd ${real} gold (${p.gold}).`);
+    this.interact(uid, "gold");
     this.emit({ type: "goldLost", uid, amount: real });
     return real;
   }
@@ -207,12 +256,33 @@ export class Ctx {
   transfer(from: string, to: string, n: number): number {
     const real = this.lose(from, n);
     if (real) this.gain(to, real);
+    if (from !== to) this.moved(real);
     return real;
+  }
+  /** Échange les gold de deux joueurs. */
+  swapGold(a: string, b: string) {
+    const ga = this.p(a).gold;
+    const gb = this.p(b).gold;
+    if (ga === gb) return;
+    this.p(a).gold = gb;
+    this.p(b).gold = ga;
+    this.fx({ k: "gold", uid: a, delta: gb - ga });
+    this.fx({ k: "gold", uid: b, delta: ga - gb });
+    this.log(`${this.name(a)} et ${this.name(b)} échangent leurs gold (${gb} / ${ga}).`);
+    this.moved(Math.abs(ga - gb));
+    this.interact(a, "gold");
+    this.interact(b, "gold");
+    if (gb > ga) this.emit({ type: "goldGained", uid: a, amount: gb - ga });
+    else this.emit({ type: "goldLost", uid: a, amount: ga - gb });
+    if (ga > gb) this.emit({ type: "goldGained", uid: b, amount: ga - gb });
+    else this.emit({ type: "goldLost", uid: b, amount: gb - ga });
   }
   setSentience(uid: string, v: boolean) {
     const p = this.p(uid);
     if (p.sentience === v) return;
+    if (p.locked) return this.log(`🔒 ${this.name(uid)} est bloqué : sa sentience ne change pas.`);
     p.sentience = v;
+    this.interact(uid, "sentience");
     this.fx({ k: "sentience", uid, v });
     this.log(`${this.name(uid)} : sentience ${v ? "Vraie" : "Fausse"}.`);
     this.emit({ type: "sentience", uid, v });
@@ -224,7 +294,9 @@ export class Ctx {
     const p = this.p(uid);
     const from = p.blackHole;
     if (from === to) return;
+    if (p.locked) return this.log(`🔒 ${this.name(uid)} est bloqué : son trou noir ne change pas.`);
     p.blackHole = to;
+    this.interact(uid, "trou noir");
     this.fx({ k: "bh", uid, to });
     this.log(`${this.name(uid)} : trou noir ${blackHoleLabel(from)} → ${blackHoleLabel(to)}.`);
     this.emit({ type: "blackHole", uid, from, to });
@@ -239,10 +311,13 @@ export class Ctx {
   draw(uid: string, n: number, from = uid): number {
     const k = E.drawCards(this.g, uid, n, from);
     if (k) this.log(`${this.name(uid)} pioche ${k} carte${k > 1 ? "s" : ""}${from !== uid ? ` dans la pioche de ${this.name(from)}` : ""}.`);
+    if (k) this.interact(from, "pioche");
     return k;
   }
   move(id: string, dest: E.Dest) {
+    const at = E.locate(this.g, id);
     E.moveCard(this.room, this.g, id, dest);
+    if (at) this.interact(at.uid, at.zone);
     this.fx({ k: "move", card: id });
   }
   /** Envoie une carte dans la défausse de son propriétaire. */
@@ -256,6 +331,23 @@ export class Ctx {
   }
   shuffleDeck(uid: string, withDiscard = false) {
     E.shuffleDeck(this.room, this.g, uid, withDiscard);
+    this.interact(uid, "pioche");
+  }
+  /** Fait tourner les mains : chaque joueur de `list` reçoit la main du précédent (2 joueurs = échange). */
+  rotateHands(list: string[]) {
+    if (list.length < 2) return;
+    const hands = list.map((u) => this.p(u).hand);
+    list.forEach((u, i) => (this.p(u).hand = hands[(i - 1 + list.length) % list.length]));
+    this.log(list.length === 2
+      ? `${this.name(list[0])} et ${this.name(list[1])} échangent leurs mains.`
+      : `Les mains tournent : ${list.map((u) => this.name(u)).join(" → ")}.`);
+    for (const u of list) this.interact(u, "main");
+  }
+  /** Bloque la sentience et le trou noir du joueur jusqu'au début de son prochain tour. */
+  lock(uid: string) {
+    this.p(uid).locked = true;
+    this.log(`🔒 ${this.name(uid)} est bloqué jusqu'à son prochain tour (sentience et trou noir figés).`);
+    this.interact(uid, "blocage");
   }
 
   // ----- activation -----
@@ -269,9 +361,15 @@ export class Ctx {
     }
     this.fx({ k: "activate", card: id, uid: me });
     this.log(`✨ ${this.name(me)} active « ${c.name} ».`);
-    if (s.activate(this, { id, me }) === false) {
-      this.fx({ k: "fail", card: id, uid: me });
-      this.log(`« ${c.name} » : effet impossible.`);
+    const prevActor = this.actor;
+    this.actor = me;
+    try {
+      if (s.activate(this, { id, me }) === false) {
+        this.fx({ k: "fail", card: id, uid: me });
+        this.log(`« ${c.name} » : effet impossible.`);
+      }
+    } finally {
+      this.actor = prevActor;
     }
   }
 
@@ -381,6 +479,7 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
   try {
     if (at.zone === "hand") E.moveCard(x.room, g, id, { uid: me, zone: "terrain" }, true);
     l0 = logStart();
+    x.actor = me;
     out.ok = s.activate(x, { id, me }) !== false;
   } catch {
     return null;

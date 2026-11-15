@@ -40,6 +40,10 @@ export interface PlayerState {
   /** gold gagnés depuis le début de son dernier tour / pendant le tour d'avant */
   goldGainedSince?: number;
   goldGainedLastTurn?: number;
+  /** sentience et trou noir bloqués jusqu'au début de son prochain tour (Poro assassin) */
+  locked?: boolean;
+  /** compteurs pour les conditions de victoire */
+  stats?: { interactions: number; goldMoved: number };
 }
 
 export type Prompt = { chooser: string; text: string; cardId?: string } & (

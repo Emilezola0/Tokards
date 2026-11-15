@@ -2956,7 +2956,7 @@
    "target": "",
    "check": "",
    "text": "Si sentience est vrai vous piocher une carte supplémentaire\nSi sentience est faux vous fait piocher 2 carte supplémentaire",
-   "rules": "",
+   "rules": "Sentience du lanceur : vraie → pioche 1, fausse → pioche 2. [Automatisée]",
    "image": "POP-01.jpg"
   },
   "POP-02": {
@@ -2974,7 +2974,7 @@
    "target": "",
    "check": "",
    "text": "Tout les cartes Gold posé sur votre terrain vous donnent 10 golds",
-   "rules": "",
+   "rules": "+10 gold par carte 💰 sur le terrain du lanceur, celle-ci comprise. [Automatisée]",
    "image": "POP-02.jpg"
   },
   "POP-03": {
@@ -2992,7 +2992,7 @@
    "target": "",
    "check": "",
    "text": "Si il existe 3 types de trou noir différent existent dans la partie change 1 aléatoire en blazard",
-   "rules": "",
+   "rules": "S'il y a au moins 3 trous noirs différents parmi les joueurs, un joueur au hasard (pas déjà Blazard) passe en Blazard. [Automatisée]",
    "image": "POP-03.jpg"
   },
   "POP-04": {
@@ -3010,7 +3010,7 @@
    "target": "",
    "check": "",
    "text": "Les trou noirs des joueurs a côté de celui qui a le plus d'argent change en blazard",
-   "rules": "",
+   "rules": "Les voisins du plus riche dans l'ordre du tour (avant et après lui) passent en Blazard. Égalité : tirage au hasard. [Automatisée]",
    "image": "POP-04.jpg"
   },
   "POP-05": {
@@ -3024,11 +3024,11 @@
     "blackHole": true
    },
    "trigger": "Passif",
-   "event": "",
+   "event": "Interaction",
    "target": "",
    "check": "",
    "text": "Une interraction a lieu gagne +10 gold a chaque fois\nSi sentience est vrai votre trou noir deviens blazard",
-   "rules": "",
+   "rules": "Passif. Interaction = un effet de carte, lancé par n'importe quel joueur, qui touche les gold, la sentience, le trou noir, les cartes (main, terrain, pioche, défausse) d'un joueur, lanceur compris. Chaque interaction : +10 gold au porteur, puis s'il a la sentience vraie son trou noir passe en Blazard. Les poses, défausses et pioches normales du tour ne comptent pas. [Automatisée]",
    "image": "POP-05.jpg"
   },
   "POP-06": {
@@ -3046,7 +3046,7 @@
    "target": "",
    "check": "",
    "text": "si en blazard change la joue la premiere carte gold une deuxieme fois",
-   "rules": "",
+   "rules": "Si le lanceur est en Blazard, la première carte 💰 de son terrain (sens de lecture) active son effet une deuxième fois. [Automatisée]",
    "image": "POP-06.jpg"
   },
   "POP-07": {
@@ -3064,7 +3064,7 @@
    "target": "",
    "check": "",
    "text": "Echange les golds de deux personnes sauf vous meme \nsi sentience est faux recupere 10% de chaque joueur échangé",
-   "rules": "",
+   "rules": "Le lanceur choisit deux autres joueurs qui échangent leurs gold. Si sa sentience est fausse, il prend ensuite 10 % (arrondi inférieur) à chacun des deux. [Automatisée]",
    "image": "POP-07.jpg"
   },
   "POP-08": {
@@ -3082,7 +3082,7 @@
    "target": "",
    "check": "",
    "text": "Inverse la sentience et gagne 5 golds",
-   "rules": "",
+   "rules": "[Automatisée]",
    "image": "POP-08.jpg"
   },
   "POP-09": {
@@ -3100,7 +3100,7 @@
    "target": "",
    "check": "",
    "text": "Si sentience est vrai gagne 20 gold \nSi sentience est faux vole 10 gold",
-   "rules": "",
+   "rules": "Sentience fausse : le lanceur choisit qui voler (10 gold, limité à ce qu'il possède). [Automatisée]",
    "image": "POP-09.jpg"
   },
   "POP-10": {
@@ -3118,7 +3118,7 @@
    "target": "",
    "check": "",
    "text": "Force un joueur blazard aléatoire de payer 10% de son gold",
-   "rules": "",
+   "rules": "Un autre joueur Blazard au hasard donne 10 % de ses gold (arrondi inférieur) au lanceur. [Automatisée]",
    "image": "POP-10.jpg"
   },
   "POP-11": {
@@ -3136,7 +3136,7 @@
    "target": "",
    "check": "",
    "text": "Tout les trou noirs blazard vous doivent 10% de leur golds",
-   "rules": "",
+   "rules": "Chaque autre joueur Blazard donne 10 % de ses gold (arrondi inférieur) au lanceur. [Automatisée]",
    "image": "POP-11.jpg"
   },
   "POP-12": {
@@ -3154,7 +3154,7 @@
    "target": "",
    "check": "",
    "text": "Pour 200 golds ciblent 2 joueurs défausse tout leur terrain et pose autant de carte piocher chez l'autre joueur",
-   "rules": "",
+   "rules": "Paiement optionnel de 200. Deux joueurs au choix (lanceur possible) défaussent tout leur terrain, puis chacun pose sur son terrain autant de cartes qu'il en avait, piochées dans la pioche de l'autre. Les cartes posées ne s'activent pas. [Automatisée]",
    "image": "POP-12.jpg"
   },
   "POP-13": {
@@ -3172,7 +3172,7 @@
    "target": "",
    "check": "",
    "text": "Payer 25 gold bloque une personne aléatoire son sentience et trou noir ne peuvent pas changer état pendant jusqu'a son prochain tour  et enleve sa premiere carte posé",
-   "rules": "",
+   "rules": "Paiement optionnel de 25. Un autre joueur au hasard est bloqué (sentience et trou noir figés) jusqu'au début de son prochain tour, et la première carte de son terrain est défaussée. [Automatisée]",
    "image": "POP-13.jpg"
   },
   "POP-14": {
@@ -3190,7 +3190,7 @@
    "target": "",
    "check": "",
    "text": "Si le sentient est vrai pioche pioche une carte sinon enleve la derniere carte sur le terrain d'un joueur",
-   "rules": "",
+   "rules": "Sentience fausse : le lanceur choisit un joueur (lui compris) dont la dernière carte du terrain est défaussée. [Automatisée]",
    "image": "POP-14.jpg"
   },
   "POP-15": {
@@ -3208,7 +3208,7 @@
    "target": "",
    "check": "",
    "text": "Peut payer 35 gold repioche tout tes cartes et remet dans la pioche tes cartes en main\npeut cibler un autre joueur",
-   "rules": "",
+   "rules": "Paiement optionnel de 35. Joueur ciblé au choix (lanceur compris) : sa main retourne dans sa pioche, la pioche est mélangée, puis il pioche autant de cartes. [Automatisée]",
    "image": "POP-15.jpg"
   },
   "POP-16": {
@@ -3226,7 +3226,7 @@
    "target": "",
    "check": "",
    "text": "Tout les joueurs dont  nombre de gold est pair leur sentience deviennent vrai et leur trou noir devienne blazard\nsi impair sentience devient faux",
-   "rules": "",
+   "rules": "Tous les joueurs, lanceur compris. 0 est pair. [Automatisée]",
    "image": "POP-16.jpg"
   },
   "POP-17": {
@@ -3244,7 +3244,7 @@
    "target": "",
    "check": "",
    "text": "Paye 45 golds tout les joueurs avec trou noir blazard échange leur mains sauf le lanceur",
-   "rules": "",
+   "rules": "Paiement optionnel de 45. Les mains des joueurs Blazard (sauf le lanceur) tournent dans l'ordre du tour (à 2 : elles s'échangent). Il faut au moins 2 joueurs concernés. [Automatisée]",
    "image": "POP-17.jpg"
   },
   "POP-18": {
@@ -3262,7 +3262,7 @@
    "target": "",
    "check": "",
    "text": "Si sentience est vrai choisis un joueur autre que vous et son trou noir devient blazard \nsinon votre trou noir devient blazard",
-   "rules": "",
+   "rules": "[Automatisée]",
    "image": "POP-18.jpg"
   },
   "POP-19": {
@@ -3280,7 +3280,7 @@
    "target": "",
    "check": "",
    "text": "Paye 15 golds pour changer 2 trou noir aléatoire en blazard les joueurs deja blazard peuvent etre ciblés",
-   "rules": "",
+   "rules": "Paiement optionnel de 15. Deux joueurs différents au hasard, lanceur compris, passent en Blazard. [Automatisée]",
    "image": "POP-19.jpg"
   },
   "POP-20": {
@@ -3298,7 +3298,7 @@
    "target": "",
    "check": "",
    "text": "Si la personne la plus pauvre a un sentience vrai transforme son trou noir en blazard",
-   "rules": "",
+   "rules": "Le plus pauvre (égalité : au hasard), lanceur compris. [Automatisée]",
    "image": "POP-20.jpg"
   },
   "POP-21": {
@@ -3316,7 +3316,7 @@
    "target": "",
    "check": "",
    "text": "Tout les trou noirs blazard vous donne 10 % de leur golds transforme votre trou noir en blazard",
-   "rules": "",
+   "rules": "Chaque autre joueur Blazard donne 10 % (arrondi inférieur) au lanceur, puis le lanceur passe en Blazard. [Automatisée]",
    "image": "POP-21.jpg"
   },
   "POP-22": {
@@ -3334,7 +3334,7 @@
    "target": "",
    "check": "",
    "text": "Si tout les joueurs sont en blazard enlevent une carte aléatoire de leur terrain et pioche une carte (affecte pas le porteur)",
-   "rules": "",
+   "rules": "Si tous les joueurs (lanceur compris) sont en Blazard : chaque autre joueur défausse une carte au hasard de son terrain puis pioche 1 carte. [Automatisée]",
    "image": "POP-22.jpg"
   },
   "POP-23": {
@@ -3352,7 +3352,7 @@
    "target": "",
    "check": "",
    "text": "Le joueur le plus pauvre prend 10% de la richesse du plus riche et le plus riche devient un trou noir blazard affecte pas le lanceur",
-   "rules": "",
+   "rules": "Hors lanceur : le plus pauvre prend 10 % (arrondi inférieur) des gold du plus riche, puis le plus riche passe en Blazard. [Automatisée]",
    "image": "POP-23.jpg"
   },
   "POP-24": {
@@ -3370,7 +3370,7 @@
    "target": "",
    "check": "",
    "text": "Defausse une carte du terrain du joueur le plus pauvre sauf vous meme",
-   "rules": "",
+   "rules": "Le plus pauvre hors lanceur ; le lanceur choisit la carte défaussée. [Automatisée]",
    "image": "POP-24.jpg"
   },
   "POP-25": {
@@ -3388,7 +3388,7 @@
    "target": "",
    "check": "",
    "text": "Calcule le nb de sentience vrai et faux \nsi sentience est vrai alors les joueurs blazards enlevent enlevent la premiere carte trou noir de leur terrain (affecte pas le porteur)\nsi sentience est faux les trou noirs blazards vole 10 golds chez les trou noirs autre\nSi égalité ils font les deux",
-   "rules": "",
+   "rules": "On compte les sentiences de tous les joueurs. Plus de vraies (ou égalité) : chaque autre joueur Blazard défausse la première carte 🌀 de son terrain. Plus de fausses (ou égalité) : chaque joueur Blazard vole 10 gold à chaque joueur non Blazard. [Automatisée]",
    "image": "POP-25.jpg"
   },
   "POP-26": {
@@ -3406,7 +3406,7 @@
    "target": "",
    "check": "",
    "text": "Si il y a 1 (NB de joueur-1) de trou blazard qui se suit alors tout les joueurs blazard gagne 200 golds",
-   "rules": "",
+   "rules": "Si au moins (nombre de joueurs − 1) joueurs consécutifs dans l'ordre du tour (en boucle) sont en Blazard, chaque joueur Blazard gagne 200 gold. [Automatisée]",
    "image": "POP-26.jpg"
   },
   "POP-27": {
@@ -3424,7 +3424,7 @@
    "target": "",
    "check": "",
    "text": "Pour 10 golds tout les sentiences s'inversent et les trou noirs sont aléatoires",
-   "rules": "",
+   "rules": "Paiement optionnel de 10. Pour chaque joueur : sentience inversée et trou noir tiré au hasard (peut rester le même). [Automatisée]",
    "image": "POP-27.jpg"
   },
   "POP-28": {
@@ -3442,7 +3442,7 @@
    "target": "",
    "check": "",
    "text": "Tout les personnes qui on un trou noir autre que blazard change de sentiences",
-   "rules": "",
+   "rules": "Tous les joueurs, lanceur compris. [Automatisée]",
    "image": "POP-28.jpg"
   },
   "POP-29": {
@@ -3460,7 +3460,7 @@
    "target": "",
    "check": "",
    "text": "Si trou noir blazard pioche chez la personne la plus riche sinon devient trou noir blazard",
-   "rules": "",
+   "rules": "En Blazard : le lanceur pioche une carte dans la pioche du joueur le plus riche (hors lui). [Automatisée]",
    "image": "POP-29.jpg"
   },
   "POP-30": {
@@ -3478,7 +3478,7 @@
    "target": "",
    "check": "",
    "text": "Si le plus riche a un trou noir blazard il redistribue 10 % de son argent au plus pauvre (affecte pas le porteur)",
-   "rules": "",
+   "rules": "Hors lanceur : si le plus riche est en Blazard, il donne 10 % (arrondi inférieur) au plus pauvre. [Automatisée]",
    "image": "POP-30.jpg"
   },
   "POP-31": {
@@ -3496,7 +3496,7 @@
    "target": "",
    "check": "",
    "text": "Si sentience est vrai\nTout les non blazard donnent 10% de leur golds pour redistribuer entre tout les monde\nSi sentience est faux\nTout les blazard donnent 10% de leur golds pour redistribuer entre tout les monde",
-   "rules": "",
+   "rules": "Chaque joueur concerné perd 10 % (arrondi inférieur) ; la cagnotte est partagée à parts égales entre tous les joueurs, le reste de la division est perdu. [Automatisée]",
    "image": "POP-31.jpg"
   },
   "POP-32": {
@@ -3514,7 +3514,7 @@
    "target": "",
    "check": "",
    "text": "Pour 25 golds change la main d'un des joueurs avec un autre joueur toi compris",
-   "rules": "",
+   "rules": "Paiement optionnel de 25. Le lanceur choisit deux joueurs (lui compris) qui échangent leurs mains. [Automatisée]",
    "image": "POP-32.jpg"
   },
   "YOH-01": {

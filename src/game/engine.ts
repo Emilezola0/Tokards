@@ -80,7 +80,7 @@ export function startGame(room: Room): GameState {
     g.players[uid] = {
       gold: START_GOLD, sentience: true, blackHole: "Primordial", allowNegativeGold: false,
       deck: pile.slice(HAND_SIZE), hand: pile.slice(0, HAND_SIZE), terrain: [], discard: [],
-      personalVC: null, personalDone: false,
+      personalVC: null, personalDone: false, stats: { interactions: 0, goldMoved: 0 },
     };
   }
   vcPool = shuffle(vcPool);
@@ -105,6 +105,10 @@ function beginTurn(room: Room, g: GameState) {
   p.goldGainedSince = 0;
   g.activated = [];
   g.actionsLeft = 1;
+  if (p.locked) {
+    p.locked = false;
+    log(g, `🔓 ${nameOf(room, uid)} n'est plus bloqué.`);
+  }
   g.phase = p.terrain.length ? "activation" : "action";
   g.lastPlayed = null;
   pushFx(g, { k: "turn", uid });
@@ -279,11 +283,13 @@ export function transferGold(room: Room, g: GameState, from: string, to: string,
 }
 
 export function setSentience(room: Room, g: GameState, uid: string, v: boolean) {
+  if (g.players[uid].locked) return log(g, `🔒 ${nameOf(room, uid)} est bloqué : sa sentience ne peut pas changer.`);
   g.players[uid].sentience = v;
   log(g, `${nameOf(room, uid)} : sentience ${v ? "Vraie" : "Fausse"}.`);
 }
 
 export function setBlackHole(room: Room, g: GameState, uid: string, b: BlackHole) {
+  if (g.players[uid].locked) return log(g, `🔒 ${nameOf(room, uid)} est bloqué : son trou noir ne peut pas changer.`);
   const before = g.players[uid].blackHole;
   g.players[uid].blackHole = b;
   log(g, `${nameOf(room, uid)} : trou noir ${blackHoleLabel(before)} → ${blackHoleLabel(b)}.`);
