@@ -1,7 +1,7 @@
 // Moteur de la table virtuelle : fonctions pures qui modifient l'état du salon.
 // Les effets des cartes ne sont pas automatisés : les joueurs les appliquent avec les outils manuels.
 import { BASE_VCS, DECKS, card } from "../data/cards";
-import type { BlackHole, GameState, PlayerState, Room, Vote, Zone } from "./types";
+import type { BlackHole, Fx, FxInput, GameState, PlayerState, Room, Vote, Zone } from "./types";
 import { blackHoleLabel, ZONE_LABEL } from "./types";
 
 export const START_GOLD = 10;
@@ -32,6 +32,13 @@ export const teamMembers = (room: Room, key: string) =>
   (room.game?.order ?? []).filter((u) => teamKey(room, u) === key);
 export const currentPlayer = (g: GameState) => g.order[g.turn];
 
+const FX_KEEP = 80;
+/** Ajoute un effet visuel à la file (joué par tous les clients). */
+export function pushFx(g: GameState, f: FxInput) {
+  g.fxSeq = (g.fxSeq ?? 0) + 1;
+  g.fx = [...(g.fx ?? []), { ...f, id: g.fxSeq } as Fx].slice(-FX_KEEP);
+}
+
 export function log(g: GameState, text: string) {
   g.log.push({ ts: Date.now(), text });
   if (g.log.length > LOG_MAX) g.log.splice(0, g.log.length - LOG_MAX);
@@ -59,8 +66,9 @@ export function startGame(room: Room): GameState {
     order, spectators, rolls, turn: 0, round: 1, phase: "activation", activated: [], pending: null, fx: [], fxSeq: 0,
     actionsLeft: 1,
     handSize: HAND_SIZE, players: {}, owner: {}, commonVC: "", vcPile: [], commonDone: [], ranking: [],
-    vote: null, log: [],
+    vote: null, log: [], startedAt: Date.now(), lastPlayed: null,
   };
+  for (const u of order) pushFx(g, { k: "dice", uid: u, faces: 20, value: rolls[u] });
   log(g, `Lancers de d20 : ${order.map((u) => `${nameOf(room, u)} ${rolls[u]}`).join(", ")}.`);
 
   let vcPool = [...BASE_VCS];
@@ -78,8 +86,11 @@ export function startGame(room: Room): GameState {
   vcPool = shuffle(vcPool);
   g.commonVC = vcPool.shift()!;
   log(g, `Condition de victoire commune : « ${card(g.commonVC).name} ».`);
+  pushFx(g, { k: "vc", uid: null, card: g.commonVC });
   for (const uid of order) {
-    g.players[uid].personalVC = vcPool.shift() ?? null;
+    const vc = vcPool.shift() ?? null;
+    g.players[uid].personalVC = vc;
+    if (vc) pushFx(g, { k: "vc", uid, card: vc });
   }
   g.vcPile = vcPool;
   log(g, `Ordre du tour : ${order.map((u) => nameOf(room, u)).join(" → ")}.`);
@@ -95,6 +106,8 @@ function beginTurn(room: Room, g: GameState) {
   g.activated = [];
   g.actionsLeft = 1;
   g.phase = p.terrain.length ? "activation" : "action";
+  g.lastPlayed = null;
+  pushFx(g, { k: "turn", uid });
   log(g, `— Tour ${g.round} : à ${nameOf(room, uid)} de jouer.`);
 }
 
@@ -111,6 +124,8 @@ export function activationStep(room: Room, g: GameState, applied: boolean) {
   const id = nextActivation(g);
   if (id) {
     log(g, `${nameOf(room, uid)} ${applied ? "active" : "ne peut pas activer"} « ${card(id).name} ».`);
+    pushFx(g, { k: "activate", card: id, uid });
+    if (!applied) pushFx(g, { k: "fail", card: id, uid });
     g.activated = [...(g.activated ?? []), id];
   }
   if (!nextActivation(g)) g.phase = "action";
@@ -124,6 +139,13 @@ export function skipActivation(room: Room, g: GameState) {
 export function consumeAction(g: GameState) {
   g.actionsLeft = Math.max(0, g.actionsLeft - 1);
   if (g.actionsLeft === 0) g.phase = "end";
+}
+
+/** Main vide pendant la phase de pose : on ne peut rien poser, on passe. */
+export function passEmptyHand(room: Room, g: GameState) {
+  if (g.players[currentPlayer(g)].hand.length) return;
+  log(g, `${nameOf(room, currentPlayer(g))} n'a aucune carte en main et passe.`);
+  g.phase = "end";
 }
 
 export function grantExtraAction(room: Room, g: GameState) {
@@ -206,6 +228,7 @@ export function playFromHand(room: Room, g: GameState, uid: string, id: string, 
   moveCard(room, g, id, { uid: target, zone: "terrain", index }, true);
   const where = target === uid ? `en position ${index + 1}` : `sur le terrain de ${nameOf(room, target)}, position ${index + 1}`;
   log(g, `${nameOf(room, uid)} pose « ${card(id).name} » ${where}.`);
+  g.lastPlayed = id;
   if (uid === currentPlayer(g) && g.phase === "action") consumeAction(g);
 }
 
@@ -213,6 +236,7 @@ export function discardFromHand(room: Room, g: GameState, uid: string, id: strin
   const owner = g.owner[id] ?? uid;
   moveCard(room, g, id, { uid: owner, zone: "discard" }, true);
   log(g, `${nameOf(room, uid)} défausse « ${card(id).name} » de sa main.`);
+  g.lastPlayed = null;
   if (uid === currentPlayer(g) && g.phase === "action") consumeAction(g);
 }
 

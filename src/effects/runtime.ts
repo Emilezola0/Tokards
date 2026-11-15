@@ -6,8 +6,8 @@
 // l'action est rejouée depuis le début avec les réponses déjà données et les mêmes tirages au hasard.
 import { card } from "../data/cards";
 import * as E from "../game/engine";
-import type { BlackHole, EffectAction, Fx, FxInput, GameState, Prompt, Room } from "../game/types";
-import { BLACK_HOLES, blackHoleLabel } from "../game/types";
+import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room } from "../game/types";
+import { BLACK_HOLES, blackHoleLabel, showWeather } from "../game/types";
 import { SCRIPTS } from "./scripts";
 
 export type Self = { id: string; me: string };
@@ -34,12 +34,14 @@ class NeedChoice extends Error {
 }
 
 const MAX_DEPTH = 8;
-const FX_KEEP = 80;
 
 export class Ctx {
   private ai = 0;
   private ri = 0;
   private depth = 0;
+
+  /** Mode aperçu : les questions reçoivent une réponse par défaut et sont mémorisées. */
+  public preview: Prompt[] | null = null;
 
   constructor(public room: Room, public g: GameState, private answers: string[], public rolls: number[]) {}
 
@@ -71,8 +73,8 @@ export class Ctx {
     E.log(this.g, text);
   }
   fx(f: FxInput) {
-    this.g.fxSeq = (this.g.fxSeq ?? 0) + 1;
-    this.g.fx = [...(this.g.fx ?? []), { ...f, id: this.g.fxSeq } as Fx].slice(-FX_KEEP);
+    if (f.k === "move") return; // les déplacements sont animés directement par la table
+    E.pushFx(this.g, f);
   }
   banner(text: string) {
     this.fx({ k: "banner", text });
@@ -96,6 +98,10 @@ export class Ctx {
   // ----- choix des joueurs -----
   private ask<T>(prompt: Prompt): T {
     if (this.ai < this.answers.length) return JSON.parse(this.answers[this.ai++]) as T;
+    if (this.preview) {
+      this.preview.push(prompt);
+      return defaultAnswer(prompt) as T;
+    }
     throw new NeedChoice(prompt);
   }
   choosePlayer(chooser: string, text: string, options: string[], cardId?: string): string | null {
@@ -136,7 +142,7 @@ export class Ctx {
   }
   chooseBlackHole(chooser: string, text: string, exclude?: BlackHole, cardId?: string): BlackHole {
     const opts = BLACK_HOLES.filter((b) => b.id !== exclude);
-    return opts[this.chooseOption(chooser, text, opts.map((b) => `${b.icon} ${blackHoleLabel(b.id)}`), cardId)].id;
+    return opts[this.chooseOption(chooser, text, opts.map((b) => `${showWeather() ? `${b.icon} ` : ""}${blackHoleLabel(b.id)}`), cardId)].id;
   }
 
   // ----- événements & passifs -----
@@ -333,4 +339,80 @@ export function runEffect(room: Room, action: EffectAction | null, answer?: unkn
   } finally {
     E.RNG.next = prev;
   }
+}
+
+function defaultAnswer(p: Prompt): unknown {
+  switch (p.kind) {
+    case "player": return p.options[0];
+    case "option": return 0;
+    case "number": return p.max;
+    case "cards": return p.options.slice(0, Math.max(1, p.min));
+    case "order": return p.options;
+  }
+}
+
+export type Preview = {
+  ok: boolean;
+  reason?: string;
+  cards: string[];
+  gold: string[];
+  sentience: string[];
+  bh: string[];
+  players: string[];
+};
+
+/**
+ * Aperçu au survol : simule l'effet de la carte sur une copie de l'état (la carte est posée en fin de terrain
+ * si elle est en main) et renvoie ce qu'il toucherait, ou pourquoi il est impossible.
+ */
+export function previewEffect(room: Room, id: string, me: string): Preview | null {
+  const s = SCRIPTS[id];
+  if (!room.game || !s?.activate) return null;
+  const g = structuredClone(room.game);
+  g.pending = null;
+  const at = E.locate(g, id);
+  if (!at) return null;
+  const x = new Ctx({ ...room, game: g }, g, [], []);
+  x.preview = [];
+  const logStart = () => g.log.length;
+  const out: Preview = { ok: true, cards: [], gold: [], sentience: [], bh: [], players: [] };
+  const fxStart = g.fxSeq ?? 0;
+  let l0 = 0;
+  try {
+    if (at.zone === "hand") E.moveCard(x.room, g, id, { uid: me, zone: "terrain" }, true);
+    l0 = logStart();
+    out.ok = s.activate(x, { id, me }) !== false;
+  } catch {
+    return null;
+  }
+  if (!out.ok) {
+    const lines = g.log.slice(l0).map((l) => l.text).filter((t) => !t.startsWith("✨"));
+    out.reason = lines[lines.length - 1] ?? "Les conditions de l'effet ne sont pas remplies.";
+  }
+  const add = (arr: string[], v: string) => !arr.includes(v) && arr.push(v);
+  for (const f of g.fx ?? []) {
+    if (f.id <= fxStart) continue;
+    if (f.k === "gold") add(out.gold, f.uid);
+    if (f.k === "sentience") add(out.sentience, f.uid);
+    if (f.k === "bh") add(out.bh, f.uid);
+    if (f.k === "activate" && f.card !== id) add(out.cards, f.card);
+  }
+  // Cartes déplacées par l'effet
+  const before = room.game;
+  for (const [uid, p] of Object.entries(g.players)) {
+    for (const zone of ["terrain", "hand", "discard", "deck"] as const) {
+      for (const c of p[zone]) {
+        if (c === id) continue;
+        const was = E.locate(before, c);
+        if (was && (was.uid !== uid || was.zone !== zone) && (was.zone === "terrain" || was.zone === "discard")) add(out.cards, c);
+      }
+    }
+  }
+  // Toutes les options proposées par les choix
+  for (const p of x.preview) {
+    if (p.kind === "player") p.options.forEach((u) => add(out.players, u));
+    if (p.kind === "cards" && !p.blind) p.options.forEach((c) => add(out.cards, c));
+    if (p.kind === "order") p.options.forEach((c) => add(out.cards, c));
+  }
+  return out;
 }

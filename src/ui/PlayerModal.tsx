@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
-import { BLACK_HOLES } from "../game/types";
+import { BLACK_HOLES, showWeather } from "../game/types";
 import CardView from "./CardView";
 
 type Run = (fn: (r: Room, g: GameState) => void) => void;
@@ -12,6 +12,7 @@ export default function PlayerModal({ owner, room, uid, run, onCard, onClose }: 
   const g = room.game!;
   const p = g.players[owner];
   const isPlayer = !!g.players[uid];
+  const canEdit = isPlayer && E.currentPlayer(g) === uid && !g.pending;
   const [amount, setAmount] = useState(10);
   const [to, setTo] = useState(g.order.find((u) => u !== owner) ?? owner);
   const n = Math.max(0, Math.trunc(amount) || 0);
@@ -22,7 +23,8 @@ export default function PlayerModal({ owner, room, uid, run, onCard, onClose }: 
       <div className="modal panel player-modal" onClick={(e) => e.stopPropagation()}>
         <h2>{name}{owner === uid && " (toi)"}</h2>
 
-        <fieldset disabled={!isPlayer}>
+        {!canEdit && <p className="small muted">Outils manuels réservés au joueur dont c'est le tour.</p>}
+        <fieldset disabled={!canEdit}>
           <h3>💰 Gold : {p.gold}</h3>
           <div className="row wrap">
             <input type="number" min={0} value={amount} onChange={(e) => setAmount(Number(e.target.value))} className="num" />
@@ -53,7 +55,7 @@ export default function PlayerModal({ owner, room, uid, run, onCard, onClose }: 
           <div className="row wrap">
             {BLACK_HOLES.map((b) => (
               <button key={b.id} className={p.blackHole === b.id ? "primary" : ""} onClick={() => run((r, gg) => E.setBlackHole(r, gg, owner, b.id))}>
-                {b.icon} {b.id} <span className="small muted">({b.weather})</span>
+                {showWeather() ? `${b.icon} ` : ""}{b.id}{showWeather() && <span className="small muted"> ({b.weather})</span>}
               </button>
             ))}
           </div>

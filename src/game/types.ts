@@ -7,9 +7,13 @@ export const BLACK_HOLES: { id: BlackHole; weather: string; icon: string }[] = [
   { id: "Blazard", weather: "Pluie", icon: "🌧️" },
   { id: "Trou de ver", weather: "Canicule", icon: "☀️" },
 ];
+/** La météo n'est mentionnée que si le deck Météo est en jeu (info contextuelle). */
+let SHOW_WEATHER = true;
+export const setShowWeather = (v: boolean) => void (SHOW_WEATHER = v);
+export const showWeather = () => SHOW_WEATHER;
 export const blackHoleLabel = (b: BlackHole) => {
   const x = BLACK_HOLES.find((h) => h.id === b);
-  return x ? `${b} (${x.weather})` : b;
+  return x && SHOW_WEATHER ? `${b} (${x.weather})` : b;
 };
 
 export type Zone = "deck" | "hand" | "terrain" | "discard";
@@ -67,7 +71,11 @@ export type Fx =
   | { id: number; k: "bh"; uid: string; to: BlackHole }
   | { id: number; k: "dice"; uid: string; faces: number; value: number }
   | { id: number; k: "move"; card: string }
-  | { id: number; k: "banner"; text: string };
+  | { id: number; k: "banner"; text: string }
+  /** annonce du joueur dont c'est le tour */
+  | { id: number; k: "turn"; uid: string }
+  /** tirage d'une condition de victoire (uid null = condition commune) */
+  | { id: number; k: "vc"; uid: string | null; card: string };
 export type FxInput = Fx extends infer T ? (T extends Fx ? Omit<T, "id"> : never) : never;
 
 export type Phase = "activation" | "action" | "end";
@@ -102,6 +110,10 @@ export interface GameState {
   ranking: { team: string; round: number }[];
   vote: Record<string, Vote> | null;
   log: LogEntry[];
+  /** horodatage du lancement (pour jouer l'animation de mise en place) */
+  startedAt?: number;
+  /** dernière carte posée ce tour (null = défausse / rien) */
+  lastPlayed?: string | null;
 }
 
 export interface LobbyPlayer {
