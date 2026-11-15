@@ -329,10 +329,16 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
           stamp.className = "fx-stamp";
           stamp.textContent = "✖ Impossible";
           el.appendChild(stamp);
+          if (f.reason) {
+            const why = document.createElement("span");
+            why.className = "fx-center-text fail-why";
+            why.textContent = f.reason;
+            el.appendChild(why);
+          }
         }
         sfx.fail();
-        setBanner({ text: `✖ ${card(f.card).name} ne peut pas s'activer`, key: f.id, kind: "fail" });
-        await wait(1000 * Math.max(speed, 0.6));
+        setBanner({ text: `✖ ${card(f.card).name} ne peut pas s'activer${f.reason ? ` : ${f.reason}` : ""}`, key: f.id, kind: "fail" });
+        await wait((f.reason ? 1900 : 1000) * Math.max(speed, 0.6));
         break;
       }
       case "gold": {
@@ -424,6 +430,39 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         if (dest) {
           dest.style.opacity = "";
           flash(dest, "fx-pulse", 700);
+        }
+        break;
+      }
+      case "shuffle": {
+        // Les cartes de la pile se séparent et se mélangent.
+        const pile = q(`[data-pile="${css(`${f.zone}:${f.uid}`)}"]`);
+        sfx.shuffle();
+        if (pile) {
+          const r = pile.getBoundingClientRect();
+          const base = pile.querySelector<HTMLElement>(".card");
+          const ghosts: Promise<void>[] = [];
+          for (let i = 0; i < 6; i++) {
+            const gh = (base?.cloneNode(true) as HTMLElement | undefined) ?? document.createElement("div");
+            gh.removeAttribute("data-card");
+            gh.classList.add("fx-shuffle-card");
+            gh.style.width = `${r.width - 4}px`;
+            gh.style.left = `${r.left + 2}px`;
+            gh.style.top = `${r.top + r.height / 2 - (base?.offsetHeight ?? r.width * 1.5) / 2}px`;
+            document.body.appendChild(gh);
+            const side = i % 2 ? 1 : -1;
+            const a = gh.animate(
+              [
+                { transform: "translate(0,0) rotate(0deg)" },
+                { transform: `translate(${side * (26 + i * 3)}px, ${-8 - i * 2}px) rotate(${side * 14}deg)`, offset: 0.35 },
+                { transform: `translate(${-side * 6}px, ${-4}px) rotate(${-side * 4}deg)`, offset: 0.7 },
+                { transform: "translate(0,0) rotate(0deg)" },
+              ],
+              { duration: 700 * Math.max(speed, 0.6), delay: i * 45, easing: "ease-in-out", fill: "both" },
+            );
+            ghosts.push(done(a).then(() => gh.remove()));
+          }
+          flash(pile, "fx-pulse", 700);
+          await Promise.all(ghosts);
         }
         break;
       }

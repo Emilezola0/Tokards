@@ -9,6 +9,7 @@ import Table from "./ui/Table";
 
 import { getName } from "./ui/name";
 import UpdatePrompt from "./ui/UpdatePrompt";
+import HelpGuide from "./ui/HelpGuide";
 
 const codeFromHash = () => location.hash.replace(/^#\/?/, "").toUpperCase().slice(0, 5);
 
@@ -17,6 +18,7 @@ export default function App() {
     <>
       <Screen />
       <UpdatePrompt />
+      <HelpGuide />
     </>
   );
 }

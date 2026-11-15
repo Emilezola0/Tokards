@@ -178,8 +178,19 @@ function trackRichest(g: GameState) {
   }
 }
 
-function announce(room: Room, g: GameState, uid: string, vc: string) {
+function announce(room: Room, g: GameState, uid: string, vc: string, personal: boolean) {
   E.pushFx(g, { k: "vcDone", uid, card: vc, team: E.teamKey(room, uid) });
+  if (personal) victoriousDefeat(room, g, uid, vc);
+}
+
+/** Défaite victorieuse : ceux qui l'ont sur leur terrain prennent la condition que `uid` vient de remplir. */
+function victoriousDefeat(room: Room, g: GameState, uid: string, vc: string) {
+  for (const w of g.order) {
+    const p = g.players[w];
+    if (w === uid || p.out || p.personalDone || !p.terrain.includes("FLE-32") || p.personalVC === vc) continue;
+    p.personalVC = vc;
+    E.log(g, `⚡ « Défaite victorieuse » : ${E.nameOf(room, w)} prend la condition « ${card(vc).name} » de ${E.nameOf(room, uid)}.`, { src: "FLE-32", dst: vc, from: w, to: uid });
+  }
 }
 
 /** Coche automatiquement les conditions remplies. `turnEndUid` : joueur dont le tour se termine. */
@@ -188,18 +199,18 @@ export function checkVictories(room: Room, g: GameState, turnEndUid?: string) {
   trackRichest(g);
   for (const u of g.order) {
     const p = g.players[u];
-    if (!p.personalVC || p.personalDone) continue;
+    if (!p.personalVC || p.personalDone || p.out) continue;
     const prog = vcProgress(room, g, p.personalVC, u, u === turnEndUid);
     if (prog?.done) {
-      announce(room, g, u, p.personalVC);
+      announce(room, g, u, p.personalVC, true);
       E.setPersonalDone(room, g, u, true);
     }
   }
   for (const team of [...new Set(g.order.map((u) => E.teamKey(room, u)))]) {
     if (g.commonDone.includes(team)) continue;
-    const who = E.teamMembers(room, team).find((u) => vcProgress(room, g, g.commonVC, u, u === turnEndUid)?.done);
+    const who = E.teamMembers(room, team).filter((u) => !g.players[u]?.out).find((u) => vcProgress(room, g, g.commonVC, u, u === turnEndUid)?.done);
     if (who) {
-      announce(room, g, who, g.commonVC);
+      announce(room, g, who, g.commonVC, false);
       E.setCommonDone(room, g, team, true);
     }
   }
@@ -232,10 +243,10 @@ function resolveWord(room: Room, g: GameState) {
     E.log(g, `🔤 Mot « ${c.word} » accepté.`);
     const p = g.players[c.uid];
     if (p.personalVC === "VC-EMI-1" && !p.personalDone) {
-      announce(room, g, c.uid, "VC-EMI-1");
+      announce(room, g, c.uid, "VC-EMI-1", true);
       E.setPersonalDone(room, g, c.uid, true);
     } else if (g.commonVC === "VC-EMI-1" && !g.commonDone.includes(E.teamKey(room, c.uid))) {
-      announce(room, g, c.uid, "VC-EMI-1");
+      announce(room, g, c.uid, "VC-EMI-1", false);
       E.setCommonDone(room, g, E.teamKey(room, c.uid), true);
     }
   } else if (no * 2 >= voters.length) {

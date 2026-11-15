@@ -46,6 +46,8 @@ export const pos = (g: GameState) => (g.round - 1) * g.order.length + g.turn;
 export const hooks: {
   turnEnd?: (room: Room, g: GameState, uid: string) => void;
   after?: (room: Room, g: GameState) => void;
+  /** pioche de fin de tour (pour les passifs qui réagissent à la pioche) */
+  drew?: (g: GameState, uid: string, n: number) => void;
 } = {};
 
 /** Change de phase en l'annonçant. */
@@ -194,13 +196,45 @@ export function endTurn(room: Room, g: GameState) {
   const p = g.players[uid];
   const need = Math.max(0, g.handSize - p.hand.length);
   const drawn = drawCards(g, uid, need);
+  if (drawn) hooks.drew?.(g, uid, drawn);
   log(g, `${nameOf(room, uid)} termine son tour${drawn ? ` et pioche ${drawn} carte${drawn > 1 ? "s" : ""}` : ""}.`);
   st(p).turnsPlayed = (st(p).turnsPlayed ?? 0) + 1;
   hooks.turnEnd?.(room, g, uid);
-  g.turn = (g.turn + 1) % g.order.length;
-  if (g.turn === 0) g.round++;
-  beginTurn(room, g);
+  nextTurn(room, g);
   hooks.after?.(room, g);
+}
+
+/** Passe au joueur suivant encore en jeu (ceux qui ont abandonné sont sautés). */
+function nextTurn(room: Room, g: GameState) {
+  if (g.order.every((u) => g.players[u].out)) return;
+  do {
+    g.turn = (g.turn + 1) % g.order.length;
+    if (g.turn === 0) g.round++;
+  } while (g.players[currentPlayer(g)].out);
+  beginTurn(room, g);
+}
+
+/** Abandon : le joueur ne joue plus. S'il ne reste qu'une équipe en jeu, elle gagne. */
+export function forfeit(room: Room, g: GameState, uid: string) {
+  const p = g.players[uid];
+  if (!p || p.out) return;
+  p.out = true;
+  log(g, `🏳 ${nameOf(room, uid)} abandonne la partie.`);
+  pushFx(g, { k: "banner", text: `🏳 ${nameOf(room, uid)} abandonne la partie` });
+  if (g.wordClaim?.uid === uid) g.wordClaim = null;
+  const alive = [...new Set(g.order.filter((u) => !g.players[u].out).map((u) => teamKey(room, u)))];
+  if (alive.length === 1 && !g.ranking.some((r) => r.team === alive[0])) {
+    g.ranking.push({ team: alive[0], round: g.round });
+    log(g, `🏆 ${teamLabel(room, alive[0])} gagne : les autres ont abandonné.`);
+    g.vote = {};
+  }
+  if (currentPlayer(g) === uid) {
+    g.pending = null;
+    nextTurn(room, g);
+  } else if (g.pending?.prompt.chooser === uid) {
+    // Le choix en attente revient au joueur actif pour ne pas bloquer la partie.
+    g.pending.prompt = { ...g.pending.prompt, chooser: currentPlayer(g) };
+  }
 }
 
 // ---------- Cartes ----------
@@ -222,7 +256,8 @@ function ensureDeck(g: GameState, uid: string): boolean {
   if (!p.discard.length) return false;
   p.deck = shuffle(p.discard);
   p.discard = [];
-  log(g, `La défausse est remélangée pour reformer une pioche.`);
+  pushFx(g, { k: "shuffle", uid, zone: "deck" });
+  log(g, `🔀 La défausse est remélangée pour reformer une pioche.`);
   return true;
 }
 
@@ -253,6 +288,7 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
   // Un déplacement dans la même zone vers la droite décale l'index après suppression.
   if (at.uid === dest.uid && at.zone === dest.zone && dest.index !== undefined && dest.index > at.index) index--;
   to.splice(Math.max(0, Math.min(index, to.length)), 0, id);
+  if (dest.zone === "terrain" && at.zone !== "terrain") g.born = { ...(g.born ?? {}), [id]: pos(g) };
   if (!quiet) {
     const hidden = at.zone === "hand" || at.zone === "deck";
     const label = hidden && dest.zone !== "terrain" && dest.zone !== "discard" ? "une carte" : `« ${card(id).name} »`;
@@ -293,7 +329,8 @@ export function shuffleDeck(room: Room, g: GameState, uid: string, withDiscard: 
     p.discard = [];
   }
   p.deck = shuffle(p.deck);
-  log(g, `${nameOf(room, uid)} mélange sa pioche${withDiscard ? " avec sa défausse" : ""}.`);
+  pushFx(g, { k: "shuffle", uid, zone: "deck" });
+  log(g, `🔀 ${nameOf(room, uid)} mélange sa pioche${withDiscard ? " avec sa défausse" : ""}.`);
 }
 
 // ---------- Ressources ----------
@@ -333,7 +370,7 @@ export function setBlackHole(room: Room, g: GameState, uid: string, b: BlackHole
 
 export function teamHasWon(room: Room, g: GameState, key: string): boolean {
   if (!g.commonDone.includes(key)) return false;
-  return teamMembers(room, key).every((u) => !g.players[u].personalVC || g.players[u].personalDone);
+  return teamMembers(room, key).every((u) => !g.players[u] || g.players[u].out || !g.players[u].personalVC || g.players[u].personalDone);
 }
 
 function checkVictory(room: Room, g: GameState, key: string) {

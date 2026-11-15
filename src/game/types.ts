@@ -44,6 +44,8 @@ export interface PlayerState {
   locked?: boolean;
   /** compteurs pour les conditions de victoire */
   stats?: Stats;
+  /** a abandonné la partie : ses tours sont passés */
+  out?: boolean;
 }
 
 /** Compteurs suivis pendant la partie pour vérifier les conditions de victoire. */
@@ -86,7 +88,8 @@ export type Prompt = { chooser: string; text: string; cardId?: string } & (
 export type EffectAction =
   | { t: "activate"; by: string }
   | { t: "play"; by: string; card: string; target: string; index: number }
-  | { t: "endTurn"; by: string };
+  | { t: "endTurn"; by: string }
+  | { t: "discard"; by: string; card: string };
 
 export interface Pending {
   action: EffectAction;
@@ -97,7 +100,10 @@ export interface Pending {
 }
 
 export type Fx =
-  | { id: number; k: "activate" | "fail"; card: string; uid: string }
+  | { id: number; k: "activate"; card: string; uid: string }
+  | { id: number; k: "fail"; card: string; uid: string; reason?: string }
+  /** mélange d'une zone (pioche, défausse, terrain, main) */
+  | { id: number; k: "shuffle"; uid: string; zone: Zone }
   | { id: number; k: "gold"; uid: string; delta: number }
   | { id: number; k: "sentience"; uid: string; v: boolean }
   | { id: number; k: "bh"; uid: string; to: BlackHole }
@@ -163,6 +169,10 @@ export interface GameState {
   movedCards?: string[];
   /** mot proposé pour « The Word », en attente du vote des autres joueurs */
   wordClaim?: { uid: string; word: string; votes: Record<string, boolean> } | null;
+  /** tour global (E.pos) où chaque carte a été posée sur un terrain */
+  born?: Record<string, number>;
+  /** gold stockés sur une carte (Maladie draconique) */
+  cardStore?: Record<string, number>;
 }
 
 export interface LobbyPlayer {

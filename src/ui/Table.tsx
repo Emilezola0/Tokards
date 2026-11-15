@@ -12,7 +12,8 @@ import CardModal, { type Placing } from "./CardModal";
 import PlayerModal from "./PlayerModal";
 import PlayerBoard, { BH, BW, Gauge, type DragSrc, type Seat } from "./PlayerBoard";
 import { DeckModal, TerrainModal } from "./Viewers";
-import { sfx, setMuted, useMuted } from "./sfx";
+import { sfx } from "./sfx";
+import SoundControl from "./SoundControl";
 import { claimWord, teamProgress, voteWord } from "../game/victory";
 import HoverCard from "./HoverCard";
 import { VersionTag } from "./UpdatePrompt";
@@ -86,14 +87,14 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const [showLog, setShowLog] = useState(false);
   const [viewTerrain, setViewTerrain] = useState<string | null>(null);
   const [viewDeck, setViewDeck] = useState<string | null>(null);
-  const muted = useMuted();
   const [fresh] = useState(() => !!g.startedAt && Date.now() - g.startedAt < 15000 && g.round === 1 && g.turn === 0);
   const arena = useRef<HTMLDivElement>(null);
   const size = useSize(arena);
   const fx = useFx();
 
   const me = g.players[uid];
-  const isPlayer = !!me;
+  // Un joueur qui a abandonné regarde la suite comme un spectateur.
+  const isPlayer = !!me && !me.out;
   const current = E.currentPlayer(g);
   const myTurn = current === uid;
   const isHost = room.hostUid === uid;
@@ -156,6 +157,10 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [g, fx.busy]);
 
+  /** Défausse de la main (action du tour) : en mode auto, les passifs peuvent y réagir. */
+  const discard = (id: string) =>
+    auto ? runAuto({ t: "discard", by: uid, card: id }) : run((r, gg) => E.discardFromHand(r, gg, uid, id));
+
   // ----- Glisser-déposer -----
   const dropTerrain = (owner: string, index: number) => {
     const src = moving;
@@ -175,7 +180,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
     setDrag(null);
     setPlacing(null);
     if (!src || src.from !== "hand" || owner !== uid || !canPlay) return;
-    run((r, gg) => E.discardFromHand(r, gg, uid, src.id));
+    discard(src.id);
   };
 
   // ----- Survol -----
@@ -208,8 +213,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         <span className={`badge ${auto ? "auto-badge" : ""}`} title={auto ? "Les cartes ⚙ s'appliquent toutes seules" : "Tous les effets sont manuels"}>
           {auto ? "⚙ Auto" : "✋ Manuel"}
         </span>
-        <span className="turn-chip" style={{ ["--pc" as string]: colorOf(current) }}>
-          ▶ {room.players[current]?.name}
+        <span className={`turn-chip ${myTurn && isPlayer ? "mine" : ""}`} style={{ ["--pc" as string]: colorOf(current) }}>
+          {myTurn && isPlayer ? "▶ À vous de jouer !" : `▶ ${room.players[current]?.name}`}
         </span>
         <span className="steps">
           {(["activation", "action", "end"] as const).map((ph, i) => (
@@ -218,10 +223,21 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         </span>
         <TurnControls g={g} room={room} uid={uid} myTurn={myTurn && isPlayer} auto={auto} autoEnd={autoEnd} busy={fx.busy} run={run} runAuto={runAuto} />
         <span className="grow" />
-        {!isPlayer && <span className="badge">Spectateur</span>}
+        {!isPlayer && <span className="badge">{me?.out ? "🏳 Abandon" : "Spectateur"}</span>}
         <Dice run={run} uid={uid} enabled={isPlayer && myTurn} />
-        <button className="ghost" title={muted ? "Activer le son" : "Couper le son"} onClick={() => setMuted(!muted)}>{muted ? "🔇" : "🔊"}</button>
+        <SoundControl />
         <button className="ghost" onClick={() => (sfx.click(), setShowLog((v) => !v))}>📜 Journal</button>
+        {isPlayer && room.status === "playing" && (
+          <button
+            className="ghost danger"
+            title="Abandonner la partie : tes tours seront passés"
+            onClick={() => {
+              if (confirm("Abandonner la partie ? Tes tours seront passés et tu ne pourras plus gagner.")) run((r, gg) => E.forfeit(r, gg, uid));
+            }}
+          >
+            🏳
+          </button>
+        )}
         <button className="ghost" onClick={() => (location.hash = "")}>Quitter</button>
       </header>
 
@@ -303,6 +319,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         <CardModal
           id={openCard}
           onClaimWord={(w) => run((r, gg) => claimWord(r, gg, uid, w))}
+          onDiscard={canPlay ? discard : undefined}
           room={room}
           uid={uid}
           run={run}
@@ -326,7 +343,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         />
       )}
       <FxLayer g={g} room={room} me={uid} fresh={fresh} startDelay={fresh ? dealDuration(g) : 0} colorOf={colorOf} />
-      {viewDeck && <DeckModal deck={viewDeck} onCard={setOpenCard} onClose={() => setViewDeck(null)} />}
+      {viewDeck && <DeckModal deck={viewDeck} onClose={() => setViewDeck(null)} />}
       {viewTerrain && g.players[viewTerrain] && (
         <TerrainModal name={E.nameOf(room, viewTerrain)} terrain={g.players[viewTerrain].terrain} onCard={setOpenCard} onClose={() => setViewTerrain(null)} />
       )}
@@ -403,6 +420,28 @@ function Dice({ run, uid, enabled }: { uid: string; enabled: boolean; run: (fn: 
   );
 }
 
+/** Type d'action d'une ligne du journal : icône, couleur et nom. */
+const LOG_KINDS: [RegExp, string, string, string][] = [
+  [/^—/, "▶", "turn", "Nouveau tour"],
+  [/^🏆|condition.*remplie|^🏁/i, "🏁", "vc", "Condition de victoire"],
+  [/^🏳/, "🏳", "out", "Abandon"],
+  [/^🎲|lance(nt)? (un|le) d/i, "🎲", "dice", "Dé"],
+  [/effet impossible|ne peut pas/i, "✖", "fail", "Effet impossible"],
+  [/^🔀|mélang/i, "🔀", "shuffle", "Mélange"],
+  [/^🔗/, "🔗", "link", "Carte qui agit sur une carte"],
+  [/^🔒|^🔓/, "🔒", "lock", "Blocage"],
+  [/^🔤/, "🔤", "word", "The Word"],
+  [/ pose /i, "⤵", "play", "Pose"],
+  [/active|^✨/i, "✨", "activate", "Activation"],
+  [/défauss/i, "🗑", "discard", "Défausse"],
+  [/pioche/i, "📥", "draw", "Pioche"],
+  [/gold/i, "💰", "gold", "Gold"],
+  [/trou noir/i, "🌀", "bh", "Trou noir"],
+  [/sentience/i, "🧠", "sent", "Sentience"],
+  [/main/i, "✋", "hand", "Main"],
+];
+const logKind = (t: string) => LOG_KINDS.find(([re]) => re.test(t)) ?? null;
+
 function Log({ g, room, colorOf, onClose }: { g: GameState; room: Room; colorOf: (u: string) => string; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -431,7 +470,13 @@ function Log({ g, room, colorOf, onClose }: { g: GameState; room: Room; colorOf:
                   {l.to && l.to !== l.from && who(l.to)}
                 </div>
               )}
-              <p>{l.text}</p>
+              <p>
+                {(() => {
+                  const k = logKind(l.text);
+                  return k ? <span className={`log-ico k-${k[2]}`} title={k[3]}>{k[1]}</span> : null;
+                })()}
+                {l.text}
+              </p>
             </div>
           );
         })}

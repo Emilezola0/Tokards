@@ -4,14 +4,16 @@ import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
 import { isAutomated } from "../effects/runtime";
+import { SCRIPTS } from "../effects/scripts";
 import { isAutoVC, lettersOf, teamProgress, vcProgress, wordFits } from "../game/victory";
 import { Gauge } from "./PlayerBoard";
 
 export type Placing = { id: string; from: "hand" | "terrain" | "discard" };
 type Run = (fn: (r: Room, g: GameState) => void) => void;
 
-export default function CardModal({ id, room, uid, run, onPlace, onClose, onClaimWord }: {
-  id: string; room: Room; uid: string; run: Run; onPlace: (p: Placing) => void; onClose: () => void; onClaimWord?: (word: string) => void;
+export default function CardModal({ id, room, uid, run, onPlace, onClose, onClaimWord, onDiscard }: {
+  id: string; room: Room; uid: string; run: Run; onPlace: (p: Placing) => void; onClose: () => void;
+  onClaimWord?: (word: string) => void; onDiscard?: (id: string) => void;
 }) {
   const g = room.game!;
   const c = card(id);
@@ -90,8 +92,9 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose, onClai
     if (at.zone === "hand" && at.uid === uid) {
       actions = (
         <>
-          <button className="primary" disabled={g.phase !== "action"} onClick={() => onPlace({ id, from: "hand" })}>Poser sur mon terrain…</button>
-          <button disabled={g.phase !== "action"} onClick={() => doRun((r, gg) => E.discardFromHand(r, gg, uid, id))}>Défausser (action du tour)</button>
+          <button className="primary" disabled={g.phase !== "action" || (room.auto !== false && !!SCRIPTS[id]?.noPlay)} onClick={() => onPlace({ id, from: "hand" })}>Poser sur mon terrain…</button>
+          {room.auto !== false && SCRIPTS[id]?.noPlay && <span className="small error">{SCRIPTS[id].noPlay}</span>}
+          <button disabled={g.phase !== "action" || !onDiscard} onClick={() => { onDiscard?.(id); onClose(); }}>Défausser (action du tour)</button>
           <span className="small muted">Outils manuels :</span>
           <button onClick={() => move({ uid: owner ?? uid, zone: "deck" })}>Remettre sur la pioche</button>
           <button onClick={() => move({ uid: owner ?? uid, zone: "deck", bottom: true })}>Au fond de la pioche</button>

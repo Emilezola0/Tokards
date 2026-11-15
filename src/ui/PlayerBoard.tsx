@@ -137,7 +137,7 @@ export default function PlayerBoard(p: Props) {
       data-board={owner}
       data-rot={seat.rot}
       data-scale={seat.s}
-      className={`board ${owner === current ? "active" : ""} ${owner === uid ? "mine" : ""} ${p.ally ? "ally" : ""} ${tgt("players", owner) ? "target" : ""}`}
+      className={`board ${owner === current ? "active" : ""} ${st.out ? "out" : ""} ${owner === uid ? "mine" : ""} ${p.ally ? "ally" : ""} ${tgt("players", owner) ? "target" : ""}`}
       style={{
         width: BW, height: BH, left: seat.x, top: seat.y,
         transform: `translate(-50%, -50%) rotate(${seat.rot}deg) scale(${seat.s})`,
@@ -151,7 +151,10 @@ export default function PlayerBoard(p: Props) {
         {p.ally && <span className="badge ally-badge">Allié</span>}
         {ranked >= 0 && <span className="badge gold-badge">🏆 {ranked + 1}</span>}
         {st.locked && <span className="badge lock-badge" title="Sentience et trou noir bloqués jusqu'à son prochain tour">🔒</span>}
-        {owner === current && <span className="badge turn-badge">▶ Son tour</span>}
+        {st.out && <span className="badge out-badge">🏳 Abandon</span>}
+        {owner === current && (owner === uid
+          ? <span className="badge turn-badge my-turn">▶ À vous de jouer !</span>
+          : <span className="badge turn-badge">▶ Son tour</span>)}
         <span className="grow" />
         <button className="mini" title="Voir toutes les cartes du deck" onClick={() => p.onShowDeck(owner)}>🂠 Deck</button>
       </header>
@@ -298,7 +301,9 @@ export default function PlayerBoard(p: Props) {
           </button>
         )}
         {vc && st.personalDone && (
-          <span className="vc-chip vc-done" data-vc={owner} title={`« ${card(vc).name} » remplie`}>🏁 ✔ Remplie</span>
+          <button className="vc-chip vc-done" data-vc={owner} title={`« ${card(vc).name} » remplie : cliquer pour revoir la carte`} onClick={() => p.onCard(vc)}>
+            🏁 ✔ <span className="vc-name">{card(vc).name}</span>
+          </button>
         )}
       </footer>
 

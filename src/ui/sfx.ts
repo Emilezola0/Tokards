@@ -2,6 +2,15 @@
 import { useSyncExternalStore } from "react";
 
 const KEY = "tokards.muted";
+const VKEY = "tokards.volume";
+let volume = (() => {
+  try {
+    const v = Number(localStorage.getItem(VKEY));
+    return Number.isFinite(v) && localStorage.getItem(VKEY) !== null ? Math.max(0, Math.min(1, v)) : 0.7;
+  } catch {
+    return 0.7;
+  }
+})();
 let muted = (() => {
   try {
     return localStorage.getItem(KEY) === "1";
@@ -19,7 +28,7 @@ function ac() {
     if (!C) return null;
     ctx = new C();
     master = ctx.createGain();
-    master.gain.value = 0.35;
+    master.gain.value = 0.5 * volume;
     master.connect(ctx.destination);
   }
   if (ctx.state === "suspended") void ctx.resume();
@@ -37,12 +46,25 @@ export function setMuted(v: boolean) {
   }
   subs.forEach((f) => f());
 }
+/** Volume de 0 à 1 (retenu dans le navigateur). */
+export function setVolume(v: number) {
+  volume = Math.max(0, Math.min(1, v));
+  if (master) master.gain.value = 0.5 * volume;
+  try {
+    localStorage.setItem(VKEY, String(volume));
+  } catch {
+    /* stockage indisponible */
+  }
+  subs.forEach((f) => f());
+}
+export const useVolume = () =>
+  useSyncExternalStore((f) => (subs.add(f), () => void subs.delete(f)), () => volume);
 export const useMuted = () =>
   useSyncExternalStore((f) => (subs.add(f), () => void subs.delete(f)), () => muted);
 
 type Tone = { f: number; to?: number; t?: number; d: number; type?: OscillatorType; v?: number };
 function tones(list: Tone[]) {
-  if (muted || document.hidden) return;
+  if (muted || !volume || document.hidden) return;
   const a = ac();
   if (!a || !master || a.state !== "running") return;
   const now = a.currentTime;
@@ -101,5 +123,6 @@ export const sfx = {
   link: () => tones([{ f: 900, to: 1500, d: 0.2, type: "sine", v: 0.15 }]),
   vc: () => tones([{ f: 523, d: 0.2, type: "triangle", v: 0.25 }, { f: 659, t: 0.15, d: 0.2, type: "triangle", v: 0.25 }, { f: 784, t: 0.3, d: 0.4, type: "triangle", v: 0.25 }]),
   victory: () => tones([523, 659, 784, 1047, 784, 1047].map((f, i) => ({ f, t: i * 0.13, d: 0.3, type: "triangle" as const, v: 0.3 }))),
+  shuffle: () => { for (let i = 0; i < 9; i++) noise(0.05, 0.16, 2200 + (i % 3) * 400, i * 0.06); },
   click: () => tones([{ f: 1200, d: 0.03, type: "square", v: 0.05 }]),
 };

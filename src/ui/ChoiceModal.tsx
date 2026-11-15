@@ -111,9 +111,20 @@ export default function ChoiceModal({ room, prompt, onAnswer, onCard }: {
   return (
     <div className="modal-bg choice-bg">
       <div className="modal panel choice-modal">
-        {prompt.cardId && <div className="choice-source small muted">✨ {card(prompt.cardId).name}</div>}
-        <h2>{prompt.text}</h2>
-        {sent ? <p className="muted">Envoi…</p> : body}
+        <div className="choice-layout">
+          {prompt.cardId && (
+            <aside className="choice-origin">
+              <span className="small muted">Choix demandé par</span>
+              <CardView id={prompt.cardId} size="m" ghost />
+              <strong>{card(prompt.cardId).name}</strong>
+              <p className="small choice-origin-text">{card(prompt.cardId).text}</p>
+            </aside>
+          )}
+          <div className="choice-main">
+            <h2>{prompt.text}</h2>
+            {sent ? <p className="muted">Envoi…</p> : body}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@
 // Si un effet a besoin d'un choix d'un joueur, l'exécution s'arrête (NeedChoice), l'état revient à
 // celui d'avant l'action et la question est enregistrée dans `pending`. Quand le joueur répond,
 // l'action est rejouée depuis le début avec les réponses déjà données et les mêmes tirages au hasard.
+import { DEFAULT_REASON, REASONS } from "./reasons";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room } from "../game/types";
@@ -18,7 +19,13 @@ export type GameEvent =
   | { type: "sentience"; uid: string; v: boolean }
   | { type: "blackHole"; uid: string; from: BlackHole; to: BlackHole }
   /** un effet lancé par `actor` touche quelque chose de `target` (gold, sentience, trou noir, cartes…) */
-  | { type: "interaction"; actor: string; target: string; what: string };
+  | { type: "interaction"; actor: string; target: string; what: string }
+  /** `uid` pioche `n` cartes (src = carte qui l'a fait piocher, null = pioche du tour) */
+  | { type: "draw"; uid: string; n: number; from: string; src: string | null }
+  /** `uid` défausse `card` de sa main (action du tour ou effet) */
+  | { type: "discard"; uid: string; card: string; src: string | null }
+  /** un joueur tombe à 0 gold */
+  | { type: "zeroGold"; uid: string };
 
 type Handlers = { [K in GameEvent["type"]]: (x: Ctx, self: Self, e: Extract<GameEvent, { type: K }>) => void };
 export type CardScript = {
@@ -26,6 +33,10 @@ export type CardScript = {
   activate?: (x: Ctx, self: Self) => boolean | void;
   /** Passifs : réagissent aux événements tant que la carte est sur un terrain. */
   on?: Partial<Handlers>;
+  /** ne peut pas être défaussée par un effet */
+  fixed?: boolean;
+  /** ne peut pas être posée depuis la main (raison affichée) */
+  noPlay?: string;
 };
 
 export const isAutomated = (id: string) => !!SCRIPTS[id];
@@ -47,6 +58,8 @@ export class Ctx {
   /** carte dont l'effet est en train de s'appliquer */
   source: string | null = null;
   private muteInteractions = 0;
+  /** pourquoi l'effet en cours a échoué (gold manquant, aucune cible, paiement refusé) */
+  reason: string | null = null;
 
   /** Mode aperçu : les questions reçoivent une réponse par défaut et sont mémorisées. */
   public preview: Prompt[] | null = null;
@@ -105,6 +118,7 @@ export class Ctx {
 
   // ----- choix des joueurs -----
   private ask<T>(prompt: Prompt): T {
+    if (!prompt.cardId && this.source) prompt = { ...prompt, cardId: this.source };
     if (this.ai < this.answers.length) return JSON.parse(this.answers[this.ai++]) as T;
     if (this.preview) {
       this.preview.push(prompt);
@@ -113,7 +127,10 @@ export class Ctx {
     throw new NeedChoice(prompt);
   }
   choosePlayer(chooser: string, text: string, options: string[], cardId?: string): string | null {
-    if (!options.length) return null;
+    if (!options.length) {
+      this.reason = "Aucune cible possible.";
+      return null;
+    }
     if (options.length === 1) return options[0];
     const a = this.ask<string>({ chooser, text, cardId, kind: "player", options });
     return options.includes(a) ? a : options[0];
@@ -124,7 +141,9 @@ export class Ctx {
     return Math.max(0, Math.min(options.length - 1, Math.trunc(a)));
   }
   confirm(chooser: string, text: string, cardId?: string) {
-    return this.chooseOption(chooser, text, ["Oui", "Non"], cardId) === 0;
+    const ok = this.chooseOption(chooser, text, ["Oui", "Non"], cardId) === 0;
+    if (!ok) this.reason = `${this.name(chooser)} a refusé.`;
+    return ok;
   }
   chooseNumber(chooser: string, text: string, min: number, max: number, cardId?: string): number {
     if (max <= min) return min;
@@ -158,10 +177,13 @@ export class Ctx {
     if (this.depth >= MAX_DEPTH) return;
     this.depth++;
     try {
-      for (const uid of this.turnOrder()) {
-        for (const id of [...this.p(uid).terrain]) {
+      for (const [uid, id, zone] of this.passiveCards()) {
+        {
           const h = SCRIPTS[id]?.on?.[e.type] as ((x: Ctx, s: Self, e: GameEvent) => void) | undefined;
-          if (!h || !this.p(uid).terrain.includes(id)) continue;
+          if (!h) continue;
+          // La carte a pu bouger entre-temps (défaussée par un autre passif…).
+          const still = zone === "discard" ? E.locate(this.g, id)?.zone === "discard" : this.p(uid)[zone].includes(id);
+          if (!still) continue;
           const prevActor = this.actor;
           const prevSource = this.source;
           this.actor = uid;
@@ -179,6 +201,20 @@ export class Ctx {
     } finally {
       this.depth--;
     }
+  }
+  /**
+   * Cartes dont les passifs écoutent : les terrains, plus la main d'un joueur à 0 gold avec « Fléaux parallèles »
+   * et le dessus de la défausse d'un joueur avec « Singularité radioactive » (possesseur = joueur actif).
+   */
+  passiveCards(): [string, string, "terrain" | "hand" | "discard"][] {
+    const out: [string, string, "terrain" | "hand" | "discard"][] = [];
+    for (const uid of this.turnOrder()) {
+      const p = this.p(uid);
+      for (const id of p.terrain) out.push([uid, id, "terrain"]);
+      if (p.terrain.includes("FLE-11") && p.gold <= 0) for (const id of p.hand) out.push([uid, id, "hand"]);
+      if (p.terrain.includes("FLE-14") && p.discard[0] && SCRIPTS[p.discard[0]]?.on) out.push([this.current, p.discard[0], "discard"]);
+    }
+    return out;
   }
   /** Un effet touche quelque chose de `target` : compte l'interaction et prévient les passifs. */
   interact(target: string, what: string) {
@@ -251,11 +287,14 @@ export class Ctx {
     this.log(`${this.name(uid)} perd ${real} gold (${p.gold}).`, { to: uid });
     this.interact(uid, "gold");
     this.emit({ type: "goldLost", uid, amount: real });
+    if (p.gold === 0) this.emit({ type: "zeroGold", uid });
     return real;
   }
   canPay(uid: string, n: number) {
     const p = this.p(uid);
-    return p.allowNegativeGold || p.gold >= n;
+    const ok = p.allowNegativeGold || p.gold >= n;
+    if (!ok) this.reason = `Pas assez de gold : ${n} requis, ${this.name(uid)} en a ${p.gold}.`;
+    return ok;
   }
   /** Dépense : échoue (et ne retire rien) si le joueur n'a pas assez de gold. */
   spend(uid: string, n: number): boolean {
@@ -339,11 +378,16 @@ export class Ctx {
     const k = E.drawCards(this.g, uid, n, from);
     if (k) this.log(`${this.name(uid)} pioche ${k} carte${k > 1 ? "s" : ""}${from !== uid ? ` dans la pioche de ${this.name(from)}` : ""}.`);
     if (k) this.interact(from, "pioche");
+    if (k) this.emit({ type: "draw", uid, n: k, from, src: this.source });
     return k;
   }
   move(id: string, dest: E.Dest) {
     const at = E.locate(this.g, id);
     const src = this.source;
+    if (at?.zone === "terrain" && dest.zone === "discard" && SCRIPTS[id]?.fixed && src !== id) {
+      this.log(`🛡 « ${card(id).name} » ne peut pas être défaussée.`, { dst: id });
+      return;
+    }
     E.moveCard(this.room, this.g, id, dest, !!(src && src !== id && at));
     if (src && src !== id && at) this.linkMove(src, id, at.uid, dest);
     if (dest.zone === "terrain" && !(this.g.movedCards ?? []).includes(id)) this.g.movedCards = [...(this.g.movedCards ?? []), id];
@@ -431,11 +475,13 @@ export class Ctx {
     this.actor = me;
     this.source = id;
     this.log(`✨ ${this.name(me)} active « ${c.name} ».`);
+    this.reason = null;
     try {
       if (s.activate(this, { id, me }) === false) {
-        this.fx({ k: "fail", card: id, uid: me });
+        const why = this.reason ?? REASONS[id] ?? DEFAULT_REASON;
+        this.fx({ k: "fail", card: id, uid: me, reason: why });
         if (me === this.current && this.g.phase === "activation") E.st(this.p(me)).failed = (E.st(this.p(me)).failed ?? 0) + 1;
-        this.log(`« ${c.name} » : effet impossible.`);
+        this.log(`« ${c.name} » : effet impossible. ${why}`);
       }
     } finally {
       this.actor = prevActor;
@@ -459,6 +505,15 @@ export class Ctx {
         E.setPhase(g, "action");
         break;
       }
+      // Varicelle cosmique : avec la sentience vraie, seules les cartes en position impaire (1, 3, 5…) se jouent.
+      const t = g.players[this.current].terrain;
+      if (t.includes("FLE-21") && g.players[this.current].sentience && t.indexOf(id) % 2 === 1) {
+        g.activated = [...(g.activated ?? []), id];
+        const why = "Varicelle cosmique : seules les cartes en position impaire se jouent.";
+        this.fx({ k: "fail", card: id, uid: this.current, reason: why });
+        this.log(`« ${card(id).name} » ne se joue pas. ${why}`, { src: "FLE-21", dst: id });
+        continue;
+      }
       if (!SCRIPTS[id]) return; // carte manuelle : le joueur l'applique lui-même
       g.activated = [...(g.activated ?? []), id];
       this.activateCard(id, this.current);
@@ -472,14 +527,28 @@ function perform(x: Ctx, a: EffectAction) {
     case "activate":
       x.runActivation();
       break;
-    case "play":
+    case "play": {
+      const no = SCRIPTS[a.card]?.noPlay;
+      if (no) throw new Error(no);
       E.playFromHand(x.room, x.g, a.by, a.card, a.target, a.index);
       x.fx({ k: "move", card: a.card });
       x.activateCard(a.card, a.by);
       break;
-    case "endTurn":
-      E.endTurn(x.room, x.g);
+    }
+    case "discard":
+      E.discardFromHand(x.room, x.g, a.by, a.card);
+      x.emit({ type: "discard", uid: a.by, card: a.card, src: null });
       break;
+    case "endTurn": {
+      const prev = E.hooks.drew;
+      E.hooks.drew = (_g, uid, n) => x.emit({ type: "draw", uid, n, from: uid, src: null });
+      try {
+        E.endTurn(x.room, x.g);
+      } finally {
+        E.hooks.drew = prev;
+      }
+      break;
+    }
   }
 }
 
@@ -550,23 +619,17 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
   if (!at) return null;
   const x = new Ctx({ ...room, game: g }, g, [], []);
   x.preview = [];
-  const logStart = () => g.log.length;
   const out: Preview = { ok: true, cards: [], gold: [], sentience: [], bh: [], players: [] };
   const fxStart = g.fxSeq ?? 0;
-  let l0 = 0;
   try {
     if (at.zone === "hand") E.moveCard(x.room, g, id, { uid: me, zone: "terrain" }, true);
-    l0 = logStart();
     x.actor = me;
     x.source = id;
     out.ok = s.activate(x, { id, me }) !== false;
   } catch {
     return null;
   }
-  if (!out.ok) {
-    const lines = g.log.slice(l0).map((l) => l.text).filter((t) => !t.startsWith("✨"));
-    out.reason = lines[lines.length - 1] ?? "Les conditions de l'effet ne sont pas remplies.";
-  }
+  if (!out.ok) out.reason = x.reason ?? REASONS[id] ?? DEFAULT_REASON;
   const add = (arr: string[], v: string) => !arr.includes(v) && arr.push(v);
   for (const f of g.fx ?? []) {
     if (f.id <= fxStart) continue;
