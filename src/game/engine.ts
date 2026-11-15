@@ -8,15 +8,21 @@ export const START_GOLD = 10;
 export const HAND_SIZE = 4;
 const LOG_MAX = 250;
 
+/** Source de hasard : remplacée pendant la résolution d'un effet pour pouvoir la rejouer à l'identique. */
+export const RNG = { next: Math.random };
+
 export function shuffle<T>(a: T[]): T[] {
   const r = [...a];
   for (let i = r.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(RNG.next() * (i + 1));
     [r[i], r[j]] = [r[j], r[i]];
   }
   return r;
 }
-export const roll = (faces: number) => 1 + Math.floor(Math.random() * faces);
+export const roll = (faces: number) => 1 + Math.floor(RNG.next() * faces);
+
+/** Hôpital du Dr. Goblinstein : tant qu'il est sur le terrain, la défausse de son joueur va au fond de sa pioche. */
+const HOSPITAL = "GOB-30";
 
 export const nameOf = (room: Room, uid: string) => room.players[uid]?.name ?? "?";
 export const teamKey = (room: Room, uid: string) => room.players[uid]?.team.trim() || `solo:${uid}`;
@@ -50,7 +56,8 @@ export function startGame(room: Room): GameState {
     .sort((a, b) => rolls[b] - rolls[a] || tiebreak[b] - tiebreak[a]);
 
   const g: GameState = {
-    order, spectators, rolls, turn: 0, round: 1, phase: "activation", activationIndex: 0, actionsLeft: 1,
+    order, spectators, rolls, turn: 0, round: 1, phase: "activation", activated: [], pending: null, fx: [], fxSeq: 0,
+    actionsLeft: 1,
     handSize: HAND_SIZE, players: {}, owner: {}, commonVC: "", vcPile: [], commonDone: [], ranking: [],
     vote: null, log: [],
   };
@@ -82,20 +89,31 @@ export function startGame(room: Room): GameState {
 
 function beginTurn(room: Room, g: GameState) {
   const uid = currentPlayer(g);
-  g.activationIndex = 0;
+  const p = g.players[uid];
+  p.goldGainedLastTurn = p.goldGainedSince ?? 0;
+  p.goldGainedSince = 0;
+  g.activated = [];
   g.actionsLeft = 1;
-  g.phase = g.players[uid].terrain.length ? "activation" : "action";
+  g.phase = p.terrain.length ? "activation" : "action";
   log(g, `— Tour ${g.round} : à ${nameOf(room, uid)} de jouer.`);
 }
 
 // ---------- Déroulé du tour ----------
 
+/** Prochaine carte à activer : la première du terrain (sens de lecture) pas encore activée ce tour. */
+export function nextActivation(g: GameState): string | undefined {
+  const done = g.activated ?? [];
+  return g.players[currentPlayer(g)].terrain.find((id) => !done.includes(id));
+}
+
 export function activationStep(room: Room, g: GameState, applied: boolean) {
   const uid = currentPlayer(g);
-  const id = g.players[uid].terrain[g.activationIndex];
-  if (id) log(g, `${nameOf(room, uid)} ${applied ? "active" : "ne peut pas activer"} « ${card(id).name} ».`);
-  g.activationIndex++;
-  if (g.activationIndex >= g.players[uid].terrain.length) g.phase = "action";
+  const id = nextActivation(g);
+  if (id) {
+    log(g, `${nameOf(room, uid)} ${applied ? "active" : "ne peut pas activer"} « ${card(id).name} ».`);
+    g.activated = [...(g.activated ?? []), id];
+  }
+  if (!nextActivation(g)) g.phase = "action";
 }
 
 export function skipActivation(room: Room, g: GameState) {
@@ -163,6 +181,10 @@ export type Dest = { uid: string; zone: Zone; index?: number; bottom?: boolean }
 export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet = false) {
   const at = locate(g, id);
   if (!at) return;
+  if (dest.zone === "discard" && id !== HOSPITAL && g.players[dest.uid].terrain.includes(HOSPITAL)) {
+    log(g, `🏥 Hôpital du Dr. Goblinstein : « ${card(id).name} » va au fond de la pioche au lieu de la défausse.`);
+    dest = { uid: dest.uid, zone: "deck", bottom: true };
+  }
   const from = g.players[at.uid][at.zone];
   from.splice(at.index, 1);
   const to = g.players[dest.uid][dest.zone];
@@ -175,7 +197,7 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
     const hidden = at.zone === "hand" || at.zone === "deck";
     const label = hidden && dest.zone !== "terrain" && dest.zone !== "discard" ? "une carte" : `« ${card(id).name} »`;
     const where =
-      dest.zone === "deck" ? `${dest.bottom ? "au fond de" : "sur"} la pioche` : `${dest.zone === "hand" ? "dans la" : "sur le"} ${ZONE_LABEL[dest.zone]}`;
+      dest.zone === "deck" ? `${dest.bottom ? "au fond de" : "sur"} la pioche` : `${dest.zone === "terrain" ? "sur le" : "dans la"} ${ZONE_LABEL[dest.zone]}`;
     log(g, `${label} : ${ZONE_LABEL[at.zone]} de ${nameOf(room, at.uid)} → ${where} de ${nameOf(room, dest.uid)}.`);
   }
 }
@@ -219,6 +241,7 @@ export function changeGold(room: Room, g: GameState, uid: string, delta: number)
   const before = p.gold;
   p.gold = Math.trunc(p.gold + delta);
   if (!p.allowNegativeGold) p.gold = Math.max(0, p.gold);
+  if (p.gold > before) p.goldGainedSince = (p.goldGainedSince ?? 0) + (p.gold - before);
   if (p.gold !== before) log(g, `${nameOf(room, uid)} : ${before} → ${p.gold} gold.`);
 }
 
@@ -227,6 +250,7 @@ export function transferGold(room: Room, g: GameState, from: string, to: string,
   const real = a.allowNegativeGold ? amount : Math.min(amount, Math.max(0, a.gold));
   a.gold -= real;
   g.players[to].gold += real;
+  g.players[to].goldGainedSince = (g.players[to].goldGainedSince ?? 0) + real;
   log(g, `${nameOf(room, from)} donne ${real} gold à ${nameOf(room, to)}.`);
 }
 

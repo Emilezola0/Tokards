@@ -45,7 +45,7 @@ def card(r, kind):
                  "blackHole": col(r, "Trou noir") == "Oui"},
         "trigger": r.get("Déclenchement", ""), "event": r.get("Événement passif", ""),
         "target": r.get("Cible", ""), "check": r.get("Vérification", ""),
-        "text": r["Description"], "image": r.get("Image", ""),
+        "text": r["Description"], "rules": r.get("Précisions (règles)", ""), "image": r.get("Image", ""),
     }
 
 

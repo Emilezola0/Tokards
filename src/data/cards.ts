@@ -12,6 +12,8 @@ export type CardDef = {
   target: string;
   check: string;
   text: string;
+  /** colonne « Précisions (règles) » du tableau */
+  rules?: string;
   image: string;
 };
 export type DeckDef = {
@@ -43,10 +45,11 @@ export function card(id: string): CardDef {
 }
 
 // BASE_URL = "./" : le site marche à la racine (Firebase) comme dans un sous-dossier (GitHub Pages).
-export const PLACEHOLDER = `${import.meta.env.BASE_URL}cards/placeholder.svg`;
+const BASE = import.meta.env?.BASE_URL ?? "/";
+export const PLACEHOLDER = `${BASE}cards/placeholder.svg`;
 
 export function cardImage(id: string): string {
-  return CARDS[id]?.image ? `${import.meta.env.BASE_URL}cards/${id}.webp` : PLACEHOLDER;
+  return CARDS[id]?.image ? `${BASE}cards/${id}.webp` : PLACEHOLDER;
 }
 
 export function tagIcons(t: Tags): string {

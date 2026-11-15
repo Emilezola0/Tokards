@@ -3,6 +3,7 @@ import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
+import { isAutomated } from "../effects/runtime";
 
 export type Placing = { id: string; from: "hand" | "terrain" | "discard" };
 type Run = (fn: (r: Room, g: GameState) => void) => void;
@@ -76,8 +77,15 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose }: {
             {at && ` · ${ZONE_LABEL[at.zone]} de ${E.nameOf(room, at.uid)}`}
             {owner && at && owner !== at.uid && ` (appartient à ${E.nameOf(room, owner)})`}
           </p>
-          {c.trigger && <p className="small"><span className="badge">{c.trigger}</span>{c.event && ` ${c.event}`}</p>}
+          <p className="small">
+            {c.trigger && <span className="badge">{c.trigger}</span>}
+            {c.event && `${c.event} `}
+            {c.kind === "card" && (room.auto !== false && isAutomated(id)
+              ? <span className="badge auto-badge">⚙ Effet automatique</span>
+              : <span className="badge">✋ Effet manuel</span>)}
+          </p>
           <p className="card-text">{c.text}</p>
+          {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
           <div className="card-actions">{actions}</div>
           <button className="ghost" onClick={onClose}>Fermer</button>
         </div>

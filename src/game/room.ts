@@ -1,7 +1,8 @@
 import { doc, getDoc, onSnapshot, runTransaction, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { startGame } from "./engine";
-import type { GameState, Room } from "./types";
+import type { EffectAction, GameState, Room } from "./types";
+import { runEffect } from "../effects/runtime";
 
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const newCode = () => Array.from({ length: 5 }, () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join("");
@@ -12,7 +13,7 @@ export async function createRoom(uid: string, name: string): Promise<string> {
     const code = newCode();
     if ((await getDoc(roomRef(code))).exists()) continue;
     const room: Room = {
-      code, hostUid: uid, status: "lobby", createdAt: Date.now(), game: null,
+      code, hostUid: uid, auto: true, status: "lobby", createdAt: Date.now(), game: null,
       players: { [uid]: { uid, name, team: "", deck: null, joinedAt: Date.now() } },
     };
     await setDoc(roomRef(code), room);
@@ -50,6 +51,11 @@ export function act(code: string, fn: (room: Room, g: GameState) => void) {
   return update(code, (room) => {
     if (room.game) fn(room, room.game);
   });
+}
+
+/** Action résolue automatiquement (mode auto), ou réponse au choix en attente. */
+export function effect(code: string, action: EffectAction | null, answer?: unknown) {
+  return update(code, (room) => runEffect(room, action, answer));
 }
 
 export function launch(code: string) {

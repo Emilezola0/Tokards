@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { PLACEHOLDER, PLAYABLE_DECKS, cardImage } from "../data/cards";
 import { launch, update } from "../game/room";
 import type { Room } from "../game/types";
+import { SCRIPTS } from "../effects/scripts";
+
+const AUTO_COUNT = Object.keys(SCRIPTS).length;
 
 export default function Lobby({ room, uid }: { room: Room; uid: string }) {
   const me = room.players[uid];
@@ -66,6 +69,17 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
               <input value={team} maxLength={20} onChange={(e) => setTeam(e.target.value)} onKeyDown={(e) => e.key === "Enter" && saveTeam()} placeholder="ex : Rouge" />
               <button onClick={saveTeam} disabled={team.trim() === me.team}>Valider</button>
             </div>
+          </label>
+          <label className="check auto-toggle">
+            <input
+              type="checkbox"
+              checked={room.auto !== false}
+              disabled={!isHost}
+              onChange={(e) => run(update(room.code, (r) => void (r.auto = e.target.checked)))}
+            />
+            <span>
+              <b>Mode automatique</b> — les cartes ⚙ ({AUTO_COUNT} pour l'instant) appliquent leur effet toutes seules ; les autres restent manuelles.
+            </span>
           </label>
           {isHost ? (
             <button className="primary big" disabled={!withDeck.length} onClick={() => run(launch(room.code))}>

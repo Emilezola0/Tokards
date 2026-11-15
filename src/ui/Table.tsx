@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
-import { act, backToLobby, update } from "../game/room";
-import type { GameState, Room, Vote } from "../game/types";
+import { act, backToLobby, effect, update } from "../game/room";
+import type { EffectAction, GameState, Room, Vote } from "../game/types";
+import { isAutomated } from "../effects/runtime";
+import ChoiceModal from "./ChoiceModal";
+import FxLayer from "./FxLayer";
 import { BLACK_HOLES, blackHoleLabel } from "../game/types";
 import CardView from "./CardView";
 import CardModal, { type Placing } from "./CardModal";
@@ -23,8 +26,11 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const myTurn = current === uid;
   const isHost = room.hostUid === uid;
 
+  const auto = room.auto !== false;
   const run = (fn: (r: Room, g: GameState) => void) =>
     act(room.code, fn).catch((e) => setErr((e as Error).message));
+  const runAuto = (a: EffectAction) => effect(room.code, a).catch((e) => setErr((e as Error).message));
+  const nextCard = g.phase === "activation" ? E.nextActivation(g) : undefined;
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === "Escape" && setPlacing(null);
@@ -42,6 +48,10 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
     if (!placing) return;
     const { id, from } = placing;
     setPlacing(null);
+    if (auto && from === "hand" && myTurn && g.phase === "action") {
+      runAuto({ t: "play", by: uid, card: id, target, index });
+      return;
+    }
     run((r, gg) => {
       if (from === "hand" && E.locate(gg, id)?.uid === uid) E.playFromHand(r, gg, uid, id, target, index);
       else E.moveCard(r, gg, id, { uid: target, zone: "terrain", index });
@@ -61,7 +71,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
             id={id}
             size={size}
             badge={String(i + 1)}
-            highlight={owner === current && g.phase === "activation" && i === g.activationIndex}
+            highlight={owner === current && id === nextCard}
+            auto={auto && isAutomated(id)}
             selected={placing?.id === id}
             onClick={() => setOpenCard(id)}
           />,
@@ -80,9 +91,9 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
     const bh = BLACK_HOLES.find((b) => b.id === p.blackHole);
     return (
       <button className="resources" onClick={() => setOpenPlayer(owner)} title="Modifier les ressources">
-        <span className="res gold">💰 {p.gold}</span>
-        <span className={`res ${p.sentience ? "on" : "off"}`}>🧠 {p.sentience ? "Vraie" : "Fausse"}</span>
-        <span className="res bh">{bh?.icon} {blackHoleLabel(p.blackHole)}</span>
+        <span className="res gold" data-gold={owner}>💰 {p.gold}</span>
+        <span className={`res ${p.sentience ? "on" : "off"}`} data-sent={owner}>🧠 {p.sentience ? "Vraie" : "Fausse"}</span>
+        <span className="res bh" data-bh={owner}>{bh?.icon} {blackHoleLabel(p.blackHole)}</span>
       </button>
     );
   };
@@ -104,7 +115,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
     const lobbyP = room.players[owner];
     const ranked = g.ranking.findIndex((r) => r.team === E.teamKey(room, owner));
     return (
-      <section key={owner} className={`board ${owner === current ? "active" : ""} ${owner === uid ? "mine" : ""}`}>
+      <section key={owner} data-board={owner} className={`board ${owner === current ? "active" : ""} ${owner === uid ? "mine" : ""}`}>
         <header className="board-head">
           <strong className="pname">{owner === current && "▶ "}{lobbyP?.name}{owner === uid && " (toi)"}</strong>
           <span className="muted small">{lobbyP?.team ? `Équipe ${lobbyP.team}` : "Solo"} · {lobbyP?.deck}</span>
@@ -124,6 +135,9 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       <header className="topbar">
         <span className="code">{room.code}</span>
         <span>Tour {g.round}</span>
+        <span className={`badge ${auto ? "auto-badge" : ""}`} title={auto ? "Les cartes ⚙ s'appliquent toutes seules" : "Tous les effets sont manuels"}>
+          {auto ? "⚙ Auto" : "✋ Manuel"}
+        </span>
         <span>
           Au tour de <strong>{room.players[current]?.name}</strong> — {PHASE_LABEL[g.phase]}
         </span>
@@ -175,6 +189,12 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
             </div>
           </section>
 
+          {g.pending && g.pending.prompt.chooser !== uid && (
+            <div className="placing-banner waiting">
+              ⏳ En attente de <b>{room.players[g.pending.prompt.chooser]?.name}</b> : {g.pending.prompt.text}
+            </div>
+          )}
+
           {placing && (
             <div className="placing-banner">
               Choisis un emplacement <b>+</b> sur un terrain pour « {card(placing.id).name} ».
@@ -187,7 +207,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
 
           {isPlayer && (
             <section className="hand-area">
-              <TurnControls g={g} room={room} myTurn={myTurn} run={run} />
+              <TurnControls g={g} myTurn={myTurn} auto={auto} run={run} runAuto={runAuto} uid={uid} />
               <div className="hand">
                 <span className="small muted">Ta main ({me.hand.length})</span>
                 <div className="hand-cards">
@@ -219,16 +239,32 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       {openPlayer && (
         <PlayerModal owner={openPlayer} room={room} uid={uid} run={run} onCard={setOpenCard} onClose={() => setOpenPlayer(null)} />
       )}
+      {g.pending?.prompt.chooser === uid && (
+        <ChoiceModal
+          key={g.pending.answers.length}
+          room={room}
+          prompt={g.pending.prompt}
+          onAnswer={(a) => effect(room.code, null, a).catch((e) => setErr((e as Error).message))}
+          onCard={setOpenCard}
+        />
+      )}
+      <FxLayer g={g} room={room} />
       {g.vote && <VoteModal room={room} uid={uid} isHost={isHost} />}
       {room.status === "ended" && <EndModal room={room} isHost={isHost} />}
     </div>
   );
 }
 
-function TurnControls({ g, room, myTurn, run }: { g: GameState; room: Room; myTurn: boolean; run: (fn: (r: Room, g: GameState) => void) => void }) {
+function TurnControls({ g, myTurn, auto, run, runAuto, uid }: {
+  g: GameState; myTurn: boolean; auto: boolean; uid: string;
+  run: (fn: (r: Room, g: GameState) => void) => void; runAuto: (a: EffectAction) => void;
+}) {
   if (!myTurn) return <div className="turn-controls muted">Ce n'est pas ton tour. Tu peux quand même utiliser les outils si un effet te concerne.</div>;
   const p = g.players[E.currentPlayer(g)];
-  const cur = p.terrain[g.activationIndex];
+  const cur = E.nextActivation(g);
+  const done = (g.activated ?? []).length;
+  const busy = !!g.pending;
+  const manualCard = cur && !(auto && isAutomated(cur));
   return (
     <div className="turn-controls">
       <div className="steps">
@@ -236,10 +272,19 @@ function TurnControls({ g, room, myTurn, run }: { g: GameState; room: Room; myTu
           <span key={ph} className={`step ${g.phase === ph ? "on" : ""}`}>{i + 1}. {PHASE_LABEL[ph]}</span>
         ))}
       </div>
-      {g.phase === "activation" && (
+      {g.phase === "activation" && !manualCard && (
         <div className="row wrap">
           <span>
-            Carte {g.activationIndex + 1}/{p.terrain.length} : <strong>{cur ? card(cur).name : "—"}</strong>. Applique son effet si possible.
+            {done ? `${done} carte${done > 1 ? "s" : ""} activée${done > 1 ? "s" : ""}. ` : ""}Tes cartes vont s'activer dans l'ordre de lecture.
+          </span>
+          <button className="primary glow" disabled={busy} onClick={() => runAuto({ t: "activate", by: uid })}>✨ Activer mes cartes</button>
+        </div>
+      )}
+      {g.phase === "activation" && manualCard && (
+        <div className="row wrap">
+          <span>
+            Carte {done + 1}/{p.terrain.length} : <strong>{card(cur).name}</strong>
+            {auto ? " (effet manuel : applique-le avec les outils)." : ". Applique son effet si possible."}
           </span>
           <button className="primary" onClick={() => run((r, gg) => E.activationStep(r, gg, true))}>Effet appliqué → suivante</button>
           <button onClick={() => run((r, gg) => E.activationStep(r, gg, false))}>Impossible → suivante</button>
@@ -255,7 +300,7 @@ function TurnControls({ g, room, myTurn, run }: { g: GameState; room: Room; myTu
       {g.phase === "end" && (
         <div className="row wrap">
           <span>Termine ton tour : tu piocheras jusqu'à {g.handSize} cartes.</span>
-          <button className="primary" onClick={() => run((r, gg) => E.endTurn(r, gg))}>Fin du tour</button>
+          <button className="primary" disabled={busy} onClick={() => (auto ? runAuto({ t: "endTurn", by: uid }) : run((r, gg) => E.endTurn(r, gg)))}>Fin du tour</button>
           <button className="ghost" onClick={() => run((r, gg) => E.grantExtraAction(r, gg))}>+1 pose (effet de carte)</button>
         </div>
       )}

@@ -190,3 +190,93 @@ fieldset { border: 0; padding: 0; margin: 0; }
 .num { width: 90px; }
 .discard-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .vote-opts { display: grid; gap: 8px; margin: 12px 0; }
+
+/* ---------- Mode automatique ---------- */
+.auto-badge { color: var(--ok); border-color: #5ee0a088; }
+.auto-toggle { align-items: flex-start; margin: 12px 0 4px; padding: 10px; border-radius: 10px; background: var(--panel2); line-height: 1.4; }
+.card-auto { position: absolute; bottom: 30%; right: 3px; font-size: 11px; background: #0d3b2acc; color: var(--ok); border-radius: 6px; padding: 0 4px; }
+.rules { background: #ffcf5a12; border-left: 3px solid var(--gold); padding: 6px 8px; border-radius: 6px; }
+.placing-banner.waiting { background: #12324af2; border-color: #5ab8ff; }
+button.glow { animation: glow 1.6s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 0 18px var(--accent); } }
+
+/* Fenêtre de choix */
+.choice-bg { z-index: 19; background: #05030b99; }
+.choice-modal { max-width: 860px; border-color: var(--accent); box-shadow: 0 0 40px #7c4dff55; animation: pop-in 0.25s ease-out; }
+.choice-source { color: var(--gold); margin-bottom: 4px; }
+.choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.choice-player { display: grid; gap: 4px; text-align: left; padding: 10px; }
+.choice-cards { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.choice-card { display: grid; gap: 4px; justify-items: center; }
+@keyframes pop-in { from { transform: scale(0.92); opacity: 0; } }
+
+/* ---------- Juice ---------- */
+.card { transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s; }
+.terrain .card, .hand-cards .card { animation: card-in 0.35s ease-out; }
+@keyframes card-in { from { transform: translateY(14px) scale(0.9); opacity: 0; } }
+
+.fx-activate { animation: fx-activate 1.1s ease-out; z-index: 2; }
+@keyframes fx-activate {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--gold); }
+  25% { transform: translateY(-10px) scale(1.12); box-shadow: 0 0 0 3px var(--gold), 0 0 40px var(--gold); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+}
+.fx-fail { animation: fx-shake 0.5s; filter: grayscale(0.6); }
+@keyframes fx-shake { 20%, 60% { transform: translateX(-5px) rotate(-2deg); } 40%, 80% { transform: translateX(5px) rotate(2deg); } }
+.fx-arrive { animation: fx-arrive 0.5s ease-out; }
+@keyframes fx-arrive { from { transform: scale(1.3) rotate(-6deg); opacity: 0.2; box-shadow: 0 0 24px var(--accent); } }
+
+.fx-bump-up { animation: bump-up 0.6s; }
+.fx-bump-down { animation: bump-down 0.6s; }
+@keyframes bump-up { 30% { transform: scale(1.35); background: #ffcf5a55; } }
+@keyframes bump-down { 30% { transform: scale(0.85); background: #ff6b8a55; } }
+.fx-pulse { animation: pulse 0.7s; }
+@keyframes pulse { 30% { transform: scale(1.3); box-shadow: 0 0 18px currentColor; } }
+.fx-swirl { animation: swirl 0.9s ease-in-out; display: inline-block; }
+@keyframes swirl { 50% { transform: rotate(360deg) scale(1.3); box-shadow: 0 0 22px var(--accent); } }
+
+.fx-float {
+  position: fixed; z-index: 50; pointer-events: none; transform: translate(-50%, 0);
+  font-weight: 800; font-size: 18px; text-shadow: 0 2px 6px #000; animation: float-up 1.3s ease-out forwards;
+}
+.fx-float.up { color: var(--gold); }
+.fx-float.down { color: var(--bad); }
+.fx-float.bh { color: var(--accent); }
+@keyframes float-up { 0% { opacity: 0; transform: translate(-50%, 6px) scale(0.7); } 15% { opacity: 1; transform: translate(-50%, -8px) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -60px); } }
+.fx-coin { position: fixed; z-index: 49; pointer-events: none; font-size: 16px; animation: coin 1.1s ease-out forwards; }
+@keyframes coin { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) rotate(540deg); opacity: 0; } }
+
+.fx-banner {
+  position: fixed; z-index: 45; top: 64px; left: 50%; transform: translateX(-50%); pointer-events: none;
+  padding: 10px 22px; border-radius: 99px; font-family: Cinzel, serif; font-weight: 700; font-size: 18px;
+  background: linear-gradient(90deg, #3b2a6bf2, #5a33c9f2); border: 1px solid var(--gold); box-shadow: 0 6px 30px #000a, 0 0 24px #ffcf5a44;
+  animation: banner 1.6s ease-out forwards;
+}
+.fx-banner.fail { border-color: var(--bad); background: linear-gradient(90deg, #4a1a2af2, #6b2240f2); }
+@keyframes banner { 0% { opacity: 0; transform: translate(-50%, -14px) scale(0.9); } 12% { opacity: 1; transform: translate(-50%, 0) scale(1.04); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -6px); } }
+
+.fx-die-wrap { position: fixed; z-index: 46; inset: 0; display: grid; place-content: center; justify-items: center; gap: 8px; pointer-events: none; background: #05030b55; }
+.fx-die {
+  width: 90px; height: 90px; display: grid; place-items: center; font-size: 40px; font-weight: 800; border-radius: 18px;
+  background: linear-gradient(145deg, #f4ecff, #c9b6ff); color: #1a1233; box-shadow: 0 10px 40px #000c; animation: die-spin 0.12s linear infinite;
+}
+.fx-die.final { animation: die-land 0.4s ease-out; box-shadow: 0 0 40px var(--gold); }
+@keyframes die-spin { 50% { transform: rotate(18deg) scale(0.95); } }
+@keyframes die-land { 0% { transform: scale(1.4); } 100% { transform: scale(1); } }
+
+/* Météo du trou noir sur le plateau */
+.board { position: relative; overflow: hidden; }
+[class*="fx-weather-"]::after { content: ""; position: absolute; inset: 0; pointer-events: none; animation: weather-fade 1.8s ease-out forwards; }
+.fx-weather-rain::after { background: repeating-linear-gradient(105deg, transparent 0 14px, #7ab8ff55 14px 16px); background-size: 200% 200%; animation: rain 1.8s linear forwards; }
+.fx-weather-snow::after { background-image: radial-gradient(#fff 1.5px, transparent 2px), radial-gradient(#fff 1px, transparent 1.5px); background-size: 40px 40px, 26px 26px; animation: snow 1.8s linear forwards; }
+.fx-weather-wind::after { background: repeating-linear-gradient(0deg, transparent 0 22px, #c9e6ff33 22px 24px); animation: wind 1.8s linear forwards; }
+.fx-weather-heat::after { background: radial-gradient(ellipse at 50% 120%, #ff9a3c66, transparent 60%); animation: heat 1.8s ease-in-out forwards; }
+@keyframes rain { from { background-position: 0 -200px; opacity: 1; } to { background-position: -80px 200px; opacity: 0; } }
+@keyframes snow { from { background-position: 0 -60px, 10px -40px; opacity: 1; } to { background-position: 20px 120px, -10px 100px; opacity: 0; } }
+@keyframes wind { from { transform: translateX(-60%); opacity: 1; } to { transform: translateX(60%); opacity: 0; } }
+@keyframes heat { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes weather-fade { to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
