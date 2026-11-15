@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Un salon = un document. Tout joueur connecté (anonyme) peut le lire et le modifier :
+    // c'est une table virtuelle entre amis, les joueurs appliquent eux-mêmes les effets.
+    match /rooms/{roomId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.hostUid == request.auth.uid
+        && roomId.size() == 5;
+      allow update: if request.auth != null
+        && request.resource.data.hostUid == resource.data.hostUid;
+      allow delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

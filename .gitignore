@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.firebase/
+*.log
+firebase-debug*.log
+firestore-debug.log
+ui-debug.log
+.DS_Store
+# Images sources lourdes (converties en public/cards/*.webp)
+data/images/
+*.tsbuildinfo
