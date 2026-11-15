@@ -10,7 +10,10 @@ import FxLayer from "./FxLayer";
 import CardView from "./CardView";
 import CardModal, { type Placing } from "./CardModal";
 import PlayerModal from "./PlayerModal";
-import PlayerBoard, { BH, BW, type DragSrc, type Seat } from "./PlayerBoard";
+import PlayerBoard, { BH, BW, Gauge, type DragSrc, type Seat } from "./PlayerBoard";
+import { DeckModal, TerrainModal } from "./Viewers";
+import { sfx, setMuted, useMuted } from "./sfx";
+import { claimWord, teamProgress, voteWord } from "../game/victory";
 import HoverCard from "./HoverCard";
 import { VersionTag } from "./UpdatePrompt";
 import { PLAYER_COLORS } from "./pose";
@@ -19,7 +22,7 @@ import { dealDuration, useCardFlip } from "./useCardFlip";
 
 const PHASE_LABEL = { activation: "Activation", action: "Poser / défausser", end: "Fin du tour" };
 
-/** Place les plateaux autour de la table : le mien en bas, les autres dans l'ordre du tour, face au centre. */
+/** Place les plateaux en cercle autour de la table (le mien en bas), tous à l'endroit pour rester lisibles. */
 function seats(n: number, W: number, H: number): Seat[] {
   const HUB_W = 160;
   const HUB_H = 175;
@@ -30,7 +33,7 @@ function seats(n: number, W: number, H: number): Seat[] {
     let ok = true;
     for (let i = 0; i < n; i++) {
       const a = 90 + (i * 360) / n;
-      const rot = (((Math.round((a - 90) / 90) * 90) % 360) + 360) % 360;
+      const rot = 0;
       const rad = (a * Math.PI) / 180;
       const vertical = rot % 180 !== 0;
       const hx = ((vertical ? BH : BW) * s) / 2;
@@ -81,6 +84,9 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
   const [err, setErr] = useState("");
   const [showLog, setShowLog] = useState(false);
+  const [viewTerrain, setViewTerrain] = useState<string | null>(null);
+  const [viewDeck, setViewDeck] = useState<string | null>(null);
+  const muted = useMuted();
   const [fresh] = useState(() => !!g.startedAt && Date.now() - g.startedAt < 15000 && g.round === 1 && g.turn === 0);
   const arena = useRef<HTMLDivElement>(null);
   const size = useSize(arena);
@@ -92,7 +98,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const myTurn = current === uid;
   const isHost = room.hostUid === uid;
   const auto = room.auto !== false;
-  const canPlay = isPlayer && myTurn && g.phase === "action" && !g.pending;
+  // Pas de pose pendant la phase 1 ni pendant une animation.
+  const canPlay = isPlayer && myTurn && g.phase === "action" && !g.pending && !fx.busy;
   const moving: DragSrc | null = drag ?? placing;
 
   // Infos contextuelles : la météo n'est évoquée que si le deck Météo est en jeu.
@@ -114,8 +121,16 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         setDrag(null);
       }
     };
+    // Petit clic sonore sur chaque bouton.
+    const c = (e: PointerEvent) => {
+      if ((e.target as HTMLElement | null)?.closest("button:not(:disabled), select, input[type=checkbox]")) sfx.click();
+    };
     addEventListener("keydown", k);
-    return () => removeEventListener("keydown", k);
+    addEventListener("pointerdown", c);
+    return () => {
+      removeEventListener("keydown", k);
+      removeEventListener("pointerdown", c);
+    };
   }, []);
 
   // ----- Déroulé automatique du tour (exécuté par le client du joueur actif) -----
@@ -205,7 +220,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         <span className="grow" />
         {!isPlayer && <span className="badge">Spectateur</span>}
         <Dice run={run} uid={uid} enabled={isPlayer && myTurn} />
-        <button className="ghost" onClick={() => setShowLog((v) => !v)}>📜 Journal</button>
+        <button className="ghost" title={muted ? "Activer le son" : "Couper le son"} onClick={() => setMuted(!muted)}>{muted ? "🔇" : "🔊"}</button>
+        <button className="ghost" onClick={() => (sfx.click(), setShowLog((v) => !v))}>📜 Journal</button>
         <button className="ghost" onClick={() => (location.hash = "")}>Quitter</button>
       </header>
 
@@ -239,6 +255,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
                 setDrag(s);
               }}
               onDragEnd={() => setTimeout(() => setDrag(null), 0)}
+              onShowTerrain={setViewTerrain}
+              onShowDeck={(o) => setViewDeck(room.players[o]?.deck ?? null)}
             />
           ) : null,
         )}
@@ -249,11 +267,17 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
             <CardView id={g.commonVC} size="s" onClick={() => setOpenCard(g.commonVC)} onHover={onHover} />
           </div>
           <div className="hub-teams">
-            {teams.map((t) => (
-              <span key={t} className={`team-dot ${g.commonDone.includes(t) ? "done" : ""}`} title={`${E.teamLabel(room, t)} : ${g.commonDone.includes(t) ? "remplie" : "pas encore"}`}>
-                {g.commonDone.includes(t) ? "✔ " : ""}{E.teamLabel(room, t)}
-              </span>
-            ))}
+            {teams.map((t) => {
+              const done = g.commonDone.includes(t);
+              const best = done ? null : teamProgress(room, g, t);
+              return (
+                <span key={t} className={`team-dot ${done ? "done" : ""}`} style={{ ["--pc" as string]: colorOf(E.teamMembers(room, t)[0]) }} title={best?.prog.text ?? (done ? "remplie" : "")}>
+                  <span className="team-name">{done ? "✔ " : ""}{E.teamLabel(room, t)}</span>
+                  {best && <Gauge ratio={best.prog.ratio} />}
+                  {best && <span className="team-prog">{best.prog.text}</span>}
+                </span>
+              );
+            })}
           </div>
         </div>
 
@@ -271,13 +295,14 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       </div>
 
       {err && <p className="toast error" onClick={() => setErr("")}>{err}</p>}
-      {showLog && <Log g={g} onClose={() => setShowLog(false)} />}
+      {showLog && <Log g={g} room={room} colorOf={colorOf} onClose={() => setShowLog(false)} />}
 
       {hover && !openCard && !drag && <HoverCard id={hover.id} x={hover.x} y={hover.y} preview={preview} auto={auto} />}
 
       {openCard && (
         <CardModal
           id={openCard}
+          onClaimWord={(w) => run((r, gg) => claimWord(r, gg, uid, w))}
           room={room}
           uid={uid}
           run={run}
@@ -301,6 +326,11 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         />
       )}
       <FxLayer g={g} room={room} me={uid} fresh={fresh} startDelay={fresh ? dealDuration(g) : 0} colorOf={colorOf} />
+      {viewDeck && <DeckModal deck={viewDeck} onCard={setOpenCard} onClose={() => setViewDeck(null)} />}
+      {viewTerrain && g.players[viewTerrain] && (
+        <TerrainModal name={E.nameOf(room, viewTerrain)} terrain={g.players[viewTerrain].terrain} onCard={setOpenCard} onClose={() => setViewTerrain(null)} />
+      )}
+      {g.wordClaim && <WordVote room={room} uid={uid} />}
       {g.vote && <VoteModal room={room} uid={uid} isHost={isHost} />}
       {room.status === "ended" && <EndModal room={room} isHost={isHost} />}
     </div>
@@ -373,11 +403,13 @@ function Dice({ run, uid, enabled }: { uid: string; enabled: boolean; run: (fn: 
   );
 }
 
-function Log({ g, onClose }: { g: GameState; onClose: () => void }) {
+function Log({ g, room, colorOf, onClose }: { g: GameState; room: Room; colorOf: (u: string) => string; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    ref.current?.scrollTo({ top: ref.current.scrollHeight });
+    ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
   }, [g.log.length]);
+  const who = (u?: string) =>
+    u && g.players[u] ? <span className="log-who" style={{ ["--pc" as string]: colorOf(u) }}>{E.nameOf(room, u)}</span> : null;
   return (
     <aside className="log-drawer panel">
       <div className="row">
@@ -386,11 +418,48 @@ function Log({ g, onClose }: { g: GameState; onClose: () => void }) {
         <button className="ghost" onClick={onClose}>✕</button>
       </div>
       <div className="log-body" ref={ref}>
-        {g.log.map((l, i) => (
-          <p key={i} className={l.text.startsWith("—") ? "log-turn" : l.text.startsWith("🎲") ? "log-dice" : ""}>{l.text}</p>
-        ))}
+        {g.log.map((l, i) => {
+          const cls = l.text.startsWith("—") ? "log-turn" : l.text.startsWith("🎲") ? "log-dice" : l.dst || (l.to && l.to !== l.from) ? "log-link" : "";
+          return (
+            <div key={i} className={`log-entry ${cls}`}>
+              {(l.src || l.dst) && (
+                <div className="log-flow">
+                  {l.src && <CardView id={l.src} size="xs" ghost />}
+                  {who(l.from)}
+                  {l.dst && <span className="log-arrow">➜</span>}
+                  {l.dst && <CardView id={l.dst} size="xs" ghost />}
+                  {l.to && l.to !== l.from && who(l.to)}
+                </div>
+              )}
+              <p>{l.text}</p>
+            </div>
+          );
+        })}
       </div>
     </aside>
+  );
+}
+
+/** Vote des autres joueurs sur le mot proposé pour « The Word ». */
+function WordVote({ room, uid }: { room: Room; uid: string }) {
+  const c = room.game!.wordClaim!;
+  const voters = room.game!.order.filter((u) => u !== c.uid);
+  const yes = voters.filter((u) => c.votes[u] === true).length;
+  const no = voters.filter((u) => c.votes[u] === false).length;
+  const canVote = voters.includes(uid);
+  const vote = (ok: boolean) => act(room.code, (r, gg) => voteWord(r, gg, uid, ok));
+  return (
+    <div className="floating-banner word-vote">
+      🔤 <b>{E.nameOf(room, c.uid)}</b> propose « <b>{c.word}</b> » (The Word).
+      {canVote ? (
+        <>
+          <button className={c.votes[uid] === true ? "primary" : ""} onClick={() => vote(true)}>✔ Valide ({yes})</button>
+          <button className={c.votes[uid] === false ? "primary" : ""} onClick={() => vote(false)}>✖ Refusé ({no})</button>
+        </>
+      ) : (
+        <span className="muted"> Vote en cours : {yes} oui · {no} non</span>
+      )}
+    </div>
   );
 }
 

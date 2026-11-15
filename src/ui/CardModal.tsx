@@ -4,12 +4,14 @@ import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
 import { isAutomated } from "../effects/runtime";
+import { isAutoVC, lettersOf, teamProgress, vcProgress, wordFits } from "../game/victory";
+import { Gauge } from "./PlayerBoard";
 
 export type Placing = { id: string; from: "hand" | "terrain" | "discard" };
 type Run = (fn: (r: Room, g: GameState) => void) => void;
 
-export default function CardModal({ id, room, uid, run, onPlace, onClose }: {
-  id: string; room: Room; uid: string; run: Run; onPlace: (p: Placing) => void; onClose: () => void;
+export default function CardModal({ id, room, uid, run, onPlace, onClose, onClaimWord }: {
+  id: string; room: Room; uid: string; run: Run; onPlace: (p: Placing) => void; onClose: () => void; onClaimWord?: (word: string) => void;
 }) {
   const g = room.game!;
   const c = card(id);
@@ -17,6 +19,7 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose }: {
   const isPlayer = !!g.players[uid];
   const myTurn = isPlayer && E.currentPlayer(g) === uid && !g.pending;
   const owner = g.owner[id];
+  const [word, setWord] = useState("");
   const [giveTo, setGiveTo] = useState(g.order.find((u) => u !== uid) ?? uid);
   const doRun = (fn: (r: Room, g: GameState) => void) => {
     run(fn);
@@ -33,6 +36,40 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose }: {
   let actions: React.ReactNode = null;
   if (c.kind === "victory") {
     const holder = g.order.find((u) => g.players[u].personalVC === id);
+    const autoVC = room.auto !== false && isAutoVC(id);
+    const line = (label: string, done: boolean, prog: ReturnType<typeof vcProgress>) => (
+      <div className="vc-prog">
+        <span className="row"><b className="grow">{label}</b>{done ? "✔ Remplie" : prog ? `${Math.round(prog.ratio * 100)} %` : ""}</span>
+        {prog && !done && <Gauge ratio={prog.ratio} />}
+        {prog && !done && <span className="small muted">{prog.text}{prog.endOfTurn ? " · vérifiée en fin de tour" : ""}</span>}
+      </div>
+    );
+    // The Word : le joueur propose un mot, les autres votent.
+    const wordFor = id === "VC-EMI-1" && isPlayer && !g.wordClaim &&
+      ((holder === uid && !g.players[uid].personalDone) || (g.commonVC === id && !g.commonDone.includes(E.teamKey(room, uid))));
+    const letters = isPlayer ? lettersOf(g.players[uid]) : [];
+    const wordBox = wordFor && onClaimWord ? (
+      <div className="word-box">
+        <span className="small">Tes lettres : <b>{letters.join(" ") || "aucune"}</b></span>
+        <div className="row">
+          <input value={word} onChange={(e) => setWord(e.target.value)} placeholder="Ton mot (plus de 3 lettres)" />
+          <button className="primary" disabled={!wordFits(word, letters)} onClick={() => { onClaimWord(word); onClose(); }}>Proposer</button>
+        </div>
+      </div>
+    ) : null;
+    if (autoVC) {
+      actions = holder ? (
+        <>{line(`Condition de ${E.nameOf(room, holder)}`, g.players[holder].personalDone, vcProgress(room, g, id, holder))}{wordBox}</>
+      ) : g.commonVC === id ? (
+        <>
+          <span className="small muted">Condition commune :</span>
+          {[...new Set(g.order.map((u) => E.teamKey(room, u)))].map((t) => (
+            <div key={t}>{line(E.teamLabel(room, t), g.commonDone.includes(t), teamProgress(room, g, t)?.prog ?? null)}</div>
+          ))}
+          {wordBox}
+        </>
+      ) : null;
+    } else
     actions = holder ? (
       <label className="check">
         <input type="checkbox" checked={g.players[holder].personalDone} disabled={!isPlayer} onChange={(e) => run((r, gg) => E.setPersonalDone(r, gg, holder, e.target.checked))} />

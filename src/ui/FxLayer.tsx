@@ -5,6 +5,7 @@ import type { Fx, GameState, Room } from "../game/types";
 import { BLACK_HOLES, showWeather } from "../game/types";
 import { fxStore } from "./fxStore";
 import { css, nearRot, poseOf, poseTransform, q, type Pose } from "./pose";
+import { sfx } from "./sfx";
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Attend la fin d'une animation, sans jamais bloquer la file si le navigateur la gèle (fenêtre non affichée). */
@@ -68,16 +69,70 @@ function fly(from: { x: number; y: number }, to: { x: number; y: number }, text:
   return done(a).then(() => el.remove());
 }
 
-async function burst(from: { x: number; y: number } | null, to: { x: number; y: number } | null, text: string, n: number, speed: number) {
+type Pt = { x: number; y: number };
+async function burst(from: Pt | null, to: Pt | null, text: string, n: number, speed: number, onLand?: (i: number) => void) {
   if (!from || !to) return;
   const all: Promise<void>[] = [];
-  for (let i = 0; i < n; i++) all.push(fly(from, to, text, i * 55 * speed, 650 * speed));
+  // Les pièces partent en rafale : la durée totale reste courte même pour 25 pièces.
+  const gap = Math.min(55, 900 / Math.max(1, n)) * speed;
+  for (let i = 0; i < n; i++) all.push(fly(from, to, text, i * gap, 650 * speed).then(() => onLand?.(i)));
   await Promise.all(all);
+}
+
+/** Flèche animée d'un point à un autre (carte qui agit sur une autre carte). */
+function arrow(from: Pt, to: Pt, color: string, speed: number) {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", "fx-arrow");
+  svg.setAttribute("width", String(innerWidth));
+  svg.setAttribute("height", String(innerHeight));
+  const id = `ah${Math.random().toString(36).slice(2, 8)}`;
+  const defs = document.createElementNS(NS, "defs");
+  const marker = document.createElementNS(NS, "marker");
+  marker.setAttribute("id", id);
+  marker.setAttribute("viewBox", "0 0 10 10");
+  marker.setAttribute("refX", "8");
+  marker.setAttribute("refY", "5");
+  marker.setAttribute("markerWidth", "5");
+  marker.setAttribute("markerHeight", "5");
+  marker.setAttribute("orient", "auto-start-reverse");
+  const tip = document.createElementNS(NS, "path");
+  tip.setAttribute("d", "M0,0 L10,5 L0,10 z");
+  tip.setAttribute("fill", color);
+  marker.append(tip);
+  defs.append(marker);
+  const mx = (from.x + to.x) / 2;
+  const my = (from.y + to.y) / 2 - Math.min(160, Math.hypot(to.x - from.x, to.y - from.y) * 0.3);
+  const path = document.createElementNS(NS, "path");
+  path.setAttribute("d", `M${from.x},${from.y} Q${mx},${my} ${to.x},${to.y}`);
+  path.setAttribute("stroke", color);
+  path.setAttribute("marker-end", `url(#${id})`);
+  svg.append(defs, path);
+  document.body.appendChild(svg);
+  const len = path.getTotalLength();
+  path.style.strokeDasharray = `${len}`;
+  const a = path.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: 550 * speed, easing: EASE, fill: "forwards" });
+  setTimeout(() => svg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, fill: "forwards" }).finished.then(() => svg.remove(), () => svg.remove()), 1500);
+  setTimeout(() => svg.remove(), 3000);
+  return done(a);
+}
+
+/** Petite bulle de résumé posée sur le plateau, près de la carte touchée. */
+function bubble(at: Pt | null, text: string, color: string) {
+  if (!at) return;
+  const el = document.createElement("div");
+  el.className = "fx-bubble";
+  el.style.left = `${at.x}px`;
+  el.style.top = `${at.y}px`;
+  el.style.setProperty("--pc", color);
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
 }
 
 const WEATHER: Record<string, string> = { Primordial: "snow", Quasar: "wind", Blazard: "rain", "Trou de ver": "heat" };
 
-function makeCard(id: string, label?: string) {
+function makeCard(id: string, label?: string, text?: string) {
   const el = document.createElement("div");
   el.className = "fx-center-card";
   el.style.width = `${CW}px`;
@@ -94,6 +149,12 @@ function makeCard(id: string, label?: string) {
     l.className = "fx-center-label";
     l.textContent = label;
     el.append(l);
+  }
+  if (text) {
+    const t = document.createElement("span");
+    t.className = "fx-center-text";
+    t.textContent = text;
+    el.append(t);
   }
   q(".fx-layer")?.appendChild(el);
   return el;
@@ -113,6 +174,8 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
   const [banner, setBanner] = useState<{ text: string; key: number; kind: string } | null>(null);
   const [turn, setTurn] = useState<{ name: string; color: string; key: number; mine: boolean } | null>(null);
   const [die, setDie] = useState<{ faces: number; value: number; shown: number; who: string; color: string } | null>(null);
+  const [phase, setPhase] = useState<{ n: number; label: string; key: number; color: string } | null>(null);
+  const [win, setWin] = useState<{ name: string; card: string; color: string; key: number; common: boolean } | null>(null);
 
   useEffect(() => {
     const list = g.fx ?? [];
@@ -243,6 +306,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
     switch (f.k) {
       case "turn": {
         await hideCenter(speed);
+        sfx.turn();
         setTurn({ name: E.nameOf(room, f.uid), color: colorOf(f.uid), key: f.id, mine: f.uid === me });
         await wait(1500 * Math.max(speed, 0.6));
         setTurn(null);
@@ -251,6 +315,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       case "activate": {
         await showCenter(f.card, speed);
         const el = centerCard.current?.el;
+        sfx.activate();
         if (el) flash(el, "glow", 900);
         await wait(380 * speed);
         break;
@@ -265,6 +330,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
           stamp.textContent = "✖ Impossible";
           el.appendChild(stamp);
         }
+        sfx.fail();
         setBanner({ text: `✖ ${card(f.card).name} ne peut pas s'activer`, key: f.id, kind: "fail" });
         await wait(1000 * Math.max(speed, 0.6));
         break;
@@ -273,9 +339,13 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         const odo = q(`[data-gold="${css(f.uid)}"]`);
         const target = mid(odo);
         const origin = centerPoint() ?? (target ? { x: target.x, y: target.y - 120 } : null);
-        const n = Math.max(3, Math.min(10, Math.round(Math.abs(f.delta) / 3)));
-        if (f.delta > 0) await burst(origin, target, "🪙", n, speed);
-        else await burst(target, origin, "🪙", n, speed);
+        // Une pièce par gold, plafonnée à 25.
+        const n = Math.max(1, Math.min(25, Math.abs(f.delta)));
+        if (f.delta > 0) await burst(origin, target, "🪙", n, speed, (i) => sfx.coin(i));
+        else {
+          sfx.loss();
+          await burst(target, origin, "🪙", n, speed);
+        }
         const cur = fxStore.get().held[f.uid]?.gold;
         if (cur !== undefined) fxStore.hold(f.uid, { gold: cur + f.delta });
         flash(odo, f.delta > 0 ? "fx-bump-up" : "fx-bump-down", 600);
@@ -285,7 +355,12 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       }
       case "sentience": {
         const el = q(`[data-sent="${css(f.uid)}"]`);
-        await burst(centerPoint(), mid(el), "🧠", 3, speed);
+        // Une seule icône : de la carte vers la ressource (gain) ou l'inverse (perte).
+        const at = mid(el);
+        const from = centerPoint() ?? (at ? { x: at.x, y: at.y - 140 } : null);
+        sfx.sentience();
+        if (f.v) await burst(from, at, "🧠", 1, speed);
+        else await burst(at, from, "🧠", 1, speed);
         fxStore.hold(f.uid, { sentience: f.v });
         flash(el, "fx-pulse", 700);
         floatText(mid(el), f.v ? "🧠 Vraie" : "🧠 Fausse", f.v ? "up" : "down");
@@ -294,7 +369,10 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       }
       case "bh": {
         const el = q(`[data-bh="${css(f.uid)}"]`);
-        await burst(centerPoint(), mid(el), "🌀", 3, speed);
+        const at = mid(el);
+        const from = centerPoint() ?? (at ? { x: at.x, y: at.y - 140 } : null);
+        sfx.blackHole();
+        await burst(from, at, "🌀", 1, speed);
         fxStore.hold(f.uid, { bh: f.to });
         flash(el, "fx-swirl", 900);
         if (showWeather()) flash(q(`[data-board="${css(f.uid)}"]`), `fx-weather-${WEATHER[f.to] ?? "snow"}`, 1800);
@@ -307,6 +385,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         await hideCenter(speed);
         const who = E.nameOf(room, f.uid);
         const color = colorOf(f.uid);
+        sfx.dice();
         for (let i = 0; i < 7; i++) {
           setDie({ faces: f.faces, value: f.value, shown: 1 + Math.floor(Math.random() * f.faces), who, color });
           await wait(60 * speed);
@@ -319,7 +398,9 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       case "vc": {
         await hideCenter(speed);
         const label = f.uid ? `${E.nameOf(room, f.uid)} reçoit` : "Condition commune";
-        const el = makeCard(f.card, label);
+        // On annonce aussi ce qu'il faut faire pour la remplir.
+        const el = makeCard(f.card, label, card(f.card).text);
+        sfx.vc();
         const c = center();
         await done(el.animate(
           [
@@ -329,7 +410,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
           { duration: 450 * speed, easing: EASE, fill: "forwards" },
         ));
         setBanner({ text: `🏁 ${label} : ${card(f.card).name}`, key: f.id, kind: "info" });
-        await wait(1300 * speed);
+        await wait(2600 * Math.max(speed, 0.6));
         const dest = q(`[data-vc="${css(f.uid ?? "common")}"]`);
         const to = poseOf(dest);
         await done(el.animate(
@@ -344,6 +425,42 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
           dest.style.opacity = "";
           flash(dest, "fx-pulse", 700);
         }
+        break;
+      }
+      case "phase": {
+        const n = f.phase === "activation" ? 1 : f.phase === "action" ? 2 : 3;
+        const label = f.phase === "activation" ? "Activation du terrain" : f.phase === "action" ? "Poser ou défausser une carte" : "Pioche jusqu'à 4";
+        sfx.phase();
+        setPhase({ n, label, key: f.id, color: colorOf(f.uid) });
+        await wait(900 * Math.max(speed, 0.5));
+        break;
+      }
+      case "vcDone": {
+        await hideCenter(speed);
+        const common = f.card === gRef.current.commonVC;
+        sfx.victory();
+        setWin({ name: E.nameOf(room, f.uid), card: f.card, color: colorOf(f.uid), key: f.id, common });
+        await wait(3200);
+        setWin(null);
+        flash(q(`[data-vc="${css(common ? "common" : f.uid)}"]`), "fx-pulse", 900);
+        break;
+      }
+      case "link": {
+        // Une carte agit sur une autre : flèche de la carte source vers la carte touchée.
+        const fromCenter = centerCard.current?.id === f.from;
+        const from = fromCenter ? { x: center().cx, y: center().cy } : mid(q(`.arena [data-card="${css(f.from)}"]`));
+        let dest = q(`.arena [data-card="${css(f.to)}"]`);
+        if (!dest) {
+          const at = E.locate(gRef.current, f.to);
+          dest = at ? q(`[data-pile="${css(`${at.zone}:${at.uid}`)}"]`) : null;
+        }
+        const to = mid(dest) ?? mid(f.toUid ? q(`[data-board="${css(f.toUid)}"]`) : null);
+        const color = f.toUid ? colorOf(f.toUid) : "#ffd76a";
+        sfx.link();
+        if (from && to) await arrow(from, to, color, speed);
+        if (dest) flash(dest, "fx-linked", 1400);
+        bubble(to, `${card(f.from).name} → ${f.text}${f.toUid ? ` · ${E.nameOf(room, f.toUid)}` : ""}`, color);
+        await wait(350 * speed);
         break;
       }
       case "banner": {
@@ -369,6 +486,20 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         <div key={turn.key} className="fx-turn" style={{ ["--pc" as string]: turn.color }}>
           <span className="fx-turn-sub">{turn.mine ? "À toi de jouer" : "Au tour de"}</span>
           <span className="fx-turn-name">{turn.name}</span>
+        </div>
+      )}
+      {phase && (
+        <div key={phase.key} className="fx-phase" style={{ ["--pc" as string]: phase.color }} onAnimationEnd={() => setPhase((p) => (p?.key === phase.key ? null : p))}>
+          <span className="fx-phase-n">Phase {phase.n}</span>
+          <span className="fx-phase-label">{phase.label}</span>
+        </div>
+      )}
+      {win && (
+        <div key={win.key} className="fx-win" style={{ ["--pc" as string]: win.color }}>
+          <span className="fx-win-sub">🏁 Condition {win.common ? "commune" : "personnelle"} remplie</span>
+          <img src={cardImage(win.card)} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
+          <span className="fx-win-name">{win.name}</span>
+          <span className="fx-win-card">« {card(win.card).name} »</span>
         </div>
       )}
       {die && (

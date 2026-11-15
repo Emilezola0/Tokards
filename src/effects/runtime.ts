@@ -9,6 +9,7 @@ import * as E from "../game/engine";
 import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room } from "../game/types";
 import { BLACK_HOLES, blackHoleLabel, showWeather } from "../game/types";
 import { SCRIPTS } from "./scripts";
+import "../game/victory";
 
 export type Self = { id: string; me: string };
 export type GameEvent =
@@ -43,6 +44,8 @@ export class Ctx {
   private depth = 0;
   /** joueur dont l'effet est en train de s'appliquer */
   actor: string | null = null;
+  /** carte dont l'effet est en train de s'appliquer */
+  source: string | null = null;
   private muteInteractions = 0;
 
   /** Mode aperçu : les questions reçoivent une réponse par défaut et sont mémorisées. */
@@ -74,8 +77,8 @@ export class Ctx {
   }
 
   // ----- journal & effets visuels -----
-  log(text: string) {
-    E.log(this.g, text);
+  log(text: string, extra?: { src?: string; dst?: string; from?: string; to?: string }) {
+    E.log(this.g, text, { src: this.source ?? undefined, from: this.actor ?? undefined, ...extra });
   }
   fx(f: FxInput) {
     if (f.k === "move") return; // les déplacements sont animés directement par la table
@@ -160,12 +163,15 @@ export class Ctx {
           const h = SCRIPTS[id]?.on?.[e.type] as ((x: Ctx, s: Self, e: GameEvent) => void) | undefined;
           if (!h || !this.p(uid).terrain.includes(id)) continue;
           const prevActor = this.actor;
+          const prevSource = this.source;
           this.actor = uid;
+          this.source = id;
           if (e.type === "interaction") this.muteInteractions++;
           try {
             h(this, { id, me: uid }, e);
           } finally {
             this.actor = prevActor;
+            this.source = prevSource;
             if (e.type === "interaction") this.muteInteractions--;
           }
         }
@@ -178,16 +184,20 @@ export class Ctx {
   interact(target: string, what: string) {
     const actor = this.actor;
     if (!actor || this.muteInteractions > 0 || !this.p(actor)) return;
-    const p = this.p(actor);
-    p.stats = { interactions: (p.stats?.interactions ?? 0) + 1, goldMoved: p.stats?.goldMoved ?? 0 };
+    const s = E.st(this.p(actor));
+    s.interactions = (s.interactions ?? 0) + 1;
+    if (target !== actor && this.p(target)) {
+      s.interOthers = (s.interOthers ?? 0) + 1;
+      if (!(s.met ?? []).includes(target)) s.met = [...(s.met ?? []), target];
+    }
     this.emit({ type: "interaction", actor, target, what });
   }
   /** Gold passés d'un joueur à un autre à cause de l'acteur. */
   moved(n: number) {
     const actor = this.actor;
     if (!actor || n <= 0 || !this.p(actor)) return;
-    const p = this.p(actor);
-    p.stats = { interactions: p.stats?.interactions ?? 0, goldMoved: (p.stats?.goldMoved ?? 0) + n };
+    const s = E.st(this.p(actor));
+    s.goldMoved = (s.goldMoved ?? 0) + n;
   }
 
   // ----- outils de calcul -----
@@ -210,6 +220,7 @@ export class Ctx {
 
   /** À appeler par un passif qui se déclenche, pour l'effet visuel et le journal. */
   triggered(self: Self, what: string) {
+    this.countOffTurn(self.id, self.me);
     this.fx({ k: "activate", card: self.id, uid: self.me });
     this.log(`⚡ « ${card(self.id).name} » (${this.name(self.me)}) : ${what}`);
   }
@@ -221,8 +232,10 @@ export class Ctx {
     const p = this.p(uid);
     p.gold += n;
     p.goldGainedSince = (p.goldGainedSince ?? 0) + n;
+    const s = E.st(p);
+    if (uid === this.current && s.gainSinceBH != null) s.gainSinceBH += n;
     this.fx({ k: "gold", uid, delta: n });
-    this.log(`${this.name(uid)} gagne ${n} gold (${p.gold}).`);
+    this.log(`${this.name(uid)} gagne ${n} gold (${p.gold}).`, { to: uid });
     this.interact(uid, "gold");
     this.emit({ type: "goldGained", uid, amount: n });
     return n;
@@ -233,8 +246,9 @@ export class Ctx {
     const real = p.allowNegativeGold ? n : Math.min(n, Math.max(0, p.gold));
     if (real <= 0) return 0;
     p.gold -= real;
+    E.st(p).lost = (E.st(p).lost ?? 0) + real;
     this.fx({ k: "gold", uid, delta: -real });
-    this.log(`${this.name(uid)} perd ${real} gold (${p.gold}).`);
+    this.log(`${this.name(uid)} perd ${real} gold (${p.gold}).`, { to: uid });
     this.interact(uid, "gold");
     this.emit({ type: "goldLost", uid, amount: real });
     return real;
@@ -251,6 +265,8 @@ export class Ctx {
       return false;
     }
     this.lose(uid, n);
+    const s = E.st(this.p(uid));
+    s.spent = (s.spent ?? 0) + n;
     return true;
   }
   transfer(from: string, to: string, n: number): number {
@@ -266,6 +282,8 @@ export class Ctx {
     if (ga === gb) return;
     this.p(a).gold = gb;
     this.p(b).gold = ga;
+    const loser = this.p(ga > gb ? a : b);
+    E.st(loser).lost = (E.st(loser).lost ?? 0) + Math.abs(ga - gb);
     this.fx({ k: "gold", uid: a, delta: gb - ga });
     this.fx({ k: "gold", uid: b, delta: ga - gb });
     this.log(`${this.name(a)} et ${this.name(b)} échangent leurs gold (${gb} / ${ga}).`);
@@ -284,7 +302,7 @@ export class Ctx {
     p.sentience = v;
     this.interact(uid, "sentience");
     this.fx({ k: "sentience", uid, v });
-    this.log(`${this.name(uid)} : sentience ${v ? "Vraie" : "Fausse"}.`);
+    this.log(`${this.name(uid)} : sentience ${v ? "Vraie" : "Fausse"}.`, { to: uid });
     this.emit({ type: "sentience", uid, v });
   }
   invertSentience(uid: string) {
@@ -296,10 +314,19 @@ export class Ctx {
     if (from === to) return;
     if (p.locked) return this.log(`🔒 ${this.name(uid)} est bloqué : son trou noir ne change pas.`);
     p.blackHole = to;
+    this.trackBlackHole(uid, to);
     this.interact(uid, "trou noir");
     this.fx({ k: "bh", uid, to });
-    this.log(`${this.name(uid)} : trou noir ${blackHoleLabel(from)} → ${blackHoleLabel(to)}.`);
+    this.log(`${this.name(uid)} : trou noir ${blackHoleLabel(from)} → ${blackHoleLabel(to)}.`, { to: uid });
     this.emit({ type: "blackHole", uid, from, to });
+  }
+  private trackBlackHole(uid: string, to: BlackHole) {
+    const s = E.st(this.p(uid));
+    s.bhHist = [...(s.bhHist ?? []), { pos: E.pos(this.g), bh: to }].slice(-40);
+    if (uid !== this.current) return;
+    s.bhTurn = (s.bhTurn ?? 0) + 1;
+    if (s.gainSinceBH != null && s.gainSinceBH >= 50) s.bhGainHit = true;
+    s.gainSinceBH = 0;
   }
   /** Fait avancer le trou noir d'un cran dans le cycle donné (chaque carte a le sien). */
   cycleBlackHole(uid: string, cycle: BlackHole[]) {
@@ -316,7 +343,11 @@ export class Ctx {
   }
   move(id: string, dest: E.Dest) {
     const at = E.locate(this.g, id);
-    E.moveCard(this.room, this.g, id, dest);
+    const src = this.source;
+    E.moveCard(this.room, this.g, id, dest, !!(src && src !== id && at));
+    if (src && src !== id && at) this.linkMove(src, id, at.uid, dest);
+    if (dest.zone === "terrain" && !(this.g.movedCards ?? []).includes(id)) this.g.movedCards = [...(this.g.movedCards ?? []), id];
+    this.touchCard(id, dest.zone === "terrain" ? dest.uid : null);
     if (at) this.interact(at.uid, at.zone);
     this.fx({ k: "move", card: id });
   }
@@ -343,6 +374,36 @@ export class Ctx {
       : `Les mains tournent : ${list.map((u) => this.name(u)).join(" → ")}.`);
     for (const u of list) this.interact(u, "main");
   }
+  /** Une carte en déplace une autre : flèche sur la table et résumé dans le journal. */
+  private linkMove(src: string, id: string, fromUid: string, dest: E.Dest) {
+    const now = E.locate(this.g, id);
+    const where = now?.uid ?? dest.uid;
+    const verb: Record<string, string> = {
+      discard: "défausse", deck: dest.bottom ? "met au fond de la pioche" : "remet dans la pioche", hand: "met dans la main", terrain: "déplace sur le terrain",
+    };
+    const v = verb[now?.zone ?? dest.zone] ?? "déplace";
+    const label = `${card(id).name}`;
+    const owner = fromUid === where ? this.name(where) : `${this.name(fromUid)} → ${this.name(where)}`;
+    this.fx({ k: "link", from: src, to: id, toUid: where, text: `${v} « ${label} »` });
+    this.log(`🔗 « ${card(src).name} » ${v} « ${label} » (${owner}).`, { dst: id, to: where });
+  }
+
+  /** L'acteur touche une carte d'un autre joueur (ou envoie une des siennes chez un autre) : condition « Pas le paff ». */
+  touchCard(id: string, toTerrainOf: string | null) {
+    const actor = this.actor;
+    if (!actor) return;
+    const owner = this.g.owner[id];
+    if (!(owner && owner !== actor) && !(toTerrainOf && toTerrainOf !== actor)) return;
+    const s = E.st(this.p(actor));
+    const t = s.cardTags ?? { s: [], g: [], b: [] };
+    if ([...t.s, ...t.g, ...t.b].includes(id)) return;
+    const tg = card(id).tags;
+    const opts = (["s", "g", "b"] as const).filter((k) => (k === "s" ? tg.sentience : k === "g" ? tg.gold : tg.blackHole));
+    if (!opts.length) return;
+    // Une carte à plusieurs tags compte pour le tag le moins rempli.
+    const k = opts.reduce((a, b) => (t[b].length < t[a].length ? b : a));
+    s.cardTags = { ...t, [k]: [...t[k], id] };
+  }
   /** Bloque la sentience et le trou noir du joueur jusqu'au début de son prochain tour. */
   lock(uid: string) {
     this.p(uid).locked = true;
@@ -359,18 +420,34 @@ export class Ctx {
       this.log(`« ${c.name} » n'a pas d'effet à activer (passif).`);
       return;
     }
+    this.countOffTurn(id, me);
+    if (this.source && this.source !== id) {
+      this.fx({ k: "link", from: this.source, to: id, toUid: me, text: `réactive « ${c.name} »` });
+      this.log(`🔗 « ${card(this.source).name} » réactive « ${c.name} ».`, { dst: id, to: me });
+    }
     this.fx({ k: "activate", card: id, uid: me });
-    this.log(`✨ ${this.name(me)} active « ${c.name} ».`);
     const prevActor = this.actor;
+    const prevSource = this.source;
     this.actor = me;
+    this.source = id;
+    this.log(`✨ ${this.name(me)} active « ${c.name} ».`);
     try {
       if (s.activate(this, { id, me }) === false) {
         this.fx({ k: "fail", card: id, uid: me });
+        if (me === this.current && this.g.phase === "activation") E.st(this.p(me)).failed = (E.st(this.p(me)).failed ?? 0) + 1;
         this.log(`« ${c.name} » : effet impossible.`);
       }
     } finally {
       this.actor = prevActor;
+      this.source = prevSource;
     }
+  }
+
+  /** Une carte de `owner` qui s'active pendant le tour d'un autre (condition « Symbiote »). */
+  private countOffTurn(id: string, me: string) {
+    const owner = this.g.owner[id] ?? me;
+    if (owner === this.current || !this.p(owner)) return;
+    E.st(this.p(owner)).offTurn = (E.st(this.p(owner)).offTurn ?? 0) + 1;
   }
 
   /** Active les cartes du terrain du joueur actif dans le sens de lecture. S'arrête sur une carte non automatisée. */
@@ -379,7 +456,7 @@ export class Ctx {
     while (g.phase === "activation") {
       const id = E.nextActivation(g);
       if (!id) {
-        g.phase = "action";
+        E.setPhase(g, "action");
         break;
       }
       if (!SCRIPTS[id]) return; // carte manuelle : le joueur l'applique lui-même
@@ -429,6 +506,7 @@ export function runEffect(room: Room, action: EffectAction | null, answer?: unkn
   E.RNG.next = () => x.rand();
   try {
     perform(x, act);
+    E.hooks.after?.(room, work);
     room.game = work;
   } catch (e) {
     if (!(e instanceof NeedChoice)) throw e;
@@ -480,6 +558,7 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
     if (at.zone === "hand") E.moveCard(x.room, g, id, { uid: me, zone: "terrain" }, true);
     l0 = logStart();
     x.actor = me;
+    x.source = id;
     out.ok = s.activate(x, { id, me }) !== false;
   } catch {
     return null;
@@ -495,6 +574,7 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
     if (f.k === "sentience") add(out.sentience, f.uid);
     if (f.k === "bh") add(out.bh, f.uid);
     if (f.k === "activate" && f.card !== id) add(out.cards, f.card);
+    if (f.k === "link" && f.to !== id) add(out.cards, f.to);
   }
   // Cartes déplacées par l'effet
   const before = room.game;

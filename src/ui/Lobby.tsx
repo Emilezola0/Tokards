@@ -3,6 +3,7 @@ import { PLACEHOLDER, PLAYABLE_DECKS, cardImage } from "../data/cards";
 import { launch, update } from "../game/room";
 import type { Room } from "../game/types";
 import { SCRIPTS } from "../effects/scripts";
+import { DeckModal } from "./Viewers";
 
 const AUTO_COUNT = Object.keys(SCRIPTS).length;
 
@@ -13,6 +14,7 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
   const [team, setTeam] = useState(me.team);
   const [err, setErr] = useState("");
   const [copied, setCopied] = useState(false);
+  const [viewDeck, setViewDeck] = useState<string | null>(null);
   useEffect(() => setTeam(me.team), [me.team]);
 
   const run = (p: Promise<unknown>) => p.catch((e) => setErr((e as Error).message));
@@ -99,8 +101,8 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
               const holder = players.find((p) => p.deck === d.name);
               const mine = holder?.uid === uid;
               return (
+                <div key={d.name} className="deck-choice-wrap">
                 <button
-                  key={d.name}
                   className={`deck-choice ${mine ? "selected" : ""}`}
                   disabled={!!holder && !mine}
                   onClick={() => pickDeck(mine ? null : d.name)}
@@ -109,11 +111,14 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
                   <span className="deck-name">{d.name}</span>
                   <span className="small muted">{holder ? (mine ? "Ton deck ✔" : `pris par ${holder.name}`) : `${d.cards.length} cartes`}</span>
                 </button>
+                <button className="mini deck-see" onClick={() => setViewDeck(d.name)}>👁 Voir le deck</button>
+                </div>
               );
             })}
           </div>
         </section>
       </div>
+      {viewDeck && <DeckModal deck={viewDeck} onClose={() => setViewDeck(null)} />}
     </div>
   );
 }

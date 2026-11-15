@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import type { GameState, Zone } from "../game/types";
 import { nearRot, poseOf, poseTransform, type Pose } from "./pose";
+import { sfx } from "./sfx";
 
 type Loc = { uid: string; zone: Zone; i: number };
 type Seen = { pose: Pose; el: HTMLElement };
@@ -53,6 +54,7 @@ export function flyGhost(src: HTMLElement, from: Pose, to: Pose, delay = 0, hide
   ghostLayer().appendChild(gh);
   const toPose = { ...to, rot: nearRot(from.rot, to.rot) };
   const midScale = 1.12;
+  setTimeout(() => sfx.card(), delay);
   const anim = gh.animate(
     [
       { transform: poseTransform(from, w0, h0) },

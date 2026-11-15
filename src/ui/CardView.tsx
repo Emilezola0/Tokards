@@ -53,7 +53,7 @@ export default function CardView(p: Props) {
     <button
       type="button"
       data-card={ghost ? undefined : id}
-      className={`card ${size} ${c.kind === "victory" ? "victory" : ""} ${highlight ? "highlight" : ""} ${target ? "target" : ""} ${selected ? "selected" : ""} ${done ? "done" : ""}`}
+      className={`card ${size} ${c.kind === "victory" ? "victory" : ""} ${highlight ? "highlight" : ""} ${target ? "target" : ""} ${selected ? "selected" : ""} ${done ? "done" : ""} ${c.trigger === "Passif" ? "passive" : ""}`}
       onClick={onClick}
       draggable={p.draggable}
       onDragStart={p.onDragStart}
@@ -65,6 +65,7 @@ export default function CardView(p: Props) {
       <span className="card-tags">{c.kind === "victory" ? "🏁" : tagIcons(c.tags)}</span>
       {badge && <span className="card-badge">{badge}</span>}
       {auto && <span className="card-auto" title="Effet automatique">⚙</span>}
+      {c.trigger === "Passif" && <span className="card-passive" title={`Passif : ${c.event}`}>✨</span>}
       <span className="card-name">{c.name}</span>
     </button>
   );

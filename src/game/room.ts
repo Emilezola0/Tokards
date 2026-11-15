@@ -1,3 +1,5 @@
+import { hooks } from "./engine";
+import "./victory";
 import { doc, getDoc, onSnapshot, runTransaction, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { startGame } from "./engine";
@@ -49,7 +51,9 @@ export async function update(code: string, fn: (room: Room) => void): Promise<vo
 /** Raccourci pour une action en jeu. */
 export function act(code: string, fn: (room: Room, g: GameState) => void) {
   return update(code, (room) => {
-    if (room.game) fn(room, room.game);
+    if (!room.game) return;
+    fn(room, room.game);
+    hooks.after?.(room, room.game);
   });
 }
 

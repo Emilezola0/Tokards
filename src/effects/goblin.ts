@@ -17,7 +17,14 @@ const tagCount = (id: string) => +isGold(id) + +isSent(id) + +isBH(id);
 const goldOnly = (id: string) => isGold(id) && !isSent(id) && !isBH(id);
 const name = (id: string) => card(id).name;
 
-/** Choisit un adversaire parmi ceux qui satisfont `ok`. */
+/**
+ * « La cible » sans précision = n'importe quel joueur (lanceur compris) pour qui l'effet est possible.
+ * Le lanceur choisit parmi toutes les possibilités.
+ */
+const pickTarget = (x: Ctx, me: string, id: string, text: string, ok: (u: string) => boolean = () => true) =>
+  x.choosePlayer(me, text, x.turnOrder().filter(ok), id);
+
+/** Choisit un adversaire parmi ceux qui satisfont `ok` (effets sans intérêt sur soi : vol, don). */
 const pickOpponent = (x: Ctx, me: string, id: string, text: string, ok: (u: string) => boolean = () => true) =>
   x.choosePlayer(me, text, x.others(me).filter(ok), id);
 
@@ -112,18 +119,20 @@ export const GOBLIN: Record<string, CardScript> = {
   "GOB-09": {
     activate: (x, { id, me }) => {
       const mineAll = x.p(me).terrain.filter(isGold);
-      const t = pickOpponent(x, me, id, "Avec qui échanger une carte Gold ?", (u) => x.p(u).terrain.some(isGold));
-      if (!t || !mineAll.length) return false;
+      if (!mineAll.length) return false;
+      const t = pickTarget(x, me, id, "Sur quel terrain prendre une carte Gold ?", (u) =>
+        u === me ? mineAll.length >= 2 : x.p(u).terrain.some(isGold));
+      if (!t) return false;
       const theirs = x.chooseCard(me, `Carte Gold à prendre chez ${x.name(t)}`, x.p(t).terrain.filter(isGold), id);
-      const mine = x.chooseCard(me, "Carte Gold de ton terrain à donner", mineAll, id);
+      const mine = x.chooseCard(me, "Carte Gold de ton terrain à échanger avec", mineAll.filter((c) => c !== theirs), id);
       if (!theirs || !mine) return false;
       const ti = x.p(t).terrain.indexOf(theirs);
       const mi = x.p(me).terrain.indexOf(mine);
       x.p(t).terrain[ti] = mine;
       x.p(me).terrain[mi] = theirs;
-      x.fx({ k: "move", card: mine });
-      x.fx({ k: "move", card: theirs });
-      x.log(`« ${name(mine)} » et « ${name(theirs)} » échangent de terrain.`);
+      x.fx({ k: "link", from: id, to: mine, toUid: t, text: `échange « ${name(mine)} »` });
+      x.fx({ k: "link", from: id, to: theirs, toUid: me, text: `échange « ${name(theirs)} »` });
+      x.log(`🔗 « ${name(id)} » échange « ${name(mine)} » et « ${name(theirs)} » de place.`, { dst: theirs, to: t });
     },
   },
 
@@ -142,7 +151,7 @@ export const GOBLIN: Record<string, CardScript> = {
   "GOB-11": {
     activate: (x, { id, me }) => {
       if (x.p(me).blackHole === B) return false;
-      const t = pickOpponent(x, me, id, "Quel joueur raider ?", (u) => x.p(u).hand.length > 0);
+      const t = pickTarget(x, me, id, "Quel joueur raider ?", (u) => x.p(u).hand.length > 0);
       if (!t) return false;
       const hand = x.p(t).hand;
       x.p(t).hand = hand.map((c) => [x.rand(), c] as const).sort((a, b) => a[0] - b[0]).map(([, c]) => c);
@@ -231,10 +240,8 @@ export const GOBLIN: Record<string, CardScript> = {
   // Expert Comptable : tes cartes Sentience ↔ les cartes Gold de la cible
   "GOB-18": {
     activate: (x, { id, me }) => {
-      const t = pickOpponent(x, me, id, "Avec qui échanger ?", (u) => x.p(u).terrain.some(isGold));
       const mine = x.p(me).terrain.filter((c) => c !== id && isSent(c));
-      if (!t && !mine.length) return false;
-      const target = t ?? x.others(me)[0];
+      const target = pickTarget(x, me, id, "Avec qui échanger ?", (u) => mine.length > 0 || x.p(u).terrain.some(isGold));
       if (!target) return false;
       const theirs = x.p(target).terrain.filter(isGold);
       for (const c of mine) x.move(c, { uid: target, zone: "terrain" });
@@ -310,9 +317,9 @@ export const GOBLIN: Record<string, CardScript> = {
   // Héros Goblin
   "GOB-25": {
     activate: (x, { id, me }) => {
-      const t = pickOpponent(x, me, id, "Quelle cible ?", (u) => x.p(u).terrain.some((c) => tagCount(c) >= 2));
+      const t = pickTarget(x, me, id, "Quelle cible ?", (u) => x.p(u).terrain.some((c) => c !== id && tagCount(c) >= 2));
       if (!t) return false;
-      for (const c of x.p(t).terrain.filter((c) => tagCount(c) >= 2)) x.move(c, { uid: t, zone: "discard" });
+      for (const c of x.p(t).terrain.filter((c) => c !== id && tagCount(c) >= 2)) x.move(c, { uid: t, zone: "discard" });
       x.discard(id);
     },
   },
@@ -321,9 +328,9 @@ export const GOBLIN: Record<string, CardScript> = {
   "GOB-26": {
     activate: (x, { id, me }) => {
       const ok = (c: string) => isSent(c) && isBH(c) && !isGold(c);
-      const t = pickOpponent(x, me, id, "Chez qui voler ?", (u) => x.p(u).terrain.some(ok));
+      const t = pickTarget(x, me, id, "Sur quel terrain prendre la carte ?", (u) => x.p(u).terrain.some((c) => c !== id && ok(c)));
       if (!t) return false;
-      const c = x.chooseCard(me, `Carte 🧠🌀 à voler chez ${x.name(t)}`, x.p(t).terrain.filter(ok), id);
+      const c = x.chooseCard(me, `Carte 🧠🌀 à prendre chez ${x.name(t)}`, x.p(t).terrain.filter((c) => c !== id && ok(c)), id);
       if (!c) return false;
       x.move(c, { uid: me, zone: "hand" });
       x.take(c, me);
@@ -333,18 +340,23 @@ export const GOBLIN: Record<string, CardScript> = {
   // Chambre du commerce
   "GOB-27": {
     activate: (x, { id, me }) => {
-      const t = pickOpponent(x, me, id, "Quelle cible ?");
-      if (!t) return false;
-      const canA = x.p(t).terrain.some(goldOnly);
-      const canB = x.p(me).hand.some(goldOnly);
-      if (!canA && !canB) return false;
-      const opts = [canA && "Défausser une de ses cartes uniquement Gold", canB && "Poser une de tes cartes uniquement Gold sur son terrain"].filter(Boolean) as string[];
-      const choice = opts[x.chooseOption(me, `Chambre du commerce sur ${x.name(t)}`, opts, id)];
+      // Le lanceur choisit l'action, puis le terrain, puis la carte, parmi tout ce qui est possible.
+      const all = x.turnOrder();
+      const withGold = all.filter((u) => x.p(u).terrain.some((c) => c !== id && goldOnly(c)));
+      const canPlace = x.p(me).hand.some(goldOnly);
+      const opts = [
+        withGold.length ? "Défausser une carte uniquement Gold d'un terrain" : "",
+        canPlace ? "Poser une carte uniquement Gold de ta main sur un terrain" : "",
+      ].filter(Boolean);
+      if (!opts.length) return false;
+      const choice = opts[x.chooseOption(me, "Chambre du commerce : que fais-tu ?", opts, id)];
       if (choice.startsWith("Défausser")) {
-        const c = x.chooseCard(me, "Carte à défausser", x.p(t).terrain.filter(goldOnly), id);
+        const t = x.choosePlayer(me, "Sur quel terrain défausser ?", withGold, id)!;
+        const c = x.chooseCard(me, `Carte uniquement Gold à défausser chez ${x.name(t)}`, x.p(t).terrain.filter((c) => c !== id && goldOnly(c)), id);
         if (c) x.move(c, { uid: t, zone: "discard" });
       } else {
-        const c = x.chooseCard(me, "Carte de ta main à poser chez la cible", x.p(me).hand.filter(goldOnly), id);
+        const c = x.chooseCard(me, "Carte uniquement Gold de ta main à poser", x.p(me).hand.filter(goldOnly), id);
+        const t = x.choosePlayer(me, "Sur quel terrain la poser ?", all, id)!;
         if (c) x.move(c, { uid: t, zone: "terrain" });
       }
     },
@@ -369,7 +381,7 @@ export const GOBLIN: Record<string, CardScript> = {
   // Spatio-Assassin Goblin
   "GOB-29": {
     activate: (x, { id, me }) => {
-      const t = pickOpponent(x, me, id, "Quelle cible ?");
+      const t = pickTarget(x, me, id, "Quelle cible ?");
       if (!t) return false;
       x.cycleBlackHole(t, [P, B, T, Q]);
     },
@@ -381,7 +393,7 @@ export const GOBLIN: Record<string, CardScript> = {
   // Le donjon goblin
   "GOB-31": {
     activate: (x, { id, me }) => {
-      const t = pickOpponent(x, me, id, "Quelle cible ?");
+      const t = pickTarget(x, me, id, "Quelle cible ?");
       if (!t) return false;
       const first = x.p(t).terrain[0];
       if (first) x.discard(first);
