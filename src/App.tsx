@@ -8,10 +8,20 @@ import Lobby from "./ui/Lobby";
 import Table from "./ui/Table";
 
 import { getName } from "./ui/name";
+import UpdatePrompt from "./ui/UpdatePrompt";
 
 const codeFromHash = () => location.hash.replace(/^#\/?/, "").toUpperCase().slice(0, 5);
 
 export default function App() {
+  return (
+    <>
+      <Screen />
+      <UpdatePrompt />
+    </>
+  );
+}
+
+function Screen() {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState("");
   const [code, setCode] = useState(codeFromHash());

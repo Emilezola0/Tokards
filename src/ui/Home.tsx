@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { VersionTag } from "./UpdatePrompt";
 import { createRoom, joinRoom } from "../game/room";
 import { getName, saveName } from "./name";
 
@@ -45,6 +46,7 @@ export default function Home({ uid, roomCode, notFound }: { uid: string; roomCod
         </div>
         {err && <p className="error">{err}</p>}
       </div>
+      <p className="small"><VersionTag /></p>
     </div>
   );
 }

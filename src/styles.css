@@ -374,3 +374,12 @@ button.glow { animation: glow 1.6s ease-in-out infinite; }
   *, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
 .hint-text { color: var(--gold); font-size: 13px; }
+
+/* Mise à jour du site */
+.update-pop {
+  position: fixed; z-index: 70; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 16px; align-items: center;
+  flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 24px); border-color: var(--gold);
+  box-shadow: 0 10px 40px #000c, 0 0 30px #ffcf5a44; animation: pop-in 0.3s ease-out;
+}
+.update-pop strong { color: var(--gold); }
+.version-tag { color: var(--muted); font-family: ui-monospace, monospace; font-size: 11px; opacity: 0.8; }

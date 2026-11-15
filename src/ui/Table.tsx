@@ -12,6 +12,7 @@ import CardModal, { type Placing } from "./CardModal";
 import PlayerModal from "./PlayerModal";
 import PlayerBoard, { BH, BW, type DragSrc, type Seat } from "./PlayerBoard";
 import HoverCard from "./HoverCard";
+import { VersionTag } from "./UpdatePrompt";
 import { PLAYER_COLORS } from "./pose";
 import { fxStore, useFx } from "./fxStore";
 import { dealDuration, useCardFlip } from "./useCardFlip";
@@ -381,6 +382,7 @@ function Log({ g, onClose }: { g: GameState; onClose: () => void }) {
     <aside className="log-drawer panel">
       <div className="row">
         <h3 className="grow">Journal</h3>
+        <VersionTag />
         <button className="ghost" onClick={onClose}>✕</button>
       </div>
       <div className="log-body" ref={ref}>
