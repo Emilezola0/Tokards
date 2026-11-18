@@ -82,6 +82,8 @@ type Props = {
   ally: boolean;
   auto: boolean;
   faceUpHand: boolean;
+  /** spectateur : tout le plateau est face visible (cartes retournées, dessus des pioches) */
+  seeAll?: boolean;
   /** carte en cours de déplacement (glisser ou « poser… ») */
   moving: DragSrc | null;
   canDropHere: boolean;
@@ -159,7 +161,7 @@ export default function PlayerBoard(p: Props) {
   const under = st.discard.slice(1, 3);
   const deckLayers = Math.min(3, Math.max(0, st.deck.length - 1));
   // Voyant voyou voyeur : les cartes face cachée (sauf les mains) sont visibles.
-  const seeAll = E.seeThrough(g);
+  const seeAll = E.seeThrough(g) || !!p.seeAll;
   return (
     <section
       data-board={owner}

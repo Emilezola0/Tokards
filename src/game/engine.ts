@@ -359,12 +359,13 @@ function nextTurn(room: Room, g: GameState) {
 }
 
 /** Abandon : le joueur ne joue plus. S'il ne reste qu'une équipe en jeu, elle gagne. */
-export function forfeit(room: Room, g: GameState, uid: string) {
+export function forfeit(room: Room, g: GameState, uid: string, kicked = false) {
   const p = g.players[uid];
   if (!p || p.out) return;
   p.out = true;
-  log(g, `🏳 ${nameOf(room, uid)} abandonne la partie.`);
-  pushFx(g, { k: "banner", text: `🏳 ${nameOf(room, uid)} abandonne la partie` });
+  const what = kicked ? "est exclu de la partie par l'hôte" : "abandonne la partie";
+  log(g, `${kicked ? "🚫" : "🏳"} ${nameOf(room, uid)} ${what}.`);
+  pushFx(g, { k: "banner", text: `${kicked ? "🚫" : "🏳"} ${nameOf(room, uid)} ${what}` });
   if (g.wordClaim?.uid === uid) g.wordClaim = null;
   const alive = [...new Set(g.order.filter((u) => !g.players[u].out).map((u) => teamKey(room, u)))];
   if (alive.length === 1 && !g.ranking.some((r) => r.team === alive[0])) {

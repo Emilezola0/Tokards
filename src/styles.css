@@ -1014,3 +1014,6 @@ button.danger:hover { border-color: var(--bad); }
 /* cartes disparues */
 .gone-btn b { color: var(--gold); }
 .gone-item { display: grid; justify-items: center; gap: 2px; }
+
+/* ===== v0.18 : exclusion ===== */
+.lp-kick { flex: none; padding: 2px 8px; }

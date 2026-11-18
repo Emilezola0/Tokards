@@ -1,5 +1,6 @@
 import { useState } from "react";
 import * as E from "../game/engine";
+import { kickPlayer } from "../game/room";
 import type { GameState, Room } from "../game/types";
 import { BH_SYMBOL, BLACK_HOLES, WEATHERS, showWeather, weatherLabel } from "../game/types";
 import CardView from "./CardView";
@@ -101,7 +102,23 @@ export default function PlayerModal({ owner, room, uid, run, onCard, onClose }: 
           {p.discard.map((id) => <CardView key={id} id={id} size="s" onClick={() => onCard(id)} />)}
           {!p.discard.length && <span className="muted small">Vide</span>}
         </div>
-        <button className="ghost" onClick={onClose}>Fermer</button>
+        <div className="row">
+          {room.hostUid === uid && owner !== uid && !p.out && (
+            <button
+              className="ghost danger"
+              title="Le joueur est mis hors jeu (ses tours sont passés) et ne peut plus revenir"
+              onClick={() => {
+                if (!confirm(`Exclure ${name} de la partie ? Ses tours seront passés et il ne pourra plus revenir.`)) return;
+                kickPlayer(room.code, uid, owner).catch((e) => alert((e as Error).message));
+                onClose();
+              }}
+            >
+              🚫 Exclure {name}
+            </button>
+          )}
+          <span className="grow" />
+          <button className="ghost" onClick={onClose}>Fermer</button>
+        </div>
       </div>
     </div>
   );

@@ -274,4 +274,6 @@ export interface Room {
   createdAt: number;
   players: Record<string, LobbyPlayer>;
   game: GameState | null;
+  /** joueurs exclus par l'hôte : ne peuvent plus revenir dans ce salon */
+  kicked?: string[];
 }

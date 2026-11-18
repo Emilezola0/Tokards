@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PLACEHOLDER, cardImage, deckBack } from "../data/cards";
-import { launch, update } from "../game/room";
+import { kickPlayer, launch, update } from "../game/room";
 import type { Room } from "../game/types";
 import { LOBBY_DECKS } from "../effects/ready";
 import { playDeckVoice } from "./voice";
@@ -83,6 +83,15 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
                   <span className={p.deck ? "deck-tag" : "muted"}>{p.deck ?? "spectateur (pas de deck)"}</span>
                 </span>
                 {p.uid !== room.hostUid && <span className={`lp-ready ${p.ready ? "on" : ""}`}>{p.ready ? "✔ Prêt" : "…"}</span>}
+                {isHost && p.uid !== uid && (
+                  <button
+                    className="mini ghost danger lp-kick"
+                    title={`Exclure ${p.name} du salon`}
+                    onClick={() => confirm(`Exclure ${p.name} du salon ? Il ne pourra plus revenir.`) && run(kickPlayer(room.code, uid, p.uid))}
+                  >
+                    ✕
+                  </button>
+                )}
               </li>
             ))}
           </ul>

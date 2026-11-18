@@ -115,6 +115,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const me = g.players[uid];
   // Un joueur qui a abandonné regarde la suite comme un spectateur.
   const isPlayer = !!me && !me.out;
+  // Spectateur (ou joueur sorti sans équipe à aider) : il voit tout le plateau face visible.
+  const spectating = !me || (!!me.out && !room.players[uid]?.team.trim());
   const current = E.currentPlayer(g);
   const myTurn = current === uid;
   const isHost = room.hostUid === uid;
@@ -278,7 +280,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         </span>
         <TurnControls g={g} room={room} uid={uid} myTurn={myTurn && isPlayer} auto={auto} autoEnd={autoEnd} busy={fx.busy} run={run} runAuto={runAuto} />
         <span className="grow" />
-        {!isPlayer && <span className="badge">{me?.out ? "🏳 Abandon" : "Spectateur"}</span>}
+        {!isPlayer && <span className="badge" title={spectating ? "Tu vois toutes les cartes face visible" : undefined}>{me?.out ? (room.kicked?.includes(uid) ? "🚫 Exclu" : "🏳 Abandon") : "Spectateur"}{spectating ? " · 👁 tout visible" : ""}</span>}
         <Dice run={run} uid={uid} enabled={isPlayer && myTurn} />
         <SoundControl />
         {gone.length > 0 && (
@@ -336,7 +338,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
               color={colorOf(owner)}
               ally={!!myTeam && owner !== uid && room.players[owner]?.team.trim() === myTeam}
               auto={auto}
-              faceUpHand={owner === uid}
+              faceUpHand={owner === uid || spectating}
+              seeAll={spectating}
               moving={moving}
               canDropHere={!!moving && isPlayer && myTurn && (moving.from !== "hand" || owner === uid)}
               canDragHand={canPlay}

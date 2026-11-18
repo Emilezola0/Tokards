@@ -47,7 +47,7 @@ function Screen() {
       (r) => {
         setRoom(r);
         // Rejoint automatiquement le salon ouvert par lien si on a déjà un pseudo.
-        if (r && !r.players[user.uid] && !joined && getName()) {
+        if (r && !r.players[user.uid] && !r.kicked?.includes(user.uid) && !joined && getName()) {
           joined = true;
           joinRoom(code, user.uid, getName()).catch((e) => setError(e.message));
         }
@@ -60,6 +60,13 @@ function Screen() {
   if (!user) return <div className="center muted">Connexion…</div>;
   if (!code || room === null || (room && !room.players[user.uid] && !getName()))
     return <Home uid={user.uid} roomCode={room ? code : ""} notFound={room === null && !!code} />;
+  if (room?.kicked?.includes(user.uid))
+    return (
+      <div className="center">
+        <p className="error">🚫 Tu as été exclu de ce salon par l'hôte.</p>
+        <a href="#" onClick={() => (location.hash = "")}>Retour à l'accueil</a>
+      </div>
+    );
   if (room === undefined || !room.players[user.uid]) return <div className="center muted">Chargement du salon…</div>;
   if (room.status === "lobby") return <Lobby room={room} uid={user.uid} />;
   return <Table room={room} uid={user.uid} />;

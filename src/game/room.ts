@@ -2,7 +2,7 @@ import { hooks } from "./engine";
 import "./victory";
 import { doc, getDoc, onSnapshot, runTransaction, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { startGame } from "./engine";
+import { forfeit, startGame } from "./engine";
 import type { EffectAction, GameState, Room } from "./types";
 import { runEffect } from "../effects/runtime";
 
@@ -26,6 +26,7 @@ export async function createRoom(uid: string, name: string): Promise<string> {
 
 export async function joinRoom(code: string, uid: string, name: string): Promise<void> {
   await update(code, (room) => {
+    if (room.kicked?.includes(uid)) throw new Error("Tu as été exclu de ce salon par l'hôte.");
     const existing = room.players[uid];
     room.players[uid] = existing ? { ...existing, name } : { uid, name, team: "", deck: null, joinedAt: Date.now() };
     // Arrivé en cours de partie : spectateur.
@@ -71,10 +72,29 @@ export function launch(code: string) {
   });
 }
 
+/** L'hôte exclut un joueur : retiré du salon (ou mis hors jeu en partie), sans pouvoir revenir. */
+export function kickPlayer(code: string, by: string, target: string) {
+  return update(code, (room) => {
+    if (room.hostUid !== by) throw new Error("Seul l'hôte peut exclure un joueur.");
+    if (target === room.hostUid || !room.players[target]) return;
+    room.kicked = [...new Set([...(room.kicked ?? []), target])];
+    const g = room.game;
+    if (g && g.players[target]) {
+      // En partie : le joueur est mis hors jeu (ses tours sont passés) ; son nom reste pour le journal.
+      forfeit(room, g, target, true);
+    } else {
+      if (g) g.spectators = g.spectators.filter((u) => u !== target);
+      delete room.players[target];
+    }
+  });
+}
+
 export function backToLobby(code: string) {
   return update(code, (room) => {
     room.game = null;
     room.status = "lobby";
     for (const p of Object.values(room.players)) p.ready = false;
+    // Les joueurs exclus pendant la partie quittent le salon.
+    for (const u of room.kicked ?? []) delete room.players[u];
   });
 }
