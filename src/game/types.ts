@@ -89,6 +89,9 @@ export interface Stats {
   lostTurn?: number;
   /** cartes d'autres joueurs défaussées par ses effets (Guerre civile) */
   discOthers?: number;
+  /** cartes de sa main / de son terrain parties dans une défausse (Pirate) */
+  handDisc?: number;
+  terrDisc?: number;
 }
 
 export type Prompt = { chooser: string; text: string; cardId?: string } & (
@@ -213,6 +216,9 @@ export interface GameState {
   /** Garde à vue : les prochaines cartes désactivées vont sous `host` */
   custody?: { host: string; uid: string; at: number } | null;
   /** Tung Tung Tung Sahur : les gold gagnés par les autres vont à `uid` jusqu'au tour global `until` */
+  /** Voile (Primordial) : joueurs dont le prochain tour joue deux fois chaque carte, et joueur dont c'est le tour */
+  double?: string[];
+  doubleNow?: string | null;
   aspire?: { uid: string; until: number } | null;
 }
 

@@ -129,6 +129,22 @@ const CHECKS: Record<string, (c: C) => Progress> = {
       text: `${a ? "✔" : "✖"} sentience fausse · ${b ? "✔" : "✖"} gold impairs (fin du tour)`,
     };
   },
+  // Coffre vide : 10 cartes de sa main défaussées
+  "VC-PIR-1": ({ s }) => frac(s.handDisc ?? 0, 10, "Cartes de ta main défaussées :"),
+  // Bateau vide : plus de 100 gold et au moins une carte de son terrain défaussée
+  "VC-PIR-2": ({ p, s }) => {
+    const a = p.gold > 100;
+    const b = (s.terrDisc ?? 0) >= 1;
+    return { ratio: ((a ? 1 : 0) + (b ? 1 : 0)) / 2, done: a && b, text: `${a ? "✔" : "✖"} plus de 100 gold · ${b ? "✔" : "✖"} carte du terrain défaussée` };
+  },
+  // Équipage au complet : 4 cartes 🧠 sur le terrain, une sur le dessus de la défausse et une en main
+  "VC-PIR-3": ({ g, p }) => {
+    const sent = (id: string) => E.tagsOf(g, id).sentience;
+    const t = Math.min(4, count(p.terrain, sent));
+    const d = p.discard[0] && sent(p.discard[0]) ? 1 : 0;
+    const h = p.hand.some(sent) ? 1 : 0;
+    return { ratio: (t + d + h) / 6, done: t === 4 && d === 1 && h === 1, text: `🧠 terrain ${t}/4 · ${d ? "✔" : "✖"} dessus de la défausse · ${h ? "✔" : "✖"} en main` };
+  },
   "VC-POL-1": ({ s }) => frac(s.discOthers ?? 0, 5, "Cartes adverses défaussées :"),
   // Coup d'état : un autre joueur n'a plus aucune carte sur son terrain (pas pendant le premier tour de table)
   "VC-POL-2": ({ g, all, uid, room }) => {

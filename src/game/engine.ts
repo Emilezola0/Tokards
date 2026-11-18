@@ -392,6 +392,11 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
   }
   const from = g.players[at.uid][at.zone];
   from.splice(at.index, 1);
+  if (dest.zone === "discard" && (at.zone === "hand" || at.zone === "terrain")) {
+    const s = st(g.players[at.uid]);
+    if (at.zone === "hand") s.handDisc = (s.handDisc ?? 0) + 1;
+    else s.terrDisc = (s.terrDisc ?? 0) + 1;
+  }
   if (at.zone === "terrain" && dest.zone !== "terrain" && g.spent?.includes(id)) g.spent = g.spent.filter((c) => c !== id);
   if (at.zone === "terrain" && dest.zone !== "terrain") leaveTerrain(room, g, id, at.uid);
   if (at.zone === "hand" && dest.zone !== "hand" && g.revealed?.includes(id)) g.revealed = g.revealed.filter((c) => c !== id);

@@ -427,16 +427,16 @@
   {
    "name": "Pirate",
    "code": "PIR",
-   "inGame": false,
+   "inGame": true,
    "color": "",
    "description": "",
    "keywords": [
     "Vol",
     "Main",
     "Défausse",
-    "Abordage"
+    "Hasard"
    ],
-   "summary": "Pillez les mains adverses et défaussez pour déclencher vos effets.",
+   "summary": "Pillez les mains adverses, défaussez pour déclencher vos effets et jouez des cartes directement depuis la main.",
    "back": "",
    "cards": [
     "PIR-01",
@@ -4579,8 +4579,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si la sentience est vraie, vole une carte de la main d'un joueur choisi et va dans sa main.",
-   "rules": "",
+   "text": "Si votre sentience est vraie, volez une carte (face cachée) de la main du joueur de votre choix : elle va dans votre main.",
+   "rules": "La carte volée change de propriétaire.",
    "image": "PIR-01.jpg"
   },
   "PIR-02": {
@@ -4597,8 +4597,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lorsque cette carte est présente sur votre terrain, chaque carte qui sera défausser de votre main vous rapportera 20 gold, de votre terrain 10, et toutes autres types de déplacements 5.",
-   "rules": "",
+   "text": "Tant que cette carte est sur votre terrain, chaque carte défaussée de votre main vous rapporte 20 gold, chaque carte défaussée de votre terrain 10 gold, et tout autre déplacement d'une de vos cartes 5 gold.",
+   "rules": "« Autre déplacement » = une de vos cartes bouge à cause d'un effet (changement de place, de terrain, retour en main…). Les pioches et les poses normales ne comptent pas.",
    "image": "PIR-02.jpg"
   },
   "PIR-03": {
@@ -4615,8 +4615,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si vous n'êtes pas trou de ver, vous pouvez envoyer une carte de votre terrain, main ou défausse, à une personne de votre choix si sa sentience est vraie.",
-   "rules": "",
+   "text": "Si vous n'êtes pas en Trou de ver, vous pouvez envoyer une carte de votre terrain, de votre main ou de votre défausse sur le terrain d'un joueur dont la sentience est vraie.",
+   "rules": "La carte envoyée est posée en dernière position, sans activer son effet. L'envoi est facultatif.",
    "image": "PIR-03.jpg"
   },
   "PIR-04": {
@@ -4633,8 +4633,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si sentience à vrai : deux cartes sont tirées de votre deck, vous pouvez en retourner 1 qui sera visible de tous, choisissez en 1.\nSi sentience à faux : retourner une carte de votre terrain pour passer votre sentience à vrai. (La carte, lorsque ça sera son tour, se retournera puis pourra être jouée la prochaine fois)",
-   "rules": "",
+   "text": "Au début de votre tour :\nSentience vraie : regardez les deux cartes du dessus de votre pioche ; vous pouvez en prendre une dans votre main, face visible de tous. L'autre va au fond de la pioche.\nSentience fausse : vous pouvez retourner une carte de votre terrain pour passer votre sentience à vraie. La carte retournée ne se joue pas ce tour, puis se remet à l'endroit.",
+   "rules": "Passif qui agit au début de votre tour, avant les activations. La carte retournée est désactivée jusqu'à la fin du tour.",
    "image": "PIR-04.jpg"
   },
   "PIR-05": {
@@ -4651,8 +4651,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si Blazard : joue une carte de votre main immédiatement et la pose dans la défausse.\nSi trou de ver : choisissez une carte de la main de quelqu'un qui va se jouer pour lui, puis qui ira dans sa défausse.\nSentience vraie : Cette carte permet de repiocher une carte",
-   "rules": "",
+   "text": "Blazard : jouez une carte de votre main, puis défaussez-la.\nTrou de ver : choisissez face cachée une carte de la main d'un autre joueur : elle se joue pour lui, puis va dans sa défausse.\nSentience vraie : piochez une carte.",
+   "rules": "Jouer une carte = la poser en dernière position du terrain et activer son effet. Les effets de trou noir et de sentience s'additionnent.",
    "image": "PIR-05.png"
   },
   "PIR-06": {
@@ -4669,8 +4669,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si vous avez le même trou noir que la personne : choisissez un joueur, celui-ci a le choix entre payer 100 gold ou vous donner toute sa main. Dans le choix où il vous donne sa main, vous devrez lui rendre le même montant de carte donné une fois le choix fait.",
-   "rules": "",
+   "text": "Choisissez un joueur qui a le même trou noir que vous : il choisit entre vous payer 100 gold ou vous donner toute sa main. S'il donne sa main, vous lui rendez ensuite autant de cartes de votre main.",
+   "rules": "Les 100 gold vont au lanceur. Sans 100 gold, le joueur doit donner sa main. Les cartes rendues sont choisies par le lanceur.",
    "image": "PIR-06.png"
   },
   "PIR-07": {
@@ -4687,8 +4687,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Le rat navigue entre les plateaux de manière aléatoire et apporte des maladies, votre sentience passe à faux et payer 5 gold par sentience sur le terrain.\nLorsqu'on la pose change automatiquement de terrain.",
-   "rules": "",
+   "text": "Quand il est posé, le rat saute sur le terrain d'un autre joueur, au hasard.\nAu début du tour du joueur qui l'a sur son terrain : sa sentience passe à fausse, il perd 5 gold par carte Sentience de son terrain, puis le rat saute sur un autre terrain au hasard.",
+   "rules": "« Payer » = perdre les gold (ils ne vont à personne). Les cartes Sentience comptées sont celles du terrain où se trouve le rat.",
    "image": "PIR-07.jpg"
   },
   "PIR-08": {
@@ -4705,8 +4705,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Au choix (pas obliger d'activer son effet)\nSi Blazard : pioche 2 cartes et peut en placer 2 (n'active pas leurs effets).\nSi Trou de ver : mettez une carte de votre main dans le deck, mélangez et vous en reprochez une.\nSi Quasar : pioche 2 cartes et peut en défausser 2 du terrain.\nSi Primordial : tous les joueurs jouent 2 fois leurs cartes, puis le voile disparaît (impossible de la rejouer).",
-   "rules": "",
+   "text": "Au choix (facultatif), selon votre trou noir :\nBlazard : piochez 2 cartes et posez-en jusqu'à 2 sans activer leurs effets.\nTrou de ver : mettez une carte de votre main dans votre pioche, mélangez-la et piochez une carte.\nQuasar : piochez 2 cartes et défaussez jusqu'à 2 cartes de votre terrain.\nPrimordial : au prochain tour de chaque joueur, chaque carte de son terrain se joue deux fois. La Voile est retirée de la partie.",
+   "rules": "Primordial : chaque joueur, à son prochain tour, joue deux fois de suite chaque carte de son terrain pendant la phase d'activation.",
    "image": "PIR-08.jpg"
   },
   "PIR-09": {
@@ -4723,8 +4723,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez défausser autant de cartes de votre main que vous voulez pour changer de trou noir (coûte 2 cartes) dans cet ordre-là :\nBlazard -> Quasar -> Trou de ver -> Primordial",
-   "rules": "",
+   "text": "Défaussez 2 cartes de votre main par cran : votre trou noir avance d'autant de crans, dans l'ordre Blazard → Quasar → Trou de ver → Primordial.",
+   "rules": "Ordre en boucle : après Primordial, on revient à Blazard. Au plus 3 crans.",
    "image": "PIR-09.png"
   },
   "PIR-10": {
@@ -4741,8 +4741,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défausser X cartes de votre main pour X égal :\n1 : Gagner ou donner 1 à 10 gold\n2 : Changer la sentience de 1 personne au choix\n3 : Voler 1 carte qui ira dans votre main\n5 : Changer la sentience de toutes les personnes\n10 : Valide une condition de victoire de quelqu'un sauf la votre (marche sur la commune)",
-   "rules": "",
+   "text": "Défaussez X cartes de votre main :\n1 : gagnez 1 à 10 gold, ou donnez-les à un joueur ;\n2 : changez la sentience d'un joueur ;\n3 : volez une carte d'un terrain, elle va dans votre main ;\n5 : changez la sentience de tous les joueurs ;\n10 : validez une condition de victoire d'un autre joueur (personnelle ou commune).",
+   "rules": "La carte volée (3) vient du terrain d'un autre joueur et change de propriétaire. Condition commune : seulement celle d'une autre équipe.",
    "image": "PIR-10.png"
   },
   "PIR-11": {
@@ -4759,8 +4759,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Choisissez une carte de votre main ou de la main de votre allié et posez-la sur n'importe quel terrain activant son effet. Le pistolet revient dans la main.\nSentience à faux : à 50% de chance d'exploser (défausser votre carte ainsi que pistolet).",
-   "rules": "",
+   "text": "Choisissez une carte de votre main ou de la main d'un allié et posez-la où vous voulez sur n'importe quel terrain : son effet s'active. Le Pistolet revient dans votre main.\nSentience fausse : une chance sur deux d'exploser : la carte choisie et le Pistolet sont défaussés.",
+   "rules": "Allié = joueur de votre équipe. La carte s'active pour le lanceur, même posée sur un autre terrain.",
    "image": "PIR-11.jpg"
   },
   "PIR-12": {
@@ -4777,8 +4777,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À 10% de faire son effet, selon le trou noir puis black pearl retourne dans la défausse :\nBlazard : Choisissez un terrain ainsi que 3 cartes, vous avez 25% de chance de réussir à la voler (les cartes voler vont dans votre main).\nPrimordial : Choisir des cartes à échanger jusqu'à 3 max avec quelqu'un, l'échange vous rapporte à tous les deux 25 gold par carte.\nTrou de ver : Mélangez votre deck puis piochez 3 cartes.\nQuasar : Sacrifier jusqu'à 3 cartes max (terrain et main compris). Pour chaque carte sacrifiée, vous piochez et posez cette carte.",
-   "rules": "",
+   "text": "10 % de chances de faire son effet, selon votre trou noir, puis Black pearl va dans la défausse :\nBlazard : choisissez jusqu'à 3 cartes d'un terrain ; chacune a 25 % de chances d'être volée dans votre main.\nPrimordial : échangez jusqu'à 3 cartes de votre main avec un joueur : vous gagnez chacun 25 gold par carte échangée.\nTrou de ver : mélangez votre pioche et piochez 3 cartes.\nQuasar : sacrifiez jusqu'à 3 cartes (terrain ou main) ; pour chacune, piochez une carte et posez-la.",
+   "rules": "Le 10 % est un 1 sur 1d10. Raté : Black pearl va quand même dans la défausse. Primordial : l'autre joueur choisit les cartes qu'il donne. Quasar : les cartes posées n'activent pas leurs effets.",
    "image": "PIR-12.jpg"
   },
   "PIR-13": {
@@ -4795,8 +4795,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : Le perroquet permet de regarder la main d'une personne puis va dans votre main après utilisation",
-   "rules": "",
+   "text": "Si votre sentience est vraie, regardez la main du joueur de votre choix, puis le Perroquet revient dans votre main.",
+   "rules": "Seul le lanceur voit la main.",
    "image": "PIR-13.png"
   },
   "PIR-14": {
@@ -4813,8 +4813,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Jusqu'à 4 cartes sentience sur le terrain ou dans la main peut être jouer contre 25 gold.",
-   "rules": "",
+   "text": "Dépensez 25 gold : jusqu'à 4 cartes Sentience de votre terrain ou de votre main se jouent.",
+   "rules": "25 gold au total, pas par carte. Les cartes de la main sont posées en dernière position puis s'activent.",
    "image": "PIR-14.jpg"
   },
   "PIR-15": {
@@ -4831,8 +4831,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Obligatoire si pas trou de ver : choisissez 8 cartes (de votre terrain) pour chaque carte 25% qu'elle soit défausser.",
-   "rules": "",
+   "text": "Obligatoire si vous n'êtes pas en Trou de ver : choisissez 8 cartes de votre terrain ; chacune a 25 % de chances d'être défaussée.",
+   "rules": "S'il y a moins de 8 cartes, toutes sont choisies (le Kraken compris). En Trou de ver, le lâcher est facultatif.",
    "image": "PIR-15.jpg"
   },
   "PIR-16": {
@@ -4845,12 +4845,12 @@
     "gold": false,
     "blackHole": true
    },
-   "trigger": "Activation",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Au prochain tours si votre trou noir passe à Blazard : les cartes de votre main se jouent (mais devront être révélées aux autres joueurs).",
-   "rules": "",
+   "text": "Pendant votre prochain tour, si votre trou noir passe à Blazard, les cartes de votre main sont révélées à tous et se jouent.",
+   "rules": "Seulement pendant votre prochain tour, et une seule fois. Les cartes sont posées en dernière position et s'activent.",
    "image": "PIR-16.jpg"
   },
   "PIR-17": {
@@ -4867,8 +4867,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si sentience à vraie : les cartes qui se trouve avant mer on 25% de revenir dans la main, 25% d'être défausser ou 50% de rapporter 10 gold",
-   "rules": "",
+   "text": "Si votre sentience est vraie, chaque carte placée avant la Mer : 25 % de chances de revenir dans la main, 25 % d'être défaussée, 50 % de vous rapporter 10 gold.",
+   "rules": "Les cartes reviennent dans la main du joueur qui les avait sur son terrain.",
    "image": "PIR-17.png"
   },
   "PIR-18": {
@@ -4881,12 +4881,12 @@
     "gold": true,
     "blackHole": false
    },
-   "trigger": "Activation",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous devez 25 gold à une personne (si pas assez ne fait pas son effet). Effet : placer cette carte sur le côté de votre terrain, à son prochain tour, à 1/2 de vous rapporter 100 gold puis se défausse.",
-   "rules": "",
+   "text": "Donnez 25 gold au joueur de votre choix (sans assez de gold, rien ne se passe). La carte se met sur le côté : au début de votre prochain tour, une chance sur deux de vous rapporter 100 gold, puis elle est défaussée.",
+   "rules": "Tant qu'il est sur le côté, Le Fatigué ne refait pas son effet.",
    "image": "PIR-18.jpg"
   },
   "PIR-19": {
@@ -4903,7 +4903,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si trou noir aléatoire = votre trou noir permet d'ouvrir le coffre :\nDé 100 en gold, Trou noir = Aléatoire.",
+   "text": "Lancez le dé trou noir : si le résultat est votre trou noir, le coffre s'ouvre : gagnez 1d100 gold, puis relancez le dé trou noir : votre trou noir devient le résultat.",
    "rules": "",
    "image": "PIR-19.jpg"
   },
@@ -4921,8 +4921,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : Rejoue la prochaine carte.\nSentience fausse : Passe sentience à vraie, trop bourré pour jouer la prochaine carte.",
-   "rules": "",
+   "text": "Sentience vraie : la carte juste après se joue une fois de plus.\nSentience fausse : votre sentience passe à vraie, mais trop bourré, la carte juste après ne se joue pas ce tour.",
+   "rules": "Avec la sentience vraie, la carte suivante se joue maintenant, puis encore une fois à son tour normal.",
    "image": "PIR-20.png"
   },
   "FLE-01": {
@@ -6397,8 +6397,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défausser 10 cartes de votre main.",
-   "rules": "",
+   "text": "Défaussez 10 cartes de votre main au cours de la partie.",
+   "rules": "Compte toutes les cartes de votre main parties dans la défausse (action du tour ou effets).",
    "image": ""
   },
   "VC-PIR-2": {
@@ -6415,8 +6415,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir plus de 100 gold et avoir défausser 1 carte de votre terrain.",
-   "rules": "",
+   "text": "Ayez plus de 100 gold et au moins une carte de votre terrain défaussée au cours de la partie.",
+   "rules": "Compte toute carte de votre terrain partie dans la défausse, quelle qu'en soit la raison.",
    "image": ""
   },
   "VC-PIR-3": {
@@ -6433,8 +6433,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir 4 cartes sentience sur le terrain, 1 dans la défausse visible et 1 dans votre main.",
-   "rules": "",
+   "text": "Ayez 4 cartes Sentience sur votre terrain, une sur le dessus de votre défausse et une dans votre main.",
+   "rules": "« Visible dans la défausse » = la carte du dessus de la défausse.",
    "image": ""
   },
   "VC-FLE-1": {

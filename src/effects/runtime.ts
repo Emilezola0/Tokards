@@ -36,6 +36,8 @@ export type GameEvent =
   /** `thief` vole `amount` gold à `victim` */
   | { type: "goldStolen"; thief: string; victim: string; amount: number; src: string | null }
   /** début / fin du tour de `uid` */
+  /** une carte change de place à cause d'un effet ou d'une défausse de main (to = null : elle a quitté les zones) */
+  | { type: "cardMoved"; card: string; from: Loc; to: Loc | null; src: string | null }
   | { type: "turnStart"; uid: string }
   | { type: "turnEnd"; uid: string };
 
@@ -466,8 +468,9 @@ export class Ctx {
     const ga = this.p(a).gold;
     const gb = this.p(b).gold;
     if (ga === gb) return;
-    this.p(a).gold = gb;
-    this.p(b).gold = ga;
+    // Une dette (gold négatifs, Fléaux) ne passe pas à un joueur qui ne peut pas descendre sous 0.
+    this.p(a).gold = this.p(a).allowNegativeGold ? gb : Math.max(0, gb);
+    this.p(b).gold = this.p(b).allowNegativeGold ? ga : Math.max(0, ga);
     const loser = this.p(ga > gb ? a : b);
     E.st(loser).lost = (E.st(loser).lost ?? 0) + Math.abs(ga - gb);
     this.fx({ k: "gold", uid: a, delta: gb - ga });
@@ -620,6 +623,7 @@ export class Ctx {
     if (at?.zone === "terrain" && now?.zone !== "terrain" && src && src !== id && dest.zone === "discard")
       this.emit({ type: "terrainDiscard", uid: at.uid, card: id, src });
     if (now?.zone === "terrain" && at && at.zone !== "terrain") this.emit({ type: "placed", uid: now.uid, card: id, src, fromUid: at.uid, fromZone: at.zone });
+    if (at) this.emit({ type: "cardMoved", card: id, from: at, to: now, src });
     return true;
   }
   /** Défausse une carte : elle va dans la défausse du joueur chez qui elle se trouve (terrain, main…). */
@@ -652,6 +656,8 @@ export class Ctx {
     this.log(`🔁 « ${card(a).name} » et « ${card(b).name} » échangent leurs places.`, { dst: b, to: pb.uid });
     this.afterMove(a, pa);
     this.afterMove(b, pb);
+    this.emit({ type: "cardMoved", card: a, from: pa, to: E.locate(this.g, a), src: this.source });
+    this.emit({ type: "cardMoved", card: b, from: pb, to: E.locate(this.g, b), src: this.source });
   }
   /** Déplace sans compter de vol (échanges en plusieurs morceaux). */
   moveExchange(id: string, dest: E.Dest) {
@@ -876,6 +882,10 @@ export class Ctx {
       if (!SCRIPTS[id]) return; // carte manuelle : le joueur l'applique lui-même
       g.activated = [...(g.activated ?? []), id];
       this.activateCard(id, this.current);
+      if (g.doubleNow === this.current && this.active(id, this.current)) {
+        this.log(`⛵ Voile : « ${card(id).name} » se joue une deuxième fois.`, { src: "PIR-08", dst: id });
+        this.activateCard(id, this.current);
+      }
     }
   }
 }
@@ -899,17 +909,25 @@ function perform(x: Ctx, a: EffectAction) {
       break;
     }
     case "discard":
+      const at = E.locate(x.g, a.card);
       E.discardFromHand(x.room, x.g, a.by, a.card);
       x.emit({ type: "discard", uid: a.by, card: a.card, src: null });
+      if (at) x.emit({ type: "cardMoved", card: a.card, from: at, to: E.locate(x.g, a.card), src: null });
       break;
     case "endTurn": {
       const prev = E.hooks.drew;
       E.hooks.drew = (_g, uid, n) => x.emit({ type: "draw", uid, n, from: uid, src: null });
       x.emit({ type: "turnEnd", uid: a.by });
+      if (x.g.doubleNow) x.g.doubleNow = null;
       try {
         E.endTurn(x.room, x.g);
       } finally {
         E.hooks.drew = prev;
+      }
+      if (x.g.double?.includes(x.current)) {
+        x.g.double = x.g.double.filter((u) => u !== x.current);
+        x.g.doubleNow = x.current;
+        x.log(`⛵ Voile : ce tour, chaque carte de ${x.name(x.current)} se joue deux fois.`);
       }
       x.emit({ type: "turnStart", uid: x.current });
       break;

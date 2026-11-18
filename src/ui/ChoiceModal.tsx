@@ -104,9 +104,9 @@ export function ChoiceDock({ room, g, prompt, pick, answer, onCard }: {
             )}
             {multi && prompt.kind === "cards" && (
               <div className="row">
-                <span className="small muted">{picked.length} sélectionnée(s) — min {prompt.min}, max {prompt.max}</span>
+                <span className="small muted">{prompt.max === 0 ? "Regarde les cartes puis continue." : `${picked.length} sélectionnée(s) — min ${prompt.min}, max ${prompt.max}`}</span>
                 <button className="primary" disabled={picked.length < prompt.min} onClick={() => answer(picked)}>
-                  {picked.length === 0 ? "Ne rien choisir" : "Valider"}
+                  {prompt.max === 0 ? "Continuer" : picked.length === 0 ? "Ne rien choisir" : "Valider"}
                 </button>
               </div>
             )}

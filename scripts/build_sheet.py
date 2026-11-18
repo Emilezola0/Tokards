@@ -51,6 +51,7 @@ decks = table(src["Decks"])
 cards = table(src["Cartes"])
 vcs = table(src["Conditions"])
 gloss = table(src["Glossaire"])
+interp = table(src["Interprétations"]) if "Interprétations" in src.sheetnames else []
 lists = list(src["Listes"].iter_rows(values_only=True))
 
 def get(r, *keys):
@@ -124,6 +125,7 @@ L = {
     "Automatisation": [AUTO_YES, AUTO_NO],
     "Catégorie": CATS,
     "Animation": ANIMS,
+    "Interprétation": ["À valider", "Validée", "À changer"],
 }
 li = wb.create_sheet("Listes")
 li.sheet_properties.tabColor = "9E9E9E"
@@ -284,6 +286,25 @@ fill_rule(gl, "C2:C500", 'AND($A2<>"",$C2="")', "FFF1D6")
 for cat, color in KW_COLOR.items():
     fill_rule(gl, "B2:B500", f'$B2="{cat}"', "FFFFFF", Font(name=FONT, color=color, bold=True))
 
+# ---------- Interprétations ----------
+# Les choix faits par Claude quand le texte d'une carte peut se lire de plusieurs façons.
+# Les lignes sont conservées d'une mise à jour à l'autre : mets « À changer » et écris ta réponse pour corriger.
+ih = ["ID", "Deck", "Carte", "Passage ambigu", "Interprétation choisie", "Statut", "Ta réponse / changement voulu"]
+it = sheet("Interprétations", ih, [11, 18, 24, 40, 70, 13, 44], "F5A623")
+names = {str(get(c, "ID")): (get(c, "Deck"), get(c, "Nom")) for c in cards + vcs}
+for r in interp:
+    cid = str(get(r, "ID"))
+    deck, name = names.get(cid, (get(r, "Deck"), get(r, "Carte")))
+    it.append([cid, deck or get(r, "Deck"), name or get(r, "Carte"), get(r, "Passage ambigu"), get(r, "Interprétation choisie"),
+               get(r, "Statut") or "À valider", get(r, "Ta réponse")])
+body(it, max(it.max_row - 1, 1), len(ih), center=(1, 6))
+it.freeze_panes = "D2"
+it.auto_filter.ref = f"A1:G{max(it.max_row, 2)}"
+dv_list(it, "F2:F500", REF["Interprétation"], "À valider : pas encore relue. À changer : écris ce qu'il faut dans la dernière colonne.")
+fill_rule(it, "F2:F500", '$F2="Validée"', "D7F5E3")
+fill_rule(it, "F2:F500", '$F2="À changer"', "FDE2E7")
+fill_rule(it, "F2:F500", '$F2="À valider"', "FFF1D6")
+
 # ---------- Lisez-moi ----------
 rd = wb.create_sheet("Lisez-moi", 0)
 rd.sheet_properties.tabColor = "3B2A6B"
@@ -338,6 +359,7 @@ line("Mots en couleur", "Les mots listés dans « Mots reconnus » du glossaire 
 line("Tags", "Oui / Non pour 🧠 Sentience, 💰 Gold, 🌀 Trou noir.", "k")
 line("Déclenchement", "Activation : s'applique pendant la phase 1 et quand on pose la carte. Passif : réagit à un événement (colonne « Événement passif »).", "k")
 line("Précisions (règles)", "Comment la carte est interprétée dans le jeu. Claude y note ses choix quand le texte peut se lire de plusieurs façons.", "k")
+line("Interprétations", "Chaque choix d'interprétation de Claude, à relire. Mets « Validée » si c'est bon, ou « À changer » avec ta réponse dans la dernière colonne, puis envoie le classeur à Claude.", "k")
 line("Image", "Nom du fichier image de la carte (ex. GOB-01.png). Envoie les nouvelles images avec le classeur.", "k")
 row += 1
 line("Légende des couleurs", "", "h")
@@ -359,6 +381,7 @@ for name, desc in [("Decks", "Un deck par ligne, avec les compteurs et la vérif
                    ("Cartes", f"Une carte par ligne (au moins {MIN_CARDS} par deck)."),
                    ("Conditions", "Les conditions de victoire, une par ligne."),
                    ("Glossaire", "Le sens des mots des cartes, leur catégorie (couleur), les variantes reconnues et l'animation du glossaire du jeu."),
+                   ("Interprétations", "Les choix faits quand un texte de carte est ambigu : à valider ou à corriger."),
                    ("Listes", "Les valeurs des menus déroulants. Ajoute une valeur en bas d'une colonne pour la proposer.")]:
     line(name, desc, "k")
 
