@@ -48,7 +48,7 @@
    ],
    "summary": "Économie gobline : gagnez et dépensez des gold, cyclez les trous noirs et pillez les terrains adverses.",
    "back": "BACK-GOB.webp",
-   "difficulty": "Moyen",
+   "difficulty": "Facile",
    "cards": [
     "GOB-01",
     "GOB-02",
@@ -6266,8 +6266,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 50 gold et gagnez 50 gold pendant un même tour.",
-   "rules": "Compté pendant votre tour : 50 gold dépensés et 50 gold gagnés, remis à zéro à chaque début de tour.",
+   "text": "Pendant un même tour : perdez 50 💰 (dépensés, perdus ou volés) et gagnez 50 💰.",
+   "rules": "Compté pendant votre tour : tous les gold qui vous quittent (dépense, perte, vol, échange) et tous ceux que vous gagnez, remis à zéro à chaque début de tour.",
    "image": "VC-GRE-1.png"
   },
   "VC-GRE-2": {

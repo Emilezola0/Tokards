@@ -3,7 +3,7 @@ import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
 import { showWeather, weatherIcon, weatherLabel } from "../game/types";
-import { isAutomated, type Preview } from "../effects/runtime";
+import { isAutomated, type Preview, chainOf } from "../effects/runtime";
 import { vcProgress } from "../game/victory";
 import CardView, { CardBack } from "./CardView";
 import { useFx } from "./fxStore";
@@ -231,6 +231,7 @@ export default function PlayerBoard(p: Props) {
                     disabled={E.isDisabled(g, id)}
                     under={g.under?.[id]}
                     extraSent={g.tempTags?.includes(id)}
+                    chained={chainOf(g, id)?.why}
                     selected={moving?.id === id}
                     draggable={p.canDragTerrain}
                     onDragStart={drag({ id, from: "terrain" })}

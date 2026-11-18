@@ -30,6 +30,12 @@ export function nearRot(from: number, to: number) {
 
 export const PLAYER_COLORS = ["#ff6b8a", "#5ab8ff", "#5ee0a0", "#ffcf5a", "#c38bff", "#ff9a3c", "#4de0d6", "#f78fd8"];
 
+/** Couleur d'un joueur : selon son ordre d'arrivée dans le salon (la même dans le salon et en partie). */
+export function playerColor(room: { players: Record<string, { uid: string; joinedAt: number }> }, uid: string): string {
+  const list = Object.values(room.players).sort((a, b) => a.joinedAt - b.joinedAt);
+  return PLAYER_COLORS[Math.max(0, list.findIndex((p) => p.uid === uid)) % PLAYER_COLORS.length];
+}
+
 /** Couleur d'un deck : celle du tableau si renseignée, sinon une teinte dérivée du nom. */
 export function deckColor(name: string): string {
   const d = DECKS.find((x) => x.name === name);

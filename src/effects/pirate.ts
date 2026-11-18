@@ -116,7 +116,10 @@ export const PIRATE: Record<string, CardScript> = {
             ? hidden
             : flip;
         x.move(take, { uid: me, zone: "hand" });
-        if (take === flip) x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== flip), flip];
+        if (take === flip) {
+          x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== flip), flip];
+          x.noteOrigin("revealed", flip);
+        }
         for (const o of top) if (o !== take) x.move(o, { uid: me, zone: "deck", bottom: true });
         x.log(
           take === flip
@@ -506,6 +509,7 @@ export const PIRATE: Record<string, CardScript> = {
         setMark(x, self.id, null);
         const hand = [...x.p(self.me).hand];
         x.g.revealed = [...new Set([...(x.g.revealed ?? []), ...hand])];
+        for (const c of hand) x.noteOrigin("revealed", c);
         x.triggered(
           self,
           `Blazard ! La main de ${x.name(self.me)} est révélée : ${hand.map((c) => `« ${card(c).name} »`).join(", ") || "vide"}. Ses cartes se jouent en restant dans la main.`,

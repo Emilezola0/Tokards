@@ -68,6 +68,7 @@ function sendSun(x: Ctx, self: Self) {
   x.triggered(self, `${x.name(u)} est en Trou de ver : la carte part dans sa main, face visible.`);
   if (!x.move(self.id, { uid: u, zone: "hand" })) return;
   x.g.revealed = [...(x.g.revealed ?? []), self.id];
+  x.noteOrigin("revealed", self.id);
   setMark(x, self.id, self.me);
 }
 
@@ -431,6 +432,7 @@ export const EMILE: Record<string, CardScript> = {
         return false;
       }
       x.g.tempTags = [...(x.g.tempTags ?? []), c];
+      x.noteOrigin("tag", c);
       x.log(`🤖 « ${card(c).name} » a le tag 🧠 jusqu'à la fin du tour.`, {
         dst: c,
       });

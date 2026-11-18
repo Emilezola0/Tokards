@@ -70,6 +70,21 @@ export type CardScript = {
 };
 
 export const isAutomated = (id: string) => !!SCRIPTS[id];
+
+/** Carte d'un terrain dont le déplacement est bloqué (chaînes affichées) : raison et carte à l'origine, sinon null. */
+export function chainOf(g: GameState, id: string): { why: string; src: string } | null {
+  const at = E.locate(g, id);
+  if (!at || at.zone !== "terrain") return null;
+  const sc = SCRIPTS[id];
+  const tar = E.locate(g, "EMI-30");
+  if (id !== "EMI-30" && tar?.zone === "terrain" && tar.uid === at.uid && !E.isDisabled(g, "EMI-30") && (g.armed ?? []).includes("EMI-30"))
+    return { why: "Goudron : les cartes de ce terrain sont fixées, aucun effet ne peut les déplacer.", src: "EMI-30" };
+  if (sc?.immovableExcept)
+    return { why: `Ne peut être déplacée que par ses propres effets${sc.immovableExcept.length ? ` et ceux de ${sc.immovableExcept.map((c) => `« ${card(c).name} »`).join(", ")}` : ""}.`, src: id };
+  if (sc?.fixed) return { why: "Ne peut pas être défaussée par un effet.", src: id };
+  if (sc?.guarded) return { why: "Un autre joueur ne peut la déplacer qu'avec l'accord de son possesseur.", src: id };
+  return null;
+}
 /** Pourquoi la carte ne peut pas être posée depuis la main (null = elle peut). */
 export function noPlayReason(g: GameState, id: string): string | null {
   const np = SCRIPTS[id]?.noPlay;
@@ -545,6 +560,7 @@ export class Ctx {
     this.p(b).gold = this.p(b).allowNegativeGold ? ga : Math.max(0, ga);
     const loser = this.p(ga > gb ? a : b);
     E.st(loser).lost = (E.st(loser).lost ?? 0) + Math.abs(ga - gb);
+    if ((ga > gb ? a : b) === this.current) E.st(loser).lostTurn = (E.st(loser).lostTurn ?? 0) + Math.abs(ga - gb);
     this.fx({ k: "gold", uid: a, delta: gb - ga });
     this.fx({ k: "gold", uid: b, delta: ga - gb });
     this.log(`${this.name(a)} et ${this.name(b)} échangent leurs gold (${gb} / ${ga}).`);
@@ -780,6 +796,7 @@ export class Ctx {
       s.discOthers = (s.discOthers ?? 0) + 1;
     }
     if (dest.zone === "terrain" && !(this.g.movedCards ?? []).includes(id)) this.g.movedCards = [...(this.g.movedCards ?? []), id];
+    if (dest.zone === "terrain" && src && (this.g.owner[id] ?? at.uid) !== dest.uid) this.noteOrigin("elsewhere", id);
     this.touchCard(id, dest.zone === "terrain" ? dest.uid : null);
     if (at) this.interact(at.uid, at.zone);
     this.fx({ k: "move", card: id });
@@ -950,11 +967,19 @@ export class Ctx {
   enable(id: string) {
     if (E.enableCard(this.g, id)) this.log(`✅ « ${card(id).name} » est réactivée.`, { dst: id });
   }
+  /** Retient la carte et le joueur à l'origine d'une modification (affichés dans le détail de la carte). */
+  noteOrigin(kind: string, id: string) {
+    const o: { src?: string; by?: string } = {};
+    if (this.source && this.source !== id) o.src = this.source;
+    if (this.actor) o.by = this.actor;
+    this.g.origins = { ...(this.g.origins ?? {}), [`${kind}:${id}`]: o };
+  }
   /** Place `id` sous la carte `host` (elle quitte sa zone). */
   putUnder(id: string, host: string) {
     const at = E.locate(this.g, id);
     if (!at) return;
     E.attachUnder(this.g, id, host);
+    this.noteOrigin("under", id);
     const h = E.locate(this.g, host);
     if (this.source && this.source !== id) this.fx({ k: "link", from: this.source, to: host, toUid: h?.uid, text: `place « ${card(id).name} » dessous` });
     this.interact(at.uid, at.zone);
@@ -1149,16 +1174,18 @@ function perform(x: Ctx, a: EffectAction) {
         }
       }
       const from = E.locate(x.g, a.card);
-      E.playFromHand(x.room, x.g, a.by, a.card, a.target, a.index);
+      E.playFromHand(x.room, x.g, a.by, a.card, a.target, a.index, false);
       x.fx({ k: "move", card: a.card });
       x.played(a.card, from);
       x.emit({ type: "placed", uid: a.target, card: a.card, src: null, fromUid: from?.uid, fromZone: from?.zone });
       if (E.locate(x.g, a.card)?.zone === "terrain") x.activateCard(a.card, a.by);
+      // La phase 3 n'arrive qu'une fois tous les effets de la pose terminés (effet, passifs, choix).
+      if (x.g.phase === "action") E.consumeAction(x.g);
       break;
     }
     case "discard": {
       const at = E.locate(x.g, a.card);
-      E.discardFromHand(x.room, x.g, a.by, a.card);
+      E.discardFromHand(x.room, x.g, a.by, a.card, false);
       // Cacapulte : la carte peut partir dans la défausse d'un autre joueur.
       const now = E.locate(x.g, a.card);
       if (now?.zone === "discard" && a.card !== "VIC-17" && x.active("VIC-17", now.uid) && x.order.length > 1) {
@@ -1171,6 +1198,7 @@ function perform(x: Ctx, a: EffectAction) {
       }
       x.emit({ type: "discard", uid: a.by, card: a.card, src: null });
       if (at) x.emit({ type: "cardMoved", card: a.card, from: at, to: E.locate(x.g, a.card), src: null });
+      if (x.g.phase === "action") E.consumeAction(x.g);
       break;
     }
     case "endTurn": {

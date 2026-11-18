@@ -64,6 +64,8 @@ export function effect(code: string, action: EffectAction | null, answer?: unkno
 
 export function launch(code: string) {
   return update(code, (room) => {
+    const late = Object.values(room.players).filter((p) => p.uid !== room.hostUid && !p.ready);
+    if (late.length) throw new Error(`Pas encore prêt : ${late.map((p) => p.name).join(", ")}.`);
     room.game = startGame(room);
     room.status = "playing";
   });
@@ -73,5 +75,6 @@ export function backToLobby(code: string) {
   return update(code, (room) => {
     room.game = null;
     room.status = "lobby";
+    for (const p of Object.values(room.players)) p.ready = false;
   });
 }

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
-import { card } from "../data/cards";
+import { DECKS, PLACEHOLDER, card, cardImage, deckBack } from "../data/cards";
 import * as E from "../game/engine";
 import { act, backToLobby, effect, update } from "../game/room";
 import type { EffectAction, GameState, Room, Vote } from "../game/types";
@@ -11,13 +11,13 @@ import CardView from "./CardView";
 import CardModal, { type Placing } from "./CardModal";
 import PlayerModal from "./PlayerModal";
 import PlayerBoard, { BH, BW, Gauge, type DragSrc, type Seat } from "./PlayerBoard";
-import { DeckModal, TerrainModal } from "./Viewers";
+import { DeckModal, GoneModal, TerrainModal } from "./Viewers";
 import { sfx } from "./sfx";
 import SoundControl from "./SoundControl";
 import { claimWord, vcProgress, voteWord } from "../game/victory";
 import HoverCard from "./HoverCard";
 import { VersionTag } from "./UpdatePrompt";
-import { PLAYER_COLORS } from "./pose";
+import { playerColor } from "./pose";
 import { fxStore, useFx } from "./fxStore";
 import { dealDuration, useCardFlip } from "./useCardFlip";
 
@@ -106,6 +106,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const [showLog, setShowLog] = useState(false);
   const [viewTerrain, setViewTerrain] = useState<string | null>(null);
   const [viewDeck, setViewDeck] = useState<string | null>(null);
+  const [showGone, setShowGone] = useState(false);
   const [fresh] = useState(() => !!g.startedAt && Date.now() - g.startedAt < 15000 && g.round === 1 && g.turn === 0);
   const arena = useRef<HTMLDivElement>(null);
   const size = useSize(arena);
@@ -129,7 +130,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const run = (fn: (r: Room, g: GameState) => void) => act(room.code, fn).catch((e) => setErr((e as Error).message));
   const runAuto = (a: EffectAction) => effect(room.code, a).catch((e) => setErr((e as Error).message));
 
-  const colorOf = (u: string) => PLAYER_COLORS[Math.max(0, g.order.indexOf(u)) % PLAYER_COLORS.length];
+  const colorOf = (u: string) => playerColor(room, u);
   const myTeam = room.players[uid]?.team.trim();
   const myPrompt = g.pending?.prompt.chooser === uid && !fx.busy ? g.pending.prompt : null;
   const answerPrompt = (a: unknown) => effect(room.code, null, a).catch((e) => setErr((e as Error).message));
@@ -236,15 +237,29 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const seated = [...g.order.slice(viewer), ...g.order.slice(0, viewer)];
   const layout = useMemo(() => seats(seated.length, size.w, size.h), [seated.length, size.w, size.h]);
   const [gaugeOpen, setGaugeOpen] = useState<string | null>(null);
-  // Flèches du sens de jeu, entre chaque terrain et le suivant.
+  // Flèches du sens de jeu : un arc entre chaque plateau et le suivant, qui suit le cercle des plateaux.
   const arrows = useMemo(() => {
     const n = seated.length;
     if (n < 2) return [];
+    const rx = size.w * 0.37;
+    const ry = size.h * 0.37;
+    const half = Math.min(60, (360 / n) * 0.32); // demi-ouverture de l'arc (degrés)
     return seated.map((_, i) => {
-      const m = ((seatAngle(i, n) - 180 / n) * Math.PI) / 180;
-      return { x: size.w / 2 + Math.cos(m) * size.w * 0.36, y: size.h / 2 + Math.sin(m) * size.h * 0.36, rot: (m * 180) / Math.PI - 90 };
+      const mid = seatAngle(i, n) - 180 / n;
+      const pts = Array.from({ length: 25 }, (_, k) => {
+        const a = ((mid + half - (2 * half * k) / 24) * Math.PI) / 180;
+        return `${(size.w / 2 + Math.cos(a) * rx).toFixed(1)},${(size.h / 2 + Math.sin(a) * ry).toFixed(1)}`;
+      });
+      return { d: `M${pts.join(" L")}` };
     });
   }, [seated.length, size.w, size.h]);
+  const curSeat = seated.indexOf(current);
+  // Cartes disparues : à quelqu'un au début de la partie, mais dans aucune zone ni sous une autre carte.
+  const gone = useMemo(() => {
+    const under = new Set(Object.values(g.under ?? {}).flat());
+    return Object.keys(g.owner).filter((id) => !under.has(id) && !E.locate(g, id));
+  }, [g]);
+  const turnBack = room.players[current]?.deck ? deckBack(room.players[current].deck!) ?? cardImage(DECKS.find((d) => d.name === room.players[current].deck)?.cards[0] ?? "") : null;
 
   return (
     <div className="table">
@@ -266,6 +281,11 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         {!isPlayer && <span className="badge">{me?.out ? "🏳 Abandon" : "Spectateur"}</span>}
         <Dice run={run} uid={uid} enabled={isPlayer && myTurn} />
         <SoundControl />
+        {gone.length > 0 && (
+          <button className="ghost gone-btn" title="Cartes sorties de la partie" onClick={() => (sfx.click(), setShowGone(true))}>
+            🕳 Disparues <b>{gone.length}</b>
+          </button>
+        )}
         <button className="ghost" onClick={() => (sfx.click(), setShowLog((v) => !v))}>📜 Journal</button>
         {isPlayer && room.status === "playing" && (
           <button
@@ -283,7 +303,27 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       <OrderBar g={g} room={room} uid={uid} colorOf={colorOf} />
 
       <div className={`arena ${moving ? "is-moving" : ""} ${tablePick.pick ? "is-picking" : ""}`} ref={arena}>
+        {turnBack && (
+          <div key={current} className="turn-backdrop" style={{ backgroundImage: `url("${turnBack}"), url("${PLACEHOLDER}")`, ["--pc" as string]: colorOf(current) }} />
+        )}
         <div className="table-felt" />
+        {arrows.length > 0 && (
+          <svg className="turn-arrows" width={size.w} height={size.h} aria-hidden="true">
+            <defs>
+              <marker id="ta-head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" className="ta-head" />
+              </marker>
+              <marker id="ta-head-on" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" className="ta-head on" />
+              </marker>
+            </defs>
+            {arrows.map((a, i) => (
+              <path key={i} d={a.d} className={`turn-arc ${i === curSeat ? "on" : ""}`} markerEnd={`url(#${i === curSeat ? "ta-head-on" : "ta-head"})`}>
+                <title>{i === curSeat ? "Prochain tour" : "Sens du tour de table"}</title>
+              </path>
+            ))}
+          </svg>
+        )}
         {seated.map((owner, i) =>
           layout[i] ? (
             <PlayerBoard
@@ -318,12 +358,6 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
             />
           ) : null,
         )}
-
-        {arrows.map((a, i) => (
-          <span key={i} className="turn-arrow" style={{ left: a.x, top: a.y, transform: `translate(-50%, -50%) rotate(${a.rot}deg)` }} title="Sens du tour de table">
-            ➜
-          </span>
-        ))}
 
         <div className="hub">
           <span className="small muted">Condition commune</span>
@@ -415,6 +449,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       )}
       <FxLayer g={g} room={room} me={uid} fresh={fresh} startDelay={fresh ? dealDuration(g) : 0} colorOf={colorOf} />
       {viewDeck && <DeckModal deck={viewDeck} onClose={() => setViewDeck(null)} />}
+      {showGone && <GoneModal ids={gone} ownerName={(id) => E.nameOf(room, g.owner[id])} onCard={setOpenCard} onClose={() => setShowGone(false)} />}
       {viewTerrain && g.players[viewTerrain] && (
         <TerrainModal name={E.nameOf(room, viewTerrain)} terrain={g.players[viewTerrain].terrain} onCard={setOpenCard} onClose={() => setViewTerrain(null)} />
       )}

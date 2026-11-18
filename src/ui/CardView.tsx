@@ -52,7 +52,41 @@ type Props = {
   under?: string[];
   /** tag 🧠 ajouté jusqu'à la fin du tour */
   extraSent?: boolean;
+  /** déplacement bloqué : chaînes qui la lient au sol (texte = raison) */
+  chained?: string;
 };
+
+/** Maillons d'une chaîne entre deux points (repère 0-100 × 0-150 de la carte). */
+function chainLinks(x1: number, y1: number, x2: number, y2: number, n: number) {
+  const ang = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
+  return Array.from({ length: n }, (_, i) => {
+    const t = (i + 0.5) / n;
+    const x = x1 + (x2 - x1) * t;
+    const y = y1 + (y2 - y1) * t;
+    return i % 2 ? (
+      <rect key={i} x={x - 5} y={y - 1.1} width={10} height={2.2} rx={1.1} transform={`rotate(${ang} ${x} ${y})`} className="lk-side" />
+    ) : (
+      <ellipse key={i} cx={x} cy={y} rx={6} ry={3.4} transform={`rotate(${ang} ${x} ${y})`} className="lk-face" />
+    );
+  });
+}
+
+/** Deux chaînes qui partent du bas de la carte et l'attachent au sol, avec leurs piquets. */
+function Chains({ why }: { why: string }) {
+  return (
+    <span className="card-chains" title={`🔗 Enchaînée : ${why}`}>
+      <svg viewBox="0 0 100 190" preserveAspectRatio="none" aria-hidden="true">
+        <g className="chain">{chainLinks(14, 118, -6, 182, 8)}</g>
+        <g className="chain">{chainLinks(86, 118, 106, 182, 8)}</g>
+        <path className="stake" d="M-12 178 h12 l-6 10 z" />
+        <path className="stake" d="M100 178 h12 l-6 10 z" />
+        <circle className="ring" cx={14} cy={118} r={4} />
+        <circle className="ring" cx={86} cy={118} r={4} />
+      </svg>
+      <span className="chain-lock">🔒</span>
+    </span>
+  );
+}
 
 export function CardBack({ deck, size = "m", selected, onClick, id, count }: {
   deck?: string; size?: Props["size"]; selected?: boolean; onClick?: () => void; id?: string; count?: number;
@@ -76,7 +110,7 @@ export function CardBack({ deck, size = "m", selected, onClick, id, count }: {
 }
 
 export default function CardView(p: Props) {
-  const { id, hidden, size = "m", highlight, target, selected, done, auto, onClick, badge, ghost, spent, store, locked, disabled, under, extraSent } = p;
+  const { id, hidden, size = "m", highlight, target, selected, done, auto, onClick, badge, ghost, spent, store, locked, disabled, under, extraSent, chained } = p;
   const recharged = useRecharge(!!spent);
   if (hidden || !id) return <CardBack id={ghost ? undefined : id} deck={p.deck} size={size} selected={selected} onClick={onClick} />;
   const c = card(id);
@@ -84,7 +118,7 @@ export default function CardView(p: Props) {
     <button
       type="button"
       data-card={ghost ? undefined : id}
-      className={`card ${size} ${c.kind === "victory" ? "victory" : ""} ${highlight ? "highlight" : ""} ${target ? "target" : ""} ${selected ? "selected" : ""} ${done ? "done" : ""} ${c.trigger === "Passif" ? "passive" : ""} ${spent ? "spent" : ""} ${recharged ? "recharged" : ""} ${locked ? "locked" : ""} ${disabled ? "disabled" : ""} ${under?.length ? "has-under" : ""}`}
+      className={`card ${size} ${c.kind === "victory" ? "victory" : ""} ${highlight ? "highlight" : ""} ${target ? "target" : ""} ${selected ? "selected" : ""} ${done ? "done" : ""} ${c.trigger === "Passif" ? "passive" : ""} ${spent ? "spent" : ""} ${recharged ? "recharged" : ""} ${locked ? "locked" : ""} ${disabled ? "disabled" : ""} ${under?.length ? "has-under" : ""} ${chained ? "chained" : ""}`}
       onClick={onClick}
       draggable={p.draggable}
       onDragStart={p.onDragStart}
@@ -102,6 +136,7 @@ export default function CardView(p: Props) {
       {!!store && <span className="card-store" title="Gold stockés sur cette carte">💰 {store}</span>}
       {locked && <span className="card-lock">🔒</span>}
       {disabled && <span className="card-disabled" title="Désactivée : son effet et ses passifs ne fonctionnent pas">⛔</span>}
+      {chained && <Chains why={chained} />}
       {!!under?.length && (
         <span className="card-under" title={`Dessous : ${under.map((u) => card(u).name).join(", ")}`}>
           ⤵ {under.length}

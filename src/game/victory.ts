@@ -113,11 +113,12 @@ const CHECKS: Record<string, (c: C) => Progress> = {
   // Marchandise amphibienne : dépenser 50 gold et en gagner 50 pendant un même tour
   "VC-GRE-1": ({ s, p, g, uid }) => {
     const mine = E.currentPlayer(g) === uid;
-    const sp = mine ? s.spentTurn ?? 0 : 0;
+    // Gold sortis : dépensés, perdus ou volés (tout ce qui retire des gold compte).
+    const sp = mine ? s.lostTurn ?? 0 : 0;
     const ga = mine ? p.goldGainedSince ?? 0 : 0;
     return {
       ratio: (Math.min(sp, 50) + Math.min(ga, 50)) / 100, done: sp >= 50 && ga >= 50,
-      text: mine ? `Ce tour : dépensés ${Math.min(sp, 50)}/50 · gagnés ${Math.min(ga, 50)}/50` : "Se joue pendant ton tour",
+      text: mine ? `Ce tour : sortis ${Math.min(sp, 50)}/50 · gagnés ${Math.min(ga, 50)}/50` : "Se joue pendant ton tour",
     };
   },
   // Frog TV : sentience fausse et gold impairs à la fin de son tour

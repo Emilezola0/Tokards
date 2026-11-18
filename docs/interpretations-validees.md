@@ -127,3 +127,5 @@ Lignes validées retirées de l'onglet « Interprétations » du classeur (gard�
 | MET-30 | Éclair | « Tombe sur le terrain possédant Orage » | La carte Éclair va sur ce terrain. 5 % : la carte ne part pas et son effet se joue pour son joueur. |
 | MET-31 | Para-Tonerre | Déclenchement « Activation » | Traitée comme un passif : elle agit seulement quand un éclair tombe sur votre terrain. |
 | MET-32 | Bulletin météo | « face visible » | ✔ Corrigé (v0.12) selon ta réponse : Sur un terrain inclut aussi le mien dans le cas de cette carte. L'orage ne peut pas être récupéré |
+| POL-05 | Ministre de l'interieur | Coût de défausse sans les gold | Sans 10 gold, le joueur perd ce qu'il a (jusqu'à 0). |
+| Règle | Difficulté des decks | Valeurs par défaut | Facile : Popo emplois. Moyen : Empire Goblin, Grenouilles, Police, Pirate. Difficile : Emile, Fléaux, Météo. Modifiable dans l'onglet Decks. ✔ Corrigé (v0.17) selon ta réponse : Empire Goblin = Facile. |

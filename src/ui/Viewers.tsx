@@ -1,12 +1,12 @@
 import { Fragment, useState } from "react";
 import KwText from "./KwText";
-import { DECKS, PLACEHOLDER, card, cardImage, deckBack, tagIcons } from "../data/cards";
+import { BASE_VCS, DECKS, PLACEHOLDER, card, cardImage, deckBack, tagIcons } from "../data/cards";
 import { isAutomated } from "../effects/runtime";
 import CardView from "./CardView";
 import { sfx } from "./sfx";
 
 /** Détail d'une carte (image, tags, déclenchement, texte, précisions). */
-export function CardDetail({ id, onBack }: { id: string; onBack: () => void }) {
+export function CardDetail({ id, onBack, backLabel = "← Retour au deck" }: { id: string; onBack: () => void; backLabel?: string }) {
   const c = card(id);
   return (
     <div className="card-detail-view">
@@ -20,7 +20,7 @@ export function CardDetail({ id, onBack }: { id: string; onBack: () => void }) {
         </p>
         <p className="card-text"><KwText text={c.text} /></p>
         {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
-        <button className="ghost" onClick={onBack}>← Retour au deck</button>
+        <button className="ghost" onClick={onBack}>{backLabel}</button>
       </div>
     </div>
   );
@@ -64,6 +64,72 @@ export function DeckModal({ deck, onClose }: { deck: string; onClose: () => void
             )}
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** Toutes les conditions de victoire : les communes, puis celles de chaque deck. Clic = détail. */
+export function VictoryModal({ decks, onClose }: { decks: string[]; onClose: () => void }) {
+  const [sel, setSel] = useState<string | null>(null);
+  const groups = [
+    { name: "Conditions de base", sub: "toujours dans la pioche", ids: BASE_VCS },
+    ...decks.map((n) => DECKS.find((d) => d.name === n)).filter((d) => d && d.vcs.length).map((d) => ({ name: d!.name, sub: "ajoutées quand ce deck est en jeu", ids: d!.vcs })),
+  ];
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal panel viewer" onClick={(e) => e.stopPropagation()}>
+        <div className="row">
+          <h2 className="grow">🏁 Conditions de victoire</h2>
+          <button className="ghost" onClick={onClose}>✕</button>
+        </div>
+        {sel ? (
+          <CardDetail id={sel} onBack={() => setSel(null)} backLabel="← Retour aux conditions" />
+        ) : (
+          <>
+            <p className="small muted">En début de partie, une condition commune est tirée pour toute la table, puis chaque joueur reçoit une condition personnelle. Elles sont tirées parmi les conditions de base et celles des decks en jeu. Clique une carte pour voir le détail.</p>
+            {groups.map((gr) => (
+              <div key={gr.name} className="vc-group">
+                <h3>{gr.name} <span className="muted small">{gr.sub}</span></h3>
+                <div className="vc-list">
+                  {gr.ids.map((id) => (
+                    <div key={id} className="vc-item" onClick={() => setSel(id)}>
+                      <CardView id={id} size="s" ghost />
+                      <div>
+                        <strong>{card(id).name}</strong>
+                        <p className="small"><KwText text={card(id).text} /></p>
+                        {card(id).rules && <p className="small muted">{card(id).rules}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Cartes sorties de la partie (elles ne sont plus dans aucune zone). */
+export function GoneModal({ ids, ownerName, onCard, onClose }: { ids: string[]; ownerName: (id: string) => string; onCard: (id: string) => void; onClose: () => void }) {
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal panel viewer" onClick={(e) => e.stopPropagation()}>
+        <div className="row">
+          <h2 className="grow">🕳 Cartes disparues <span className="muted small">{ids.length}</span></h2>
+          <button className="ghost" onClick={onClose}>✕</button>
+        </div>
+        <p className="small muted">Ces cartes ont quitté la partie : elles ne sont plus dans aucune pioche, main, défausse ou terrain. Clique une carte pour voir son effet.</p>
+        <div className="viewer-grid">
+          {ids.map((id) => (
+            <div key={id} className="gone-item">
+              <CardView id={id} size="m" ghost onClick={() => onCard(id)} />
+              <span className="small muted">à {ownerName(id)}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

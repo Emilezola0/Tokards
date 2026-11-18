@@ -420,7 +420,7 @@ button.mini { font-size: 11px; padding: 1px 8px; border-radius: 8px; }
 .pile.discard > .card { position: relative; z-index: 1; }
 
 /* aura des cartes à effet passif */
-.card.passive { box-shadow: 0 0 0 1px #7af7ff88, 0 0 12px #7af7ff66; animation: aura 2.6s ease-in-out infinite; }
+.card.passive { border-color: #7af7ff; box-shadow: 0 0 0 2px #7af7ffcc, 0 0 14px #7af7ff88; }
 .card.passive.target, .card.passive.highlight, .card.passive.selected { animation: target-pulse 1s ease-in-out infinite; }
 .card-passive { position: absolute; bottom: 30%; left: 3px; font-size: 10px; filter: drop-shadow(0 0 4px #7af7ff); }
 @keyframes aura { 0%, 100% { box-shadow: 0 0 0 1px #7af7ff66, 0 0 8px #7af7ff44; } 50% { box-shadow: 0 0 0 1px #7af7ffcc, 0 0 18px #7af7ffaa; } }
@@ -942,3 +942,75 @@ button.danger:hover { border-color: var(--bad); }
 .fx-weather-storm::after { background: linear-gradient(180deg, #1a1f3a88, transparent 70%); animation: storm 1.8s steps(1) forwards; }
 .fx-weather-clear::after { background: radial-gradient(circle at 80% 10%, #ffe9a066, transparent 55%); animation: heat 1.8s ease-in-out forwards; }
 @keyframes storm { 0%, 30%, 60% { filter: brightness(1); } 20%, 50% { filter: brightness(3); } 100% { opacity: 0; } }
+
+/* ===== v0.17 : salon ===== */
+.deck-grid-head { align-items: center; margin-bottom: 4px; }
+.deck-grid-head h2 { margin: 0; }
+/* pile de cartes superposées derrière l'image du deck */
+.deck-stack { position: relative; display: block; isolation: isolate; margin: 4px 8px 8px 4px; }
+.deck-stack::before, .deck-stack::after {
+  content: ""; position: absolute; inset: 0; border-radius: 8px; z-index: -1; border: 1px solid #ffffff2a;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--deck, #6d4cff) 55%, #1a1233), #120c26);
+  transition: transform 0.25s ease;
+}
+.deck-stack::before { transform: translate(4px, 4px) rotate(2.5deg); filter: brightness(0.8); }
+.deck-stack::after { transform: translate(8px, 7px) rotate(5deg); filter: brightness(0.55); }
+.deck-stack img { display: block; box-shadow: 0 3px 10px #0009; transition: transform 0.25s ease; }
+.deck-choice:hover:not(:disabled) .deck-stack img { transform: translate(-2px, -4px) rotate(-1.5deg); }
+.deck-choice:hover:not(:disabled) .deck-stack::before { transform: translate(5px, 4px) rotate(4deg); }
+.deck-choice:hover:not(:disabled) .deck-stack::after { transform: translate(11px, 7px) rotate(8deg); }
+/* deck pris : surbrillance de la couleur du joueur, visible par tous */
+.deck-choice.taken { border-color: var(--pc); box-shadow: 0 0 0 2px var(--pc), 0 0 22px color-mix(in srgb, var(--pc) 55%, transparent); opacity: 1; }
+.deck-choice.taken:disabled { cursor: default; }
+.deck-choice.taken .small.muted { color: var(--pc); font-weight: 700; }
+/* joueurs : image du deck et cadre à la couleur du joueur */
+.player-list li.lobby-player { align-items: center; flex-wrap: nowrap; border: 2px solid var(--pc); background: color-mix(in srgb, var(--pc) 10%, var(--panel2)); }
+.lp-deck { flex: none; width: 38px; aspect-ratio: 2/3; border-radius: 5px; overflow: hidden; display: grid; place-items: center; background: #ffffff10; border: 1px solid color-mix(in srgb, var(--pc) 60%, transparent); }
+.lp-deck img { width: 100%; height: 100%; object-fit: cover; }
+.lp-deck i { font-style: normal; color: var(--muted); }
+.lp-body { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.lp-top { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.lp-name { color: var(--pc); }
+.lp-ready { flex: none; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; color: var(--muted); border: 1px solid var(--line); }
+.lp-ready.on { color: #0b0716; background: #4ade80; border-color: #4ade80; }
+.ready-btn { width: 100%; }
+.ready-btn.on { background: #4ade80; color: #0b0716; border-color: #4ade80; font-weight: 800; }
+/* conditions de victoire */
+.vc-group h3 { margin: 14px 0 6px; }
+.vc-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+.vc-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px; border-radius: 10px; background: var(--panel2); border: 1px solid var(--line); cursor: pointer; }
+.vc-item:hover { border-color: var(--accent); }
+.vc-item .card { width: 64px; flex: none; }
+.vc-item p { margin: 3px 0 0; }
+
+/* ===== v0.17 : cartes enchaînées (déplacement bloqué) ===== */
+.card.chained { overflow: visible; }
+.card-chains { position: absolute; left: 0; right: 0; top: 0; height: 126%; pointer-events: none; z-index: 2; }
+.card-chains svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 1.5px #000c); }
+.card-chains .lk-face { fill: none; stroke: #c9ced8; stroke-width: 1.8; }
+.card-chains .lk-side { fill: #9aa1ad; }
+.card-chains .ring { fill: none; stroke: #e2e6ee; stroke-width: 2; }
+.card-chains .stake { fill: #6b5a45; stroke: #2a2118; stroke-width: 0.8; }
+.chain-lock { position: absolute; left: 50%; top: 74%; transform: translate(-50%, -50%); font-size: 13px; filter: drop-shadow(0 0 3px #000); }
+
+.card.chained img { border-radius: 8px; }
+/* ===== v0.17 : table ===== */
+/* dos du deck du joueur actif en fond, à moitié assombri */
+.turn-backdrop {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-size: cover; background-position: center; opacity: 0.5; filter: brightness(0.5) saturate(0.9) blur(1px);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 35%, transparent 78%); mask-image: radial-gradient(ellipse at center, #000 35%, transparent 78%);
+  animation: backdrop-in 0.9s ease-out;
+}
+@keyframes backdrop-in { from { opacity: 0; } to { opacity: 0.5; } }
+/* flèches courbes du sens de jeu */
+.turn-arrows { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: visible; }
+.turn-arc { fill: none; stroke: #ffd23f; stroke-width: 2.5; stroke-linecap: round; opacity: 0.35; stroke-dasharray: 2 9; }
+.turn-arc.on { stroke-width: 5; opacity: 1; stroke-dasharray: 14 10; filter: drop-shadow(0 0 6px #ffd23f); animation: arc-flow 0.9s linear infinite; }
+.turn-arc title { pointer-events: auto; }
+.ta-head { fill: #ffd23f; opacity: 0.5; }
+.ta-head.on { opacity: 1; }
+@keyframes arc-flow { to { stroke-dashoffset: -24; } }
+/* cartes disparues */
+.gone-btn b { color: var(--gold); }
+.gone-item { display: grid; justify-items: center; gap: 2px; }

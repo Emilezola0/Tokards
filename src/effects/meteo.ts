@@ -435,6 +435,8 @@ export const METEO: Record<string, CardScript> = {
         const c = x.chooseCard(me, "Temps tôt fini : quelle carte de ta main jouer (elle reste dans ta main) ?", x.p(me).hand.filter((c) => x.canActivate(c)), id);
         if (c) {
           x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== c), c];
+        x.noteOrigin("revealed", c);
+          x.noteOrigin("revealed", c);
           x.log(`👁 ${x.name(me)} montre « ${card(c).name} » et la joue depuis sa main.`, { dst: c });
           x.activateCard(c, me);
         }
@@ -464,6 +466,7 @@ export const METEO: Record<string, CardScript> = {
         );
         if (!c) continue;
         x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== c), c];
+        x.noteOrigin("revealed", c);
         x.log(`👁 ${x.name(u)} montre « ${card(c).name} » et la joue depuis sa main.`, { dst: c });
         x.activateCard(c, u);
       }

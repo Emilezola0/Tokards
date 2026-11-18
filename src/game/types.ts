@@ -221,6 +221,8 @@ export interface GameState {
   disabled?: Record<string, Partial<Until>>;
   /** origine de chaque désactivation : carte qui l'a causée (`src`) et joueur qui l'a lancée (`by`) */
   disabledBy?: Record<string, { src?: string; by?: string; at?: number }>;
+  /** origine d'une modification affichée dans le détail d'une carte (clé « type:id ») : carte et joueur qui l'ont causée */
+  origins?: Record<string, { src?: string; by?: string }>;
   /** cartes placées sous une autre carte (hôte → cartes dessous) : elles ne sont dans aucune zone */
   under?: Record<string, string[]>;
   /** place d'origine des cartes mises sous une carte (pour les remettre en place) */
@@ -259,6 +261,8 @@ export interface LobbyPlayer {
   team: string;
   deck: string | null;
   joinedAt: number;
+  /** prêt à lancer (salon) */
+  ready?: boolean;
 }
 
 export interface Room {

@@ -4,7 +4,7 @@ import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room, Until } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
-import { isAutomated, noPlayReason } from "../effects/runtime";
+import { chainOf, isAutomated, noPlayReason } from "../effects/runtime";
 import { isAutoVC, lettersOf, teamProgress, vcProgress, wordFits } from "../game/victory";
 import { Gauge } from "./PlayerBoard";
 
@@ -173,6 +173,13 @@ export function modifiersOf(room: Room, g: GameState, id: string): Mod[] {
   const at = E.locate(g, id);
   const name = (u?: string) => (u ? E.nameOf(room, u) : "?");
   const cardName = (c?: string) => (c ? `« ${card(c).name} »` : "un effet");
+  /** « Origine : « Carte », lancée par Joueur. » à partir de ce que le moteur a retenu. */
+  const origin = (kind: string, fallback?: string) => {
+    const o = g.origins?.[`${kind}:${id}`];
+    const src = o?.src ?? fallback;
+    if (!src && !o?.by) return [];
+    return [`Origine : ${src ? cardName(src) : "un effet"}${o?.by ? `, lancée par ${name(o.by)}` : ""}.`];
+  };
   const d = g.disabled?.[id];
   if (d) {
     const by = g.disabledBy?.[id];
@@ -194,21 +201,23 @@ export function modifiersOf(room: Room, g: GameState, id: string): Mod[] {
       details: under.map((u) => `${cardName(u)}${g.underFrom?.[u] ? ` (venue du terrain de ${name(g.underFrom[u].uid)})` : ""}${u === "GRE-21" ? " : les choix de cette carte se font au hasard" : ""}`),
     });
   for (const [host, list] of Object.entries(g.under ?? {}))
-    if (list.includes(id)) out.push({ icon: "⬇️", label: "Sous une autre carte", kind: "debuff", details: [host === E.SNOW ? "Ensevelie sous la neige : elle ressort au dégel." : `Sous ${cardName(host)}.`] });
-  if (g.tempTags?.includes(id)) out.push({ icon: "🧠", label: "Tag Sentience ajouté", kind: "buff", details: ["Durée : jusqu'à la fin du tour en cours."] });
+    if (list.includes(id)) out.push({ icon: "⬇️", label: "Sous une autre carte", kind: "debuff", details: [...origin("under", host === E.SNOW ? "MET-06" : undefined), host === E.SNOW ? "Ensevelie sous la neige : elle ressort au dégel." : `Sous ${cardName(host)}.`] });
+  if (g.tempTags?.includes(id)) out.push({ icon: "🧠", label: "Tag Sentience ajouté", kind: "buff", details: [...origin("tag", "EMI-18"), "Durée : jusqu'à la fin du tour en cours."] });
+  const chain = chainOf(g, id);
+  if (chain) out.push({ icon: "🔗", label: "Enchaînée", kind: "debuff", details: [`Origine : ${cardName(chain.src)}${chain.src !== id && g.owner[chain.src] ? ` de ${name(g.owner[chain.src])}` : ""}.`, chain.why] });
   if (g.cardStore?.[id]) out.push({ icon: "💰", label: `Réserve : ${g.cardStore[id]} gold`, kind: "info", details: ["Gold stockés sur cette carte par son effet."] });
   if (g.spent?.includes(id)) out.push({ icon: "⏳", label: "Effet utilisé", kind: "info", details: ["Elle rejouera au prochain tour de son joueur."] });
   if (g.armed?.includes(id)) {
     const m = g.marks?.[id];
     const target = m && g.players[m.split(/[|:]/)[0]] ? ` (cible / lanceur : ${name(m.split(/[|:]/)[0])})` : "";
-    out.push({ icon: "⏱", label: "Effet en attente", kind: "info", details: [`Son effet se déclenchera plus tard, comme indiqué sur la carte${target}.`] });
+    out.push({ icon: "⏱", label: "Effet en attente", kind: "info", details: [`Origine : ${cardName(id)}${at ? ` de ${name(g.owner[id] ?? at.uid)}` : ""}.`, `Son effet se déclenchera plus tard, comme indiqué sur la carte${target}.`] });
   }
-  if (g.revealed?.includes(id) && at?.zone === "hand") out.push({ icon: "👁", label: "Face visible", kind: "info", details: [`Tout le monde voit cette carte dans la main de ${name(at.uid)}.`] });
-  if (g.custody?.host === id) out.push({ icon: "🚔", label: "Garde à vue active", kind: "info", details: [`Lancée par ${name(g.custody.uid)} : les prochaines cartes désactivées vont sous cette carte.`] });
+  if (g.revealed?.includes(id) && at?.zone === "hand") out.push({ icon: "👁", label: "Face visible", kind: "info", details: [...origin("revealed"), `Tout le monde voit cette carte dans la main de ${name(at.uid)}.`] });
+  if (g.custody?.host === id) out.push({ icon: "🚔", label: "Garde à vue active", kind: "info", details: [`Origine : ${cardName(id)}, lancée par ${name(g.custody.uid)}.`, "Les prochaines cartes désactivées vont sous cette carte."] });
   if (at?.zone === "terrain" && (g.doubleNow === at.uid || g.double?.includes(at.uid)))
     out.push({ icon: "⛵", label: "Se joue deux fois", kind: "buff", details: [`Origine : ${cardName("PIR-08")}.`, g.doubleNow === at.uid ? "Durée : ce tour-ci." : `Durée : le prochain tour de ${name(at.uid)}.`] });
   const owner = g.owner[id];
-  if (owner && at && owner !== at.uid) out.push({ icon: "🔀", label: "Chez un autre joueur", kind: "info", details: [`Appartient à ${name(owner)}, se trouve chez ${name(at.uid)}.`] });
+  if (owner && at && owner !== at.uid) out.push({ icon: "🔀", label: "Chez un autre joueur", kind: "info", details: [...(at.zone === "terrain" ? origin("elsewhere") : []), `Appartient à ${name(owner)}, se trouve chez ${name(at.uid)}.`] });
   return out;
 }
 

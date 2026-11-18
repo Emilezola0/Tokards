@@ -501,21 +501,22 @@ export function detachUnder(g: GameState, id: string, dest: Dest) {
 /** Carte sous laquelle `id` est placée. */
 export const hostOf = (g: GameState, id: string) => Object.entries(g.under ?? {}).find(([, l]) => l.includes(id))?.[0] ?? null;
 
-export function playFromHand(room: Room, g: GameState, uid: string, id: string, target: string, index: number) {
+/** `consume = false` : l'action est décomptée plus tard (mode auto, après les effets de la carte). */
+export function playFromHand(room: Room, g: GameState, uid: string, id: string, target: string, index: number, consume = true) {
   moveCard(room, g, id, { uid: target, zone: "terrain", index }, true);
   const where = target === uid ? `en position ${index + 1}` : `sur le terrain de ${nameOf(room, target)}, position ${index + 1}`;
   log(g, `${nameOf(room, uid)} pose « ${card(id).name} » ${where}.`, { dst: id, from: uid, to: target });
   g.lastPlayed = id;
-  if (uid === currentPlayer(g) && g.phase === "action") consumeAction(g);
+  if (consume && uid === currentPlayer(g) && g.phase === "action") consumeAction(g);
 }
 
-export function discardFromHand(room: Room, g: GameState, uid: string, id: string) {
+export function discardFromHand(room: Room, g: GameState, uid: string, id: string, consume = true) {
   // Une carte défaussée va dans la défausse du joueur chez qui elle se trouve.
   const holder = locate(g, id)?.uid ?? uid;
   moveCard(room, g, id, { uid: holder, zone: "discard" }, true);
   log(g, `${nameOf(room, uid)} défausse « ${card(id).name} » de sa main.`, { dst: id, from: uid });
   g.lastPlayed = null;
-  if (uid === currentPlayer(g) && g.phase === "action") consumeAction(g);
+  if (consume && uid === currentPlayer(g) && g.phase === "action") consumeAction(g);
 }
 
 export function takeRandomFromHand(room: Room, g: GameState, from: string, to: string) {
