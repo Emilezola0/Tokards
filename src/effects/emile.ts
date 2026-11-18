@@ -310,18 +310,28 @@ export const EMILE: Record<string, CardScript> = {
         x.log("💣 Crocodilo Bombardino explosera au prochain tour.");
         return;
       }
-      let missing = 5;
-      for (const u of x.others(me)) {
-        if (missing <= 0) break;
-        const max = Math.min(missing, Math.max(0, x.p(u).gold));
-        if (max <= 0) continue;
-        const n = x.chooseNumber(u, `Crocodilo : donner des gold à ${x.name(me)} pour qu'il reste ? (il manque ${missing})`, 0, max, id);
-        if (n > 0) missing -= x.giveBack(u, me, n);
+      // Les autres doivent lui donner 25 gold au total, sinon il part sur un autre terrain.
+      const NEED = 25;
+      const others = x.others(me);
+      const pool = others.reduce((t, u) => t + Math.max(0, x.p(u).gold), 0);
+      let missing = NEED;
+      if (pool < NEED) {
+        // Pas assez à eux tous : chacun donne tout ce qu'il a, et Crocodilo part quand même.
+        x.log(`Crocodilo réclame ${NEED} gold, mais les autres n'en ont que ${pool} : ils donnent tout.`);
+        for (const u of others) if (x.p(u).gold > 0) missing -= x.giveBack(u, me, x.p(u).gold);
+      } else {
+        for (const u of others) {
+          if (missing <= 0) break;
+          const max = Math.min(missing, Math.max(0, x.p(u).gold));
+          if (max <= 0) continue;
+          const n = x.chooseNumber(u, `Crocodilo : donner des gold à ${x.name(me)} pour qu'il reste ? (il manque ${missing} sur ${NEED})`, 0, max, id);
+          if (n > 0) missing -= x.giveBack(u, me, n);
+        }
+        if (missing <= 0) return x.log(`Crocodilo reste en place : ${NEED} gold reçus.`);
       }
-      if (missing <= 0) return x.log("Crocodilo reste en place : 5 gold reçus.");
       const to = x.random(x.others(me));
       if (!to) return;
-      x.log(`Crocodilo n'a pas reçu ses 5 gold : il part chez ${x.name(to)}.`);
+      x.log(`Crocodilo n'a pas reçu ses ${NEED} gold : il part chez ${x.name(to)}.`);
       x.move(id, { uid: to, zone: "terrain" });
     },
   },
@@ -514,20 +524,18 @@ export const EMILE: Record<string, CardScript> = {
     },
   },
 
-  // Garlic : pour 5 gold, reprends une carte d'un terrain dans ta main
+  // Garlic : pour 20 gold, vole une carte du terrain d'un adversaire et la met dans ta main
   "EMI-25": {
     activate: (x, { id, me }) => {
-      if (!x.canPay(me, 5)) return false;
-      const [c] = x.chooseCards(
-        me,
-        "Garlic : reprendre une carte d'un terrain dans ta main pour 5 gold ? (facultatif)",
-        x.p(me).terrain.filter((c) => c !== id),
-        0,
-        1,
-        id,
-      );
-      if (!c) return x.log("Garlic : aucune carte reprise.");
-      if (!x.spend(me, 5)) return false;
+      if (!x.canPay(me, 20)) return false;
+      const pool = x.others(me).flatMap((u) => x.p(u).terrain);
+      if (!pool.length) {
+        x.reason = "Aucune carte sur les terrains adverses.";
+        return false;
+      }
+      const [c] = x.chooseCards(me, "Garlic : voler une carte d'un terrain adverse pour 20 gold ? (facultatif)", pool, 0, 1, id);
+      if (!c) return x.log("Garlic : aucune carte volée.");
+      if (!x.spend(me, 20)) return false;
       if (x.move(c, { uid: me, zone: "hand" })) x.take(c, me);
     },
   },

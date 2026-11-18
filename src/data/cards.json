@@ -1946,8 +1946,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "🧠 vraie : au prochain tour, elle explose : tout son terrain est défaussé.\n🧠 fausse : si les autres ne vous donnent pas 5 💰 au total, elle part sur le terrain d'un autre joueur au hasard.",
-   "rules": "Chaque autre joueur, dans l'ordre du tour, choisit combien il donne jusqu'à atteindre 5 gold.",
+   "text": "🧠 vraie : au prochain tour, elle explose : tout son terrain est défaussé.\n🧠 fausse : si les autres ne vous donnent pas 25 💰 au total, elle part sur le terrain d'un autre joueur au hasard.",
+   "rules": "Chaque autre joueur, dans l'ordre du tour, choisit combien il donne jusqu'à atteindre 25 gold. Si à eux tous ils n'ont pas 25 gold, ils donnent automatiquement tout ce qu'ils ont et la carte part quand même.",
    "image": "EMI-11.png"
   },
   "EMI-12": {
@@ -2198,8 +2198,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Coût facultatif : 5 💰.\nReprenez une carte de votre terrain dans votre main.",
-   "rules": "Seulement une carte de votre propre terrain.",
+   "text": "Coût facultatif : 20 💰.\nVolez une carte du terrain d'un adversaire et mettez-la dans votre main.",
+   "rules": "N'importe quelle carte du terrain d'un autre joueur ; elle vous appartient ensuite (elle ira dans votre défausse).",
    "image": "EMI-25.png"
   },
   "EMI-26": {
