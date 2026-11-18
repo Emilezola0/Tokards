@@ -38,7 +38,7 @@ function bring(x: Ctx, me: string, id: string) {
   const at = E.locate(x.g, id);
   if (!at) return x.log(`« ${card(id).name} » n'est plus en jeu.`);
   if (at.zone === "terrain" && at.uid === me) return x.log(`« ${card(id).name} » est déjà sur ton terrain.`);
-  if (x.move(id, { uid: me, zone: "terrain" })) x.take(id, me);
+  if (x.move(id, { uid: me, zone: "terrain" }, { activate: false })) x.take(id, me);
 }
 /** Valeur provisoire (Disconnect) : retirée à la fin du tour. */
 function provisional(x: Ctx, uid: string, kind: "bh" | "sent", prev: string) {
@@ -60,7 +60,10 @@ function thomas(x: Ctx, self: Self, why: string) {
 /** Domonique Sun : part, face visible, dans la main d'un joueur en Trou de ver. */
 function sendSun(x: Ctx, self: Self) {
   const pool = x.others(self.me).filter((u) => x.p(u).blackHole === T);
-  if (!pool.length) return;
+  if (!pool.length) {
+    x.reason = "Aucun autre joueur n'est en Trou de ver.";
+    return false;
+  }
   const u = x.random(pool);
   x.triggered(self, `${x.name(u)} est en Trou de ver : la carte part dans sa main, face visible.`);
   if (!x.move(self.id, { uid: u, zone: "hand" })) return;
@@ -84,7 +87,7 @@ export const EMILE: Record<string, CardScript> = {
       const t = x.p(me).terrain;
       const lastThree = t.indexOf(id) >= t.length - 3;
       x.log(lastThree ? "Le Gueux est parmi les 3 dernières cartes." : "Le Gueux n'est pas parmi les 3 dernières cartes.");
-      x.gain(me, (lastThree ? 2 : 1) * x.order.length);
+      x.gain(me, (lastThree ? 2 : 1) * x.others(me).length);
     },
   },
 
@@ -233,21 +236,15 @@ export const EMILE: Record<string, CardScript> = {
   "EMI-09": {
     inHand: true,
     noPlay: (g, id) => (g.revealed?.includes(id) ? "Domonique Sun est face visible : elle partira quand ton trou noir sera Primordial." : null),
+    activate: (x, self) => sendSun(x, self),
     on: {
       placed: (x, self, e) => {
         const at = E.locate(x.g, self.id);
-        if (at?.zone === "terrain") {
-          if (e.card === self.id) sendSun(x, self);
-          return;
-        }
         if (at?.zone !== "hand" || e.src !== null || e.card === self.id || x.current !== self.me || !x.p(self.me).sentience) return;
         const sender = x.g.marks?.[self.id];
         if (!sender || sender === self.me || !x.p(sender)) return;
         x.triggered(self, `${x.name(self.me)} pose une carte : 2 gold pour ${x.name(sender)}.`);
         x.transfer(self.me, sender, 2);
-      },
-      turnStart: (x, self, e) => {
-        if (e.uid === self.me && E.locate(x.g, self.id)?.zone === "terrain") sendSun(x, self);
       },
       blackHole: (x, self, e) => {
         if (e.uid !== self.me || e.to !== P || E.locate(x.g, self.id)?.zone !== "hand") return;
@@ -434,7 +431,9 @@ export const EMILE: Record<string, CardScript> = {
         return false;
       }
       x.g.tempTags = [...(x.g.tempTags ?? []), c];
-      x.log(`🤖 « ${card(c).name} » a le tag 🧠 jusqu'à la fin du tour.`, { dst: c });
+      x.log(`🤖 « ${card(c).name} » a le tag 🧠 jusqu'à la fin du tour.`, {
+        dst: c,
+      });
     },
   },
 
@@ -446,7 +445,12 @@ export const EMILE: Record<string, CardScript> = {
       if (firsts.filter(Boolean).length < 1 || o.length < 2) return false;
       o.forEach((_, i) => {
         const c = firsts[i];
-        if (c && E.locate(x.g, c)?.zone === "terrain") x.moveExchange(c, { uid: o[(i + 1) % o.length], zone: "terrain", index: 0 });
+        if (c && E.locate(x.g, c)?.zone === "terrain")
+          x.moveExchange(c, {
+            uid: o[(i + 1) % o.length],
+            zone: "terrain",
+            index: 0,
+          });
       });
       x.log("🔄 Les premières cartes tournent d'un terrain dans le sens du tour.");
     },
@@ -512,7 +516,14 @@ export const EMILE: Record<string, CardScript> = {
   "EMI-25": {
     activate: (x, { id, me }) => {
       if (!x.canPay(me, 5)) return false;
-      const [c] = x.chooseCards(me, "Garlic : reprendre une carte d'un terrain dans ta main pour 5 gold ? (facultatif)", allTerrains(x).filter((c) => c !== id), 0, 1, id);
+      const [c] = x.chooseCards(
+        me,
+        "Garlic : reprendre une carte d'un terrain dans ta main pour 5 gold ? (facultatif)",
+        x.p(me).terrain.filter((c) => c !== id),
+        0,
+        1,
+        id,
+      );
       if (!c) return x.log("Garlic : aucune carte reprise.");
       if (!x.spend(me, 5)) return false;
       if (x.move(c, { uid: me, zone: "hand" })) x.take(c, me);
@@ -581,10 +592,17 @@ export const EMILE: Record<string, CardScript> = {
         return false;
       }
       const from = E.locate(x.g, c)!;
-      x.swap(id, c);
+      x.move(c, { uid: me, zone: "terrain" }, { activate: false });
       if (E.locate(x.g, c)?.uid !== me) return;
       x.take(c, me);
-      x.emit({ type: "steal", thief: me, victim: next, card: c, src: id, from });
+      x.emit({
+        type: "steal",
+        thief: me,
+        victim: next,
+        card: c,
+        src: id,
+        from,
+      });
     },
   },
 
@@ -620,8 +638,10 @@ export const EMILE: Record<string, CardScript> = {
       placed: (x, self, e) => {
         if (e.card !== self.id) return;
         const pool = x.others(self.me).filter((u) => x.p(u).terrain.length);
-        const u = x.choosePlayer(self.me, "Ok comme trade : à qui proposer l'échange ?", pool, self.id);
-        if (!u) return;
+        if (!pool.length) return;
+        const i = x.chooseOption(self.me, "Ok comme trade : proposer l'échange ? (facultatif)", ["Ne pas proposer", ...pool.map((u) => x.name(u))], self.id);
+        if (!i) return x.log("Ok comme trade : aucune proposition.");
+        const u = pool[i - 1];
         if (!x.confirm(u, `${x.name(self.me)} te propose « Ok comme trade » contre une carte de ton terrain. Accepter ?`, self.id)) return x.log(`${x.name(u)} refuse l'échange.`);
         const c = x.chooseCard(u, "Quelle carte de ton terrain donner ?", x.p(u).terrain, self.id)!;
         x.swap(self.id, c);

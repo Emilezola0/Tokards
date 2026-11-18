@@ -3,6 +3,7 @@ import { PLACEHOLDER, cardImage, deckBack } from "../data/cards";
 import { launch, update } from "../game/room";
 import type { Room } from "../game/types";
 import { LOBBY_DECKS } from "../effects/ready";
+import { playDeckVoice } from "./voice";
 import { DeckModal } from "./Viewers";
 
 export default function Lobby({ room, uid }: { room: Room; uid: string }) {
@@ -105,11 +106,15 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
                   className={`deck-choice ${mine ? "selected" : ""}`}
                   disabled={!status.ready || (!!holder && !mine)}
                   title={status.ready ? d.summary : `En cours : ${status.why}`}
-                  onClick={() => pickDeck(mine ? null : d.name)}
+                  onClick={() => {
+                    if (!mine) playDeckVoice(d.name);
+                    pickDeck(mine ? null : d.name);
+                  }}
                 >
                   <img src={deckBack(d.name) ?? cardImage(d.cards[0])} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
                   {!status.ready && <span className="wip-ribbon">🚧 En cours</span>}
                   <span className="deck-name">{d.name}</span>
+                  {d.difficulty && <span className={`deck-diff diff-${d.difficulty.toLowerCase()}`}>{d.difficulty}</span>}
                   {!!d.keywords?.length && <span className="deck-kw">{d.keywords.slice(0, 3).map((k) => <i key={k}>{k}</i>)}</span>}
                   <span className="small muted">
                     {!status.ready ? status.why : holder ? (mine ? "Ton deck ✔" : `pris par ${holder.name}`) : `${d.cards.length} cartes`}

@@ -14,7 +14,7 @@ import PlayerBoard, { BH, BW, Gauge, type DragSrc, type Seat } from "./PlayerBoa
 import { DeckModal, TerrainModal } from "./Viewers";
 import { sfx } from "./sfx";
 import SoundControl from "./SoundControl";
-import { claimWord, teamProgress, voteWord } from "../game/victory";
+import { claimWord, vcProgress, voteWord } from "../game/victory";
 import HoverCard from "./HoverCard";
 import { VersionTag } from "./UpdatePrompt";
 import { PLAYER_COLORS } from "./pose";
@@ -23,18 +23,25 @@ import { dealDuration, useCardFlip } from "./useCardFlip";
 
 const PHASE_LABEL = { activation: "Activation", action: "Poser / défausser", end: "Fin du tour" };
 
-/** Place les plateaux en cercle autour de la table (le mien en bas), tous à l'endroit pour rester lisibles. */
-function seats(n: number, W: number, H: number, teams = 1): Seat[] {
-  // Place réservée au centre pour la condition commune et les jauges des équipes.
-  const HUB_W = 200;
-  const HUB_H = 120 + teams * 40;
+/** Taille d'une jauge de condition commune posée devant un terrain. */
+const GW = 132;
+const GH = 38;
+/** Angle (degrés, écran) de la place `i` : le mien en bas, puis le joueur suivant à droite (sens antihoraire). */
+const seatAngle = (i: number, n: number) => 90 - (i * 360) / n;
+
+/** Place les plateaux en cercle autour de la table (le mien en bas, le suivant à droite, le précédent à gauche),
+ * tous à l'endroit pour rester lisibles. Chaque plateau a sa jauge de condition commune côté centre, sans chevauchement. */
+function seats(n: number, W: number, H: number): Seat[] {
+  // Place réservée au centre pour la condition commune.
+  const HUB_W = 150;
+  const HUB_H = 150;
   let last: Seat[] = [];
   for (let s = 1.1; s >= 0.2; s -= 0.02) {
     const out: Seat[] = [];
     const boxes: number[][] = [];
     let ok = true;
     for (let i = 0; i < n; i++) {
-      const a = 90 + (i * 360) / n;
+      const a = seatAngle(i, n);
       const rot = 0;
       const rad = (a * Math.PI) / 180;
       const vertical = rot % 180 !== 0;
@@ -52,8 +59,19 @@ function seats(n: number, W: number, H: number, teams = 1): Seat[] {
       }
       const x = W / 2 + ux * (n === 1 ? t : t);
       const y = H / 2 + uy * t;
-      out.push({ x, y, rot, s });
+      // Jauge : sur le trajet vers le centre, juste après le bord du plateau.
+      let dx = W / 2 - x;
+      let dy = H / 2 - y;
+      const dl = Math.hypot(dx, dy) || 1;
+      dx /= dl;
+      dy /= dl;
+      const exit = Math.min(Math.abs(dx) > 1e-6 ? hx / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-6 ? hy / Math.abs(dy) : Infinity);
+      const half = Math.min(Math.abs(dx) > 1e-6 ? GW / 2 / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-6 ? GH / 2 / Math.abs(dy) : Infinity);
+      const gx = x + dx * (exit + 6 + half);
+      const gy = y + dy * (exit + 6 + half);
+      out.push({ x, y, rot, s, gx, gy });
       boxes.push([x - hx, y - hy, x + hx, y + hy]);
+      boxes.push([gx - GW / 2, gy - GH / 2, gx + GW / 2, gy + GH / 2]);
     }
     if (!ok) continue;
     last = out;
@@ -207,8 +225,17 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
 
   const viewer = Math.max(0, g.order.indexOf(uid));
   const seated = [...g.order.slice(viewer), ...g.order.slice(0, viewer)];
-  const teams = useMemo(() => [...new Set(g.order.map((u) => E.teamKey(room, u)))], [g.order, room]);
-  const layout = useMemo(() => seats(seated.length, size.w, size.h, teams.length), [seated.length, size.w, size.h, teams.length]);
+  const layout = useMemo(() => seats(seated.length, size.w, size.h), [seated.length, size.w, size.h]);
+  const [gaugeOpen, setGaugeOpen] = useState<string | null>(null);
+  // Flèches du sens de jeu, entre chaque terrain et le suivant.
+  const arrows = useMemo(() => {
+    const n = seated.length;
+    if (n < 2) return [];
+    return seated.map((_, i) => {
+      const m = ((seatAngle(i, n) - 180 / n) * Math.PI) / 180;
+      return { x: size.w / 2 + Math.cos(m) * size.w * 0.36, y: size.h / 2 + Math.sin(m) * size.h * 0.36, rot: (m * 180) / Math.PI - 90 };
+    });
+  }, [seated.length, size.w, size.h]);
 
   return (
     <div className="table">
@@ -283,25 +310,57 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
           ) : null,
         )}
 
+        {arrows.map((a, i) => (
+          <span key={i} className="turn-arrow" style={{ left: a.x, top: a.y, transform: `translate(-50%, -50%) rotate(${a.rot}deg)` }} title="Sens du tour de table">
+            ➜
+          </span>
+        ))}
+
         <div className="hub">
           <span className="small muted">Condition commune</span>
           <div data-vc="common">
             <CardView id={g.commonVC} size="s" onClick={() => setOpenCard(g.commonVC)} onHover={onHover} />
           </div>
-          <div className="hub-teams">
-            {teams.map((t) => {
-              const done = g.commonDone.includes(t);
-              const best = done ? null : teamProgress(room, g, t);
-              return (
-                <span key={t} className={`team-dot ${done ? "done" : ""}`} style={{ ["--pc" as string]: colorOf(E.teamMembers(room, t)[0]) }} title={best?.prog.text ?? (done ? "remplie" : "")}>
-                  <span className="team-name">{done ? "✔ " : ""}{E.teamLabel(room, t)}</span>
-                  {best && <Gauge ratio={best.prog.ratio} />}
-                  {best && <span className="team-prog">{best.prog.text}</span>}
-                </span>
-              );
-            })}
-          </div>
         </div>
+
+        {seated.map((owner, i) => {
+          const s = layout[i];
+          if (s?.gx === undefined || s.gy === undefined || !g.commonVC) return null;
+          const t = E.teamKey(room, owner);
+          const done = g.commonDone.includes(t);
+          const prog = done ? null : vcProgress(room, g, g.commonVC, owner);
+          const open = gaugeOpen === owner;
+          return (
+            <div key={`g-${owner}`} className={`seat-gauge ${open ? "open" : ""}`} style={{ left: s.gx, top: s.gy, width: GW, ["--pc" as string]: colorOf(owner) }}>
+              <button
+                className={`team-dot ${done ? "done" : ""}`}
+                title="Voir le détail de la condition commune"
+                onClick={() => (sfx.click(), setGaugeOpen(open ? null : owner))}
+              >
+                <span className="team-name">{done ? "✔ " : ""}{room.players[owner]?.name}</span>
+                {done ? <span className="team-prog">remplie</span> : prog && <Gauge ratio={prog.ratio} />}
+              </button>
+              {open && (
+                <div className="gauge-pop panel" onClick={(e) => e.stopPropagation()}>
+                  <b>« {card(g.commonVC).name} »</b>
+                  <span className="small muted">{card(g.commonVC).text}</span>
+                  <span className="small">Équipe : <b style={{ color: colorOf(owner) }}>{E.teamLabel(room, t)}</b>{done ? " — ✔ remplie" : ""}</span>
+                  {E.teamMembers(room, t).map((u) => {
+                    const p = done ? null : vcProgress(room, g, g.commonVC, u);
+                    return (
+                      <div key={u} className="vc-prog">
+                        <span className="small"><b style={{ color: colorOf(u) }}>{room.players[u]?.name}</b>{p ? ` — ${Math.round(p.ratio * 100)} %` : ""}</span>
+                        {p && <Gauge ratio={p.ratio} />}
+                        {p && <span className="small muted">{p.text}</span>}
+                      </div>
+                    );
+                  })}
+                  <button className="mini" onClick={() => setGaugeOpen(null)}>Fermer</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {g.pending && g.pending.prompt.chooser !== uid && (
           <div className="floating-banner waiting">

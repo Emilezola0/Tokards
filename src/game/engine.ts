@@ -102,6 +102,11 @@ export function enableCard(g: GameState, id: string) {
   const d = { ...g.disabled };
   delete d[id];
   g.disabled = d;
+  if (g.disabledBy?.[id]) {
+    const b = { ...g.disabledBy };
+    delete b[id];
+    g.disabledBy = b;
+  }
   return true;
 }
 
@@ -408,7 +413,7 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
     else s.terrDisc = (s.terrDisc ?? 0) + 1;
   }
   if (at.zone === "terrain" && dest.zone !== "terrain" && g.spent?.includes(id)) g.spent = g.spent.filter((c) => c !== id);
-  if (at.zone === "terrain" && dest.zone !== "terrain") leaveTerrain(room, g, id, at.uid);
+  if (at.zone === "terrain" && dest.zone !== "terrain") leaveTerrain(room, g, id, at.uid, dest);
   if (at.zone === "hand" && dest.zone !== "hand" && g.revealed?.includes(id)) g.revealed = g.revealed.filter((c) => c !== id);
   const to = g.players[dest.uid][dest.zone];
   let index = dest.index ?? (dest.zone === "deck" ? (dest.bottom ? to.length : 0) : to.length);
@@ -426,19 +431,28 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
   }
 }
 
-/** Une carte quitte les terrains : elle n'est plus désactivée et les cartes placées dessous vont dans la défausse. */
-function leaveTerrain(room: Room, g: GameState, id: string, holder: string) {
+/** Une carte quitte les terrains : elle n'est plus désactivée et les cartes placées dessous vont dans la défausse
+ * (le Crapaud stratège, lui, suit la carte dans sa nouvelle zone). */
+function leaveTerrain(room: Room, g: GameState, id: string, holder: string, dest: Dest) {
   enableCard(g, id);
+  if (g.facedown?.includes(id)) g.facedown = g.facedown.filter((c) => c !== id);
+  if (g.hot?.includes(id)) g.hot = g.hot.filter((c) => c !== id);
   const under = g.under?.[id];
   if (!under?.length) return;
   const u = { ...g.under };
   delete u[id];
   g.under = u;
   for (const c of under) {
-    g.players[holder].discard.unshift(c);
+    enableCard(g, c);
     if (g.underFrom?.[c]) delete g.underFrom[c];
+    if (c === "GRE-21") {
+      g.players[dest.uid][dest.zone].push(c);
+      log(g, `🐸 Crapaud stratège suit « ${card(id).name} » (${ZONE_LABEL[dest.zone]} de ${nameOf(room, dest.uid)}) et s'en détache.`);
+      continue;
+    }
+    g.players[holder].discard.unshift(c);
+    log(g, `« ${card(id).name} » quitte le terrain : « ${card(c).name} » va dans la défausse.`);
   }
-  log(g, `« ${card(id).name} » quitte le terrain : ${under.map((c) => `« ${card(c).name} »`).join(", ")} ${under.length > 1 ? "vont" : "va"} dans la défausse.`);
 }
 
 /** Retire une carte de sa zone et la place sous `host` (elle ne compte plus sur aucun terrain). */
@@ -447,7 +461,7 @@ export function attachUnder(g: GameState, id: string, host: string) {
   if (!at) return;
   g.players[at.uid][at.zone].splice(at.index, 1);
   if (g.spent?.includes(id)) g.spent = g.spent.filter((c) => c !== id);
-  enableCard(g, id);
+  if (at.zone !== "terrain") enableCard(g, id);
   g.under = { ...(g.under ?? {}), [host]: [...(g.under?.[host] ?? []), id] };
   if (at.zone === "terrain") g.underFrom = { ...(g.underFrom ?? {}), [id]: { uid: at.uid, index: at.index } };
 }

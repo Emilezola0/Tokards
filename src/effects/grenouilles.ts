@@ -33,8 +33,7 @@ export const GRENOUILLES: Record<string, CardScript> = {
         return false;
       }
       const c = x.p(me).hand.find((id) => !before.has(id))!;
-      if (!x.move(c, { uid: me, zone: "terrain" })) return;
-      if (E.locate(x.g, c)?.zone === "terrain") x.activateCard(c, me);
+      x.move(c, { uid: me, zone: "terrain" }, { activate: me });
     },
   },
 
@@ -43,10 +42,10 @@ export const GRENOUILLES: Record<string, CardScript> = {
     activate: (x, { id, me }) => {
       const u = x.randomPlayer(x.turnOrder());
       if (!u) return false;
-      const c = last(x.p(u).terrain.filter((c) => c !== id));
+      const c = last(x.p(u).terrain);
       if (c) x.discard(c);
-      else x.log(`${x.name(u)} n'a aucune autre carte sur son terrain.`);
-      x.discard(id);
+      else x.log(`${x.name(u)} n'a aucune carte sur son terrain.`);
+      if (E.locate(x.g, id)?.zone === "terrain") x.discard(id);
     },
   },
 
@@ -84,7 +83,7 @@ export const GRENOUILLES: Record<string, CardScript> = {
         x.reason = `${x.name(u)} n'a aucune carte sur son terrain.`;
         return false;
       }
-      if (!x.move(c, { uid: me, zone: "deck" })) return false;
+      if (!x.move(c, { uid: me, zone: "deck", bottom: true })) return false;
       x.take(c, me);
     },
   },
@@ -102,13 +101,17 @@ export const GRENOUILLES: Record<string, CardScript> = {
   // Chevalier Crapaud : joue l'effet d'une autre carte de ton terrain tirée au hasard
   "GRE-09": {
     activate: (x, { id, me }) => {
-      const pool = x.p(me).terrain.filter((c) => c !== id && x.canActivate(c) && !x.isDisabled(c));
+      const pool = x.p(me).terrain.filter((c) => c !== id);
       if (!pool.length) {
-        x.reason = "Aucune autre carte de ton terrain n'a d'effet à jouer.";
+        x.reason = "Aucune autre carte sur ton terrain.";
         return false;
       }
       const c = x.random(pool);
       x.log(`🎯 Carte tirée au hasard : « ${card(c).name} ».`, { dst: c });
+      if (!x.canActivate(c) || x.isDisabled(c)) {
+        x.reason = `« ${card(c).name} » ne peut pas jouer d'effet.`;
+        return false;
+      }
       x.activateCard(c, me);
     },
   },

@@ -53,6 +53,8 @@ vcs = table(src["Conditions"])
 gloss = table(src["Glossaire"])
 interp = table(src["Interprétations"]) if "Interprétations" in src.sheetnames else []
 lists = list(src["Listes"].iter_rows(values_only=True))
+# Onglet libre « Prompt » (demandes écrites pour Claude) : recopié tel quel.
+prompt_rows = list(src["Prompt"].iter_rows(values_only=True)) if "Prompt" in src.sheetnames else []
 
 def get(r, *keys):
     for k in keys:
@@ -142,8 +144,10 @@ li.cell(row=1, column=len(L) + 2, value="Ajoute une valeur en bas d'une colonne 
 
 # ---------- Decks ----------
 dh = ["Deck", "Code", "Dans le jeu", "Couleur", "Description", "Mots-clés", "Résumé du gameplay", "Dos (image)",
-      "Nb cartes", "Nb conditions", "Jouable ?", "Cartes automatiques", "À vérifier", "À mettre à jour"]
-dk = sheet("Decks", dh, [24, 9, 11, 11, 40, 34, 50, 16, 10, 12, 26, 13, 11, 13], "7C4DFF")
+      "Nb cartes", "Nb conditions", "Jouable ?", "Cartes automatiques", "À vérifier", "À mettre à jour", "Difficulté"]
+dk = sheet("Decks", dh, [24, 9, 11, 11, 40, 34, 50, 16, 10, 12, 26, 13, 11, 13, 12], "7C4DFF")
+DIFF_DEFAULT = {"Popo emplois": "Facile", "Empire Goblin": "Moyen", "Dynastie des Grenouilles": "Moyen", "Police": "Moyen",
+                "Pirate": "Moyen", "Emile": "Difficile", "Fléaux": "Difficile", "Météo": "Difficile"}
 for i, d in enumerate(decks, 2):
     dk.append([d["Deck"], d["Code"], get(d, "Dans le jeu") or "Non", get(d, "Couleur"), get(d, "Description"),
                get(d, "Mots-clés"), get(d, "Résumé du gameplay"), get(d, "Dos (image)")])
@@ -154,8 +158,13 @@ for i, d in enumerate(decks, 2):
     dk[f"L{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$N:$N,"{AUTO_YES}")'
     dk[f"M{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$M:$M,"À vérifier")+COUNTIFS(Conditions!$B:$B,$A{i},Conditions!$K:$K,"À vérifier")'
     dk[f"N{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$O:$O,"Oui")+COUNTIFS(Conditions!$B:$B,$A{i},Conditions!$M:$M,"Oui")'
+    dk[f"O{i}"] = get(d, "Difficulté") or DIFF_DEFAULT.get(d["Deck"], "")
 nd = len(decks)
-body(dk, nd, len(dh), center=(2, 3, 4, 8, 9, 10, 12, 13, 14), calc=(9, 10, 11, 12, 13, 14))
+body(dk, nd, len(dh), center=(2, 3, 4, 8, 9, 10, 12, 13, 14, 15), calc=(9, 10, 11, 12, 13, 14))
+dv_list(dk, "O2:O200", '"Facile,Moyen,Difficile"', "Difficulté affichée sur le deck quand on le choisit.")
+fill_rule(dk, "O2:O200", '$O2="Facile"', "D7F5E3", Font(name=FONT, color="1B7A43", bold=True))
+fill_rule(dk, "O2:O200", '$O2="Moyen"', "FFF1D6", Font(name=FONT, color="9A5B00", bold=True))
+fill_rule(dk, "O2:O200", '$O2="Difficile"', "FDE2E7", Font(name=FONT, color="B3261E", bold=True))
 dk.freeze_panes = "B2"
 dk.auto_filter.ref = f"A1:{get_column_letter(len(dh))}{nd + 1}"
 dv_list(dk, "C2:C200", REF["OuiNon"], f"Oui = le deck peut être choisi. Il faut au moins {MIN_CARDS} cartes, 1 condition, et toutes les cartes automatiques (sinon « En cours » dans le jeu).")
@@ -354,6 +363,7 @@ row += 1
 line("Règles à respecter", "", "h")
 line("ID", "Ne change jamais l'ID d'une carte existante (le jeu s'en sert). Nouvelle carte : code du deck + numéro suivant (ex. GOB-33, VC-GOB-4). Un ID en double s'affiche en rouge.", "k")
 line("Deck jouable", f"Au moins {MIN_CARDS} cartes (pas de maximum), au moins 1 condition de victoire et toutes les cartes automatiques (colonne « Jouable ? »). Sinon le jeu l'affiche « En cours » et on ne peut pas le choisir.", "k")
+line("Difficulté", "Facile, Moyen ou Difficile : affichée en étiquette sur le deck dans le salon.", "k")
 line("Mots-clés / Résumé / Dos", "Affichés quand on regarde un deck. « Dos (image) » = fichier de l'image du dos de carte (ex. BACK-GOB.webp).", "k")
 line("Mots en couleur", "Les mots listés dans « Mots reconnus » du glossaire sont colorés dans les descriptions (ici et dans le jeu). Ajoute une variante pour qu'elle soit reconnue.", "k")
 line("Tags", "Oui / Non pour 🧠 Sentience, 💰 Gold, 🌀 Trou noir.", "k")
@@ -385,6 +395,15 @@ for name, desc in [("Decks", "Un deck par ligne, avec les compteurs et la vérif
                    ("Listes", "Les valeurs des menus déroulants. Ajoute une valeur en bas d'une colonne pour la proposer.")]:
     line(name, desc, "k")
 
+if prompt_rows:
+    pr = wb.create_sheet("Prompt")
+    for r in prompt_rows:
+        pr.append(list(r))
+    pr.column_dimensions["A"].width = 140
+    for row in pr.iter_rows():
+        for c in row:
+            c.alignment = Alignment(wrap_text=True, vertical="top")
+            c.font = Font(name=FONT, size=10)
 wb.move_sheet("Listes", offset=len(wb.sheetnames) - 1 - wb.sheetnames.index("Listes"))
 wb.active = 0
 wb.save(OUT)

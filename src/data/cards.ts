@@ -25,6 +25,8 @@ export type DeckDef = {
   /** mots-clés et résumé du gameplay (onglet Decks du tableau) */
   keywords?: string[];
   summary?: string;
+  /** Facile / Moyen / Difficile (onglet Decks du tableau) */
+  difficulty?: string;
   /** image du dos des cartes (fichier dans data/images) */
   back?: string;
   cards: string[];

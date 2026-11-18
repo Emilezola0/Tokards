@@ -57,6 +57,8 @@ export function setVolume(v: number) {
   }
   subs.forEach((f) => f());
 }
+/** Son coupé ? (lu par les voicelines). */
+export const isMuted = () => muted;
 export const useVolume = () =>
   useSyncExternalStore((f) => (subs.add(f), () => void subs.delete(f)), () => volume);
 export const useMuted = () =>

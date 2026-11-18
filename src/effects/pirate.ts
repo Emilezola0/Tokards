@@ -26,21 +26,13 @@ function setMark(x: Ctx, id: string, v: string | null) {
 /** Cartes d'une main qui peuvent être jouées (posées depuis la main). */
 const playableFromHand = (x: Ctx, hand: string[], except?: string) => hand.filter((c) => c !== except && !noPlayReason(x.g, c));
 
-/** Joue une carte : elle est posée sur le terrain de `uid` (à `index`, sinon en dernier) puis son effet s'active pour `me`. */
+/** Joue une carte : `me` choisit sa place sur le terrain de `uid` (sauf `index` imposé), elle y est posée et son effet s'active pour `me`. */
 function playCard(x: Ctx, c: string, me: string, uid = me, index?: number) {
-  if (!x.move(c, { uid, zone: "terrain", index })) return false;
-  if (E.locate(x.g, c)?.zone === "terrain") x.activateCard(c, me);
+  const from = E.locate(x.g, c);
+  const slot = index ?? x.chooseSlot(me, `Où poser « ${card(c).name} » ?`, uid, c);
+  if (!x.move(c, { uid, zone: "terrain", index: slot }, { activate: me })) return false;
+  if (from?.zone === "terrain" && E.locate(x.g, c)?.zone === "terrain") x.activateCard(c, me);
   return true;
-}
-
-/** Retire la carte de la partie : elle ne revient dans aucune zone. */
-function removeFromGame(x: Ctx, id: string) {
-  const at = E.locate(x.g, id);
-  if (!at) return;
-  if (at.zone === "terrain") x.move(id, { uid: at.uid, zone: "discard" });
-  const now = E.locate(x.g, id);
-  if (now) x.p(now.uid)[now.zone].splice(now.index, 1);
-  x.log(`🗑 « ${card(id).name} » est retirée de la partie.`);
 }
 
 export const PIRATE: Record<string, CardScript> = {
@@ -92,36 +84,57 @@ export const PIRATE: Record<string, CardScript> = {
       const [c] = x.chooseCards(me, "Canon : quelle carte envoyer ? (facultatif)", pool, 0, 1, id);
       if (!c) return x.log("Canon : aucun tir.");
       const u = x.choosePlayer(me, `Canon : sur quel terrain envoyer « ${card(c).name} » ?`, targets, id);
-      if (u) x.move(c, { uid: u, zone: "terrain" });
+      if (!u) return;
+      const from = E.locate(x.g, c);
+      const slot = x.chooseSlot(me, `Canon : à quelle place sur le terrain de ${x.name(u)} ?`, u, c, id);
+      if (!x.move(c, { uid: u, zone: "terrain", index: slot })) return;
+      if (from?.zone === "terrain") x.placedActivate(c, u);
     },
   },
 
   // Cache Oeil (passif, au début de ton tour)
   "PIR-04": {
-    on: {
-      turnStart: (x, self, e) => {
-        if (e.uid !== self.me) return;
-        const p = x.p(self.me);
-        if (p.sentience) {
-          const top = p.deck.slice(0, 2);
-          if (!top.length) return;
-          x.triggered(self, "deux cartes sont tirées de ta pioche.");
-          const [c] = x.chooseCards(self.me, "Cache Oeil : prendre une de ces cartes ? Elle sera visible de tous dans ta main.", top, 0, 1, self.id);
-          if (!c) return x.log("Cache Oeil : aucune carte prise.");
-          x.move(c, { uid: self.me, zone: "hand" });
-          x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== c), c];
-          for (const o of top) if (o !== c) x.move(o, { uid: self.me, zone: "deck", bottom: true });
-          x.log(`👁 « ${card(c).name} » est visible de tous dans la main de ${x.name(self.me)}.`, { dst: c });
-          return;
+    activate: (x, { id, me }) => {
+      const p = x.p(me);
+      if (p.sentience) {
+        const top = p.deck.slice(0, 2);
+        if (!top.length) {
+          x.reason = "Ta pioche est vide.";
+          return false;
         }
-        const pool = p.terrain.filter((c) => c !== self.id && !x.isDisabled(c));
-        if (!pool.length) return;
-        const [c] = x.chooseCards(self.me, "Cache Oeil : retourner une carte de ton terrain (elle ne se joue pas ce tour) pour passer ta sentience à vraie ?", pool, 0, 1, self.id);
-        if (!c) return;
-        x.triggered(self, `« ${card(c).name} » est retournée.`);
-        x.disable(c, x.untilEndOfTurn());
-        x.setSentience(self.me, true);
-      },
+        const flip = top.length > 1 ? x.chooseCard(me, "Cache Oeil : retourne une des deux cartes (à l'aveugle) : elle sera visible de tous.", top, id, true)! : top[0];
+        x.log(`👁 Cache Oeil retourne « ${card(flip).name} » : elle est visible de tous.`, { dst: flip });
+        const hidden = top.find((c) => c !== flip);
+        const take =
+          hidden &&
+          x.chooseOption(
+            me,
+            "Cache Oeil : quelle carte prendre en main ? L'autre retourne au fond de ta pioche.",
+            [`La carte visible : « ${card(flip).name} »`, "La carte cachée"],
+            id,
+          ) === 1
+            ? hidden
+            : flip;
+        x.move(take, { uid: me, zone: "hand" });
+        if (take === flip) x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== flip), flip];
+        for (const o of top) if (o !== take) x.move(o, { uid: me, zone: "deck", bottom: true });
+        x.log(
+          take === flip
+            ? `👁 « ${card(flip).name} » va, visible de tous, dans la main de ${x.name(me)}.`
+            : `👁 ${x.name(me)} prend la carte cachée ; « ${card(flip).name} » retourne dans la pioche.`,
+        );
+        return;
+      }
+      const pool = p.terrain.filter((c) => c !== id && !(x.g.facedown ?? []).includes(c));
+      const c = x.chooseCard(me, "Cache Oeil : quelle carte de ton terrain retourner face cachée ?", pool, id);
+      if (!c) {
+        x.reason = "Aucune autre carte à retourner sur ton terrain.";
+        return false;
+      }
+      x.disable(c);
+      x.g.facedown = [...(x.g.facedown ?? []), c];
+      x.log(`👁 « ${card(c).name} » est retournée face cachée : désactivée jusqu'à son prochain tour de jeu.`, { dst: c });
+      x.setSentience(me, true);
     },
   },
 
@@ -188,18 +201,21 @@ export const PIRATE: Record<string, CardScript> = {
   // Rat (passif) : quand il est posé, il saute sur un autre terrain au hasard. Au début du tour du joueur qui l'a :
   // sa sentience passe à fausse, il paie 5 gold par carte 🧠 de son terrain, puis le rat change de terrain au hasard.
   "PIR-07": {
+    activate: (x, { id }) => {
+      const at = E.locate(x.g, id);
+      if (at?.zone !== "terrain") return false;
+      if (x.g.born?.[id] === E.pos(x.g)) return x.log("🐀 Le rat vient d'arriver : il attend son prochain tour de jeu.");
+      const u = at.uid;
+      const n = x.p(u).terrain.filter((c) => isSent(x, c)).length;
+      x.log(`🐀 Maladie : ${x.name(u)} passe en sentience fausse et paie ${5 * n} gold.`, { to: u });
+      x.setSentience(u, false);
+      if (n) x.lose(u, 5 * n);
+      ratJump(x, id, u);
+    },
     on: {
       placed: (x, self, e) => {
         if (e.card !== self.id || e.src === self.id) return;
-        ratJump(x, self.id, self.me);
-      },
-      turnStart: (x, self, e) => {
-        if (e.uid !== self.me) return;
-        const n = x.p(self.me).terrain.filter((c) => isSent(x, c)).length;
-        x.triggered(self, `maladie : sentience fausse et ${5 * n} gold à payer.`);
-        x.setSentience(self.me, false);
-        if (n) x.lose(self.me, 5 * n);
-        ratJump(x, self.id, self.me);
+        ratJump(x, self.id, E.locate(x.g, self.id)?.uid ?? self.me);
       },
     },
   },
@@ -218,7 +234,7 @@ export const PIRATE: Record<string, CardScript> = {
       if (bh === B) {
         x.draw(me, 2);
         const picks = x.chooseCards(me, "Voile : poser jusqu'à 2 cartes de ta main (leurs effets ne s'activent pas).", playableFromHand(x, x.p(me).hand), 0, 2, id);
-        for (const c of picks) x.move(c, { uid: me, zone: "terrain" });
+        for (const c of picks) x.move(c, { uid: me, zone: "terrain" }, { activate: false });
       } else if (bh === T) {
         const c = x.chooseCard(me, "Voile : quelle carte remettre dans ta pioche ?", x.p(me).hand, id);
         if (c) x.move(c, { uid: me, zone: "deck" });
@@ -230,8 +246,8 @@ export const PIRATE: Record<string, CardScript> = {
         for (const c of picks) x.discard(c);
       } else {
         x.g.double = x.turnOrder();
-        x.log("⛵ Voile : au prochain tour de chaque joueur, chaque carte de son terrain se joue deux fois.");
-        removeFromGame(x, id);
+        x.log("⛵ Voile : au prochain tour de chaque joueur, chaque carte de son terrain se joue deux fois. La Voile ne pourra plus jamais être jouée.");
+        x.disable(id);
       }
     },
   },
@@ -239,7 +255,7 @@ export const PIRATE: Record<string, CardScript> = {
   // Typhon : défausse 2 cartes de ta main par cran, ton trou noir avance d'autant de crans (Blazard → Quasar → Trou de ver → Primordial)
   "PIR-09": {
     activate: (x, { id, me }) => {
-      const max = Math.min(3, Math.floor(x.p(me).hand.length / 2));
+      const max = Math.floor(x.p(me).hand.length / 2);
       if (!max) {
         x.reason = "Il faut au moins 2 cartes en main.";
         return false;
@@ -259,7 +275,7 @@ export const PIRATE: Record<string, CardScript> = {
       const all: [number, string][] = [
         [1, "1 carte : gagner ou donner 1 à 10 gold"],
         [2, "2 cartes : changer la sentience d'un joueur"],
-        [3, "3 cartes : voler une carte d'un terrain dans ta main"],
+        [3, "3 cartes : voler une carte (terrain, main ou pioche d'un autre joueur) dans ta main"],
         [5, "5 cartes : inverser la sentience de tous les joueurs"],
         [10, "10 cartes : valider une condition de victoire d'un autre joueur"],
       ];
@@ -282,22 +298,62 @@ export const PIRATE: Record<string, CardScript> = {
         const u = x.choosePlayer(me, "Sabre : la sentience de qui changer ?", x.turnOrder(), id);
         if (u) x.invertSentience(u);
       } else if (k === 3) {
-        const pool = x.others(me).flatMap((u) => x.p(u).terrain);
-        const c = x.chooseCard(me, "Sabre : quelle carte voler ?", pool, id);
+        const u = x.choosePlayer(
+          me,
+          "Sabre : chez quel joueur voler ?",
+          x.others(me).filter((u) => x.p(u).terrain.length + x.p(u).hand.length + x.p(u).deck.length),
+          id,
+        );
+        if (!u) return x.log("Sabre : personne à voler.");
+        const zones = (["terrain", "hand", "deck"] as const).filter((z) => x.p(u)[z].length);
+        const labels = {
+          terrain: "Son terrain",
+          hand: "Sa main (à l'aveugle)",
+          deck: "Sa pioche (à l'aveugle)",
+        };
+        const z =
+          zones[
+            x.chooseOption(
+              me,
+              `Sabre : où voler chez ${x.name(u)} ?`,
+              zones.map((z) => labels[z]),
+              id,
+            )
+          ];
+        const c = x.chooseCard(me, `Sabre : quelle carte voler (${labels[z].toLowerCase()}) ?`, x.p(u)[z], id, z !== "terrain");
         if (c && x.move(c, { uid: me, zone: "hand" })) x.take(c, me);
       } else if (k === 5) {
         for (const u of x.turnOrder()) x.invertSentience(u);
       } else {
-        const u = x.choosePlayer(me, "Sabre : la condition de victoire de quel joueur valider ?", x.others(me).filter((u) => !x.p(u).out), id);
-        if (!u) return;
-        const key = E.teamKey(x.room, u);
-        const opts2: string[] = [];
-        if (x.p(u).personalVC && !x.p(u).personalDone) opts2.push(`Personnelle : « ${card(x.p(u).personalVC!).name} »`);
-        if (x.g.commonVC && !x.g.commonDone.includes(key) && key !== E.teamKey(x.room, me)) opts2.push(`Commune : « ${card(x.g.commonVC).name} »`);
-        if (!opts2.length) return x.log(`${x.name(u)} n'a plus de condition à valider.`);
-        const j = x.chooseOption(me, "Sabre : quelle condition valider ?", opts2, id);
-        if (opts2[j].startsWith("Personnelle")) E.setPersonalDone(x.room, x.g, u, true);
-        else E.setCommonDone(x.room, x.g, key, true);
+        const alive = x.turnOrder().filter((u) => !x.p(u).out);
+        const opts2: { label: string; run: () => void }[] = [];
+        for (const u of alive.filter((u) => u !== me))
+          if (x.p(u).personalVC && !x.p(u).personalDone)
+            opts2.push({
+              label: `Personnelle de ${x.name(u)} : « ${card(x.p(u).personalVC!).name} »`,
+              run: () => E.setPersonalDone(x.room, x.g, u, true),
+            });
+        if (x.g.commonVC)
+          for (const key of [...new Set(alive.map((u) => E.teamKey(x.room, u)))]) {
+            if (x.g.commonDone.includes(key)) continue;
+            const who = alive
+              .filter((u) => E.teamKey(x.room, u) === key)
+              .map((u) => x.name(u))
+              .join(", ");
+            opts2.push({
+              label: `Commune pour ${who}`,
+              run: () => E.setCommonDone(x.room, x.g, key, true),
+            });
+          }
+        if (!opts2.length) return x.log("Sabre : plus aucune condition à valider.");
+        opts2[
+          x.chooseOption(
+            me,
+            "Sabre : quelle condition de victoire valider ?",
+            opts2.map((o) => o.label),
+            id,
+          )
+        ].run();
       }
     },
   },
@@ -328,12 +384,7 @@ export const PIRATE: Record<string, CardScript> = {
   // Black pearl : 10 % de réussite, selon le trou noir, puis elle va dans la défausse
   "PIR-12": {
     activate: (x, { id, me }) => {
-      const ok = x.dice(me, 10) === 1;
-      if (!ok) {
-        x.log("Black pearl : raté (10 % de chances).");
-        x.discard(id);
-        return;
-      }
+      if (x.dice(me, 10) !== 1) return x.log("Black pearl : raté (10 % de chances), elle reste en place.");
       const bh = x.p(me).blackHole;
       if (bh === B) {
         const u = x.choosePlayer(me, "Black pearl : quel terrain aborder ?", x.others(me).filter((u) => x.p(u).terrain.length), id);
@@ -346,31 +397,39 @@ export const PIRATE: Record<string, CardScript> = {
           }
         }
       } else if (bh === P) {
-        const u = x.choosePlayer(me, "Black pearl : avec qui échanger des cartes ?", x.others(me).filter((u) => x.p(u).hand.length), id);
-        const mine = x.p(me).hand;
-        if (u && mine.length) {
-          const max = Math.min(3, mine.length, x.p(u).hand.length);
-          const give = x.chooseCards(me, `Black pearl : quelles cartes donner à ${x.name(u)} (jusqu'à ${max}) ?`, mine, 1, max, id);
-          const get = x.chooseCards(u, `Black pearl : choisis ${give.length} carte(s) de ta main à donner à ${x.name(me)}.`, x.p(u).hand, give.length, give.length, id);
-          for (const c of give) x.moveExchange(c, { uid: u, zone: "hand" });
-          for (const c of get) x.moveExchange(c, { uid: me, zone: "hand" });
-          const n = Math.min(give.length, get.length);
-          x.gain(me, 25 * n);
-          x.gain(u, 25 * n);
+        const u = x.choosePlayer(
+          me,
+          "Black pearl : quel terrain piller ?",
+          x.others(me).filter((u) => x.p(u).terrain.length),
+          id,
+        );
+        if (u) {
+          const picks = x.chooseCards(me, `Black pearl : prends jusqu'à 3 cartes du terrain de ${x.name(u)}.`, x.p(u).terrain, 1, 3, id);
+          let n = 0;
+          for (const c of picks)
+            if (x.move(c, { uid: me, zone: "hand" }) && E.locate(x.g, c)?.uid === me) {
+              x.take(c, me);
+              n++;
+            }
+          if (n) {
+            x.gain(me, 25 * n);
+            x.gain(u, 25 * n);
+          }
         }
       } else if (bh === T) {
         x.shuffleZone(me, "deck");
         x.draw(me, 3);
       } else {
         const pool = [...x.p(me).terrain.filter((c) => c !== id), ...x.p(me).hand];
-        const picks = x.chooseCards(me, "Black pearl : sacrifie jusqu'à 3 cartes (terrain ou main) : pour chacune, pioche et pose une carte.", pool, 0, 3, id);
+        const picks = x.chooseCards(me, "Black pearl : sacrifie jusqu'à 3 cartes (terrain ou main) : pour chacune, Black pearl est repiochée et reposée.", pool, 0, 3, id);
         for (const c of picks) {
           x.discard(c);
-          const before = new Set(x.p(me).hand);
-          if (!x.draw(me, 1)) continue;
-          const d = x.p(me).hand.find((h) => !before.has(h));
-          if (d && !noPlayReason(x.g, d)) x.move(d, { uid: me, zone: "terrain" });
+          if (!x.move(id, { uid: me, zone: "deck" })) break;
+          x.draw(me, 1);
+          if (E.locate(x.g, id)?.zone !== "hand") continue;
+          playCard(x, id, me);
         }
+        return;
       }
       if (E.locate(x.g, id)) x.discard(id);
     },
@@ -422,7 +481,7 @@ export const PIRATE: Record<string, CardScript> = {
   // Kraken : obligatoire si tu n'es pas en Trou de ver : 8 cartes de ton terrain, chacune 25 % d'être défaussée
   "PIR-15": {
     activate: (x, { id, me }) => {
-      const t = x.p(me).terrain;
+      const t = x.p(me).terrain.filter((c) => c !== id);
       if (x.p(me).blackHole === T && !x.confirm(me, "Kraken : tu es en Trou de ver, le lâcher quand même ?", id)) return x.log("Kraken : il reste au fond.");
       const picks = x.chooseCards(me, "Kraken : choisis 8 cartes de ton terrain (25 % de chances d'être défaussée chacune).", t, Math.min(8, t.length), 8, id);
       for (const c of picks) {
@@ -445,9 +504,13 @@ export const PIRATE: Record<string, CardScript> = {
         const [uid, at] = m.split(":");
         if (uid !== self.me || E.pos(x.g) <= Number(at)) return;
         setMark(x, self.id, null);
-        const hand = playableFromHand(x, x.p(self.me).hand);
-        x.triggered(self, `Blazard ! La main de ${x.name(self.me)} est révélée : ${hand.map((c) => `« ${card(c).name} »`).join(", ") || "rien à jouer"}.`);
-        for (const c of hand) if (E.locate(x.g, c)?.zone === "hand") playCard(x, c, self.me);
+        const hand = [...x.p(self.me).hand];
+        x.g.revealed = [...new Set([...(x.g.revealed ?? []), ...hand])];
+        x.triggered(
+          self,
+          `Blazard ! La main de ${x.name(self.me)} est révélée : ${hand.map((c) => `« ${card(c).name} »`).join(", ") || "vide"}. Ses cartes se jouent en restant dans la main.`,
+        );
+        for (const c of hand) if (E.locate(x.g, c)?.zone === "hand" && x.canActivate(c)) x.activateCard(c, self.me);
       },
       turnEnd: (x, self, e) => {
         const m = mark(x, self.id);
@@ -473,7 +536,7 @@ export const PIRATE: Record<string, CardScript> = {
       }
       for (const c of before) {
         const v = x.dice(me, 4);
-        if (v === 1) x.move(c, { uid: E.locate(x.g, c)?.uid ?? at.uid, zone: "hand" });
+        if (v === 1) x.move(c, { uid: me, zone: "hand" });
         else if (v === 2) x.discard(c);
         else x.gain(me, 10);
       }
@@ -483,7 +546,15 @@ export const PIRATE: Record<string, CardScript> = {
   // Le Fatigué : donne 25 gold à un joueur, puis au début de ton prochain tour, 1 chance sur 2 de gagner 100 gold, et il se défausse
   "PIR-18": {
     activate: (x, { id, me }) => {
-      if (isArmed(x, id)) return x.log("Le Fatigué dort sur le côté du terrain.");
+      if (isArmed(x, id)) {
+        disarm(x, id);
+        if (x.dice(me, 2) === 1) {
+          x.log("😴 Le Fatigué se réveille avec 100 gold !");
+          x.gain(me, 100);
+        } else x.log("😴 Le Fatigué se réveille les poches vides.");
+        x.discard(id);
+        return;
+      }
       if (x.p(me).gold < 25) {
         x.reason = "Il faut 25 gold.";
         return false;
@@ -492,18 +563,7 @@ export const PIRATE: Record<string, CardScript> = {
       if (!u) return false;
       x.transfer(me, u, 25);
       arm(x, id);
-      x.log("😴 Le Fatigué se met sur le côté : au début de ton prochain tour, 1 chance sur 2 de rapporter 100 gold.");
-    },
-    on: {
-      turnStart: (x, self, e) => {
-        if (e.uid !== self.me || !isArmed(x, self.id)) return;
-        disarm(x, self.id);
-        if (x.dice(self.me, 2) === 1) {
-          x.triggered(self, "il se réveille avec 100 gold !");
-          x.gain(self.me, 100);
-        } else x.triggered(self, "il se réveille les poches vides.");
-        x.discard(self.id);
-      },
+      x.log("😴 Le Fatigué se met sur le côté : à sa prochaine activation, 1 chance sur 2 de rapporter 100 gold.");
     },
   },
 
@@ -531,7 +591,9 @@ export const PIRATE: Record<string, CardScript> = {
           x.reason = "Pas de carte juste après avec un effet à jouer.";
           return false;
         }
-        x.log(`🍺 Rhum : « ${card(next).name} » se joue une fois de plus.`, { dst: next });
+        x.log(`🍺 Rhum : « ${card(next).name} » se joue une fois de plus.`, {
+          dst: next,
+        });
         x.activateCard(next, me);
         return;
       }

@@ -7,6 +7,7 @@ import { WEATHERS, weatherIcon, weatherLabel } from "../game/types";
 import { fxStore } from "./fxStore";
 import { css, nearRot, poseOf, poseTransform, q, type Pose } from "./pose";
 import { sfx } from "./sfx";
+import { playVoice } from "./voice";
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Attend la fin d'une animation, sans jamais bloquer la file si le navigateur la gèle (fenêtre non affichée). */
@@ -316,6 +317,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         await showCenter(f.card, speed);
         const el = centerCard.current?.el;
         sfx.activate();
+        playVoice(f.card);
         if (el) flash(el, "glow", 900);
         await wait(380 * speed);
         break;
@@ -496,6 +498,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       }
       case "link": {
         // Une carte agit sur une autre : flèche de la carte source vers la carte touchée.
+        playVoice(f.to, 0.7);
         const fromCenter = centerCard.current?.id === f.from;
         const from = fromCenter ? { x: center().cx, y: center().cy } : mid(q(`.arena [data-card="${css(f.from)}"]`));
         let dest = q(`.arena [data-card="${css(f.to)}"]`);

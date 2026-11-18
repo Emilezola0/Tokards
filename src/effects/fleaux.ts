@@ -163,7 +163,7 @@ export const FLEAUX: Record<string, CardScript> = {
         const c = x.p(self.me).discard[0];
         if (!c) return;
         x.triggered(self, `perte de gold → « ${card(c).name} » revient en première position et s'active.`);
-        if (x.move(c, { uid: self.me, zone: "terrain", index: 0 })) x.activateCard(c, self.me);
+        x.move(c, { uid: self.me, zone: "terrain", index: 0 }, { activate: self.me });
       },
     },
   },
@@ -412,7 +412,7 @@ export const FLEAUX: Record<string, CardScript> = {
         const c = x.p(self.me).deck[0];
         if (!c) return;
         x.triggered(self, `${x.name(e.uid)} tombe à 0 gold : « ${card(c).name} » est posée sur son terrain et s'active.`);
-        if (x.move(c, { uid: e.uid, zone: "terrain" })) x.activateCard(c, e.uid);
+        x.move(c, { uid: e.uid, zone: "terrain" }, { activate: e.uid });
       },
     },
   },

@@ -213,6 +213,8 @@ export interface GameState {
   rhume?: { uid: string; at: number };
   /** cartes désactivées : leur effet et leurs passifs ne fonctionnent plus (objet vide = jusqu'à nouvel ordre) */
   disabled?: Record<string, Partial<Until>>;
+  /** origine de chaque désactivation : carte qui l'a causée (`src`) et joueur qui l'a lancée (`by`) */
+  disabledBy?: Record<string, { src?: string; by?: string; at?: number }>;
   /** cartes placées sous une autre carte (hôte → cartes dessous) : elles ne sont dans aucune zone */
   under?: Record<string, string[]>;
   /** place d'origine des cartes mises sous une carte (pour les remettre en place) */
@@ -233,6 +235,10 @@ export interface GameState {
   /** Voile (Primordial) : joueurs dont le prochain tour joue deux fois chaque carte, et joueur dont c'est le tour */
   double?: string[];
   doubleNow?: string | null;
+  /** cartes retournées face cachée (Cache Oeil) : désactivées jusqu'à leur prochain passage en phase 1 */
+  facedown?: string[];
+  /** cartes qui lanceront un d2 au moment de se jouer (Hot) */
+  hot?: string[];
   aspire?: { uid: string; until: number } | null;
 }
 

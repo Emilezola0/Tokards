@@ -390,8 +390,8 @@ export class Ctx {
       this.log(`🌪 Tung Tung Tung Sahur : les ${n} gold de ${this.name(uid)} sont aspirés par ${this.name(asp.uid)}.`, { src: "EMI-10" });
       uid = asp.uid;
     }
-    // Gravité grave : chaque source de gold rapporte 1 gold de plus à son joueur.
-    if (this.active("EMI-20", uid)) n += 1;
+    // Gravité grave : tant qu'elle est sur un terrain, toutes les sources de gold rapportent 1 gold de plus.
+    if (E.locate(this.g, "EMI-20")?.zone === "terrain" && !E.isDisabled(this.g, "EMI-20")) n += 1;
     const p = this.p(uid);
     p.gold += n;
     p.goldGainedSince = (p.goldGainedSince ?? 0) + n;
@@ -523,6 +523,7 @@ export class Ctx {
       E.detachUnder(this.g, c, { uid: u, zone: "terrain" });
       this.fx({ k: "move", card: c });
       this.log(`❄️ « ${card(c).name} » ressort de la neige sur le terrain de ${this.name(u)}.`, { dst: c, to: u });
+      this.placedActivate(c, u);
     });
   }
   /** L'Orage change de terrain : la météo des deux joueurs change avec lui. */
@@ -644,7 +645,12 @@ export class Ctx {
     }
   }
 
-  move(id: string, dest: E.Dest): boolean {
+  /**
+   * Déplace une carte. Une carte qui arrive sur un terrain depuis une autre zone active son effet
+   * (pour le joueur du terrain, ou `opts.activate`), sauf `opts.activate === false`.
+   * Un déplacement d'un terrain à un autre n'active rien.
+   */
+  move(id: string, dest: E.Dest, opts: { activate?: false | string } = {}): boolean {
     const at = E.locate(this.g, id);
     const src = this.source;
     if (!at) return false;
@@ -681,6 +687,7 @@ export class Ctx {
     if (now?.zone === "terrain" && at && at.zone !== "terrain") this.emit({ type: "placed", uid: now.uid, card: id, src, fromUid: at.uid, fromZone: at.zone });
     if (at) this.emit({ type: "cardMoved", card: id, from: at, to: now, src });
     if (id === E.ORAGE) this.orageMoved(at, now);
+    if (now?.zone === "terrain" && at && at.zone !== "terrain" && opts.activate !== false) this.placedActivate(id, opts.activate ?? now.uid);
     return true;
   }
   /** Défausse une carte : elle va dans la défausse du joueur chez qui elle se trouve (terrain, main…). */
@@ -715,12 +722,25 @@ export class Ctx {
     this.afterMove(b, pb);
     this.emit({ type: "cardMoved", card: a, from: pa, to: E.locate(this.g, a), src: this.source });
     this.emit({ type: "cardMoved", card: b, from: pb, to: E.locate(this.g, b), src: this.source });
+    if (pb.zone === "terrain" && pa.zone !== "terrain") this.placedActivate(a, pb.uid);
+    if (pa.zone === "terrain" && pb.zone !== "terrain") this.placedActivate(b, pa.uid);
+  }
+  /** Carte posée sur un terrain par un effet : son effet s'active (une seule fois ce tour). */
+  placedActivate(id: string, who: string) {
+    const at = E.locate(this.g, id);
+    if (at?.zone !== "terrain" || !this.canActivate(id)) return;
+    const g = this.g;
+    if (at.uid === this.current && g.phase === "activation") {
+      if ((g.activated ?? []).includes(id)) return;
+      g.activated = [...(g.activated ?? []), id];
+    }
+    this.activateCard(id, who);
   }
   /** Déplace sans compter de vol (échanges en plusieurs morceaux). */
-  moveExchange(id: string, dest: E.Dest) {
+  moveExchange(id: string, dest: E.Dest, opts: { activate?: false | string } = {}) {
     this.exchanging++;
     try {
-      return this.move(id, dest);
+      return this.move(id, dest, opts);
     } finally {
       this.exchanging--;
     }
@@ -803,6 +823,11 @@ export class Ctx {
       return true;
     }
     E.disableCard(this.g, id, until);
+    // Origine de la désactivation (affichée dans le détail de la carte) — jamais de valeur `undefined` (Firestore).
+    const by: { src?: string; by?: string; at: number } = { at: E.pos(this.g) };
+    if (this.source && this.source !== id) by.src = this.source;
+    if (this.actor) by.by = this.actor;
+    this.g.disabledBy = { ...(this.g.disabledBy ?? {}), [id]: by };
     this.fx({ k: "fail", card: id, uid: at.uid, reason: "Désactivée" });
     if (this.source && this.source !== id) this.fx({ k: "link", from: this.source, to: id, toUid: at.uid, text: `désactive « ${card(id).name} »` });
     this.log(`⛔ « ${card(id).name} » (${this.name(at.uid)}) est désactivée${this.untilLabel(until)}.`, { dst: id, to: at.uid });
@@ -856,6 +881,15 @@ export class Ctx {
       this.fx({ k: "fail", card: id, uid: me, reason: "Désactivée" });
       this.log(`⛔ « ${c.name} » est désactivée : son effet ne se joue pas.`, { dst: id });
       return;
+    }
+    if (this.g.hot?.includes(id)) {
+      this.g.hot = this.g.hot.filter((c) => c !== id);
+      if (this.dice(me, 2) === 2) {
+        this.fx({ k: "fail", card: id, uid: me, reason: "Hot" });
+        this.log(`☀️ Hot : « ${c.name} » ne se joue pas (2 au d2).`, { dst: id, src: "MET-05" });
+        return;
+      }
+      this.log(`☀️ Hot : « ${c.name} » se joue (1 au d2).`, { dst: id, src: "MET-05" });
     }
     const at0 = E.locate(this.g, id);
     if (at0?.zone === "terrain" && id !== E.ORAGE && id !== "MET-30" && this.p(at0.uid).terrain.includes(E.ORAGE) && !E.isDisabled(this.g, E.ORAGE)) {
@@ -934,6 +968,14 @@ export class Ctx {
         const why = "Varicelle cosmique : seules les cartes en position impaire se jouent.";
         this.fx({ k: "fail", card: id, uid: this.current, reason: why });
         this.log(`« ${card(id).name} » ne se joue pas. ${why}`, { src: "FLE-21", dst: id });
+        continue;
+      }
+      if (g.facedown?.includes(id)) {
+        g.facedown = g.facedown.filter((c) => c !== id);
+        E.enableCard(g, id);
+        g.activated = [...(g.activated ?? []), id];
+        this.fx({ k: "move", card: id });
+        this.log(`👁 « ${card(id).name} » se retourne face visible et se réactive, sans jouer son effet ce tour.`, { dst: id });
         continue;
       }
       const skip = E.isDisabled(g, id)

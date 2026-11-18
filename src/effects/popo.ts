@@ -26,7 +26,7 @@ function pay(x: Ctx, me: string, id: string, n: number, what: string) {
 function drawToTerrain(x: Ctx, uid: string, n: number, from: string) {
   const before = new Set(x.p(uid).hand);
   x.draw(uid, n, from);
-  for (const c of x.p(uid).hand.filter((c) => !before.has(c))) x.move(c, { uid, zone: "terrain" });
+  for (const c of x.p(uid).hand.filter((c) => !before.has(c))) x.move(c, { uid, zone: "terrain" }, { activate: false });
 }
 
 /** Plus longue suite de joueurs consécutifs (dans l'ordre du tour, en boucle) qui vérifient `ok`. */

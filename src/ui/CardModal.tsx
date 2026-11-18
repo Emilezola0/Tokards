@@ -2,7 +2,7 @@ import { useState } from "react";
 import KwText from "./KwText";
 import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
 import * as E from "../game/engine";
-import type { GameState, Room } from "../game/types";
+import type { GameState, Room, Until } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
 import { isAutomated, noPlayReason } from "../effects/runtime";
 import { isAutoVC, lettersOf, teamProgress, vcProgress, wordFits } from "../game/victory";
@@ -148,11 +148,83 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose, onClai
           </p>
           <p className="card-text"><KwText text={c.text} /></p>
           {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
+          <Modifiers id={id} room={room} />
           <div className="card-actions">{actions}</div>
           {!myTurn && isPlayer && c.kind === "card" && <p className="small muted">Seul le joueur dont c'est le tour peut agir.</p>}
           <button className="ghost" onClick={onClose}>Fermer</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+type Mod = { icon: string; label: string; kind: "buff" | "debuff" | "info"; details: string[] };
+
+/** Durée d'une désactivation, en clair. */
+function untilText(room: Room, g: GameState, u: Partial<Until>) {
+  if (!u.uid) return "jusqu'à nouvel ordre (ou jusqu'à ce qu'elle retourne dans une pioche, une main ou une défausse)";
+  if ((u.after ?? 0) < E.pos(g)) return "jusqu'à la fin du tour en cours";
+  return u.edge === "start" ? `jusqu'au début du prochain tour de ${E.nameOf(room, u.uid)}` : `jusqu'à la fin du prochain tour de ${E.nameOf(room, u.uid)}`;
+}
+
+/** Buffs, débuffs et modifications en cours sur une carte, avec leur origine, leur durée et leurs valeurs. */
+export function modifiersOf(room: Room, g: GameState, id: string): Mod[] {
+  const out: Mod[] = [];
+  const at = E.locate(g, id);
+  const name = (u?: string) => (u ? E.nameOf(room, u) : "?");
+  const cardName = (c?: string) => (c ? `« ${card(c).name} »` : "un effet");
+  const d = g.disabled?.[id];
+  if (d) {
+    const by = g.disabledBy?.[id];
+    const details = [`Durée : ${untilText(room, g, d)}.`];
+    if (by?.src) details.unshift(`Origine : ${cardName(by.src)}${by.by ? `, lancée par ${name(by.by)}` : ""}.`);
+    else if (by?.by) details.unshift(`Origine : effet lancé par ${name(by.by)}.`);
+    if (by?.at !== undefined) details.push(`Depuis le tour ${by.at + 1}.`);
+    if (g.facedown?.includes(id)) details.push("Face cachée (« Cache Oeil ») : elle se retourne à son prochain passage en phase 1, sans jouer son effet.");
+    out.push({ icon: "⛔", label: "Désactivée", kind: "debuff", details });
+  } else if (at?.zone === "terrain" && E.isDisabled(g, id)) {
+    const drone = g.order.find((u) => u !== at.uid && g.players[u].terrain[at.index] === E.DRONE);
+    out.push({ icon: "⛔", label: "Désactivée par un drone", kind: "debuff", details: [`Origine : ${cardName(E.DRONE)} de ${name(drone)}, à la même place (${at.index + 1}) sur un terrain voisin.`, "Durée : tant que le drone reste en face et actif."] });
+  }
+  if (g.hot?.includes(id)) out.push({ icon: "☀️", label: "Hot", kind: "debuff", details: [`Origine : ${cardName("MET-05")}.`, "Au moment de se jouer : 1d2, sur un 2 elle ne se joue pas.", "Durée : une seule fois, à son prochain passage."] });
+  const under = g.under?.[id] ?? [];
+  if (under.length)
+    out.push({
+      icon: "⬇️", label: `${under.length} carte(s) dessous`, kind: "info",
+      details: under.map((u) => `${cardName(u)}${g.underFrom?.[u] ? ` (venue du terrain de ${name(g.underFrom[u].uid)})` : ""}${u === "GRE-21" ? " : les choix de cette carte se font au hasard" : ""}`),
+    });
+  for (const [host, list] of Object.entries(g.under ?? {}))
+    if (list.includes(id)) out.push({ icon: "⬇️", label: "Sous une autre carte", kind: "debuff", details: [host === E.SNOW ? "Ensevelie sous la neige : elle ressort au dégel." : `Sous ${cardName(host)}.`] });
+  if (g.tempTags?.includes(id)) out.push({ icon: "🧠", label: "Tag Sentience ajouté", kind: "buff", details: ["Durée : jusqu'à la fin du tour en cours."] });
+  if (g.cardStore?.[id]) out.push({ icon: "💰", label: `Réserve : ${g.cardStore[id]} gold`, kind: "info", details: ["Gold stockés sur cette carte par son effet."] });
+  if (g.spent?.includes(id)) out.push({ icon: "⏳", label: "Effet utilisé", kind: "info", details: ["Elle rejouera au prochain tour de son joueur."] });
+  if (g.armed?.includes(id)) {
+    const m = g.marks?.[id];
+    const target = m && g.players[m.split(/[|:]/)[0]] ? ` (cible / lanceur : ${name(m.split(/[|:]/)[0])})` : "";
+    out.push({ icon: "⏱", label: "Effet en attente", kind: "info", details: [`Son effet se déclenchera plus tard, comme indiqué sur la carte${target}.`] });
+  }
+  if (g.revealed?.includes(id) && at?.zone === "hand") out.push({ icon: "👁", label: "Face visible", kind: "info", details: [`Tout le monde voit cette carte dans la main de ${name(at.uid)}.`] });
+  if (g.custody?.host === id) out.push({ icon: "🚔", label: "Garde à vue active", kind: "info", details: [`Lancée par ${name(g.custody.uid)} : les prochaines cartes désactivées vont sous cette carte.`] });
+  if (at?.zone === "terrain" && (g.doubleNow === at.uid || g.double?.includes(at.uid)))
+    out.push({ icon: "⛵", label: "Se joue deux fois", kind: "buff", details: [`Origine : ${cardName("PIR-08")}.`, g.doubleNow === at.uid ? "Durée : ce tour-ci." : `Durée : le prochain tour de ${name(at.uid)}.`] });
+  const owner = g.owner[id];
+  if (owner && at && owner !== at.uid) out.push({ icon: "🔀", label: "Chez un autre joueur", kind: "info", details: [`Appartient à ${name(owner)}, se trouve chez ${name(at.uid)}.`] });
+  return out;
+}
+
+function Modifiers({ id, room }: { id: string; room: Room }) {
+  const g = room.game!;
+  const mods = modifiersOf(room, g, id);
+  if (!mods.length) return null;
+  return (
+    <div className="mods">
+      <b className="small">Effets en cours</b>
+      {mods.map((m, i) => (
+        <details key={i} className={`mod mod-${m.kind}`} open={mods.length <= 2}>
+          <summary>{m.icon} {m.label}</summary>
+          {m.details.map((d, j) => <span key={j} className="small">{d}</span>)}
+        </details>
+      ))}
     </div>
   );
 }

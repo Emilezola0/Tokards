@@ -1,11 +1,12 @@
-// Police — effets automatiques. Presque toutes les cartes coûtent 10 gold ; sans assez de gold, l'effet échoue
-// et rien n'est dépensé. Les passifs paient leur coût une seule fois, quand ils arrivent sur un terrain :
-// s'ils ne peuvent pas payer, ils restent désactivés. « Désactiver » sans durée = jusqu'à nouvel ordre.
+// Police — effets automatiques. Presque toutes les cartes coûtent 10 gold : le coût est payé d'abord, même si
+// l'effet échoue ensuite ; sans assez de gold, l'effet ne s'active pas. Les passifs payants paient leur coût à chaque
+// fois qu'ils se jouent (phase 1, ou à la pose) : non payés, ils sont désactivés jusqu'au début du prochain tour.
+// « Désactiver » sans durée = jusqu'à nouvel ordre.
 // Les choix d'interprétation sont notés dans la colonne « Précisions » du tableau.
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole } from "../game/types";
-import type { CardScript, Ctx, GameEvent, Self } from "./runtime";
+import type { CardScript, Ctx, Self } from "./runtime";
 
 const P: BlackHole = "Primordial";
 const Q: BlackHole = "Quasar";
@@ -22,21 +23,19 @@ const holderOf = (x: Ctx, id: string) => E.locate(x.g, id)?.uid ?? x.g.owner[id]
 /** Toutes les cartes des terrains sauf `except`. */
 const terrainCards = (x: Ctx, except: string) => x.allTerrainCards().filter((c) => c !== except);
 
-/** Passif qui paie son coût en arrivant sur un terrain : sinon il reste désactivé. */
-function onArrive(fn: (x: Ctx, self: Self) => boolean | void) {
-  return (x: Ctx, self: Self, e: Extract<GameEvent, { type: "placed" }>) => {
-    if (e.card !== self.id) return;
-    if (fn(x, self) === false) {
-      x.log(`« ${card(self.id).name} » n'est pas payée : elle reste désactivée.`, { dst: self.id });
-      x.disable(self.id);
+/** Passif payant : 10 gold à chaque fois qu'il se joue ; sinon il est désactivé jusqu'au début du prochain tour. */
+const upkeep =
+  (bh?: BlackHole) =>
+  (x: Ctx, { id, me }: Self) => {
+    if (!pay(x, me)) {
+      x.log(`« ${card(id).name} » n'est pas payée : son passif est désactivé jusqu'au début du prochain tour de ${x.name(me)}.`, { dst: id });
+      x.disable(id, x.untilStartOfNext(me));
+      return false;
     }
+    if (bh) x.setBlackHole(me, bh);
   };
-}
-/** Coût de 10 gold puis passage du trou noir. */
-const payAnd = (bh?: BlackHole) => (x: Ctx, { me }: Self) => {
-  if (!pay(x, me)) return false;
-  if (bh) x.setBlackHole(me, bh);
-};
+/** Fin du tour du joueur `u` (le tour en cours si c'est le sien). */
+const untilEndOfTurnOf = (x: Ctx, u: string) => (u === x.current ? x.untilEndOfTurn() : x.untilEndOfNext(u));
 
 /** Choisit une carte d'un terrain (sauf la carte qui agit). */
 function pickCard(x: Ctx, me: string, id: string, text: string, pool = terrainCards(x, id)) {
@@ -56,10 +55,10 @@ export const POLICE: Record<string, CardScript> = {
   // CRS : désactive la première carte d'un terrain et le CRS jusqu'à la fin de ton prochain tour
   "POL-01": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const pool = x.turnOrder().filter((u) => x.p(u).terrain.some((c) => c !== id));
       const u = x.choosePlayer(me, "CRS : quel terrain cibler ?", pool, id);
       if (!u) return false;
-      if (!pay(x, me)) return false;
       const first = x.p(u).terrain.find((c) => c !== id)!;
       x.disable(first, x.untilEndOfNext(me));
       x.disable(id, x.untilEndOfNext(me));
@@ -68,12 +67,16 @@ export const POLICE: Record<string, CardScript> = {
 
   // BAC (passif) : annule le premier vol subi (carte ou gold)
   "POL-02": {
+    activate: upkeep(),
     on: {
-      placed: onArrive((x, { me }) => pay(x, me)),
       steal: (x, self, e) => {
         if (e.victim !== self.me || !e.from) return;
         x.triggered(self, `vol de « ${card(e.card).name} » annulé.`);
-        x.moveExchange(e.card, { uid: e.from.uid, zone: e.from.zone, index: e.from.index });
+        x.moveExchange(e.card, {
+          uid: e.from.uid,
+          zone: e.from.zone,
+          index: e.from.index,
+        });
         x.take(e.card, e.from.uid);
         bacCancel(x, self, e.src);
       },
@@ -89,12 +92,12 @@ export const POLICE: Record<string, CardScript> = {
   // Flashball : Quasar, puis une chance sur deux de défausser la carte ciblée ou celle d'après ; retourne dans ta pioche
   "POL-03": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const pool = terrainCards(x, id);
       if (!pool.length) {
         x.reason = "Aucune carte à cibler sur les terrains.";
         return false;
       }
-      if (!pay(x, me)) return false;
       x.setBlackHole(me, Q);
       const c = pickCard(x, me, id, "Flashball : quelle carte viser ?", pool)!;
       const at = E.locate(x.g, c)!;
@@ -124,15 +127,17 @@ export const POLICE: Record<string, CardScript> = {
       const now = E.locate(x.g, id);
       if (now?.zone !== "terrain") return;
       const t = x.p(now.uid).terrain;
-      for (const c of [t[now.index - 1], t[now.index + 1]]) if (c) x.disable(c, x.untilEndOfNext(now.uid));
-      x.g.marks = { ...(x.g.marks ?? {}), [id]: me };
+      for (const c of [t[now.index - 1], t[now.index + 1]]) if (c) x.disable(c, untilEndOfTurnOf(x, now.uid));
+      x.g.marks = { ...(x.g.marks ?? {}), [id]: `${me}|${now.uid}` };
       arm(x, id);
     },
     on: {
-      turnEnd: (x, self) => {
+      turnEnd: (x, self, e) => {
         if (!isArmed(x, self.id)) return;
+        const [caster, target] = (x.g.marks?.[self.id] ?? "").split("|");
+        if (target && e.uid !== target) return;
         disarm(x, self.id);
-        const back = x.g.marks?.[self.id] ?? x.g.owner[self.id];
+        const back = caster || x.g.owner[self.id];
         if (!back || !x.p(back)) return;
         x.triggered(self, "le gaz se dissipe, la carte revient dans la pioche.");
         x.move(self.id, { uid: back, zone: "deck" });
@@ -157,17 +162,13 @@ export const POLICE: Record<string, CardScript> = {
           for (const c of [...x.p(self.me).terrain]) x.discard(c);
         });
       },
-      discard: (x, self, e) => {
-        if (e.uid !== self.me) return;
-        x.triggered(self, "défausse → −10 gold.");
-        x.spend(self.me, 10);
-      },
-      terrainDiscard: (x, self, e) => {
-        if (holderOf(x, e.src) !== self.me || e.src === self.id) return;
-        x.once(`min:${self.id}`, () => {
-          x.triggered(self, "défausse → −10 gold.");
-          x.spend(self.me, 10);
-        });
+      cardMoved: (x, self, e) => {
+        if (e.to?.zone !== "discard" || e.card === self.id || e.src === self.id) return;
+        const mine = e.src ? (x.g.owner[e.src] ?? holderOf(x, e.src)) === self.me : e.from.uid === self.me && e.from.zone === "hand";
+        if (!mine) return;
+        x.triggered(self, `« ${card(e.card).name} » défaussée → −10 gold.`);
+        if (x.canPay(self.me, 10)) x.spend(self.me, 10);
+        else x.lose(self.me, 10);
       },
     },
   },
@@ -176,10 +177,10 @@ export const POLICE: Record<string, CardScript> = {
   // est désactivé jusqu'au début du prochain tour de son joueur ; la Perquisition est défaussée
   "POL-06": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const pool = x.turnOrder().filter((u) => x.p(u).terrain.some((c) => c !== id));
       const u = x.choosePlayer(me, "Perquisition : quel terrain fouiller ?", pool, id);
       if (!u) return false;
-      if (!pay(x, me)) return false;
       x.setBlackHole(me, T);
       for (const c of x.p(u).terrain.filter((c) => c !== id && x.isDisabled(c))) x.discard(c);
       for (const c of x.p(u).terrain.filter((c) => c !== id)) x.disable(c, x.untilStartOfNext(u));
@@ -191,12 +192,12 @@ export const POLICE: Record<string, CardScript> = {
   // à la fin de chaque tour, 1d6 : sur 6 elle est défaussée
   "POL-07": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const pool = terrainCards(x, id);
       if (!pool.length) {
         x.reason = "Aucune carte à cibler sur les terrains.";
         return false;
       }
-      if (!pay(x, me)) return false;
       const c = pickCard(x, me, id, "Chef d'enquête : quelle carte mettre sous enquête ?", pool)!;
       x.disable(c, x.untilStartOfNext(E.locate(x.g, c)!.uid));
       x.g.marks = { ...(x.g.marks ?? {}), [id]: c };
@@ -242,6 +243,11 @@ export const POLICE: Record<string, CardScript> = {
         if (!c || c.host !== self.id || e.uid !== c.uid || E.pos(x.g) <= c.at) return;
         x.g.custody = null;
         const n = x.g.under?.[self.id]?.length ?? 0;
+        const st = E.st(x.p(c.uid));
+        for (const p of x.g.under?.[self.id] ?? []) {
+          const from = x.g.underFrom?.[p]?.uid ?? x.g.owner[p];
+          if (from && from !== c.uid) st.discOthers = (st.discOthers ?? 0) + 1;
+        }
         x.triggered(self, `fin de la garde à vue : la carte${n ? ` et ses ${n} prisonnière(s)` : ""} vont à la défausse.`);
         x.discard(self.id);
       },
@@ -267,12 +273,12 @@ export const POLICE: Record<string, CardScript> = {
   // Démineur : une chance sur deux de désactiver ou de défausser la carte ciblée
   "POL-10": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const pool = terrainCards(x, id);
       if (!pool.length) {
         x.reason = "Aucune carte à cibler sur les terrains.";
         return false;
       }
-      if (!pay(x, me)) return false;
       const c = pickCard(x, me, id, "Démineur : quelle carte ?", pool)!;
       if (x.dice(me, 2) === 1) x.disable(c);
       else x.discard(c);
@@ -282,12 +288,12 @@ export const POLICE: Record<string, CardScript> = {
   // GIGN : Trou de ver, désactive une carte de ton terrain jusqu'à la fin de ton prochain tour
   "POL-11": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const pool = x.p(me).terrain.filter((c) => c !== id);
       if (!pool.length) {
         x.reason = "Aucune autre carte sur ton terrain.";
         return false;
       }
-      if (!pay(x, me)) return false;
       x.setBlackHole(me, T);
       const c = pickCard(x, me, id, "GIGN : quelle carte de ton terrain désactiver ?", pool)!;
       x.disable(c, x.untilEndOfNext(me));
@@ -340,12 +346,12 @@ export const POLICE: Record<string, CardScript> = {
   // dernière du voisin de gauche jusqu'au début de ton prochain tour
   "POL-15": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const [left, right] = E.neighbours(x.g, me);
       if (left === me) {
         x.reason = "Il faut au moins un autre joueur.";
         return false;
       }
-      if (!pay(x, me)) return false;
       x.setSentience(me, false);
       const targets = new Set([x.p(right).terrain[0], last(x.p(left).terrain)].filter((c): c is string => !!c && c !== id));
       if (!targets.size) x.log("Les terrains voisins sont vides.");
@@ -356,10 +362,10 @@ export const POLICE: Record<string, CardScript> = {
   // Enquêteur Immigration (passif) : Blazard en arrivant ; une carte qui arrive sur ton terrain sans venir de ta
   // main, de ta défausse ou de ta pioche est désactivée jusqu'à la fin de ton prochain tour et tu choisis sa place
   "POL-16": {
+    activate: upkeep(B),
     on: {
       placed: (x, self, e) => {
-        if (e.card === self.id) return onArrive(payAnd(B))(x, self, e);
-        if (e.uid !== self.me) return;
+        if (e.card === self.id || e.uid !== self.me) return;
         if (e.fromUid === self.me && e.fromZone && e.fromZone !== "terrain") return;
         x.triggered(self, `« ${card(e.card).name} » arrive d'ailleurs : contrôle.`);
         x.disable(e.card, x.untilEndOfNext(self.me));
@@ -374,13 +380,13 @@ export const POLICE: Record<string, CardScript> = {
   // Brigade Canine : sentience vraie, désactive une carte du joueur suivant et la Brigade jusqu'au début de son prochain tour
   "POL-17": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const next = E.neighbours(x.g, me)[1];
       const pool = next === me ? [] : x.p(next).terrain;
       if (!pool.length) {
         x.reason = "Le joueur suivant n'a aucune carte sur son terrain.";
         return false;
       }
-      if (!pay(x, me)) return false;
       x.setSentience(me, true);
       const c = pickCard(x, me, id, `Brigade Canine : quelle carte de ${x.name(next)} ?`, pool)!;
       x.disable(c, x.untilStartOfNext(next));
@@ -400,12 +406,12 @@ export const POLICE: Record<string, CardScript> = {
   // Tireur d'élite : désactive une carte jusqu'à la fin de ton prochain tour
   "POL-19": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const pool = terrainCards(x, id);
       if (!pool.length) {
         x.reason = "Aucune carte à cibler sur les terrains.";
         return false;
       }
-      if (!pay(x, me)) return false;
       const c = pickCard(x, me, id, "Tireur d'élite : quelle carte viser ?", pool)!;
       x.disable(c, x.untilEndOfNext(me));
     },
@@ -414,12 +420,12 @@ export const POLICE: Record<string, CardScript> = {
   // Brigade Mécha : sentience fausse, défausse la première carte désactivée d'un joueur, puis se désactive
   "POL-20": {
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const pool = x.turnOrder().filter((u) => x.p(u).terrain.some((c) => c !== id && x.isDisabled(c)));
       if (!pool.length) {
         x.reason = "Aucune carte désactivée sur les terrains.";
         return false;
       }
-      if (!pay(x, me)) return false;
       x.setSentience(me, false);
       const u = x.choosePlayer(me, "Brigade Mécha : quel joueur ?", pool, id)!;
       x.discard(x.p(u).terrain.find((c) => c !== id && x.isDisabled(c))!);
@@ -431,13 +437,13 @@ export const POLICE: Record<string, CardScript> = {
   "POL-21": {
     guarded: true,
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const near = [...new Set(E.neighbours(x.g, me))].filter((u) => u !== me);
       const pool = near.flatMap((u) => x.p(u).terrain);
       if (!pool.length) {
         x.reason = "Les terrains de tes voisins sont vides.";
         return false;
       }
-      if (!pay(x, me)) return false;
       const c = pickCard(x, me, id, "Compagnie des Blindés : quelle carte faire reculer ?", pool)!;
       const at = E.locate(x.g, c)!;
       const to = Math.min(at.index + 3, x.p(at.uid).terrain.length - 1);
@@ -455,12 +461,12 @@ export const POLICE: Record<string, CardScript> = {
     },
     activate: (x, { id, me }) => {
       const owner = x.g.owner[id] ?? me;
+      if (!pay(x, owner)) return false;
       const o = x.chooseOption(owner, "Casspir : que faire ?", ["Ne rien faire", "Se déplacer (3 places au plus)", "Désactiver ses voisines et revenir dans la pioche"], id);
       if (o === 0) {
         x.log("Casspir ne bouge pas.");
         return;
       }
-      if (!pay(x, owner)) return false;
       const at = E.locate(x.g, id)!;
       if (o === 1) {
         const d = x.chooseNumber(owner, "Déplacement (négatif = vers la gauche, positif = vers la droite)", -3, 3, id);
@@ -472,7 +478,11 @@ export const POLICE: Record<string, CardScript> = {
         else if (to >= len && right !== at.uid) x.move(id, { uid: right, zone: "terrain", index: 0 });
         else {
           const k = Math.max(0, Math.min(len - 1, to));
-          x.move(id, { uid: at.uid, zone: "terrain", index: k > at.index ? k + 1 : k });
+          x.move(id, {
+            uid: at.uid,
+            zone: "terrain",
+            index: k > at.index ? k + 1 : k,
+          });
         }
         return;
       }
@@ -485,13 +495,14 @@ export const POLICE: Record<string, CardScript> = {
 
   // Drone de surveillance (passif) : Primordial en arrivant ; désactive les cartes à la même place sur les terrains voisins
   "POL-23": {
-    on: { placed: onArrive(payAnd(P)) },
+    activate: upkeep(P),
   },
 
   // Transporteur de troupes : au choix rien, réorganiser ton terrain, ou poser une carte de ta main sans activer son effet
   "POL-24": {
     guarded: true,
     activate: (x, { id, me }) => {
+      if (!pay(x, me)) return false;
       const o = x.chooseOption(me, "Transporteur de troupes : que faire ?", ["Ne rien faire", "Réorganiser ton terrain", "Poser une carte de ta main sans effet"], id);
       if (o === 0) {
         x.log("Le transporteur attend.");
@@ -501,7 +512,6 @@ export const POLICE: Record<string, CardScript> = {
         x.reason = "Ta main est vide.";
         return false;
       }
-      if (!pay(x, me)) return false;
       if (o === 1) {
         const order = x.chooseOrder(me, "Nouvel ordre de ton terrain", [...x.p(me).terrain], id);
         x.p(me).terrain = order;
@@ -511,7 +521,7 @@ export const POLICE: Record<string, CardScript> = {
       }
       const c = x.chooseCard(me, "Quelle carte de ta main poser (sans activer son effet) ?", x.p(me).hand, id)!;
       const slot = x.chooseSlot(me, `Où poser « ${card(c).name} » ?`, me, c, id);
-      x.move(c, { uid: me, zone: "terrain", index: slot });
+      x.move(c, { uid: me, zone: "terrain", index: slot }, { activate: false });
     },
   },
 

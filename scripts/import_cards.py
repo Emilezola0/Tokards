@@ -36,7 +36,7 @@ for d in rows(wb["Decks"]):
     decks.append({"name": d["Deck"], "code": d["Code"], "inGame": d["Dans le jeu"].lower() == "oui",
                   "color": d.get("Couleur", ""), "description": d.get("Description", ""),
                   "keywords": [k.strip() for k in d.get("Mots-clés", "").split(",") if k.strip()],
-                  "summary": d.get("Résumé du gameplay", ""), "back": d.get("Dos (image)", ""), "cards": [], "vcs": []})
+                  "summary": d.get("Résumé du gameplay", ""), "back": d.get("Dos (image)", ""), "difficulty": d.get("Difficulté", ""), "cards": [], "vcs": []})
 by_name = {d["name"]: d for d in decks}
 
 

@@ -403,9 +403,9 @@ export const GOBLIN: Record<string, CardScript> = {
   // Le donjon goblin : une chance sur quatre (il faut un 4 au d4)
   "GOB-31": {
     activate: (x, { id, me }) => {
-      const v = x.dice(me, 4);
-      if (v !== 4) {
-        x.reason = `Le dé donne ${v} : il fallait un 4.`;
+      const v = x.dice(me, 2);
+      if (v !== 2) {
+        x.reason = `Le dé donne ${v} : il fallait un 2.`;
         return false;
       }
       const t = pickTarget(x, me, id, "Quelle cible ?");

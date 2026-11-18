@@ -29,7 +29,8 @@ function gridFor(n: number) {
   }
 }
 
-export type Seat = { x: number; y: number; rot: number; s: number };
+/** Place d'un plateau ; (gx, gy) = centre de la jauge de condition commune, côté centre de la table. */
+export type Seat = { x: number; y: number; rot: number; s: number; gx?: number; gy?: number };
 /** Choix en cours sur la table : joueurs / cartes / place sélectionnables, le reste verrouillé. */
 export type PickState = {
   kind: "player" | "cards" | "slot";
@@ -209,7 +210,13 @@ export default function PlayerBoard(p: Props) {
                 onClickCapture={slotHere && i <= st.terrain.length ? (e) => (e.stopPropagation(), pick!.onSlot(index)) : undefined}
                 onClick={isDrop && !id ? () => p.onDropTerrain(owner, index) : undefined}
               >
-                {id && (
+                {id && g.facedown?.includes(id) ? (
+                  pickCards && pick!.cards.includes(id) ? (
+                    <span className="pickable-back"><CardBack id={id} size="s" selected={pick!.picked.includes(id)} onClick={() => pick!.onCard(id)} /></span>
+                  ) : (
+                    <CardBack id={id} size="s" />
+                  )
+                ) : id && (
                   <CardView
                     id={id}
                     size="s"
