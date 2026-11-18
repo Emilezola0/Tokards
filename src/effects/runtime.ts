@@ -397,10 +397,55 @@ export class Ctx {
     this.log(`⚡ « ${card(self.id).name} » (${this.name(self.me)}) : ${what}`);
   }
 
+  // ----- protections (Rêverie, Victor) -----
+  /**
+   * Rêve d'amitié / Cauchemar d'emprisonnement : pendant son tour, l'acteur ne peut pas toucher `target`.
+   * `harm` = l'effet nuit à `target` (perte de gold, cartes prises, déplacées ou désactivées). Renvoie true si l'effet est empêché.
+   */
+  shielded(target: string, harm: boolean): boolean {
+    const a = this.actor;
+    if (!a || a === target || a !== this.current || !this.p(target)) return false;
+    const P = E.pos(this.g);
+    const s = (this.g.shields ?? []).find((s) => s.by === a && P > s.after && (s.prot === "*" || (harm && s.prot === target)));
+    if (!s) return false;
+    const jail = s.prot === "*";
+    const why = jail
+      ? `Cauchemar d'emprisonnement : ${this.name(a)} ne peut pas interagir avec les autres joueurs ce tour.`
+      : `Rêve d'amitié : ${this.name(a)} ne peut pas nuire à ${this.name(target)} ce tour.`;
+    this.log(`🛡 ${why}`, { src: jail ? "REV-17" : "REV-10", to: target });
+    this.reason = why;
+    return true;
+  }
+  /**
+   * Piège à Gobelin : un autre joueur veut modifier le terrain de `uid` (ajout, retrait, échange, ordre).
+   * L'action est empêchée, il paie 50 gold (sinon `uid` vole une carte de son terrain) et le piège est défaussé.
+   */
+  trapped(uid: string): boolean {
+    const a = this.actor;
+    if (!a || a === uid || this.source === "VIC-19" || !this.p(a) || !this.p(uid) || !this.active("VIC-19", uid)) return false;
+    this.triggered({ id: "VIC-19", me: uid }, `${this.name(a)} veut modifier le terrain de ${this.name(uid)} : l'action est empêchée.`);
+    this.runAs("VIC-19", uid, () => {
+      if (this.p(a).gold >= 50) this.giveBack(a, uid, 50);
+      else {
+        this.log(`${this.name(a)} n'a pas 50 gold : ${this.name(uid)} vole une carte de son terrain.`);
+        const c = this.chooseCard(uid, `Piège à Gobelin : quelle carte du terrain de ${this.name(a)} voler ?`, this.p(a).terrain, "VIC-19");
+        if (c && this.move(c, { uid, zone: "hand" })) this.take(c, uid);
+      }
+      this.move("VIC-19", { uid, zone: "discard" });
+    });
+    this.reason = "Piège à Gobelin : l'action est empêchée.";
+    return true;
+  }
+  /** L'acteur peut-il changer l'ordre du terrain de `uid` ? (protections, Piège à Gobelin) */
+  canReorder(uid: string) {
+    return !this.shielded(uid, true) && !this.trapped(uid);
+  }
+
   // ----- ressources -----
   gain(uid: string, n: number): number {
     n = Math.trunc(n);
     if (n <= 0) return 0;
+    if (uid !== this.actor && this.shielded(uid, false)) return 0;
     // Tung Tung Tung Sahur (Trou de ver) : les gold gagnés par les autres sont aspirés.
     const asp = this.g.aspire;
     if (asp && asp.uid !== uid && this.p(asp.uid) && E.pos(this.g) <= asp.until) {
@@ -422,6 +467,7 @@ export class Ctx {
   }
   lose(uid: string, n: number): number {
     n = Math.trunc(n);
+    if (uid !== this.actor && this.shielded(uid, true)) return 0;
     const p = this.p(uid);
     const real = p.allowNegativeGold ? n : Math.min(n, Math.max(0, p.gold));
     if (real <= 0) return 0;
@@ -465,6 +511,9 @@ export class Ctx {
     return true;
   }
   transfer(from: string, to: string, n: number): number {
+    // Protections : rien ne passe si l'autre joueur est protégé (sans gold perdus en route).
+    const other = from === this.actor ? to : from;
+    if (from !== to && this.shielded(other, other === from)) return 0;
     const stolen = from !== to && this.actor === to && !this.exchanging;
     // Rainette spéculative : un vol de gold est remplacé par un d100.
     if (stolen && n > 0 && this.active("GRE-24", from)) {
@@ -555,7 +604,13 @@ export class Ctx {
     const p = this.p(uid);
     if (p.sentience === v) return;
     if (p.locked) return this.log(`🔒 ${this.name(uid)} est bloqué : sa sentience ne change pas.`);
+    if (this.shielded(uid, false)) return;
+    // Rêveur : les changements de sentience venant des autres joueurs ne touchent pas son joueur.
+    if (this.actor && this.actor !== uid && this.active("REV-01", uid)) {
+      return this.log(`💤 Rêveur : la sentience de ${this.name(uid)} ne change pas (effet d'un autre joueur).`, { src: "REV-01", to: uid });
+    }
     p.sentience = v;
+    E.st(p).sentFlips = (E.st(p).sentFlips ?? 0) + 1;
     this.interact(uid, "sentience");
     this.fx({ k: "sentience", uid, v });
     this.log(`${this.name(uid)} : sentience ${v ? "Vraie" : "Fausse"}.`, { to: uid });
@@ -569,6 +624,7 @@ export class Ctx {
     const from = p.blackHole;
     if (from === to) return;
     if (p.locked) return this.log(`🔒 ${this.name(uid)} est bloqué : son trou noir ne change pas.`);
+    if (this.shielded(uid, false)) return;
     p.blackHole = to;
     this.trackBlackHole(uid, to);
     this.interact(uid, "trou noir");
@@ -671,12 +727,33 @@ export class Ctx {
     const at = E.locate(this.g, id);
     const src = this.source;
     if (!at) return false;
+    if ([at.uid, dest.uid].some((u) => this.shielded(u, true))) return false;
+    if (at.zone === "terrain" && this.trapped(at.uid)) return false;
+    if (dest.zone === "terrain" && this.trapped(dest.uid)) return false;
     if (!this.canDisplace(id, at, dest)) return false;
+    // Cacapulte : une carte qui doit aller dans la défausse de son joueur peut aller dans celle d'un autre.
+    if (dest.zone === "discard" && id !== "VIC-17" && this.active("VIC-17", dest.uid) && this.order.length > 1) {
+      const holder = dest.uid;
+      const u = this.choosePlayer(holder, `Cacapulte : dans quelle défausse envoyer « ${card(id).name} » ?`, [holder, ...this.others(holder)], "VIC-17");
+      if (u && u !== holder) {
+        this.log(`💩 Cacapulte : « ${card(id).name} » part dans la défausse de ${this.name(u)}.`, { src: "VIC-17", dst: id, to: u });
+        dest = { ...dest, uid: u };
+      }
+    }
     if (at.zone === "terrain" && dest.zone !== "terrain") SCRIPTS[id]?.beforeLeave?.(this, { id, me: at.uid });
     if (!E.locate(this.g, id)) return false;
     if (at?.zone === "terrain" && dest.zone === "discard" && SCRIPTS[id]?.fixed && src !== id) {
       this.log(`🛡 « ${card(id).name} » ne peut pas être défaussée.`, { dst: id });
       return false;
+    }
+    // Double jeu : les cartes cachées dessous seront révélées et posées à sa place quand elle quitte le terrain.
+    const hiddenUnder = at.zone === "terrain" && dest.zone !== "terrain" ? (this.g.under?.[id] ?? []).filter((c) => this.g.marks?.[c] === "VIC-13") : [];
+    if (hiddenUnder.length) {
+      const rest = (this.g.under?.[id] ?? []).filter((c) => !hiddenUnder.includes(c));
+      const u = { ...this.g.under };
+      if (rest.length) u[id] = rest;
+      else delete u[id];
+      this.g.under = u;
     }
     const only = SCRIPTS[id]?.placedOnlyBy;
     const onlyList = only ? (Array.isArray(only) ? only : [only]) : [];
@@ -685,6 +762,18 @@ export class Ctx {
       return false;
     }
     E.moveCard(this.room, this.g, id, dest, !!(src && src !== id && at));
+    if (hiddenUnder.length) {
+      const m = { ...(this.g.marks ?? {}) };
+      hiddenUnder.forEach((c, k) => {
+        delete m[c];
+        const t = this.p(at.uid).terrain;
+        t.splice(Math.min(at.index + k, t.length), 0, c);
+        this.g.born = { ...(this.g.born ?? {}), [c]: E.pos(this.g) };
+        this.fx({ k: "move", card: c });
+        this.log(`🎭 Double jeu : « ${card(c).name} » était cachée dessous, elle est révélée et posée à sa place.`, { src: "VIC-13", dst: c, to: at.uid });
+      });
+      this.g.marks = m;
+    }
     if (src && src !== id && at) this.linkMove(src, id, at.uid, dest);
     if (dest.zone === "discard" && src && this.actor && at.uid !== this.actor && (at.zone === "terrain" || at.zone === "hand") && this.p(this.actor)) {
       const s = E.st(this.p(this.actor));
@@ -705,6 +794,10 @@ export class Ctx {
     if (at) this.emit({ type: "cardMoved", card: id, from: at, to: now, src });
     if (id === E.ORAGE) this.orageMoved(at, now);
     if (now?.zone === "terrain" && at && at.zone !== "terrain" && opts.activate !== false) this.placedActivate(id, opts.activate ?? now.uid);
+    for (const c of hiddenUnder) {
+      const l = E.locate(this.g, c);
+      if (l?.zone === "terrain") this.placedActivate(c, l.uid);
+    }
     return true;
   }
   /** Défausse une carte : elle va dans la défausse du joueur chez qui elle se trouve (terrain, main…). */
@@ -717,6 +810,8 @@ export class Ctx {
     const pa = E.locate(this.g, a);
     const pb = E.locate(this.g, b);
     if (!pa || !pb || a === b) return;
+    if ([pa.uid, pb.uid].some((u) => this.shielded(u, true))) return;
+    if ((pa.zone === "terrain" && this.trapped(pa.uid)) || (pb.zone === "terrain" && this.trapped(pb.uid))) return;
     if (!this.canDisplace(a, pa, pb) || !this.canDisplace(b, pb, pa)) return;
     if (!E.locate(this.g, a) || !E.locate(this.g, b)) return;
     this.p(pa.uid)[pa.zone][pa.index] = b;
@@ -832,6 +927,7 @@ export class Ctx {
   disable(id: string, until?: Until): boolean {
     const at = E.locate(this.g, id);
     if (!at || at.zone !== "terrain") return false;
+    if (this.shielded(at.uid, true)) return false;
     const c = this.g.custody;
     if (c && c.host !== id && this.active(c.host)) {
       this.putUnder(id, c.host);
@@ -920,6 +1016,12 @@ export class Ctx {
     if (this.actDepth >= MAX_DEPTH) {
       this.log(`« ${c.name} » : trop d'effets en chaîne, celui-ci est ignoré.`);
       return;
+    }
+    // Parasite doré : l'effet de la carte sous laquelle il se cache concerne son joueur.
+    const para = (this.g.under?.[id] ?? []).includes("VIC-09") ? this.g.marks?.["VIC-09"] : undefined;
+    if (para && para !== me && this.p(para)) {
+      this.log(`🪱 Parasite doré : l'effet de « ${c.name} » concerne ${this.name(para)}.`, { src: "VIC-09", dst: id, to: para });
+      me = para;
     }
     const strat = (this.g.under?.[id] ?? []).includes("GRE-21");
     if (strat) {
@@ -1031,6 +1133,21 @@ function perform(x: Ctx, a: EffectAction) {
       const no = noPlayReason(x.g, a.card);
       if (no) throw new Error(no);
       if (x.p(a.by).cantPlay) throw new Error(x.p(a.by).cantPlay!);
+      if (a.target !== a.by) {
+        // Poser chez un autre joueur : protections et Piège à Gobelin.
+        x.actor = a.by;
+        let stop = false;
+        try {
+          if (x.shielded(a.target, true)) throw new Error(x.reason ?? "Action impossible.");
+          stop = x.trapped(a.target);
+        } finally {
+          x.actor = null;
+        }
+        if (stop) {
+          if (x.g.phase === "action") E.consumeAction(x.g);
+          break;
+        }
+      }
       const from = E.locate(x.g, a.card);
       E.playFromHand(x.room, x.g, a.by, a.card, a.target, a.index);
       x.fx({ k: "move", card: a.card });
@@ -1039,12 +1156,23 @@ function perform(x: Ctx, a: EffectAction) {
       if (E.locate(x.g, a.card)?.zone === "terrain") x.activateCard(a.card, a.by);
       break;
     }
-    case "discard":
+    case "discard": {
       const at = E.locate(x.g, a.card);
       E.discardFromHand(x.room, x.g, a.by, a.card);
+      // Cacapulte : la carte peut partir dans la défausse d'un autre joueur.
+      const now = E.locate(x.g, a.card);
+      if (now?.zone === "discard" && a.card !== "VIC-17" && x.active("VIC-17", now.uid) && x.order.length > 1) {
+        const u = x.choosePlayer(now.uid, `Cacapulte : dans quelle défausse envoyer « ${card(a.card).name} » ?`, [now.uid, ...x.others(now.uid)], "VIC-17");
+        if (u && u !== now.uid) {
+          E.moveCard(x.room, x.g, a.card, { uid: u, zone: "discard" }, true);
+          x.take(a.card, u);
+          x.log(`💩 Cacapulte : « ${card(a.card).name} » part dans la défausse de ${x.name(u)}.`, { src: "VIC-17", dst: a.card, to: u });
+        }
+      }
       x.emit({ type: "discard", uid: a.by, card: a.card, src: null });
       if (at) x.emit({ type: "cardMoved", card: a.card, from: at, to: E.locate(x.g, a.card), src: null });
       break;
+    }
     case "endTurn": {
       const prev = E.hooks.drew;
       E.hooks.drew = (_g, uid, n) => x.emit({ type: "draw", uid, n, from: uid, src: null });

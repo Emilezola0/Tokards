@@ -535,7 +535,7 @@ export const EMILE: Record<string, CardScript> = {
     activate: (x, { id, me }) => {
       if (!x.p(me).sentience) {
         const u = x.choosePlayer(me, "Gratin : quel terrain inverser ?", x.turnOrder().filter((u) => x.p(u).terrain.length > 1), id);
-        if (!u) return false;
+        if (!u || !x.canReorder(u)) return false;
         x.p(u).terrain.reverse();
         x.log(`🔃 Le terrain de ${x.name(u)} est inversé.`, { to: u });
         x.interact(u, "terrain");

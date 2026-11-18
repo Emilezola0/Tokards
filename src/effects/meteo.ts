@@ -151,6 +151,7 @@ export const METEO: Record<string, CardScript> = {
           x.log(`🌬️ ${x.name(u)} : le vent tombe, l'ordre ne change pas.`);
           continue;
         }
+        if (!x.canReorder(u)) continue;
         const t = x.p(u).terrain;
         const keep = t.indexOf(id);
         const rest = t.filter((c) => c !== id).reverse();
@@ -367,7 +368,7 @@ export const METEO: Record<string, CardScript> = {
         }
       } else if (w === "Vent violent") {
         for (const u of all) {
-          if (x.dice(u, 10) !== 1 || x.p(u).terrain.length < 2) continue;
+          if (x.dice(u, 10) !== 1 || x.p(u).terrain.length < 2 || !x.canReorder(u)) continue;
           x.p(u).terrain = E.shuffle(x.p(u).terrain);
           x.log(`🌬️ Le terrain de ${x.name(u)} est mélangé.`, { to: u });
           x.interact(u, "terrain");
@@ -609,7 +610,7 @@ export const METEO: Record<string, CardScript> = {
             all.filter((u) => u !== a),
             self.id,
           );
-        if (a && b) {
+        if (a && b && x.canReorder(a) && x.canReorder(b)) {
           const ta = x.p(a).terrain;
           x.p(a).terrain = x.p(b).terrain;
           x.p(b).terrain = ta;

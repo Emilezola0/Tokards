@@ -82,6 +82,12 @@ export function neighbours(g: GameState, uid: string): [string, string] {
 }
 
 /** La carte est-elle désactivée (son effet et ses passifs ne fonctionnent pas) ? */
+/** Voyant voyou voyeur : tant qu'il est actif sur un terrain, les cartes face cachée (sauf les mains) sont visibles. */
+export const SEER = "VIC-16";
+export function seeThrough(g: GameState): boolean {
+  return Object.values(g.players).some((p) => p.terrain.includes(SEER)) && !isDisabled(g, SEER);
+}
+
 export function isDisabled(g: GameState, id: string): boolean {
   if (g.disabled?.[id]) return true;
   const at = locate(g, id);
@@ -119,6 +125,8 @@ function expire(room: Room, g: GameState, uid: string, edge: "start" | "end") {
     log(g, `✅ « ${card(id).name} » est réactivée.`, { dst: id });
   }
   if (edge !== "end") return;
+  // Rêve d'amitié / Cauchemar d'emprisonnement : la protection dure un seul tour de `by`.
+  if (g.shields?.length) g.shields = g.shields.filter((s) => !(s.by === uid && P > s.after));
   if (g.tempTags?.length) g.tempTags = [];
   for (const t of (g.temp ?? []).filter((t) => t.uid === uid)) {
     const p = g.players[uid];
@@ -301,6 +309,17 @@ export function endTurn(room: Room, g: GameState) {
   st(p).turnsPlayed = (st(p).turnsPlayed ?? 0) + 1;
   expire(room, g, uid, "end");
   hooks.turnEnd?.(room, g, uid);
+  // BezRoulette : la condition validée « pour ce tour » est annulée si l'équipe n'a pas gagné entre-temps.
+  const t = g.tempVC;
+  if (t && t.turnOf === uid) {
+    g.tempVC = null;
+    const key = teamKey(room, t.uid);
+    if (!g.ranking.some((r) => r.team === key) && g.players[t.uid]) {
+      log(g, `🎰 BezRoulette : la condition validée pour ce tour ne compte plus.`, { src: "VIC-07" });
+      if (t.common) setCommonDone(room, g, key, false);
+      else setPersonalDone(room, g, t.uid, false);
+    }
+  }
   nextTurn(room, g);
   hooks.after?.(room, g);
 }
@@ -445,9 +464,9 @@ function leaveTerrain(room: Room, g: GameState, id: string, holder: string, dest
   for (const c of under) {
     enableCard(g, c);
     if (g.underFrom?.[c]) delete g.underFrom[c];
-    if (c === "GRE-21") {
+    if (c === "GRE-21" || c === "VIC-09") {
       g.players[dest.uid][dest.zone].push(c);
-      log(g, `🐸 Crapaud stratège suit « ${card(id).name} » (${ZONE_LABEL[dest.zone]} de ${nameOf(room, dest.uid)}) et s'en détache.`);
+      log(g, `${c === "GRE-21" ? "🐸 Crapaud stratège" : "🪱 Parasite doré"} suit « ${card(id).name} » (${ZONE_LABEL[dest.zone]} de ${nameOf(room, dest.uid)}) et s'en détache.`);
       continue;
     }
     g.players[holder].discard.unshift(c);

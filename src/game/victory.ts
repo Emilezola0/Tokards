@@ -155,6 +155,22 @@ const CHECKS: Record<string, (c: C) => Progress> = {
       text: empty.length ? `Terrain vide : ${empty.map((u) => E.nameOf(room, u)).join(", ")}` : "Aucun autre terrain n'est vide",
     };
   },
+  // Nuit de sommeil : 5 cartes 🧠 sur le terrain et la sentience vraie
+  "VC-REV-1": ({ p, g }) => {
+    const n = count(p.terrain, (id) => E.tagsOf(g, id).sentience);
+    return {
+      ratio: (Math.min(n, 5) + (p.sentience ? 1 : 0)) / 6, text: `Cartes 🧠 ${Math.min(n, 5)}/5 · sentience ${p.sentience ? "vraie ✔" : "fausse"}`,
+      done: n >= 5 && p.sentience,
+    };
+  },
+  // Nuit agitée : la sentience change 10 fois (par n'importe quel effet)
+  "VC-REV-2": ({ s }) => frac(s.sentFlips ?? 0, 10, "Changements de sentience :"),
+  // Pee is stored in the balls : plus aucune carte dans sa pioche ni sa défausse
+  "VC-VIC-1": ({ p, g, uid }) => {
+    const left = p.deck.length + p.discard.length;
+    const total = Math.max(1, Object.values(g.owner).filter((o) => o === uid).length);
+    return { ratio: clamp(1 - left / total), text: `Pioche ${p.deck.length} · défausse ${p.discard.length}`, done: left === 0 };
+  },
   "VC-FLE-1": ({ s }) => frac(s.lost ?? 0, 200, "Gold perdus :"),
   "VC-FLE-2": ({ s }) => frac(s.offTurn ?? 0, 5, "Activations pendant le tour d'un autre :"),
   "VC-FLE-3": ({ s }) => frac(s.failed ?? 0, 5, "Activations ratées en phase 1 :"),

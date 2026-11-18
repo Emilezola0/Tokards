@@ -105,6 +105,8 @@ export interface Stats {
   /** cartes de sa main / de son terrain parties dans une défausse (Pirate) */
   handDisc?: number;
   terrDisc?: number;
+  /** changements de sa sentience (Rêverie) */
+  sentFlips?: number;
 }
 
 export type Prompt = { chooser: string; text: string; cardId?: string } & (
@@ -244,6 +246,11 @@ export interface GameState {
   /** cartes qui lanceront un d2 au moment de se jouer (Hot) */
   hot?: string[];
   aspire?: { uid: string; until: number } | null;
+  /** Rêve d'amitié / Cauchemar d'emprisonnement : pendant son prochain tour (après le tour global `after`), `by` ne peut pas
+   * nuire à `prot` (« * » = ne peut toucher aucun autre joueur) */
+  shields?: { by: string; prot: string; after: number }[];
+  /** BezRoulette : condition validée seulement jusqu'à la fin du tour de `turnOf` */
+  tempVC?: { uid: string; turnOf: string; common: boolean } | null;
 }
 
 export interface LobbyPlayer {

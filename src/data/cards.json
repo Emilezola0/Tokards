@@ -92,7 +92,7 @@
   {
    "name": "Victor",
    "code": "VIC",
-   "inGame": false,
+   "inGame": true,
    "color": "",
    "description": "",
    "keywords": [
@@ -343,7 +343,7 @@
   {
    "name": "Rêverie",
    "code": "REV",
-   "inGame": false,
+   "inGame": true,
    "color": "",
    "description": "",
    "keywords": [

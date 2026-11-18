@@ -158,6 +158,8 @@ export default function PlayerBoard(p: Props) {
   const top = st.discard[0];
   const under = st.discard.slice(1, 3);
   const deckLayers = Math.min(3, Math.max(0, st.deck.length - 1));
+  // Voyant voyou voyeur : les cartes face cachée (sauf les mains) sont visibles.
+  const seeAll = E.seeThrough(g);
   return (
     <section
       data-board={owner}
@@ -210,7 +212,7 @@ export default function PlayerBoard(p: Props) {
                 onClickCapture={slotHere && i <= st.terrain.length ? (e) => (e.stopPropagation(), pick!.onSlot(index)) : undefined}
                 onClick={isDrop && !id ? () => p.onDropTerrain(owner, index) : undefined}
               >
-                {id && g.facedown?.includes(id) ? (
+                {id && g.facedown?.includes(id) && !seeAll ? (
                   pickCards && pick!.cards.includes(id) ? (
                     <span className="pickable-back"><CardBack id={id} size="s" selected={pick!.picked.includes(id)} onClick={() => pick!.onCard(id)} /></span>
                   ) : (
@@ -252,7 +254,11 @@ export default function PlayerBoard(p: Props) {
         <div className="pile" data-pile={`deck:${owner}`} title={`Pioche : ${st.deck.length} carte(s)`}>
           {st.deck.length ? (
             <div className={`stack layers-${deckLayers}`}>
-              <CardBack deck={card(st.deck[0]).deck} size="s" count={st.deck.length} />
+              {seeAll ? (
+                <CardView id={st.deck[0]} size="s" badge={`👁 ${st.deck.length}`} onClick={() => p.onCard(st.deck[0])} />
+              ) : (
+                <CardBack deck={card(st.deck[0]).deck} size="s" count={st.deck.length} />
+              )}
             </div>
           ) : (
             <div className="card s empty-slot">Pioche vide</div>
