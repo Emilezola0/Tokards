@@ -130,7 +130,11 @@ export interface Pending {
   answers: string[];
   rolls: number[];
   prompt: Prompt;
+  /** choix déjà faits pendant cette action (affichés pour suivre où on en est) */
+  trail?: TrailStep[];
 }
+/** Un choix déjà fait : carte qui l'a demandé, question, réponse en clair. */
+export type TrailStep = { card: string; chooser: string; text: string; label: string };
 
 export type Fx =
   | { id: number; k: "activate"; card: string; uid: string }

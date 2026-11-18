@@ -5529,7 +5529,7 @@
    "target": "",
    "check": "",
    "text": "Dépensez 10 gold. Ciblez un terrain : désactivez sa première carte ainsi que cette carte jusqu'à la fin de votre prochain tour.",
-   "rules": "Le coût n'est payé que s'il y a une carte à cibler.",
+   "rules": "Le coût est payé même s'il n'y a pas de carte à cibler.",
    "image": "POL-01.jpg"
   },
   "POL-02": {
@@ -5547,7 +5547,7 @@
    "target": "",
    "check": "",
    "text": "Dépensez 10 gold. Le prochain vol que vous subissez est annulé : la carte à l'origine du vol et cette carte sont défaussées, puis lancez 1d100 et gagnez autant de gold.",
-   "rules": "Le coût est payé à chaque fois que la carte se joue (phase 1). Sans les 10 gold, elle est désactivée jusqu'au début de votre prochain tour. Ne protège que contre le premier vol (carte ou gold), puis la carte est défaussée.",
+   "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour. Ne protège que contre le premier vol (carte ou gold), puis la carte est défaussée.",
    "image": "POL-02.jpg"
   },
   "POL-03": {
@@ -5799,7 +5799,7 @@
    "target": "",
    "check": "",
    "text": "Dépensez 10 gold et passez votre trou noir en Blazard. Quand une carte arrive sur votre terrain sans venir de votre main, de votre défausse ou de votre pioche, désactivez-la jusqu'à la fin de votre prochain tour et choisissez sa place sur votre terrain.",
-   "rules": "Le coût est payé à chaque fois que la carte se joue (phase 1). Sans les 10 gold, elle est désactivée jusqu'au début de votre prochain tour.",
+   "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour.",
    "image": "POL-16.jpg"
   },
   "POL-17": {
@@ -5925,7 +5925,7 @@
    "target": "",
    "check": "",
    "text": "Dépensez 10 gold et passez votre trou noir en Primordial. Tant que cette carte est sur le terrain, les cartes à la même position sur les terrains voisins sont désactivées.",
-   "rules": "Le coût est payé à chaque fois que la carte se joue (phase 1). Sans les 10 gold, elle est désactivée jusqu'au début de votre prochain tour et ne désactive plus rien.",
+   "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour et ne désactive plus rien.",
    "image": "POL-23.jpg"
   },
   "POL-24": {
@@ -6725,7 +6725,7 @@
   {
    "term": "Poser",
    "cat": "Action",
-   "def": "Mettre une carte sur un terrain. Posée depuis la main pendant la phase 2, elle s'active ; posée par un effet, elle ne s'active que si la carte le dit.",
+   "def": "Mettre une carte sur un terrain. Une carte posée sur un terrain (depuis la main, la pioche, la défausse… même par un effet) active son effet, sauf si la carte dit le contraire. Un déplacement d'un terrain à un autre n'active pas l'effet.",
    "example": "Posez Amanite juste après cette carte.",
    "anim": "play",
    "words": [
@@ -6790,7 +6790,7 @@
   {
    "term": "Dépenser",
    "cat": "Action",
-   "def": "Payer des gold pour un effet : si le joueur n'en a pas assez, rien n'est retiré et l'effet n'a pas lieu.",
+   "def": "Payer des gold pour un effet. Le coût est payé d'abord, même si l'effet échoue ensuite. Sans assez de gold, rien n'est retiré et l'effet n'a pas lieu.",
    "example": "Dépensez 10 gold : …",
    "anim": "spend",
    "words": [
@@ -7109,6 +7109,16 @@
     "autre joueur",
     "autres joueurs",
     "par autre joueur"
+   ]
+  },
+  {
+   "term": "Coût",
+   "cat": "Action",
+   "def": "Les gold à dépenser pour que l'effet ait lieu, payés à chaque fois que la carte se joue (voir Dépenser).",
+   "example": "Coût : 10 gold.",
+   "anim": "spend",
+   "words": [
+    "coût"
    ]
   }
  ]

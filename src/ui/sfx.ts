@@ -65,8 +65,8 @@ export const useMuted = () =>
   useSyncExternalStore((f) => (subs.add(f), () => void subs.delete(f)), () => muted);
 
 type Tone = { f: number; to?: number; t?: number; d: number; type?: OscillatorType; v?: number };
-function tones(list: Tone[]) {
-  if (muted || !volume || document.hidden) return;
+function tones(list: Tone[], evenHidden = false) {
+  if (muted || !volume || (document.hidden && !evenHidden)) return;
   const a = ac();
   if (!a || !master || a.state !== "running") return;
   const now = a.currentTime;
@@ -120,6 +120,19 @@ export const sfx = {
   sentience: () => tones([{ f: 440, to: 880, d: 0.25, type: "sine", v: 0.25 }]),
   blackHole: () => (tones([{ f: 300, to: 60, d: 0.6, type: "sine", v: 0.35 }]), noise(0.5, 0.12, 300)),
   turn: () => tones([{ f: 392, d: 0.5, type: "triangle", v: 0.3 }, { f: 587, t: 0.12, d: 0.6, type: "triangle", v: 0.25 }]),
+  /** C'est ton tour : carillon montant bien distinct (joué même si l'onglet est en arrière-plan), entendu par toi seul. */
+  myTurn: () =>
+    tones(
+      [
+        { f: 523, d: 0.35, type: "triangle", v: 0.45 },
+        { f: 659, t: 0.11, d: 0.35, type: "triangle", v: 0.45 },
+        { f: 784, t: 0.22, d: 0.35, type: "triangle", v: 0.45 },
+        { f: 1047, t: 0.33, d: 0.9, type: "sine", v: 0.5 },
+        { f: 2093, t: 0.33, d: 0.6, type: "sine", v: 0.12 },
+        { f: 1568, t: 0.62, d: 0.8, type: "sine", v: 0.25 },
+      ],
+      true,
+    ),
   phase: () => tones([{ f: 740, d: 0.12, type: "sine", v: 0.15 }, { f: 988, t: 0.07, d: 0.16, type: "sine", v: 0.12 }]),
   dice: () => { for (let i = 0; i < 5; i++) noise(0.04, 0.2, 1800, i * 0.07); },
   link: () => tones([{ f: 900, to: 1500, d: 0.2, type: "sine", v: 0.15 }]),

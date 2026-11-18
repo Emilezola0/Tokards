@@ -54,7 +54,8 @@ gloss = table(src["Glossaire"])
 interp = table(src["Interprétations"]) if "Interprétations" in src.sheetnames else []
 lists = list(src["Listes"].iter_rows(values_only=True))
 # Onglet libre « Prompt » (demandes écrites pour Claude) : recopié tel quel.
-prompt_rows = list(src["Prompt"].iter_rows(values_only=True)) if "Prompt" in src.sheetnames else []
+PROMPT_HEAD = "↓ Écris ici tes nouvelles demandes pour Claude (une par ligne). Claude vide l'onglet une fois qu'elles sont faites. ↓"
+prompt_rows = [r for r in (src["Prompt"].iter_rows(values_only=True) if "Prompt" in src.sheetnames else []) if r and r[0] and r[0] != PROMPT_HEAD]
 
 def get(r, *keys):
     for k in keys:
@@ -210,17 +211,25 @@ def rich(text):
 
 # ---------- Cartes ----------
 ch = ["ID", "Deck", "Nom", "🧠 Sentience", "💰 Gold", "🌀 Trou noir", "Déclenchement", "Événement passif", "Cible",
-      "Description", "Précisions (règles)", "Image", "Statut", "Automatisation", "À mettre à jour", "Notes / changements"]
-ca = sheet("Cartes", ch, [10, 18, 26, 10, 9, 10, 13, 20, 18, 60, 55, 14, 12, 15, 11, 36], "FFB300")
+      "Description", "Précisions (règles)", "Image", "Statut", "Automatisation", "À mettre à jour", "Notes / changements",
+      "Texte simplifié", "Validation texte", "Remarque sur le texte"]
+ca = sheet("Cartes", ch, [10, 18, 26, 10, 9, 10, 13, 20, 18, 60, 55, 14, 12, 15, 11, 36, 60, 14, 36], "FFB300")
 for c in cards:
+    # Texte simplifié validé : il remplace la description (et la proposition est vidée).
+    desc, simple, valid = get(c, "Description"), get(c, "Texte simplifié"), get(c, "Validation texte")
+    if simple and valid == "Validé":
+        desc, simple, valid = simple, "", "Appliqué"
     ca.append([c["ID"], c["Deck"], c["Nom"], get(c, "Sentience") or "Non", get(c, "Gold") or "Non", get(c, "Trou noir") or "Non",
-               get(c, "Déclenchement"), get(c, "Événement passif"), get(c, "Cible"), get(c, "Description"),
+               get(c, "Déclenchement"), get(c, "Événement passif"), get(c, "Cible"), desc,
                clean_rules(get(c, "Précisions")), get(c, "Image"), get(c, "Statut") or "À vérifier",
-               AUTO_YES if c["ID"] in AUTO else AUTO_NO, "Non", ""])
+               AUTO_YES if c["ID"] in AUTO else AUTO_NO, "Non", "", simple, valid or ("À valider" if simple else ""),
+               get(c, "Remarque sur le texte")])
 nc = len(cards)
 body(ca, nc, len(ch), center=(1, 4, 5, 6, 7, 12, 13, 14, 15))
 for r in range(2, nc + 2):
     ca.cell(row=r, column=10).value = rich(ca.cell(row=r, column=10).value)
+    if ca.cell(row=r, column=17).value:
+        ca.cell(row=r, column=17).value = rich(ca.cell(row=r, column=17).value)
 ca.freeze_panes = "D2"
 ca.auto_filter.ref = f"A1:{get_column_letter(len(ch))}{nc + 1}"
 MAX = 2000
@@ -233,6 +242,11 @@ dv_list(ca, f"I2:I{MAX}", REF["Cible"])
 dv_list(ca, f"M2:M{MAX}", REF["Statut"])
 dv_list(ca, f"N2:N{MAX}", REF["Automatisation"], "Rempli par Claude d'après le code du jeu.")
 dv_list(ca, f"O2:O{MAX}", REF["OuiNon"], "Mets Oui quand tu modifies la carte : Claude mettra le jeu à jour.")
+dv_list(ca, f"R2:R{MAX}", '"À valider,Validé,À changer,Appliqué"', "Validé : le texte simplifié remplacera la description à la prochaine mise à jour. À changer : explique dans la colonne suivante.")
+fill_rule(ca, f"R2:R{MAX}", '$R2="À valider"', "FFF1D6", Font(name=FONT, color="9A5B00", bold=True))
+fill_rule(ca, f"R2:R{MAX}", '$R2="Validé"', "D7F5E3", Font(name=FONT, color="1B7A43", bold=True))
+fill_rule(ca, f"R2:R{MAX}", '$R2="À changer"', "FDE2E7", Font(name=FONT, color="B3261E", bold=True))
+fill_rule(ca, f"R2:R{MAX}", '$R2="Appliqué"', "EDEAF5", Font(name=FONT, color="6B6290"))
 
 def common_rules(ws, n, id_col, status_col, auto_col, upd_col, last_col):
     rng = f"A2:{last_col}{MAX}"
@@ -294,6 +308,26 @@ dv_list(gl, "F2:F500", REF["Animation"], "Illustration animée dans le glossaire
 fill_rule(gl, "C2:C500", 'AND($A2<>"",$C2="")', "FFF1D6")
 for cat, color in KW_COLOR.items():
     fill_rule(gl, "B2:B500", f'$B2="{cat}"', "FFFFFF", Font(name=FONT, color=color, bold=True))
+
+# ---------- Guide de style des textes ----------
+STYLE = [
+    ("Icônes", "💰 gold · 🧠 sentience · 🌀 trou noir · 🎲 dé · ⏱ durée · 🔒 déplacée seulement avec l'accord de son possesseur."),
+    ("Ordre", "Coût → 🧠 / 🌀 → « Si … : » → effet → « Puis … »."),
+    ("Coût", "« Coût : 10 💰. » en tête. Payé à chaque fois que la carte se joue, même si l'effet échoue."),
+    ("Ressources", "« 🌀 → Quasar. » / « 🧠 → vraie. » = votre trou noir / votre sentience passe à cette valeur."),
+    ("Phrases", "Impératif, une action par phrase. « Vous » = le lanceur."),
+    ("Durées", "(⏱ fin du tour) · (⏱ fin de votre prochain tour) · (⏱ début du prochain tour de ce joueur) · (⏱ toujours) = jusqu'à nouvel ordre."),
+    ("Hasard", "« 1 chance sur 2 » ; « 🎲 1d6, sur un 6 … » pour un vrai dé."),
+    ("Passifs", "« Passif — À l'arrivée : … » / « Chaque fois que … : … »."),
+    ("Choix", "« Au choix : » puis une liste « - »."),
+    ("Longueur", "3 lignes max. Les exceptions vont dans « Précisions (règles) »."),
+    ("Mots-clés", "Les mots du Glossaire tels quels (colorés dans le jeu) : poser, défausser, désactiver, piocher, dépenser…"),
+    ("Valider", "Cartes, colonnes Q-S : « Validé » → le texte simplifié remplace la description à la mise à jour suivante. « À changer » → remarque."),
+]
+sg = sheet("Guide de style", ["Règle", "Comment écrire"], [24, 120], "1B7A43")
+for r in STYLE:
+    sg.append(list(r))
+body(sg, len(STYLE), 2)
 
 # ---------- Interprétations ----------
 # Les choix faits par Claude quand le texte d'une carte peut se lire de plusieurs façons.
@@ -369,6 +403,7 @@ line("Mots en couleur", "Les mots listés dans « Mots reconnus » du glossaire 
 line("Tags", "Oui / Non pour 🧠 Sentience, 💰 Gold, 🌀 Trou noir.", "k")
 line("Déclenchement", "Activation : s'applique pendant la phase 1 et quand on pose la carte. Passif : réagit à un événement (colonne « Événement passif »).", "k")
 line("Précisions (règles)", "Comment la carte est interprétée dans le jeu. Claude y note ses choix quand le texte peut se lire de plusieurs façons.", "k")
+line("Texte simplifié", "Onglet Cartes, colonnes Q à S : proposition de texte plus clair. Mets « Validé » pour qu'il remplace la description, ou « À changer » avec une remarque. Les règles d'écriture sont dans l'onglet « Guide de style ».", "k")
 line("Interprétations", "Chaque choix d'interprétation de Claude, à relire. Mets « Validée » si c'est bon, ou « À changer » avec ta réponse dans la dernière colonne, puis envoie le classeur à Claude.", "k")
 line("Image", "Nom du fichier image de la carte (ex. GOB-01.png). Envoie les nouvelles images avec le classeur.", "k")
 row += 1
@@ -395,15 +430,18 @@ for name, desc in [("Decks", "Un deck par ligne, avec les compteurs et la vérif
                    ("Listes", "Les valeurs des menus déroulants. Ajoute une valeur en bas d'une colonne pour la proposer.")]:
     line(name, desc, "k")
 
-if prompt_rows:
-    pr = wb.create_sheet("Prompt")
-    for r in prompt_rows:
-        pr.append(list(r))
-    pr.column_dimensions["A"].width = 140
-    for row in pr.iter_rows():
-        for c in row:
-            c.alignment = Alignment(wrap_text=True, vertical="top")
-            c.font = Font(name=FONT, size=10)
+pr = wb.create_sheet("Prompt")
+pr.sheet_properties.tabColor = "E0457B"
+pr.append([PROMPT_HEAD])
+pr.cell(row=1, column=1).fill = PatternFill("solid", fgColor="3B2A6B")
+for r in prompt_rows:
+    pr.append(list(r))
+pr.column_dimensions["A"].width = 140
+for row in pr.iter_rows():
+    for c in row:
+        c.alignment = Alignment(wrap_text=True, vertical="top")
+        c.font = Font(name=FONT, size=10)
+pr.cell(row=1, column=1).font = Font(name=FONT, size=11, bold=True, color="FFFFFF")
 wb.move_sheet("Listes", offset=len(wb.sheetnames) - 1 - wb.sheetnames.index("Listes"))
 wb.active = 0
 wb.save(OUT)

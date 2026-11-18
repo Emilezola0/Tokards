@@ -7,7 +7,7 @@
 import { DEFAULT_REASON, REASONS } from "./reasons";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
-import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room, Until, Weather, Zone } from "../game/types";
+import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room, TrailStep, Until, Weather, Zone } from "../game/types";
 import { BH_SYMBOL, BLACK_HOLES, blackHoleLabel, weatherIcon, weatherLabel } from "../game/types";
 import { SCRIPTS } from "./scripts";
 import "../game/victory";
@@ -109,6 +109,19 @@ export class Ctx {
   public preview: Prompt[] | null = null;
 
   constructor(public room: Room, public g: GameState, private answers: string[], public rolls: number[]) {}
+  /** Choix déjà faits pendant cette action, en clair (aide affichée pendant les choix suivants). */
+  trail: TrailStep[] = [];
+  private answerLabel(p: Prompt, a: unknown): string {
+    const cards = (ids: unknown) => (Array.isArray(ids) ? ids.map((c) => `« ${card(String(c)).name} »`).join(", ") : "");
+    switch (p.kind) {
+      case "player": return this.p(String(a)) ? this.name(String(a)) : "personne";
+      case "option": return p.options[Number(a)] ?? "—";
+      case "number": return String(a);
+      case "cards": return !Array.isArray(a) || !a.length ? (p.max === 0 ? "vu" : "aucune") : p.blind ? `${a.length} carte(s) cachée(s)` : cards(a);
+      case "order": return "ordre choisi";
+      case "slot": return `place ${Number(a) + 1} chez ${this.name(p.uid)}`;
+    }
+  }
 
   // ----- lecture -----
   name = (uid: string) => E.nameOf(this.room, uid);
@@ -228,7 +241,11 @@ export class Ctx {
   private ask<T>(prompt: Prompt): T {
     if (!prompt.cardId && this.source) prompt = { ...prompt, cardId: this.source };
     if (this.forcedRandom.includes(prompt.chooser) && !this.preview) return this.randomAnswer(prompt) as T;
-    if (this.ai < this.answers.length) return JSON.parse(this.answers[this.ai++]) as T;
+    if (this.ai < this.answers.length) {
+      const a = JSON.parse(this.answers[this.ai++]) as T;
+      if (!this.preview) this.trail.push({ card: prompt.cardId ?? "", chooser: prompt.chooser, text: prompt.text, label: this.answerLabel(prompt, a) });
+      return a;
+    }
     if (this.preview) {
       this.preview.push(prompt);
       return defaultAnswer(prompt) as T;
@@ -996,6 +1013,10 @@ export class Ctx {
         this.log(`⛵ Voile : « ${card(id).name} » se joue une deuxième fois.`, { src: "PIR-08", dst: id });
         this.activateCard(id, this.current);
       }
+      // Une carte à la fois : l'action s'arrête ici, ses effets (et ses animations) sont validés avant que la carte
+      // suivante ne pose ses questions. L'interface relance l'activation pour la carte suivante.
+      if (g.phase === "activation" && !E.nextActivation(g)) E.setPhase(g, "action");
+      return;
     }
   }
 }
@@ -1074,7 +1095,7 @@ export function runEffect(room: Room, action: EffectAction | null, answer?: unkn
     room.game = work;
   } catch (e) {
     if (!(e instanceof NeedChoice)) throw e;
-    base.pending = { action: act, answers, rolls: x.rolls, prompt: e.prompt };
+    base.pending = { action: act, answers, rolls: x.rolls, prompt: e.prompt, trail: x.trail };
     room.game = base;
   } finally {
     E.RNG.next = prev;

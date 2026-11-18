@@ -65,10 +65,10 @@ function seats(n: number, W: number, H: number): Seat[] {
       const dl = Math.hypot(dx, dy) || 1;
       dx /= dl;
       dy /= dl;
-      const exit = Math.min(Math.abs(dx) > 1e-6 ? hx / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-6 ? hy / Math.abs(dy) : Infinity);
-      const half = Math.min(Math.abs(dx) > 1e-6 ? GW / 2 / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-6 ? GH / 2 / Math.abs(dy) : Infinity);
-      const gx = x + dx * (exit + 6 + half);
-      const gy = y + dy * (exit + 6 + half);
+      // Plus petite distance (le long de ce trajet) qui sépare la jauge du plateau, + une petite marge.
+      const sep = Math.min(Math.abs(dx) > 1e-6 ? (hx + GW / 2) / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-6 ? (hy + GH / 2) / Math.abs(dy) : Infinity) + 6;
+      const gx = x + dx * sep;
+      const gy = y + dy * sep;
       out.push({ x, y, rot, s, gx, gy });
       boxes.push([x - hx, y - hy, x + hx, y + hy]);
       boxes.push([gx - GW / 2, gy - GH / 2, gx + GW / 2, gy + GH / 2]);
@@ -157,6 +157,15 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   }, []);
 
   // ----- Déroulé automatique du tour (exécuté par le client du joueur actif) -----
+  // Son « c'est ton tour » : seulement chez le joueur dont c'est le tour.
+  const turnKey = useRef("");
+  useEffect(() => {
+    const k = `${g.round}-${g.turn}`;
+    if (turnKey.current === k) return;
+    const first = turnKey.current === "";
+    turnKey.current = k;
+    if (!first && isPlayer && current === uid && room.status === "playing") sfx.myTurn();
+  }, [g.round, g.turn, current, uid, isPlayer, room.status]);
   const autoKey = useRef("");
   const autoEnd = auto && (g.lastPlayed == null || isAutomated(g.lastPlayed));
   useEffect(() => {

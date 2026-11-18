@@ -2,7 +2,7 @@ import { useEffect, useState, type DragEvent } from "react";
 import KwText from "./KwText";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
-import type { GameState, Prompt, Room } from "../game/types";
+import type { GameState, Prompt, Room, TrailStep } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
 import CardView from "./CardView";
 import type { PickState } from "./PlayerBoard";
@@ -53,6 +53,26 @@ export function useTablePick(g: GameState, prompt: Prompt | null, onAnswer: (a: 
   return { pick, picked, setPicked, sent, answer };
 }
 
+/** Choix déjà faits pour la même carte (même chaîne d'effets), et numéro du choix en cours. */
+export function TrailInfo({ g, prompt }: { g: GameState; prompt: Prompt }) {
+  const trail: TrailStep[] = g.pending?.trail ?? [];
+  // Derniers choix consécutifs demandés par la même carte.
+  const same: TrailStep[] = [];
+  for (let i = trail.length - 1; i >= 0 && trail[i].card === (prompt.cardId ?? ""); i--) same.unshift(trail[i]);
+  return (
+    <div className="trail">
+      <span className="trail-step">Choix n° {same.length + 1}{prompt.cardId ? ` de « ${card(prompt.cardId).name} »` : ""}</span>
+      {same.length > 0 && (
+        <ol className="trail-list">
+          {same.map((t, i) => (
+            <li key={i} title={t.text}><span className="muted">{t.text.replace(/\s*\(.*\)\s*$/, "")}</span> → <b>{t.label}</b></li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
 /** Panneau ancré en bas de la table : question, carte d'origine, validation (choix multiples). */
 export function ChoiceDock({ room, g, prompt, pick, answer, onCard }: {
   room: Room; g: GameState; prompt: Prompt; pick: PickState; answer: (a: unknown) => void; onCard: (id: string) => void;
@@ -80,6 +100,7 @@ export function ChoiceDock({ room, g, prompt, pick, answer, onCard }: {
         </div>
         {!hide && (
           <>
+            <TrailInfo g={g} prompt={prompt} />
             {prompt.cardId && <p className="small dock-text"><b>{card(prompt.cardId).name} :</b> <KwText text={card(prompt.cardId).text} /></p>}
             <p className="small muted">{hint}</p>
             {prompt.kind === "slot" && (
@@ -104,7 +125,14 @@ export function ChoiceDock({ room, g, prompt, pick, answer, onCard }: {
             )}
             {multi && prompt.kind === "cards" && (
               <div className="row">
-                <span className="small muted">{prompt.max === 0 ? "Regarde les cartes puis continue." : `${picked.length} sélectionnée(s) — min ${prompt.min}, max ${prompt.max}`}</span>
+                <span className="small muted pick-count">
+                  {prompt.max === 0 ? "Regarde les cartes puis continue." : (
+                    <>
+                      <span><b>{picked.length} / {prompt.max}</b> sélectionnée(s){prompt.min > 0 ? ` (au moins ${prompt.min})` : " (facultatif)"}</span>
+                      <span className="pick-bar"><span style={{ width: `${(100 * picked.length) / Math.max(1, prompt.max)}%` }} /></span>
+                    </>
+                  )}
+                </span>
                 <button className="primary" disabled={picked.length < prompt.min} onClick={() => answer(picked)}>
                   {prompt.max === 0 ? "Continuer" : picked.length === 0 ? "Ne rien choisir" : "Valider"}
                 </button>
@@ -121,6 +149,7 @@ export function ChoiceDock({ room, g, prompt, pick, answer, onCard }: {
 export default function ChoiceModal({ room, prompt, onAnswer, onCard }: {
   room: Room; prompt: Prompt; onAnswer: (a: unknown) => void; onCard: (id: string) => void;
 }) {
+  const g = room.game;
   const [num, setNum] = useState(prompt.kind === "number" ? prompt.min : 0);
   const [order, setOrder] = useState<string[]>(prompt.kind === "order" ? prompt.options : []);
   const [dragging, setDragging] = useState<string | null>(null);
@@ -215,6 +244,7 @@ export default function ChoiceModal({ room, prompt, onAnswer, onCard }: {
             </aside>
           )}
           <div className="choice-main">
+            {g && <TrailInfo g={g} prompt={prompt} />}
             <h2>{prompt.text}</h2>
             {sent ? <p className="muted">Envoi…</p> : body}
           </div>

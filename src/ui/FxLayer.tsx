@@ -307,7 +307,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
     switch (f.k) {
       case "turn": {
         await hideCenter(speed);
-        sfx.turn();
+        if (f.uid !== me) sfx.turn();
         setTurn({ name: E.nameOf(room, f.uid), color: colorOf(f.uid), key: f.id, mine: f.uid === me });
         await wait(1500 * Math.max(speed, 0.6));
         setTurn(null);

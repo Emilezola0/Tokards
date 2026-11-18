@@ -705,6 +705,12 @@ button.danger:hover { border-color: var(--bad); }
 .deck-kw { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
 .deck-kw i { font-style: normal; font-size: 9px; padding: 1px 6px; border-radius: 99px; background: #ffd23f1f; color: #ffd23f; border: 1px solid #ffd23f55; }
 .deck-kw.big { justify-content: flex-start; }
+.trail { display: grid; gap: 3px; margin: 2px 0 4px; }
+.trail-step { justify-self: start; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: #ffd23f22; color: #ffd23f; border: 1px solid #ffd23f55; }
+.trail-list { margin: 0; padding-left: 18px; font-size: 11px; display: grid; gap: 1px; }
+.pick-count { display: inline-grid; gap: 3px; min-width: 160px; }
+.pick-bar { display: block; height: 4px; border-radius: 2px; background: #ffffff1c; overflow: hidden; }
+.pick-bar > span { display: block; height: 100%; background: var(--accent); transition: width 0.2s; }
 .mods { display: grid; gap: 4px; }
 .mod { border-radius: 8px; padding: 4px 8px; background: var(--panel2); border-left: 3px solid var(--muted); }
 .mod summary { cursor: pointer; font-size: 12px; font-weight: 600; }
