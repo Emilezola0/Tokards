@@ -212,18 +212,21 @@ def rich(text):
 # ---------- Cartes ----------
 ch = ["ID", "Deck", "Nom", "🧠 Sentience", "💰 Gold", "🌀 Trou noir", "Déclenchement", "Événement passif", "Cible",
       "Description", "Précisions (règles)", "Image", "Statut", "Automatisation", "À mettre à jour", "Notes / changements",
-      "Texte simplifié", "Validation texte", "Remarque sur le texte"]
-ca = sheet("Cartes", ch, [10, 18, 26, 10, 9, 10, 13, 20, 18, 60, 55, 14, 12, 15, 11, 36, 60, 14, 36], "FFB300")
+      "Texte simplifié", "Validation texte", "Remarque sur le texte", "Texte d'origine"]
+ca = sheet("Cartes", ch, [10, 18, 26, 10, 9, 10, 13, 20, 18, 60, 55, 14, 12, 15, 11, 36, 60, 14, 36, 60], "FFB300")
 for c in cards:
     # Texte simplifié validé : il remplace la description (et la proposition est vidée).
+    # L'ancien texte est gardé dans « Texte d'origine » (le premier remplacé, pour pouvoir revenir en arrière).
     desc, simple, valid = get(c, "Description"), get(c, "Texte simplifié"), get(c, "Validation texte")
+    orig = get(c, "Texte d'origine")
     if simple and valid == "Validé":
+        orig = orig or desc
         desc, simple, valid = simple, "", "Appliqué"
     ca.append([c["ID"], c["Deck"], c["Nom"], get(c, "Sentience") or "Non", get(c, "Gold") or "Non", get(c, "Trou noir") or "Non",
                get(c, "Déclenchement"), get(c, "Événement passif"), get(c, "Cible"), desc,
                clean_rules(get(c, "Précisions")), get(c, "Image"), get(c, "Statut") or "À vérifier",
                AUTO_YES if c["ID"] in AUTO else AUTO_NO, "Non", "", simple, valid or ("À valider" if simple else ""),
-               get(c, "Remarque sur le texte")])
+               get(c, "Remarque sur le texte"), orig])
 nc = len(cards)
 body(ca, nc, len(ch), center=(1, 4, 5, 6, 7, 12, 13, 14, 15))
 for r in range(2, nc + 2):
@@ -403,7 +406,7 @@ line("Mots en couleur", "Les mots listés dans « Mots reconnus » du glossaire 
 line("Tags", "Oui / Non pour 🧠 Sentience, 💰 Gold, 🌀 Trou noir.", "k")
 line("Déclenchement", "Activation : s'applique pendant la phase 1 et quand on pose la carte. Passif : réagit à un événement (colonne « Événement passif »).", "k")
 line("Précisions (règles)", "Comment la carte est interprétée dans le jeu. Claude y note ses choix quand le texte peut se lire de plusieurs façons.", "k")
-line("Texte simplifié", "Onglet Cartes, colonnes Q à S : proposition de texte plus clair. Mets « Validé » pour qu'il remplace la description, ou « À changer » avec une remarque. Les règles d'écriture sont dans l'onglet « Guide de style ».", "k")
+line("Texte simplifié", "Onglet Cartes, colonnes Q à S : proposition de texte plus clair. Mets « Validé » pour qu'il remplace la description, ou « À changer » avec une remarque. L'ancien texte est gardé en colonne T (« Texte d'origine »). Les règles d'écriture sont dans l'onglet « Guide de style ».", "k")
 line("Interprétations", "Chaque choix d'interprétation de Claude, à relire. Mets « Validée » si c'est bon, ou « À changer » avec ta réponse dans la dernière colonne, puis envoie le classeur à Claude.", "k")
 line("Image", "Nom du fichier image de la carte (ex. GOB-01.png). Envoie les nouvelles images avec le classeur.", "k")
 row += 1

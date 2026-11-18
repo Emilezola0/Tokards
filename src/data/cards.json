@@ -596,7 +596,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Votre sentience passe à vraie. Elle passe à fausse quand cette carte est défaussée.",
+   "text": "🧠 → vraie.\nQuand cette carte est défaussée : 🧠 → fausse.",
    "rules": "",
    "image": "BASE-01.png"
   },
@@ -614,7 +614,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, votre trou noir passe en Blazard ; sinon, en Trou de ver.",
+   "text": "Si 🧠 vraie : 🌀 → Blazard ; sinon 🌀 → Trou de ver.",
    "rules": "",
    "image": "BASE-02.jpg"
   },
@@ -632,7 +632,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 5 gold, puis lancez un d6 :\n1 : rien\n2 : Trou de ver\n3 : Quasar\n4 : Blazard\n5 : Primordial\n6 : le trou noir de votre choix",
+   "text": "Coût : 5 💰.\n🎲 1d6 : 1 rien · 2 Trou de ver · 3 Quasar · 4 Blazard · 5 Primordial · 6 au choix.",
    "rules": "",
    "image": "BASE-03.jpg"
   },
@@ -650,7 +650,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Inversez votre sentience.",
+   "text": "Inversez votre 🧠.",
    "rules": "",
    "image": "BASE-04.png"
   },
@@ -668,7 +668,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagnez autant de gold que le joueur le plus pauvre en possède.",
+   "text": "Gagnez autant de 💰 que le joueur le plus pauvre.",
    "rules": "",
    "image": "BASE-05.jpg"
   },
@@ -686,7 +686,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Votre trou noir prend l'état de celui du joueur de votre choix.",
+   "text": "Ciblez un joueur : votre 🌀 prend l'état du sien.",
    "rules": "",
    "image": "BASE-06.jpg"
   },
@@ -704,7 +704,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous et la cible choisissez chacun une carte de votre main, puis échangez-les.",
+   "text": "Ciblez un joueur : chacun choisit une carte de sa main, puis vous les échangez.",
    "rules": "",
    "image": ""
   },
@@ -722,7 +722,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Blazard, gagnez 20 gold ; sinon, passez votre sentience à fausse.",
+   "text": "Si 🌀 Blazard : gagnez 20 💰 ; sinon 🧠 → fausse.",
    "rules": "",
    "image": ""
   },
@@ -758,7 +758,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si vous avez gagné des gold pendant ce tour avant cet effet, passez votre sentience à vraie.",
+   "text": "Si vous avez gagné des 💰 plus tôt dans ce tour : 🧠 → vraie.",
    "rules": "",
    "image": ""
   },
@@ -776,7 +776,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Votre trou noir passe en Blazard, puis lancez un d2 : 1 : perdez 10 gold ; 2 : gagnez 10 gold.",
+   "text": "🌀 → Blazard.\n🎲 1d2 : 1 perdez 10 💰 · 2 gagnez 10 💰.",
    "rules": "",
    "image": ""
   },
@@ -794,7 +794,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Votre sentience prend l'état le moins répandu parmi les joueurs.",
+   "text": "Votre 🧠 prend l'état le moins répandu parmi les joueurs.",
    "rules": "",
    "image": ""
   },
@@ -812,7 +812,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Primordial, passez votre sentience à fausse.",
+   "text": "Si 🌀 Primordial : 🧠 → fausse.",
    "rules": "",
    "image": ""
   },
@@ -830,7 +830,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Donnez 20 gold à la cible, puis piochez une carte dans sa pioche.",
+   "text": "Ciblez un joueur : donnez-lui 20 💰, puis piochez une carte dans sa pioche.",
    "rules": "",
    "image": ""
   },
@@ -848,7 +848,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold : votre trou noir passe en Quasar.",
+   "text": "Coût : 10 💰. 🌀 → Quasar.",
    "rules": "Sans 10 gold, l'effet échoue.",
    "image": "GOB-01.jpg"
   },
@@ -866,7 +866,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 15 gold (0 gold si votre trou noir est Trou de ver) : prenez une carte au hasard dans votre défausse et mettez-la au fond de votre pioche.",
+   "text": "Coût facultatif : 15 💰 (0 si 🌀 Trou de ver).\nMettez une carte au hasard de votre défausse au fond de votre pioche.",
    "rules": "Optionnel : le joueur choisit de payer (15, ou 0 en Trou de ver). Une carte au hasard de la défausse va au fond de la pioche.",
    "image": "GOB-02.jpg"
   },
@@ -884,7 +884,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Volez à la cible 2 gold par carte sur son terrain.",
+   "text": "Ciblez un joueur : volez-lui 2 💰 par carte de son terrain.",
    "rules": "Cible : un adversaire au choix ayant au moins 1 carte sur son terrain et des gold. Vol limité à ce qu'il possède.",
    "image": "GOB-03.jpg"
   },
@@ -902,7 +902,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque joueur gagne 5 gold ; vous et votre équipe gagnez 10 gold à la place.",
+   "text": "Chaque joueur gagne 5 💰 ; vous et votre équipe, 10 💰 à la place.",
    "rules": "Les joueurs hors de l'équipe du lanceur gagnent 5 ; le lanceur et ses coéquipiers gagnent 10 (pas 15).",
    "image": "GOB-04.jpg"
   },
@@ -920,7 +920,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous et votre équipe : inversez votre sentience et cyclez votre trou noir (Primordial → Quasar → Trou de ver → Blazard). Ne s'applique pas à vous si vous avez gagné des gold au tour précédent.",
+   "text": "Vous et votre équipe : inversez votre 🧠 et cyclez votre 🌀 (Primordial → Quasar → Trou de ver → Blazard).\nPas pour vous si vous avez gagné des 💰 au tour précédent.",
    "rules": "S'applique à chaque membre de l'équipe du lanceur. Seul le lanceur est soumis à la condition : s'il a gagné des gold depuis le début de son tour précédent, il est ignoré.",
    "image": "GOB-05.jpg"
   },
@@ -938,7 +938,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Quasar, tous les joueurs passent leur sentience à fausse ; sinon, à vraie.",
+   "text": "Si 🌀 Quasar : 🧠 de tous → fausse ; sinon 🧠 de tous → vraie.",
    "rules": "« Votre trou noir » = celui du lanceur.",
    "image": "GOB-06.jpg"
   },
@@ -956,7 +956,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Toutes les cartes Trou noir de tous les terrains vont dans votre pioche et deviennent les vôtres, puis mélangez votre pioche.",
+   "text": "Toutes les cartes Trou noir des terrains vont dans votre pioche et deviennent les vôtres.\nPuis mélangez votre pioche.",
    "rules": "Toutes les cartes 🌀 de tous les terrains (y compris celle-ci) rejoignent la pioche du lanceur et lui appartiennent désormais.",
    "image": "GOB-07.jpg"
   },
@@ -992,7 +992,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Échangez une carte Gold du terrain de la cible avec une carte Gold de votre terrain.",
+   "text": "Ciblez un joueur : échangez une carte Gold de son terrain avec une carte Gold du vôtre.",
    "rules": "Les deux cartes échangent exactement leurs places (terrain et position).",
    "image": "GOB-09.jpg"
   },
@@ -1010,7 +1010,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Primordial : passez votre sentience à vraie, gagnez 20 gold et défaussez une carte de votre main.",
+   "text": "Si 🌀 Primordial : 🧠 → vraie, gagnez 20 💰 et défaussez une carte de votre main.",
    "rules": "Si la main est vide, on ne défausse rien.",
    "image": "GOB-10.jpg"
   },
@@ -1028,7 +1028,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir n'est pas Blazard : la cible mélange sa main, vous y prenez une carte face cachée et la mettez au fond de votre pioche. Votre trou noir passe en Primordial, puis défaussez cette carte.",
+   "text": "Si 🌀 n'est pas Blazard : ciblez un joueur, il mélange sa main ; prenez-y une carte face cachée et mettez-la au fond de votre pioche.\n🌀 → Primordial. Puis défaussez cette carte.",
    "rules": "La main de la cible est mélangée puis le lanceur choisit une carte face cachée. La carte volée appartient désormais au lanceur. Le trou noir qui passe en Primordial est celui du lanceur. La cible est choisie parmi tous les joueurs, lanceur compris, quand la carte ne précise pas.",
    "image": "GOB-11.jpg"
   },
@@ -1046,7 +1046,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Trou de ver, réorganisez librement votre terrain.",
+   "text": "Si 🌀 Trou de ver : réorganisez votre terrain.",
    "rules": "Le joueur réorganise son terrain en glissant les cartes.",
    "image": "GOB-12.jpg"
   },
@@ -1064,7 +1064,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez autant de cartes de votre terrain que vous voulez et gagnez 10 gold par carte défaussée.",
+   "text": "Défaussez autant de cartes de votre terrain que vous voulez : gagnez 10 💰 par carte.",
    "rules": "0 carte choisie = effet impossible. Peut se défausser elle-même.",
    "image": "GOB-13.jpg"
   },
@@ -1082,7 +1082,7 @@
    "event": "Sentience change",
    "target": "",
    "check": "",
-   "text": "À chaque fois que votre sentience passe à fausse : votre trou noir passe en Quasar et piochez une carte dans la pioche de votre choix.\nÀ chaque fois que votre sentience passe à vraie : gagnez 10 gold.",
+   "text": "Passif — 🧠 → fausse : 🌀 → Quasar et piochez une carte dans la pioche de votre choix.\n🧠 → vraie : gagnez 10 💰.",
    "rules": "Passif, uniquement quand la carte est sur le terrain. « Pioche de votre choix » = la pioche de n'importe quel joueur.",
    "image": "GOB-14.jpg"
   },
@@ -1100,7 +1100,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque autre joueur, dans l'ordre du tour, peut vous proposer un prix (au moins 1 gold). Si vous acceptez, il vous donne ce prix et vous choisissez son nouveau trou noir (différent de l'actuel).",
+   "text": "Chaque autre joueur, dans l'ordre, peut vous proposer un prix (1 💰 minimum).\nSi vous acceptez : il vous paie et vous choisissez son nouveau 🌀 (différent de l'actuel).",
    "rules": "Dans l'ordre du tour, chaque autre joueur propose un prix (0 = passer). Le lanceur accepte ou refuse ; s'il accepte, le joueur paie et le lanceur choisit son nouveau trou noir (différent de l'actuel). Puis on passe au joueur suivant.",
    "image": "GOB-15.png"
   },
@@ -1118,7 +1118,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Piochez 6 cartes, défaussez une carte de votre main, puis défaussez cette carte.",
+   "text": "Piochez 6 cartes, défaussez une carte de votre main.\nPuis défaussez cette carte.",
    "rules": "Pioche 6, défausse 1 carte de la main, puis cette carte est défaussée.",
    "image": "GOB-16.webp"
   },
@@ -1136,7 +1136,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cyclez le trou noir de tous les joueurs (Primordial → Quasar → Blazard → Trou de ver).",
+   "text": "Cyclez le 🌀 de tous les joueurs (Primordial → Quasar → Blazard → Trou de ver).",
    "rules": "Ordre du cycle tel qu'écrit : Primordial → Quasar → Blazard → Trou de ver.",
    "image": "GOB-17.jpg"
   },
@@ -1154,7 +1154,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Échangez vos cartes Sentience avec les cartes Gold du terrain de la cible, une par une. Les cartes sans correspondance vont à la fin de l'autre terrain.",
+   "text": "Ciblez un joueur : échangez une par une vos cartes Sentience avec les cartes Gold de son terrain.\nLes cartes sans paire vont à la fin de l'autre terrain.",
    "rules": "La 1re carte 🧠 du lanceur prend la place de la 1re carte 💰 de la cible et inversement, puis la 2e avec la 2e, etc. Les cartes sans correspondance vont à la fin de l'autre terrain en gardant leur ordre. La cible est choisie parmi tous les joueurs, lanceur compris.",
    "image": "GOB-18.jpg"
   },
@@ -1172,7 +1172,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Blazard, gagnez 50 gold ; sinon, dépensez 10 gold.",
+   "text": "Si 🌀 Blazard : gagnez 50 💰 ; sinon dépensez 10 💰.",
    "rules": "Hors Blazard : sans 10 gold, l'effet échoue.",
    "image": "GOB-19.jpg"
   },
@@ -1190,7 +1190,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Inversez la sentience de tous les joueurs.",
+   "text": "Inversez la 🧠 de tous les joueurs.",
    "rules": "",
    "image": "GOB-20.jpg"
   },
@@ -1208,7 +1208,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez toutes les cartes Gold de votre terrain, choisissez votre trou noir et votre sentience, puis défaussez cette carte.",
+   "text": "Défaussez toutes les cartes Gold de votre terrain.\nChoisissez votre 🌀 et votre 🧠. Puis défaussez cette carte.",
    "rules": "Les cartes 💰 du terrain du lanceur (sauf celle-ci) sont défaussées, puis il choisit trou noir et sentience, puis cette carte est défaussée.",
    "image": "GOB-21.jpg"
   },
@@ -1226,7 +1226,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "La cible choisit une carte de votre main et la prend. Gagnez 40 gold, puis défaussez cette carte.",
+   "text": "Ciblez un joueur : il prend une carte de votre main. Gagnez 40 💰.\nPuis défaussez cette carte.",
    "rules": "La cible voit la main du lanceur et choisit la carte qu'elle reçoit.",
    "image": "GOB-22.jpg"
   },
@@ -1244,7 +1244,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Primordial ou Blazard : gagnez 30 gold et mettez une carte de votre main au fond de votre pioche.\nSinon : gagnez 10 gold et piochez une carte.",
+   "text": "Si 🌀 Primordial ou Blazard : gagnez 30 💰 et mettez une carte de votre main au fond de votre pioche.\nSinon : gagnez 10 💰 et piochez une carte.",
    "rules": "",
    "image": "GOB-23.jpg"
   },
@@ -1262,7 +1262,7 @@
    "event": "Trou noir change",
    "target": "",
    "check": "",
-   "text": "À chaque fois que votre trou noir passe en Primordial : passez votre sentience à vraie et gagnez 20 gold.",
+   "text": "Passif — 🌀 → Primordial : 🧠 → vraie et gagnez 20 💰.",
    "rules": "Passif, uniquement quand la carte est sur le terrain.",
    "image": "GOB-24.jpg"
   },
@@ -1280,7 +1280,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez toutes les cartes du terrain de la cible qui ont au moins 2 tags, puis défaussez cette carte.",
+   "text": "Ciblez un joueur : défaussez les cartes de son terrain qui ont au moins 2 tags.\nPuis défaussez cette carte.",
    "rules": "Les cartes vont dans la défausse de la cible (comme écrit), même si elles appartiennent à un autre joueur. La cible est choisie parmi tous les joueurs, lanceur compris (la carte elle-même exclue).",
    "image": "GOB-25.jpg"
   },
@@ -1298,7 +1298,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Volez une carte du terrain de la cible qui a exactement les tags Sentience et Trou noir, et mettez-la dans votre main.",
+   "text": "Ciblez un joueur : volez une carte de son terrain avec exactement les tags Sentience et Trou noir. Elle va dans votre main.",
    "rules": "Exactement 🧠🌀, sans 💰. La carte volée appartient désormais au lanceur. La cible est choisie parmi tous les joueurs, lanceur compris, quand la carte ne précise pas.",
    "image": "GOB-26.jpg"
   },
@@ -1316,7 +1316,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Au choix :\n- défaussez une carte uniquement Gold du terrain de la cible ;\n- posez une carte uniquement Gold de votre main sur le terrain de la cible, à la place de votre choix.",
+   "text": "Ciblez un joueur. Au choix :\n- défaussez une carte uniquement Gold de son terrain ;\n- posez une carte uniquement Gold de votre main sur son terrain, où vous voulez.",
    "rules": "« Uniquement Gold » = seul tag 💰. Le lanceur choisit l'option, puis le terrain (n'importe quel joueur), puis la carte, puis (pour la pose) sa place sur le terrain.",
    "image": "GOB-27.jpg"
   },
@@ -1334,7 +1334,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 20 gold pour cycler votre trou noir (Primordial → Trou de ver → Quasar → Blazard). Répétez autant de fois que vous voulez.",
+   "text": "Autant de fois que vous voulez : dépensez 20 💰 pour cycler votre 🌀 (Primordial → Trou de ver → Quasar → Blazard).",
    "rules": "Le joueur confirme chaque cycle (20 gold) tant qu'il peut payer. Cycle : Primordial → Trou de ver → Quasar → Blazard.",
    "image": "GOB-28.jpg"
   },
@@ -1352,7 +1352,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cyclez le trou noir de la cible (Primordial → Blazard → Trou de ver → Quasar).",
+   "text": "Ciblez un joueur : cyclez son 🌀 (Primordial → Blazard → Trou de ver → Quasar).",
    "rules": "Cycle : Primordial → Blazard → Trou de ver → Quasar. La cible est choisie parmi tous les joueurs, lanceur compris, quand la carte ne précise pas.",
    "image": "GOB-29.jpg"
   },
@@ -1370,7 +1370,7 @@
    "event": "Permanent (tant que sur le terrain)",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est sur votre terrain, les cartes qui devraient aller dans votre défausse vont au fond de votre pioche.",
+   "text": "Passif — Tant qu'elle est sur votre terrain, vos cartes qui devraient aller dans votre défausse vont au fond de votre pioche.",
    "rules": "Règle permanente : les cartes qui iraient dans la défausse du joueur qui a l'Hôpital sur son terrain vont au fond de SA pioche.",
    "image": "GOB-30.jpg"
   },
@@ -1388,7 +1388,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez un d2. Sur un 2 : défaussez la première carte du terrain de la cible, puis la cible mélange sa pioche, puis sa défausse (séparément).",
+   "text": "🎲 1d2, sur un 2 : ciblez un joueur, défaussez la première carte de son terrain ; il mélange sa pioche, puis sa défausse.",
    "rules": "Une chance sur deux : l'effet n'a lieu que sur un 2. La première carte va dans la défausse de la cible ; sa pioche et sa défausse sont mélangées chacune de leur côté.",
    "image": "GOB-31.jpg"
   },
@@ -1406,7 +1406,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 50 gold pour défausser une carte de n'importe quel terrain.",
+   "text": "Coût facultatif : 50 💰.\nDéfaussez une carte de n'importe quel terrain.",
    "rules": "Optionnel. N'importe quelle carte de n'importe quel terrain (sauf celle-ci).",
    "image": "GOB-32.jpg"
   },
@@ -1424,7 +1424,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagne autant de gold qu'il te manque pour en avoir autant que le plus riche, puis place cette carte dans la pioche du joueur le plus pauvre et mélange la",
+   "text": "Passif — Gagnez les 💰 qui vous manquent pour égaler le plus riche.\nPuis mélangez cette carte dans la pioche du joueur le plus pauvre.",
    "rules": "",
    "image": ""
   },
@@ -1442,7 +1442,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Au choix, paye 5 gold pour jouer la prochaine carte deux fois",
+   "text": "Coût facultatif : 5 💰.\nLa prochaine carte se joue deux fois.",
    "rules": "",
    "image": ""
   },
@@ -1460,7 +1460,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Active l'effet de la carte la plus à gauche de chaque joueur ayant leur trou noir dans le même état que le tien",
+   "text": "Activez la première carte du terrain de chaque joueur qui a le même 🌀 que vous.",
    "rules": "",
    "image": ""
   },
@@ -1478,7 +1478,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Choisis un joueur qui a le même trou noir que toi, puis pointe une carte de sa main à l'aveugle, qu'il place de côté face cachée. Il devra la jouer à son tour. Après avoir joué cette carte, pose là dans la défausse du joueur choisi.",
+   "text": "Ciblez un joueur qui a le même 🌀 que vous : désignez à l'aveugle une carte de sa main, il la met de côté face cachée.\nIl doit la jouer à son tour, puis elle va dans sa défausse.",
    "rules": "",
    "image": ""
   },
@@ -1496,7 +1496,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pioche une carte à l'aveugle dans le jeu d'un joueur de ton choix, active son effet puis place là avec cette carte dans la défausse du joueur choisi.",
+   "text": "Ciblez un joueur : piochez à l'aveugle une carte de sa main et activez-la.\nPuis elle va dans sa défausse avec cette carte.",
    "rules": "",
    "image": ""
   },
@@ -1514,7 +1514,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Mélange toutes les cartes de ton terrain, en incluant cette carte, puis distribue les dans les défausse de tout les joueurs. Reconstitue ton terrain en prennant, dans l'ordre de jeu, des cartes dans les pioches des autres joueurs, en leur payant 2 gold pour chaque carte. Tu ne peux pas prendre plus de cartes que ce que tu peux payer, ni que tu n'avais sur ton terrain",
+   "text": "Mélangez votre terrain (cette carte comprise) et répartissez-le dans les défausses de tous les joueurs.\nPuis reconstituez votre terrain avec les pioches des autres, dans l'ordre du tour, en payant 2 💰 par carte (pas plus de cartes qu'avant ni que vous ne pouvez payer).",
    "rules": "",
    "image": ""
   },
@@ -1532,7 +1532,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lance un dé 100. Si il fait 100, tu peux valider une de tes conditions de Victoire pour ce tour-ci uniquement",
+   "text": "🎲 1d100, sur 100 : validez une de vos conditions de victoire pour ce tour.",
    "rules": "",
    "image": ""
   },
@@ -1550,7 +1550,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lance un dé:\n1: Laisse ton voisin de droite prendre une carte de ton terrain et la placer ou il le souhaite sur la table\n2: Rien\n3: Place dans son jeu la carte posée d'un joueur de ton choix\n4-5: Place dans sa défausse la carte posée d'un joueur de ton choix\n6: Place sur ton terrain la carte posée d'un joueur de ton choix",
+   "text": "🎲 1d6 :\n1 : votre voisin de droite prend une carte de votre terrain et la place où il veut ;\n2 : rien ;\n3 : une carte posée d'un joueur va dans sa pioche ;\n4-5 : une carte posée d'un joueur va dans sa défausse ;\n6 : une carte posée d'un joueur va sur votre terrain.",
    "rules": "",
    "image": ""
   },
@@ -1568,7 +1568,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Place cette carte sous celle d'un autre joueur. A chaque fois que son effet s'active, les effets te concernent. Le parasite se déplace avec la carte",
+   "text": "Passif — Placez cette carte sous une carte d'un autre joueur : quand elle s'active, ses effets vous concernent.\nLe parasite suit la carte.",
    "rules": "",
    "image": ""
   },
@@ -1586,7 +1586,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Choisis ou non de récuperer une carte de ton terrain dans ta main",
+   "text": "Vous pouvez reprendre une carte de votre terrain dans votre main.",
    "rules": "",
    "image": ""
   },
@@ -1604,7 +1604,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Jusqu'à ton prochain tour, pour chaque carte jouée, gagne 3 gold, pour chaque carte passée, perd 3 gold. A ton prochain tour, défausse cette carte",
+   "text": "Jusqu'à votre prochain tour : chaque carte jouée vous rapporte 3 💰, chaque carte passée vous coûte 3 💰.\nÀ votre prochain tour, défaussez cette carte.",
    "rules": "",
    "image": ""
   },
@@ -1622,7 +1622,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Choisis un joueur, puis place la première carte de ta pioche au plus à droite sur son terrain. Ce joueur doit vous payer 10 gold",
+   "text": "Ciblez un joueur : posez la première carte de votre pioche à la fin de son terrain. Il vous paie 10 💰.",
    "rules": "",
    "image": ""
   },
@@ -1640,7 +1640,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est posée et que votre trou noir est Primordial, pose la première carte de ta pioche sous chaque carte que tu poses. Quand la carte du dessus est retirée du terrain, révèle et pose celle du dessous.",
+   "text": "Passif — Si 🌀 Primordial : sous chaque carte que vous posez, mettez la première carte de votre pioche.\nQuand la carte du dessus quitte le terrain, celle du dessous est révélée et posée.",
    "rules": "",
    "image": ""
   },
@@ -1658,7 +1658,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Au choix, paye dix 10 gold pour mélanger l'ordre des cartes du terrain du joueur de ton choix",
+   "text": "Coût facultatif : 10 💰.\nCiblez un joueur : mélangez l'ordre de son terrain.",
    "rules": "",
    "image": ""
   },
@@ -1676,7 +1676,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si un joueur a le même nombre de gold, même sentience et même trou noir que toi : mélange vos deux pioches, redistibue les équitablement, puis défausse cette carte",
+   "text": "Si un joueur a les mêmes 💰, 🧠 et 🌀 que vous : mélangez vos deux pioches et partagez-les équitablement.\nPuis défaussez cette carte.",
    "rules": "",
    "image": ""
   },
@@ -1694,7 +1694,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est posée, toutes les cartes face cachées doivent être face visible, sauf les mains. (pioches inclues) A son tour, un joueur peut vous payer 50 gold pour défausser cette carte",
+   "text": "Passif — Toutes les cartes face cachée sont visibles, pioches comprises (pas les mains).\nÀ son tour, un joueur peut vous payer 50 💰 pour défausser cette carte.",
    "rules": "",
    "image": ""
   },
@@ -1712,7 +1712,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est sur ton terrain, les cartes qui doivent aller dans ta défausse peuvent aller dans la défausse d'un autre joueur",
+   "text": "Passif — Vos cartes qui doivent aller dans votre défausse peuvent aller dans celle d'un autre joueur.",
    "rules": "",
    "image": ""
   },
@@ -1730,7 +1730,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Choisis l'état de ton trou noir, puis place cette carte dans la défausse d'un autre joueur",
+   "text": "Choisissez votre 🌀.\nPuis cette carte va dans la défausse d'un autre joueur.",
    "rules": "",
    "image": ""
   },
@@ -1748,7 +1748,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lorsqu'un joueur essaye de modifier votre terrain (ajout, retrait, échange, ordre), empêche l'action, le joueur vous paye 50 gold. Si il n'a pas les gold, vole une carte de son terrain. Ensuite, défausse cette carte",
+   "text": "Passif — Quand un joueur veut modifier votre terrain (ajout, retrait, échange, ordre) : l'action est annulée et il vous paie 50 💰 (sinon, volez une carte de son terrain).\nPuis défaussez cette carte.",
    "rules": "",
    "image": ""
   },
@@ -1766,7 +1766,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si cette carte est parmi les 3 dernières cartes de votre terrain, gagnez 2 gold par autre joueur ; sinon, gagnez 1 gold par autre joueur.",
+   "text": "Gagnez 1 💰 par autre joueur (2 💰 si cette carte est parmi les 3 dernières de votre terrain).",
    "rules": "« Par autre joueur » = tous les joueurs de la partie sauf vous.",
    "image": "EMI-01.png"
   },
@@ -1784,7 +1784,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Volez une carte Sentience du terrain d'un autre joueur, activez son effet pour vous et posez-la sur votre terrain. Si ce joueur a encore une carte Sentience, choisissez-en une : son effet s'active pour lui.",
+   "text": "Ciblez un joueur : volez une carte Sentience de son terrain, activez-la pour vous et posez-la sur votre terrain.\nS'il lui reste une carte Sentience, choisissez-en une : elle s'active pour lui.",
    "rules": "",
    "image": "EMI-02.png"
   },
@@ -1802,7 +1802,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez 1d6 : sur un 1, cette carte part sur le terrain du joueur le plus pauvre. Sinon, changez une ressource de vous ou d'un allié : inverser la sentience, gagner ou perdre jusqu'à 20 gold, ou changer le trou noir.",
+   "text": "🎲 1d6, sur un 1 : cette carte va sur le terrain du joueur le plus pauvre.\nSinon, pour vous ou un allié, au choix : inversez la 🧠, gagnez ou perdez jusqu'à 20 💰, ou changez le 🌀.",
    "rules": "Le lanceur peut choisir sa propre ressource.",
    "image": "EMI-03.png"
   },
@@ -1820,7 +1820,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois que sa position change ou qu'une carte est posée sur son terrain, gagnez autant de gold que sa position (1, 2, 3…). Puis Thomas le train se décale d'une place vers la droite, si possible.",
+   "text": "Passif — Quand sa place change ou qu'une carte est posée sur son terrain : gagnez autant de 💰 que sa place (1, 2, 3…).\nPuis elle avance d'une place vers la droite, si possible.",
    "rules": "Le décalage vers la droite ne redéclenche pas l'effet.",
    "image": "EMI-04.png"
   },
@@ -1838,7 +1838,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez le dé : 30 % de chances de ramener l'Obélisque de la vérité et de passer votre sentience à vraie, 70 % de chances de ramener le Sanglier chasseur d'or et de passer votre sentience à fausse.\nRamener = poser la carte sur votre terrain, où qu'elle soit, sans activer son effet.",
+   "text": "🎲 3 chances sur 10 : ramenez l'Obélisque de la vérité et 🧠 → vraie.\nSinon : ramenez le Sanglier chasseur d'or et 🧠 → fausse.\n(Ramener = poser la carte sur votre terrain, d'où qu'elle vienne, sans son effet.)",
    "rules": "Le dé est un d10 : 1-3 = Obélisque, 4-10 = Sanglier.",
    "image": "EMI-05.png"
   },
@@ -1856,7 +1856,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : le joueur le plus riche lance un dé pour chaque carte Gold de son terrain, avec 1 chance sur 5 de la défausser. Puis défaussez cette carte.\nSentience fausse : le sanglier « mange » au prochain tour (tout de suite si Obelix est sur votre terrain).\nManger : gagnez 5 gold par carte Gold sur tous les terrains, puis défaussez cette carte.",
+   "text": "🧠 vraie : le joueur le plus riche lance un dé par carte Gold de son terrain, 1 chance sur 5 de la défausser. Puis défaussez cette carte.\n🧠 fausse : au prochain tour (tout de suite si Obelix est sur votre terrain), gagnez 5 💰 par carte Gold sur tous les terrains, puis défaussez cette carte.",
    "rules": "1 chance sur 5 = un 1 sur 1d5. « Au prochain tour » = la prochaine fois que la carte s'active.",
    "image": "EMI-06.png"
   },
@@ -1874,7 +1874,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passez votre trou noir en Primordial. Si vous avez 2 cartes Sentience sur votre terrain et qu'il y a 3 cartes Gold sur les terrains, vous pouvez poser jusqu'à 3 cartes ce tour : leurs effets s'activent dans l'ordre de pose.",
+   "text": "🌀 → Primordial.\nSi vous avez 2 cartes Sentience et qu'il y a 3 cartes Gold sur les terrains : posez jusqu'à 3 cartes ce tour, elles s'activent dans l'ordre de pose.",
    "rules": "Avec le bonus, vous avez 3 poses au total ce tour (la pose qui a joué Bluebeu compte). Vous pouvez vous arrêter avant.",
    "image": "EMI-07.png"
   },
@@ -1892,7 +1892,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Au début de votre tour, vous pouvez déplacer cette carte où vous voulez, sur n'importe quel terrain : elle vous reste toujours fidèle. Au début du tour du joueur qui l'a sur son terrain, si sa sentience est vraie, le Poromarix chasse 1d6 gold, encaissés seulement à son retour sur votre terrain. Si quelqu'un défausse cette carte, c'est lui qui encaisse les gold.",
+   "text": "Passif — Au début de votre tour : déplacez-la où vous voulez (elle reste à vous).\nAu début du tour de celui qui l'a, si sa 🧠 est vraie : elle chasse 🎲 1d6 💰, encaissés quand elle revient chez vous. Si quelqu'un la défausse, il encaisse.",
    "rules": "Le déplacement est facultatif. Les gold chassés sont stockés sur la carte.",
    "image": "EMI-08.png"
   },
@@ -1910,7 +1910,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si un autre joueur est en Trou de ver, cette carte va dans sa main, face visible (au hasard s'ils sont plusieurs). Elle ne peut pas être posée et elle est défaussée quand son trou noir devient Primordial.\nTant qu'elle est dans sa main, si sa sentience est vraie, chaque carte qu'il pose vous donne 2 gold (volés).",
+   "text": "Si un autre joueur est en 🌀 Trou de ver : cette carte va dans sa main, visible (au hasard s'ils sont plusieurs). Elle ne peut pas être posée ; défaussée quand son 🌀 → Primordial.\nTant qu'il l'a et que sa 🧠 est vraie : chaque carte qu'il pose vous rapporte 2 💰 (volés).",
    "rules": "Elle part quand elle se joue (phase 1 ou à sa pose). « La personne qui a envoyé la carte » = le joueur qui l'avait sur son terrain.",
    "image": "EMI-09.png"
   },
@@ -1928,7 +1928,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre trou noir :\nQuasar : prenez tous les gold du joueur à votre droite.\nPrimordial : perdez tous vos gold.\nTrou de ver : pendant 3 tours, tous les gold gagnés par les autres joueurs sont pour vous.\nBlazard : les gold de tous les joueurs sont égalisés.",
+   "text": "Selon votre 🌀 :\nQuasar : prenez tous les 💰 du joueur à votre droite.\nPrimordial : perdez tous vos 💰.\nTrou de ver : ⏱ 3 tours, les 💰 gagnés par les autres sont pour vous.\nBlazard : les 💰 de tous sont égalisés.",
    "rules": "Droite = joueur suivant dans l'ordre du tour. Trou de ver : ce tour et les 2 suivants. Blazard : le reste de la division revient au lanceur.",
    "image": "EMI-10.png"
   },
@@ -1946,7 +1946,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : la carte explose au prochain tour, et toutes les cartes de son terrain vont dans la défausse.\nSentience fausse : si les autres joueurs ne vous donnent pas 5 gold au total, la carte part sur le terrain d'un autre joueur au hasard.",
+   "text": "🧠 vraie : au prochain tour, elle explose : tout son terrain est défaussé.\n🧠 fausse : si les autres ne vous donnent pas 5 💰 au total, elle part sur le terrain d'un autre joueur au hasard.",
    "rules": "Chaque autre joueur, dans l'ordre du tour, choisit combien il donne jusqu'à atteindre 5 gold.",
    "image": "EMI-11.png"
   },
@@ -1964,7 +1964,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : chaque joueur vous donne 1 gold par carte Gold de son terrain (les vôtres aussi rapportent). Si ADS est sur votre terrain, ces revenus sont doublés.\nSentience fausse : perdez 1 gold par carte Gold sur tous les terrains.",
+   "text": "🧠 vraie : chaque joueur vous donne 1 💰 par carte Gold de son terrain (les vôtres comptent). Doublé si ADS est sur votre terrain.\n🧠 fausse : perdez 1 💰 par carte Gold sur tous les terrains.",
    "rules": "« La carte AD » = ADS (EMI-13) sur votre terrain.",
    "image": "EMI-12.png"
   },
@@ -1982,7 +1982,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vos gold sont doublés et vos coûts aussi tant que cette carte est sur votre terrain. La carte qui suit ADS sur le terrain ne se joue pas.\nSi votre trou noir est Primordial, l'effet s'applique à tous les joueurs.",
+   "text": "Tant qu'elle est sur votre terrain : vos 💰 et vos coûts sont doublés. La carte qui la suit ne se joue pas.\nSi 🌀 Primordial : pour tous les joueurs.",
    "rules": "Chaque activation double à nouveau vos gold. Les coûts doublés : toute dépense de gold.",
    "image": "EMI-13.png"
   },
@@ -2000,7 +2000,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre trou noir :\nQuasar : choisissez un trou noir provisoire, jusqu'à la fin du tour.\nTrou de ver : choisissez une carte d'un terrain, elle est désactivée jusqu'à la fin du tour.\nPrimordial : chaque joueur choisit une carte d'un terrain, désactivée jusqu'à la fin du tour.\nBlazard : choisissez une sentience provisoire, jusqu'à la fin du tour.",
+   "text": "Selon votre 🌀 :\nQuasar : choisissez un 🌀 provisoire (⏱ fin du tour).\nTrou de ver : désactivez une carte d'un terrain (⏱ fin du tour).\nPrimordial : chaque joueur désactive une carte d'un terrain (⏱ fin du tour).\nBlazard : choisissez une 🧠 provisoire (⏱ fin du tour).",
    "rules": "Les valeurs provisoires reviennent à la valeur d'avant à la fin du tour de celui qui les a choisies.",
    "image": "EMI-14.png"
   },
@@ -2018,7 +2018,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez 1d6 : sur un 6, le joueur suivant passe son prochain tour ; sur un 1, vous passez votre prochain tour.",
+   "text": "🎲 1d6 : sur un 6, le joueur suivant passe son prochain tour ; sur un 1, vous passez le vôtre.",
    "rules": "",
    "image": "EMI-15.png"
   },
@@ -2036,7 +2036,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 50 gold pour changer votre trou noir. Une chance sur deux de pouvoir rejouer cette carte.",
+   "text": "Coût : 50 💰. Changez votre 🌀.\n1 chance sur 2 de pouvoir rejouer cette carte.",
    "rules": "La relance demande de pouvoir payer à nouveau 50 gold.",
    "image": "EMI-16.png"
   },
@@ -2054,7 +2054,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Volez 2 gold par carte Sentience de votre terrain au joueur de votre choix. Si les deux cartes voisines de Goredrinker sont des cartes Sentience, choisissez aussi un nouveau trou noir.",
+   "text": "Ciblez un joueur : volez-lui 2 💰 par carte Sentience de votre terrain.\nSi ses deux voisines sont des cartes Sentience : choisissez aussi votre 🌀.",
    "rules": "",
    "image": "EMI-17.png"
   },
@@ -2072,7 +2072,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ajoutez le tag Sentience à la carte de votre choix jusqu'à la fin du tour.",
+   "text": "Une carte de votre choix gagne le tag Sentience (⏱ fin du tour).",
    "rules": "",
    "image": "EMI-18.png"
   },
@@ -2090,7 +2090,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "La première carte du terrain de chaque joueur passe sur le terrain du joueur suivant, en première position.",
+   "text": "La première carte de chaque terrain passe en première place sur le terrain du joueur suivant.",
    "rules": "Sens horaire = ordre du tour. Les joueurs sans carte en reçoivent une sans en donner.",
    "image": "EMI-19.png"
   },
@@ -2108,7 +2108,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est sur un terrain, chaque gain de gold, pour n'importe quel joueur, rapporte 1 gold de plus.",
+   "text": "Tant qu'elle est sur un terrain : chaque gain de 💰, pour tous, rapporte 1 💰 de plus.",
    "rules": "+1 gold par gain de n'importe quel joueur, avant les multiplicateurs.",
    "image": "EMI-20.png"
   },
@@ -2126,7 +2126,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, changez l'ordre des cartes de votre terrain comme vous le voulez.",
+   "text": "Si 🧠 vraie : réorganisez votre terrain.",
    "rules": "",
    "image": "EMI-21.png"
   },
@@ -2144,7 +2144,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, lancez 1d4 pour votre trou noir (1 Quasar, 2 Blazard, 3 Trou de ver, 4 Primordial). Sinon, votre sentience passe à vraie.",
+   "text": "Si 🧠 vraie : 🎲 1d4 pour votre 🌀 (1 Quasar · 2 Blazard · 3 Trou de ver · 4 Primordial).\nSinon : 🧠 → vraie.",
    "rules": "",
    "image": "EMI-22.png"
   },
@@ -2162,7 +2162,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Une chance sur deux : soit chaque carte Sentience, soit chaque carte Trou noir de votre terrain vous rapporte 2 gold.",
+   "text": "1 chance sur 2 : chaque carte Sentience, sinon chaque carte Trou noir de votre terrain, vous rapporte 2 💰.",
    "rules": "Gravité grave ajoute +1 à chaque carte (chaque carte compte comme un gain).",
    "image": "EMI-23.png"
   },
@@ -2180,7 +2180,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Copiez l'effet d'une carte de son terrain qui a exactement les mêmes tags (Sentience, Gold, Trou noir) : s'il y en a plusieurs, choisissez.",
+   "text": "Copiez l'effet d'une carte de son terrain avec exactement les mêmes tags (au choix s'il y en a plusieurs).",
    "rules": "Exactement les mêmes tags que Ding Dong (les trois).",
    "image": "EMI-24.png"
   },
@@ -2198,7 +2198,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 5 gold pour reprendre dans votre main une carte de votre terrain.",
+   "text": "Coût facultatif : 5 💰.\nReprenez une carte de votre terrain dans votre main.",
    "rules": "Seulement une carte de votre propre terrain.",
    "image": "EMI-25.png"
   },
@@ -2216,7 +2216,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience fausse : inversez l'ordre des cartes du terrain de n'importe quel joueur.\nSentience vraie : une chance sur deux de changer le trou noir d'un autre joueur.",
+   "text": "🧠 fausse : inversez l'ordre du terrain d'un joueur.\n🧠 vraie : 1 chance sur 2 de changer le 🌀 d'un autre joueur.",
    "rules": "",
    "image": "EMI-26.png"
   },
@@ -2234,7 +2234,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cette carte se place en première position de son terrain. Si elle y est déjà, jouez l'effet de la carte juste après.",
+   "text": "Cette carte va en première place de son terrain.\nSi elle y est déjà : jouez la carte juste après.",
    "rules": "",
    "image": "EMI-27.png"
   },
@@ -2252,7 +2252,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cette carte se place en dernière position de son terrain. Si elle y est déjà, rejouez l'effet de la carte juste avant.",
+   "text": "Cette carte va en dernière place de son terrain.\nSi elle y est déjà : rejouez la carte juste avant.",
    "rules": "",
    "image": "EMI-28.png"
   },
@@ -2270,7 +2270,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Primordial, Dash va sur le terrain du joueur suivant, prend la carte à la même position et la ramène sur votre terrain (sans activer son effet). S'il n'y a pas de carte à cette position, l'effet échoue.",
+   "text": "Si 🌀 Primordial : prenez la carte à la même place sur le terrain du joueur suivant et posez-la sur votre terrain, sans son effet.\nRien s'il n'y a pas de carte à cette place.",
    "rules": "Dash reste à sa place. La carte prise arrive en dernière position de votre terrain et change de propriétaire.",
    "image": "EMI-29.png"
   },
@@ -2288,7 +2288,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Trou de ver, vos autres cartes ne peuvent plus être déplacées ni volées tant que Goudron est sur votre terrain. Goudron lui-même n'est pas protégé.",
+   "text": "Si 🌀 Trou de ver : 🔒 vos autres cartes ne peuvent plus être déplacées ni volées tant que cette carte est sur votre terrain (elle-même n'est pas protégée).",
    "rules": "Protège contre les déplacements causés par les effets des autres cartes, tant que Goudron est sur votre terrain.",
    "image": "EMI-30.png"
   },
@@ -2306,7 +2306,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir n'est pas Trou de ver, récupérez les gold que vous avez perdus pendant ce tour.",
+   "text": "Si 🌀 n'est pas Trou de ver : récupérez les 💰 perdus pendant ce tour.",
    "rules": "",
    "image": "EMI-31.png"
   },
@@ -2324,7 +2324,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez proposer au joueur de votre choix d'échanger cette carte contre une carte de son terrain. S'il accepte, il peut ensuite activer l'effet d'une de ses cartes.",
+   "text": "Passif — Vous pouvez proposer à un joueur d'échanger cette carte contre une carte de son terrain.\nS'il accepte, il peut activer une de ses cartes.",
    "rules": "La proposition est faite quand la carte arrive sur un terrain ; vous pouvez ne pas proposer. Les deux cartes échangent leurs places et leurs propriétaires.",
    "image": "EMI-32.png"
   },
@@ -2342,7 +2342,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ephémère - Gagne 100 gold",
+   "text": "Éphémère — Gagnez 100 💰.",
    "rules": "",
    "image": ""
   },
@@ -2360,7 +2360,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Permanent (cumulable sur le même slot - si cartes cumulées comptent pour 1 carte) - Place cette carte sur le terrain allié. Gagne 5 gold à chaque tour tant que la carte reste sur le terrain.\nIl possible de transformer les cartes de type \"Gold\" pur en carte \"Rente\" (1 transformation maximum par tour).",
+   "text": "Permanent — Posez-la sur un terrain allié : gagnez 5 💰 à chaque tour tant qu'elle y reste.\nCumulable sur la même place (compte pour 1 carte). 1 fois par tour, une carte uniquement Gold peut devenir une Rente.",
    "rules": "",
    "image": ""
   },
@@ -2378,7 +2378,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ephémère - Gagne 10 gold et 1 gold supplémentaire par carte \"Rente\" active sur le terrain allié",
+   "text": "Éphémère — Gagnez 10 💰, +1 💰 par Rente active sur le terrain allié.",
    "rules": "",
    "image": ""
   },
@@ -2396,7 +2396,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Permanent - Place cette carte sur le terrain d'un adversaire. Vole 10 gold par tour au propriétaire du terrain.",
+   "text": "Permanent — Posez-la sur le terrain d'un adversaire : à chaque tour, volez-lui 10 💰.",
    "rules": "",
    "image": ""
   },
@@ -2414,7 +2414,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Éphémère - Place cette carte sur le terrain d'un adversaire. Vole 50 gold la prochaine fois que le propriétaire du terrain pose une carte sur son terrain.",
+   "text": "Éphémère — Posez-la sur le terrain d'un adversaire : la prochaine fois qu'il pose une carte, volez-lui 50 💰.",
    "rules": "",
    "image": ""
   },
@@ -2432,7 +2432,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pari - Investis 100 gold et désigne un joueur adverse. Si le joueur désigné perd des gold au prochain tour, le joueur ayant joué \"Cupidité\" gagne 2 fois sa mise, et inverse sa Sentience.",
+   "text": "Pari — Misez 100 💰 et ciblez un adversaire.\nS'il perd des 💰 au prochain tour : gagnez 2 fois la mise et inversez votre 🧠.",
    "rules": "",
    "image": ""
   },
@@ -2450,7 +2450,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ephémère - Place cette carte sur le terrain allié pour 3 tours. Tous les joueurs perdent 10 gold. Si le joueur ayant joué \"Economie de marché\" ne perd pas de gold pendant les 3 prochains tours, il peut conserver les gold stockés. Sinon, les gold sont restitués à leurs propriétaires.",
+   "text": "Éphémère — Posez-la sur un terrain allié (⏱ 3 tours). Tous les joueurs perdent 10 💰, stockés ici.\nSi vous ne perdez aucun 💰 pendant ces 3 tours, gardez-les ; sinon ils sont rendus.",
    "rules": "",
    "image": ""
   },
@@ -2468,7 +2468,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ephémère - Le joueur emprunte X gold à un joueur consentant, et les 2 joueurs se mettent d'accord sur une échéance de remboursement, et un taux d'intérêts. Si le joueur emprunteur ne parvient pas à rembourser le joueur créancier dans les temps, il doit demander pardon publiquement.",
+   "text": "Éphémère — Empruntez X 💰 à un joueur d'accord ; fixez ensemble l'échéance et le taux.\nSans remboursement à temps : excusez-vous publiquement.",
    "rules": "",
    "image": ""
   },
@@ -2486,7 +2486,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sécurise 100 gold (ne peuvent plus être utilisés ou volés pour le reste de la partie), et change l'état du Trou Noir pour \"Trou de ver\".",
+   "text": "Mettez 100 💰 à l'abri (ni utilisables ni volables jusqu'à la fin de la partie). 🌀 → Trou de ver.",
    "rules": "",
    "image": ""
   },
@@ -2504,7 +2504,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "- Si le Trou Noir du joueur émetteur est dans l'état \"Primordial\", vole 50 gold au joueur cible. \n- Si le Trou Noir du joueur émetteur est dans l'état \"Trou de ver\", vole 1 carte dans la main du joueur cible.",
+   "text": "Ciblez un joueur.\nSi 🌀 Primordial : volez-lui 50 💰.\nSi 🌀 Trou de ver : volez une carte de sa main.",
    "rules": "",
    "image": ""
   },
@@ -2522,7 +2522,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Maudit le joueur activant la carte. Tant que la malédiction est active, le joueur maudit perd 5 gold par tour.\n\n- Si la Sentience du joueur est \"Vraie\", tous les joueurs reçoivent 50 gold.\n- Si la Sentience du joueur est \"Fausse\", tous les joueurs donnent 10 gold au joueur maudit.\n\nPour retirer la malédiction il faut inverser la Sentience.",
+   "text": "Passif — Le joueur qui l'active est maudit : il perd 5 💰 par tour.\n🧠 vraie : tous les joueurs gagnent 50 💰. 🧠 fausse : chacun donne 10 💰 au maudit.\nInverser sa 🧠 lève la malédiction.",
    "rules": "",
    "image": ""
   },
@@ -2540,7 +2540,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sacrifie 5 gold pour défausser 1 carte sur le terrain adverse.",
+   "text": "Coût : 5 💰.\nDéfaussez une carte d'un terrain adverse.",
    "rules": "",
    "image": ""
   },
@@ -2558,7 +2558,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Permanent - Place la carte sur le terrain allié. Sacrifie 5 gold pour défausser 1 carte sur le terrain adverse (cette action est répétable 1 fois par tour tant que la carte \"Gros bonnet\" est présente sur le terrain allié.",
+   "text": "Permanent — Posez-la sur un terrain allié. 1 fois par tour : dépensez 5 💰 pour défausser une carte d'un terrain adverse.",
    "rules": "",
    "image": ""
   },
@@ -2576,7 +2576,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tous les joueurs avec un Trou Noir ne possédant pas l'état du joueur émetteur perdent 50 gold.",
+   "text": "Les joueurs dont le 🌀 n'est pas le même que le vôtre perdent 50 💰.",
    "rules": "",
    "image": ""
   },
@@ -2594,7 +2594,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Permanent - Place la carte sur le terrain allié. Tant que cette carte est présente sur le terrain allié, le joueur émetteur est \"Banquier\". Les autres joueurs peuvent lui confier 1d20 gold. Les joueurs ayant placé leur argent reçoivent un intérêt à chaque tour (taux : 1 gold par tranche de 5 gold investis (arrondi à l'inférieur)).\nSi la carte est défaussée, l'argent investi est perdu.",
+   "text": "Permanent — Posez-la sur un terrain allié : vous êtes Banquier. Les autres peuvent vous confier 🎲 1d20 💰.\nÀ chaque tour, ils touchent 1 💰 par tranche de 5 💰 placés. Si la carte est défaussée, l'argent est perdu.",
    "rules": "",
    "image": ""
   },
@@ -2612,7 +2612,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque joueur mise 50 gold et lance 1d6. Le joueur ayant obtenu le score le plus élevé obtient la somme des gold misés. En cas d'ex aequo, les joueurs concernés relancent 1d6 jusqu'à ce que l'un d'eux obtiennent un score plus élevé.",
+   "text": "Chaque joueur mise 50 💰 et lance 🎲 1d6 : le plus haut gagne toutes les mises (en cas d'égalité, on relance).",
    "rules": "",
    "image": ""
   },
@@ -2630,7 +2630,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Piochez une carte et posez-la en dernière position de votre terrain : son effet s'active.",
+   "text": "Piochez une carte et posez-la à la fin de votre terrain : elle s'active.",
    "rules": "La carte piochée est posée en dernière position, puis son effet s'active immédiatement.",
    "image": "GRE-01.jpg"
   },
@@ -2648,7 +2648,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ciblez un joueur au hasard (lanceur compris) : défaussez la dernière carte de son terrain (cette carte comprise), puis défaussez cette carte.",
+   "text": "Ciblez un joueur au hasard (vous compris) : défaussez la dernière carte de son terrain.\nPuis défaussez cette carte.",
    "rules": "Si la cible est le lanceur et que Date de grenouille est la dernière carte, c'est elle qui est défaussée.",
    "image": "GRE-02.jpg"
   },
@@ -2666,7 +2666,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ciblez un joueur au hasard (lanceur compris) : il gagne 1d100 gold.",
+   "text": "Ciblez un joueur au hasard (vous compris) : il gagne 🎲 1d100 💰.",
    "rules": "",
    "image": "GRE-03.jpg"
   },
@@ -2684,7 +2684,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez le dé trou noir : votre trou noir devient le résultat.",
+   "text": "Lancez le dé trou noir : votre 🌀 prend le résultat.",
    "rules": "",
    "image": "GRE-04.jpg"
   },
@@ -2702,7 +2702,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez le dé de sentience : votre sentience devient le résultat.",
+   "text": "Lancez le dé de sentience : votre 🧠 prend le résultat.",
    "rules": "",
    "image": "GRE-05.jpg"
   },
@@ -2720,7 +2720,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ciblez un joueur au hasard (lanceur compris) : il perd 1d20 gold.",
+   "text": "Ciblez un joueur au hasard (vous compris) : il perd 🎲 1d20 💰.",
    "rules": "",
    "image": "GRE-06.jpg"
   },
@@ -2738,7 +2738,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ciblez un autre joueur au hasard : volez la première carte de son terrain et placez-la au fond de votre pioche.",
+   "text": "Ciblez un autre joueur au hasard : volez la première carte de son terrain et mettez-la au fond de votre pioche.",
    "rules": "La carte volée va au fond de la pioche du lanceur, sans mélanger. Elle change de propriétaire.",
    "image": "GRE-07.jpg"
   },
@@ -2756,7 +2756,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Une chance sur trois de : gagner 10 gold, passer votre trou noir en Blazard, ou passer votre sentience à vraie.",
+   "text": "Au hasard, l'un des trois : gagnez 10 💰, 🌀 → Blazard, ou 🧠 → vraie.",
    "rules": "",
    "image": "GRE-08.jpg"
   },
@@ -2774,7 +2774,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Jouez l'effet d'une autre carte de votre terrain, tirée au hasard. Si la carte tirée est désactivée ou n'a pas d'effet à jouer, rien ne se passe.",
+   "text": "Jouez une autre carte de votre terrain, tirée au hasard (rien si elle est désactivée ou sans effet).",
    "rules": "Toutes les autres cartes du terrain du lanceur peuvent être tirées. Si la carte tirée est désactivée ou passive, l'effet échoue.",
    "image": "GRE-09.jpg"
   },
@@ -2792,7 +2792,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ciblez un joueur au hasard (lanceur compris) : échangez sa première carte Trou noir avec la première carte Trou noir de votre terrain.",
+   "text": "Ciblez un joueur au hasard (vous compris) : échangez sa première carte Trou noir avec la vôtre.",
    "rules": "Si la cible tirée est le lanceur, il ne se passe rien.",
    "image": "GRE-10.jpg"
   },
@@ -2828,7 +2828,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lanceur exclu : gagnez 20 gold pour chaque joueur sentient et perdez 20 gold pour chaque joueur non sentient.",
+   "text": "Pour chaque autre joueur : 🧠 vraie, gagnez 20 💰 ; 🧠 fausse, perdez 20 💰.",
    "rules": "",
    "image": "GRE-12.jpg"
   },
@@ -2846,7 +2846,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez 1d100 :\n1-10 : perdez 10 gold · 11-20 : gagnez 10 gold · 21-30 : Quasar · 31-40 : Blazard · 41-50 : Primordial · 51-60 : Trou de ver · 61-70 : sentience vraie · 71-80 : sentience fausse · 81-100 : défaussez cette carte.",
+   "text": "🎲 1d100 :\n1-10 perdez 10 💰 · 11-20 gagnez 10 💰 · 21-30 Quasar · 31-40 Blazard · 41-50 Primordial · 51-60 Trou de ver · 61-70 🧠 vraie · 71-80 🧠 fausse · 81-100 défaussez cette carte.",
    "rules": "",
    "image": "GRE-13.jpg"
   },
@@ -2864,7 +2864,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold, puis passez votre trou noir en Trou de ver et votre sentience à fausse. Lancez 1d4 : sur un 4, défaussez cette carte.",
+   "text": "Coût : 10 💰. 🌀 → Trou de ver. 🧠 → fausse.\n🎲 1d4, sur un 4 : défaussez cette carte.",
    "rules": "",
    "image": "GRE-14.jpg"
   },
@@ -2882,7 +2882,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si aucun autre joueur n'a le même trou noir que vous, gagnez 50 gold.",
+   "text": "Si aucun autre joueur n'a le même 🌀 que vous : gagnez 50 💰.",
    "rules": "",
    "image": "GRE-15.jpg"
   },
@@ -2900,7 +2900,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ciblez un joueur au hasard (lanceur compris) : la carte du dessus de sa pioche va dans sa défausse.",
+   "text": "Ciblez un joueur au hasard (vous compris) : la carte du dessus de sa pioche va dans sa défausse.",
    "rules": "",
    "image": "GRE-16.jpg"
   },
@@ -2918,7 +2918,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, les autres joueurs perdent 10 gold et vous gagnez 10 gold.",
+   "text": "Si 🧠 vraie : les autres perdent 10 💰 et vous gagnez 10 💰.",
    "rules": "",
    "image": "GRE-17.jpg"
   },
@@ -2936,7 +2936,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Choisissez face cachée une carte de la main de la cible et défaussez-la. Puis Lemon Juice échange sa place avec la carte du fond de votre défausse.",
+   "text": "Ciblez un joueur : défaussez une carte de sa main, face cachée.\nPuis cette carte échange sa place avec la carte du fond de votre défausse.",
    "rules": "La cible est choisie parmi les autres joueurs qui ont des cartes en main. La carte qui prend la place de Lemon Juice n'active pas son effet.",
    "image": "GRE-18.jpg"
   },
@@ -2954,7 +2954,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est sur votre terrain, si une autre de vos cartes doit quitter le terrain, cette carte va dans la défausse à sa place.",
+   "text": "Passif — Quand une autre de vos cartes doit quitter le terrain, cette carte est défaussée à sa place.",
    "rules": "Vaut pour les déplacements causés par un effet (défausse, vol, retour en main ou dans une pioche, changement de terrain). Un échange de places sur le même terrain n'est pas concerné.",
    "image": "GRE-19.jpg"
   },
@@ -2972,7 +2972,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est fausse, les autres joueurs gagnent 10 gold et votre sentience passe à vraie.",
+   "text": "Si 🧠 fausse : les autres gagnent 10 💰 et 🧠 → vraie.",
    "rules": "",
    "image": "GRE-20.jpg"
   },
@@ -2990,7 +2990,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Placez cette carte sous une carte de votre choix, sur n'importe quel terrain : les choix de cette carte se font désormais au hasard. Le Crapaud stratège suit tous ses déplacements, sauf d'un terrain à un autre.",
+   "text": "Placez cette carte sous une carte de n'importe quel terrain : ses choix se font désormais au hasard.\nElle suit la carte, sauf d'un terrain à un autre.",
    "rules": "La carte « hôte » joue ses choix au hasard tant que le Crapaud stratège est dessous. Si l'hôte va dans une pioche, une main ou une défausse, le crapaud y va aussi et s'en détache. S'il passe sur un autre terrain, le crapaud reste dessous.",
    "image": "GRE-21.jpg"
   },
@@ -3008,7 +3008,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, lancez le dé trou noir : votre trou noir devient le résultat. Sinon, lancez le dé de sentience : votre sentience devient le résultat.",
+   "text": "Si 🧠 vraie : lancez le dé trou noir, votre 🌀 prend le résultat.\nSinon : lancez le dé de sentience, votre 🧠 prend le résultat.",
    "rules": "",
    "image": "GRE-22.jpg"
   },
@@ -3026,7 +3026,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois que cette carte est posée ou se déplace, les joueurs concernés lancent le dé trou noir : leur trou noir devient le résultat.",
+   "text": "Passif — Quand elle est posée ou déplacée : les joueurs concernés lancent le dé trou noir, leur 🌀 prend le résultat.",
    "rules": "Concernés = le joueur d'où vient la carte et celui où elle arrive (une seule fois si c'est le même).",
    "image": "GRE-23.jpg"
   },
@@ -3044,7 +3044,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est sur votre terrain, si on vous vole des gold, le montant volé est remplacé par le résultat d'un d100.",
+   "text": "Passif — Quand on vous vole des 💰, le montant devient 🎲 1d100.",
    "rules": "Le d100 remplace le montant même s'il est plus grand. Un vol = un effet d'un autre joueur qui lui fait prendre vos gold.",
    "image": "GRE-24.jpg"
   },
@@ -3062,7 +3062,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, piochez 1 carte ; si elle est fausse, piochez 2 cartes.",
+   "text": "Si 🧠 vraie : piochez 1 carte ; sinon piochez 2 cartes.",
    "rules": "Sentience du lanceur : vraie → pioche 1, fausse → pioche 2.",
    "image": "POP-01.jpg"
   },
@@ -3080,7 +3080,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagnez 10 gold par carte Gold sur votre terrain.",
+   "text": "Gagnez 10 💰 par carte Gold de votre terrain.",
    "rules": "+10 gold par carte 💰 sur le terrain du lanceur, celle-ci comprise.",
    "image": "POP-02.jpg"
   },
@@ -3098,7 +3098,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "S'il y a au moins 3 trous noirs différents parmi les joueurs, le trou noir d'un joueur au hasard (pas déjà Blazard) passe en Blazard.",
+   "text": "S'il y a au moins 3 🌀 différents parmi les joueurs : le 🌀 d'un joueur au hasard (pas déjà Blazard) → Blazard.",
    "rules": "S'il y a au moins 3 trous noirs différents parmi les joueurs, un joueur au hasard (pas déjà Blazard) passe en Blazard.",
    "image": "POP-03.jpg"
   },
@@ -3116,7 +3116,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Le trou noir des voisins du joueur le plus riche (avant et après lui dans l'ordre du tour) passe en Blazard.",
+   "text": "Les deux voisins du joueur le plus riche : 🌀 → Blazard.",
    "rules": "Les voisins du plus riche dans l'ordre du tour (avant et après lui) passent en Blazard. Égalité : tirage au hasard.",
    "image": "POP-04.jpg"
   },
@@ -3134,7 +3134,7 @@
    "event": "Interaction",
    "target": "",
    "check": "",
-   "text": "À chaque interaction, gagnez 10 gold ; si votre sentience est vraie, votre trou noir passe en Blazard.",
+   "text": "Passif — À chaque interaction : gagnez 10 💰 ; si 🧠 vraie, 🌀 → Blazard.",
    "rules": "Passif. Interaction = un effet de carte, lancé par n'importe quel joueur, qui touche les gold, la sentience, le trou noir, les cartes (main, terrain, pioche, défausse) d'un joueur, lanceur compris. Chaque interaction : +10 gold au porteur, puis s'il a la sentience vraie son trou noir passe en Blazard. Les poses, défausses et pioches normales du tour ne comptent pas.",
    "image": "POP-05.jpg"
   },
@@ -3152,7 +3152,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Blazard, activez une deuxième fois la première carte Gold de votre terrain.",
+   "text": "Si 🌀 Blazard : rejouez la première carte Gold de votre terrain.",
    "rules": "Si le lanceur est en Blazard, la première carte 💰 de son terrain (sens de lecture) active son effet une deuxième fois.",
    "image": "POP-06.jpg"
   },
@@ -3170,7 +3170,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Deux autres joueurs de votre choix échangent leurs gold. Si votre sentience est fausse, volez ensuite 10 % des gold de chacun d'eux.",
+   "text": "Deux autres joueurs de votre choix échangent leurs 💰.\nSi 🧠 fausse : volez ensuite 10 % des 💰 de chacun.",
    "rules": "Le lanceur choisit deux autres joueurs qui échangent leurs gold. Si sa sentience est fausse, il prend ensuite 10 % (arrondi inférieur) à chacun des deux.",
    "image": "POP-07.jpg"
   },
@@ -3188,7 +3188,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Inversez votre sentience et gagnez 5 gold.",
+   "text": "Inversez votre 🧠. Gagnez 5 💰.",
    "rules": "",
    "image": "POP-08.jpg"
   },
@@ -3206,7 +3206,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, gagnez 20 gold ; sinon, volez 10 gold à la cible.",
+   "text": "Si 🧠 vraie : gagnez 20 💰 ; sinon ciblez un joueur et volez-lui 10 💰.",
    "rules": "Sentience fausse : le lanceur choisit qui voler (10 gold, limité à ce qu'il possède).",
    "image": "POP-09.jpg"
   },
@@ -3224,7 +3224,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Un autre joueur Blazard au hasard vous donne 10 % de ses gold.",
+   "text": "Un autre joueur en Blazard, au hasard, vous donne 10 % de ses 💰.",
    "rules": "Un autre joueur Blazard au hasard donne 10 % de ses gold (arrondi inférieur) au lanceur.",
    "image": "POP-10.jpg"
   },
@@ -3242,7 +3242,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque autre joueur Blazard vous donne 10 % de ses gold.",
+   "text": "Chaque autre joueur en Blazard vous donne 10 % de ses 💰.",
    "rules": "Chaque autre joueur Blazard donne 10 % de ses gold (arrondi inférieur) au lanceur.",
    "image": "POP-11.jpg"
   },
@@ -3260,7 +3260,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 200 gold : deux joueurs de votre choix défaussent tout leur terrain, puis chacun pose autant de cartes, piochées dans la pioche de l'autre (sans les activer).",
+   "text": "Coût facultatif : 200 💰.\nDeux joueurs de votre choix défaussent tout leur terrain, puis chacun pose autant de cartes piochées chez l'autre, sans leur effet.",
    "rules": "Paiement optionnel de 200. Deux joueurs au choix (lanceur possible) défaussent tout leur terrain, puis chacun pose sur son terrain autant de cartes qu'il en avait, piochées dans la pioche de l'autre. Les cartes posées ne s'activent pas.",
    "image": "POP-12.jpg"
   },
@@ -3278,7 +3278,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 25 gold : un autre joueur au hasard est bloqué jusqu'à son prochain tour et la première carte de son terrain est défaussée.",
+   "text": "Coût facultatif : 25 💰.\nUn autre joueur au hasard est bloqué (⏱ son prochain tour) et la première carte de son terrain est défaussée.",
    "rules": "Paiement optionnel de 25. Un autre joueur au hasard est bloqué (sentience et trou noir figés) jusqu'au début de son prochain tour, et la première carte de son terrain est défaussée.",
    "image": "POP-13.jpg"
   },
@@ -3296,7 +3296,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, piochez une carte ; sinon, défaussez la dernière carte du terrain de la cible.",
+   "text": "Si 🧠 vraie : piochez une carte ; sinon ciblez un joueur et défaussez la dernière carte de son terrain.",
    "rules": "Sentience fausse : le lanceur choisit un joueur (lui compris) dont la dernière carte du terrain est défaussée.",
    "image": "POP-14.jpg"
   },
@@ -3314,7 +3314,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 35 gold : la cible remet sa main dans sa pioche, mélange sa pioche et pioche autant de cartes.",
+   "text": "Coût facultatif : 35 💰.\nCiblez un joueur : il mélange sa main dans sa pioche et pioche autant de cartes.",
    "rules": "Paiement optionnel de 35. Joueur ciblé au choix (lanceur compris) : sa main retourne dans sa pioche, la pioche est mélangée, puis il pioche autant de cartes.",
    "image": "POP-15.jpg"
   },
@@ -3332,7 +3332,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque joueur qui a un nombre pair de gold passe sa sentience à vraie et son trou noir en Blazard ; chaque joueur qui a un nombre impair passe sa sentience à fausse.",
+   "text": "💰 pairs : 🧠 → vraie et 🌀 → Blazard.\n💰 impairs : 🧠 → fausse.\n(Pour chaque joueur.)",
    "rules": "Tous les joueurs, lanceur compris. 0 est pair.",
    "image": "POP-16.jpg"
   },
@@ -3350,7 +3350,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 45 gold : les joueurs Blazard (sauf vous) font tourner leurs mains dans l'ordre du tour.",
+   "text": "Coût facultatif : 45 💰.\nLes autres joueurs en Blazard se passent leur main dans l'ordre du tour.",
    "rules": "Paiement optionnel de 45. Les mains des joueurs Blazard (sauf le lanceur) tournent dans l'ordre du tour (à 2 : elles s'échangent). Il faut au moins 2 joueurs concernés.",
    "image": "POP-17.jpg"
   },
@@ -3368,7 +3368,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, le trou noir d'un autre joueur de votre choix passe en Blazard ; sinon, le vôtre.",
+   "text": "Si 🧠 vraie : le 🌀 d'un autre joueur de votre choix → Blazard ; sinon le vôtre.",
    "rules": "",
    "image": "POP-18.jpg"
   },
@@ -3386,7 +3386,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 15 gold : le trou noir de deux joueurs au hasard (vous compris) passe en Blazard.",
+   "text": "Coût facultatif : 15 💰.\nDeux joueurs au hasard (vous compris) : 🌀 → Blazard.",
    "rules": "Paiement optionnel de 15. Deux joueurs différents au hasard, lanceur compris, passent en Blazard.",
    "image": "POP-19.jpg"
   },
@@ -3404,7 +3404,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si le joueur le plus pauvre a la sentience vraie, son trou noir passe en Blazard.",
+   "text": "Si le joueur le plus pauvre a 🧠 vraie : son 🌀 → Blazard.",
    "rules": "Le plus pauvre (égalité : au hasard), lanceur compris.",
    "image": "POP-20.jpg"
   },
@@ -3422,7 +3422,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque autre joueur Blazard vous donne 10 % de ses gold, puis votre trou noir passe en Blazard.",
+   "text": "Chaque autre joueur en Blazard vous donne 10 % de ses 💰. Puis 🌀 → Blazard.",
    "rules": "Chaque autre joueur Blazard donne 10 % (arrondi inférieur) au lanceur, puis le lanceur passe en Blazard.",
    "image": "POP-21.jpg"
   },
@@ -3440,7 +3440,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si tous les joueurs sont Blazard : chaque autre joueur défausse une carte au hasard de son terrain, puis pioche une carte.",
+   "text": "Si tous les joueurs sont en Blazard : chaque autre joueur défausse une carte au hasard de son terrain, puis pioche une carte.",
    "rules": "Si tous les joueurs (lanceur compris) sont en Blazard : chaque autre joueur défausse une carte au hasard de son terrain puis pioche 1 carte.",
    "image": "POP-22.jpg"
   },
@@ -3458,7 +3458,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sans compter le lanceur : le joueur le plus pauvre vole 10 % des gold du plus riche, puis le trou noir du plus riche passe en Blazard.",
+   "text": "Sans vous compter : le plus pauvre vole 10 % des 💰 du plus riche, puis le 🌀 du plus riche → Blazard.",
    "rules": "Hors lanceur : le plus pauvre prend 10 % (arrondi inférieur) des gold du plus riche, puis le plus riche passe en Blazard.",
    "image": "POP-23.jpg"
   },
@@ -3494,7 +3494,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Comptez les sentiences vraies et fausses de tous les joueurs.\nPlus de vraies : chaque autre joueur Blazard défausse la première carte Trou noir de son terrain.\nPlus de fausses : chaque joueur Blazard vole 10 gold à chaque joueur qui n'est pas Blazard.\nÉgalité : les deux.",
+   "text": "Comptez les 🧠 vraies et fausses de tous les joueurs.\nPlus de vraies : chaque autre joueur en Blazard défausse sa première carte Trou noir.\nPlus de fausses : chaque joueur en Blazard vole 10 💰 à chaque joueur qui ne l'est pas.\nÉgalité : les deux.",
    "rules": "On compte les sentiences de tous les joueurs. Plus de vraies (ou égalité) : chaque autre joueur Blazard défausse la première carte 🌀 de son terrain. Plus de fausses (ou égalité) : chaque joueur Blazard vole 10 gold à chaque joueur non Blazard.",
    "image": "POP-25.jpg"
   },
@@ -3512,7 +3512,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si au moins (nombre de joueurs − 1) joueurs qui se suivent dans l'ordre du tour sont Blazard, chaque joueur Blazard gagne 200 gold.",
+   "text": "Si au moins (joueurs − 1) joueurs qui se suivent sont en Blazard : chaque joueur en Blazard gagne 200 💰.",
    "rules": "Si au moins (nombre de joueurs − 1) joueurs consécutifs dans l'ordre du tour (en boucle) sont en Blazard, chaque joueur Blazard gagne 200 gold.",
    "image": "POP-26.jpg"
   },
@@ -3530,7 +3530,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 10 gold : chaque joueur inverse sa sentience et son trou noir change au hasard.",
+   "text": "Coût facultatif : 10 💰.\nChaque joueur inverse sa 🧠 et son 🌀 change au hasard.",
    "rules": "Paiement optionnel de 10. Pour chaque joueur : sentience inversée et trou noir tiré au hasard (peut rester le même).",
    "image": "POP-27.jpg"
   },
@@ -3548,7 +3548,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque joueur dont le trou noir n'est pas Blazard inverse sa sentience.",
+   "text": "Chaque joueur qui n'est pas en Blazard inverse sa 🧠.",
    "rules": "Tous les joueurs, lanceur compris.",
    "image": "POP-28.jpg"
   },
@@ -3566,7 +3566,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre trou noir est Blazard, piochez une carte dans la pioche du joueur le plus riche ; sinon, votre trou noir passe en Blazard.",
+   "text": "Si 🌀 Blazard : piochez une carte dans la pioche du joueur le plus riche ; sinon 🌀 → Blazard.",
    "rules": "En Blazard : le lanceur pioche une carte dans la pioche du joueur le plus riche (hors lui).",
    "image": "POP-29.jpg"
   },
@@ -3584,7 +3584,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sans compter le lanceur : si le joueur le plus riche est Blazard, il donne 10 % de ses gold au plus pauvre.",
+   "text": "Sans vous compter : si le plus riche est en Blazard, il donne 10 % de ses 💰 au plus pauvre.",
    "rules": "Hors lanceur : si le plus riche est en Blazard, il donne 10 % (arrondi inférieur) au plus pauvre.",
    "image": "POP-30.jpg"
   },
@@ -3602,7 +3602,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, chaque joueur qui n'est pas Blazard perd 10 % de ses gold ; sinon, chaque joueur Blazard. Les gold perdus sont partagés à parts égales entre tous les joueurs.",
+   "text": "Si 🧠 vraie : chaque joueur qui n'est pas en Blazard perd 10 % de ses 💰 ; sinon chaque joueur en Blazard.\nLes 💰 perdus sont partagés entre tous les joueurs.",
    "rules": "Chaque joueur concerné perd 10 % (arrondi inférieur) ; la cagnotte est partagée à parts égales entre tous les joueurs, le reste de la division est perdu.",
    "image": "POP-31.jpg"
   },
@@ -3620,7 +3620,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez dépenser 25 gold : deux joueurs de votre choix (vous compris) échangent leurs mains.",
+   "text": "Coût facultatif : 25 💰.\nDeux joueurs de votre choix (vous compris) échangent leurs mains.",
    "rules": "Paiement optionnel de 25. Le lanceur choisit deux joueurs (lui compris) qui échangent leurs mains.",
    "image": "POP-32.jpg"
   },
@@ -3638,7 +3638,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Votre narration pue la merde c cancel, annule le tour précédent du joueur ciblé. Si tu ne t'en souviens pas tu perde 50% de ton gold",
+   "text": "Ciblez un joueur : son tour précédent est annulé.\nS'il ne s'en souvient pas, il perd la moitié de ses 💰.",
    "rules": "",
    "image": ""
   },
@@ -3656,7 +3656,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "tout les tours le joueur ciblé vous donne X gold. qui augmente au fil des tours",
+   "text": "Ciblez un joueur : à chaque tour, il vous donne X 💰 (X augmente à chaque tour).",
    "rules": "",
    "image": ""
   },
@@ -3674,7 +3674,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tous les 3 tours passe la sentience du joueur à vrai, à la fin du même tour passe la sentience à faux. Quand la sentience est fausse se décale vers la gauche. Vous n'êtes pas affecté les changements de sentience des autres joueurs.",
+   "text": "Passif — Tous les 3 tours : 🧠 → vraie, puis 🧠 → fausse à la fin de ce tour.\nQuand votre 🧠 est fausse, elle recule d'une place. Les changements de 🧠 venant des autres ne vous touchent pas.",
    "rules": "",
    "image": ""
   },
@@ -3692,7 +3692,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si le rêveur n'est pas sur le terrain, cherche le rêveur et le place en première position. Sinon ajouter une carte trou noir du deck ou défausse a votre main.",
+   "text": "Si le Rêveur n'est pas sur votre terrain : cherchez-le et posez-le en première place.\nSinon : prenez une carte Trou noir de votre pioche ou de votre défausse dans votre main.",
    "rules": "",
    "image": ""
   },
@@ -3710,7 +3710,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez révéler les 3 premières cartes de votre deck, s'il y a un rêve activez son effet puis défaussez le.",
+   "text": "Vous pouvez révéler les 3 premières cartes de votre pioche : s'il y a un Rêve, activez-le puis défaussez-le.",
    "rules": "",
    "image": ""
   },
@@ -3728,7 +3728,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si la sentience est fausse désactiver une carte sur un terrain pendant 1 tour. Puis passer la sentience du joueur ciblé à vrai. Vous ne pouvez pas vous cibler vous même.",
+   "text": "Ciblez un autre joueur.\nSi 🧠 fausse : désactivez une carte d'un terrain (⏱ 1 tour).\nPuis sa 🧠 → vraie.",
    "rules": "",
    "image": ""
   },
@@ -3746,7 +3746,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Changer la sentience d'un joueur à faux.",
+   "text": "Ciblez un joueur : sa 🧠 → fausse.",
    "rules": "",
    "image": ""
   },
@@ -3764,7 +3764,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Révèle les 3 cartes du dessus de la défausse, si il y au moins 1 rêve et 1 cauchemar posez une de ces cartes, mélangez en une dans le deck et ajoutez en une à votre main.",
+   "text": "Révélez les 3 cartes du dessus de la défausse. S'il y a au moins un Rêve et un Cauchemar : posez-en une, mélangez-en une dans la pioche et prenez la dernière en main.",
    "rules": "",
    "image": ""
   },
@@ -3782,7 +3782,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand la sentience est vraie échanger 2 cartes sur les terrains. Vous pouvez défausser cette carte pour placer un Rêveur sur le terrain.",
+   "text": "Passif — Si 🧠 vraie : échangez 2 cartes sur les terrains.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
    "image": ""
   },
@@ -3800,7 +3800,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand la sentience est vraie, gagner 50 pièces. Sinon gagner 2 pièces. Vous pouvez défausser cette carte pour placer un Rêveur sur le terrain.",
+   "text": "Passif — Si 🧠 vraie : gagnez 50 💰 ; sinon 2 💰.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
    "image": ""
   },
@@ -3818,7 +3818,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand la sentience est vraie, vous pouvez poser 1 carte supplémentaire ce tour. Sinon piocher 1 carte. Vous pouvez défausser cette carte pour placer un Rêveur sur le terrain.",
+   "text": "Passif — Si 🧠 vraie : posez 1 carte de plus ce tour ; sinon piochez 1 carte.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
    "image": ""
   },
@@ -3836,7 +3836,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si la sentience est vrai, cibler un joueur, à son prochain tour il ne peut pas vous infliger d'effets néfastes. Vous pouvez défausser cette carte pour placer un Rêveur sur le terrain.",
+   "text": "Si 🧠 vraie : ciblez un joueur, à son prochain tour il ne peut pas vous nuire.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
    "image": ""
   },
@@ -3854,7 +3854,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si la sentience est vraie, mélange la défausse et la main dans le deck puis piocher 4 cartes. \nVous pouvez défausser cette carte pour placer un Rêveur sur le terrain.",
+   "text": "Si 🧠 vraie : mélangez votre défausse et votre main dans votre pioche, puis piochez 4 cartes.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
    "image": ""
   },
@@ -3872,7 +3872,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si la sentience est vraie, regarder la main d'un joueur. Sinon regarder une carte dans la main d'un joueur. Vous pouvez défausser cette carte pour placer un Rêveur sur le terrain.",
+   "text": "Ciblez un joueur. Si 🧠 vraie : regardez sa main ; sinon regardez une carte de sa main.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
    "image": ""
   },
@@ -3890,7 +3890,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si la sentience est vraie, poser une carte au choix de votre défausse. Vous pouvez défausser cette carte pour placer un Rêveur sur le terrain.",
+   "text": "Si 🧠 vraie : posez une carte de votre défausse.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
    "image": ""
   },
@@ -3908,7 +3908,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si la sentience est vraie, choisisser un état de trou noir puis activer un effet suivant :\nPrimordial : Changer la sentience d'un joueur à vraie\nBlazard : Changer l'état de trou noir d'un joueur\nQuasar : Echanger l'ordre de 2 de vos cartes\nTrou de ver : Gagner 10 gold",
+   "text": "Si 🧠 vraie, choisissez un état de 🌀 et son effet :\nPrimordial : la 🧠 d'un joueur → vraie.\nBlazard : changez le 🌀 d'un joueur.\nQuasar : échangez la place de 2 de vos cartes.\nTrou de ver : gagnez 10 💰.",
    "rules": "",
    "image": ""
   },
@@ -3926,7 +3926,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cibler un joueur avec sa sentience à vraie, détruit 1 carte au choix sur son terrain.",
+   "text": "Ciblez un joueur à 🧠 vraie : défaussez une carte de son terrain.",
    "rules": "",
    "image": ""
   },
@@ -3944,7 +3944,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cibler un joueur avec sa sentience à vraie,  active un effet en fonction de votre type de trou noir :\nPrimordial : Enlever 5 gold à ce joueur\nBlazard : Défausser la première carte de son deck\nQuasar : Défausser une carte de sa main\nTrou de ver : cette carte se détruit\nSi votre sentience est fausse change l'état de votre trou noir de façon cyclique.",
+   "text": "Ciblez un joueur à 🧠 vraie. Selon votre 🌀 :\nPrimordial : il perd 5 💰.\nBlazard : défaussez la première carte de sa pioche.\nQuasar : défaussez une carte de sa main.\nTrou de ver : défaussez cette carte.\nSi votre 🧠 est fausse : cyclez votre 🌀.",
    "rules": "",
    "image": ""
   },
@@ -3962,7 +3962,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cibler un joueur avec sa sentience à vraie, au prochain tour il ne peut pas interagir avec les autres joueurs",
+   "text": "Ciblez un joueur à 🧠 vraie : à son prochain tour, il ne peut pas interagir avec les autres.",
    "rules": "",
    "image": ""
   },
@@ -3980,7 +3980,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cibler un joueur avec sa sentience à vraie, poser cette carte le plus à droite de son terrain, chaque tour elle se décale à gauche et fait perdre 2 gold et si elle se retrouve en première position détruit toutes les cartes sur le terrain. L'effet est utilisable qu'une seule fois.",
+   "text": "Une seule fois — Ciblez un joueur à 🧠 vraie : posez cette carte à la fin de son terrain.\nÀ chaque tour, elle recule d'une place et il perd 2 💰. En première place, tout son terrain est défaussé.",
    "rules": "",
    "image": ""
   },
@@ -3998,7 +3998,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Cibler un joueur avec sa sentience à vraie, il perd 10 gold",
+   "text": "Ciblez un joueur à 🧠 vraie : il perd 10 💰.",
    "rules": "",
    "image": ""
   },
@@ -4016,7 +4016,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "La météo de tous les joueurs change selon votre trou noir :\nBlazard : Pluie · Quasar : Vent violent · Trou de ver : Canicule · Primordial : Neige.",
+   "text": "La météo de tous change selon votre 🌀 :\nBlazard : Pluie · Quasar : Vent violent · Trou de ver : Canicule · Primordial : Neige.",
    "rules": "Chaque joueur a sa propre météo, à part de son trou noir. Au début de la partie : Beau temps.",
    "image": "MET-01.png"
   },
@@ -4034,7 +4034,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si la carte Météo est déjà sur un terrain : vous pouvez changer de trou noir pour 10 gold.\nSinon, si vous n'êtes pas en Trou de ver : vous pouvez faire appel à la carte Météo (où qu'elle soit) et la jouer.",
+   "text": "Si la carte Météo est sur un terrain : changez votre 🌀 pour 10 💰 (facultatif).\nSinon, si 🌀 n'est pas Trou de ver : vous pouvez faire venir la carte Météo et la jouer.",
    "rules": "La carte Météo est jouée sur votre terrain (son effet s'active) et devient la vôtre.",
    "image": "MET-02.jpg"
   },
@@ -4052,7 +4052,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pour chaque joueur dont la sentience est vraie et la météo Pluie : chacune de ses cartes Sentience a 5 % de chances de retourner dans sa pioche. Cette carte n'est pas affectée.",
+   "text": "Chaque joueur à 🧠 vraie sous la Pluie : chacune de ses cartes Sentience a 5 % de chances de retourner dans sa pioche (sauf cette carte).",
    "rules": "",
    "image": "MET-03.jpg"
   },
@@ -4070,7 +4070,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pour chaque joueur dont la sentience est vraie et la météo Vent violent : 80 % de chances que l'ordre de son terrain s'inverse. Cette carte garde sa place.",
+   "text": "Chaque joueur à 🧠 vraie sous le Vent violent : 80 % de chances que l'ordre de son terrain s'inverse (cette carte garde sa place).",
    "rules": "",
    "image": "MET-04.jpg"
   },
@@ -4088,7 +4088,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pour chaque joueur dont la sentience est vraie et la météo Canicule : chacune de ses cartes Sentience lancera un d2 au moment de se jouer ; sur un 2, elle ne se joue pas. Cette carte n'est pas affectée.",
+   "text": "Chaque joueur à 🧠 vraie sous la Canicule : ses cartes Sentience lancent 🎲 1d2 avant de se jouer ; sur un 2, elles ne se jouent pas (sauf cette carte).",
    "rules": "Le d2 est lancé au moment où la carte devrait se jouer (1 = elle se joue, 2 = non), une seule fois.",
    "image": "MET-05.jpg"
   },
@@ -4106,7 +4106,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pour chaque joueur dont la sentience est vraie et la météo Neige : 10 % de chances qu'une de ses cartes, au hasard, soit ensevelie sous la neige (elle quitte le terrain). Quand plus personne n'a la neige, les cartes ensevelies sont mélangées et redistribuées.",
+   "text": "Chaque joueur à 🧠 vraie sous la Neige : 10 % de chances qu'une de ses cartes au hasard soit ensevelie (elle quitte le terrain).\nQuand plus personne n'a la Neige, les cartes ensevelies sont mélangées et redistribuées.",
    "rules": "Les cartes ensevelies ne sont dans aucune zone. Elles reviennent sur les terrains d'où elles sont parties, mais mélangées.",
    "image": "MET-06.jpg"
   },
@@ -4124,7 +4124,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pour chaque joueur dont la sentience est vraie et la météo Grêle : une chance sur deux de gagner 50 gold, sinon il donne 25 gold à chaque autre joueur.",
+   "text": "Chaque joueur à 🧠 vraie sous la Grêle : 1 chance sur 2 de gagner 50 💰, sinon il donne 25 💰 à chaque autre joueur.",
    "rules": "",
    "image": "MET-07.jpg"
   },
@@ -4142,7 +4142,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Neige, gagnez 1 gold par carte jouée (par n'importe qui) sous la neige depuis que Trace de pneu est posée. Le compteur ne bouge pas quand il ne neige pas, et repart à zéro après chaque gain.",
+   "text": "Si votre météo est Neige : gagnez 1 💰 par carte jouée (par tous) sous la Neige depuis sa pose.\nLe compteur se fige hors Neige et repart à zéro après chaque gain.",
    "rules": "« Carte jouée » = un effet de carte activé, par n'importe quel joueur, pendant que votre météo est Neige.",
    "image": "MET-08.jpg"
   },
@@ -4160,7 +4160,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Canicule, vous pouvez prendre le risque. Lancez 1d100 :\n1-20 : gagnez 50 gold · 21-40 : perdez 50 gold · 41-100 : tout le monde gagne 20 gold.",
+   "text": "Si votre météo est Canicule, vous pouvez tenter 🎲 1d100 :\n1-20 gagnez 50 💰 · 21-40 perdez 50 💰 · 41-100 tout le monde gagne 20 💰.",
    "rules": "",
    "image": "MET-09.jpg"
   },
@@ -4178,7 +4178,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Pluie, les autres joueurs peuvent rejoindre le pari. Chaque participant (vous compris) a une chance sur deux de gagner 1d100/2 gold, sinon il les perd.",
+   "text": "Si votre météo est Pluie : les autres peuvent rejoindre le pari.\nChaque participant (vous compris) : 1 chance sur 2 de gagner 🎲 1d100/2 💰, sinon il les perd.",
    "rules": "",
    "image": "MET-10.jpg"
   },
@@ -4196,7 +4196,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre météo :\nPluie : passe à Grêle.\nVent violent : rejouez une carte de votre terrain.\nCanicule : choisissez un nouveau trou noir contre 10 gold et votre sentience (qui passe à fausse).\nNeige ou Grêle : passe à Pluie et votre trou noir à Blazard.",
+   "text": "Selon votre météo :\nPluie : passe à Grêle.\nVent violent : rejouez une carte de votre terrain.\nCanicule : pour 10 💰, choisissez votre 🌀 et 🧠 → fausse.\nNeige ou Grêle : passe à Pluie et 🌀 → Blazard.",
    "rules": "",
    "image": "MET-11.jpg"
   },
@@ -4214,7 +4214,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez inverser votre sentience gratuitement, et celle de chaque autre joueur pour 10 gold par joueur, tant que vous avez les gold.",
+   "text": "Inversez votre 🧠 (gratuit) et, pour 10 💰 chacun, celle d'autres joueurs de votre choix.",
    "rules": "Chaque autre joueur au plus une fois. Tout est facultatif.",
    "image": "MET-12.jpg"
   },
@@ -4232,7 +4232,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est sur votre terrain, à chaque fois que la météo d'un joueur change, gagnez :\nPluie : 5 gold · Vent violent : 15 gold · Canicule : −5 gold · Neige : 10 gold · Grêle : 50 gold.",
+   "text": "Passif — Quand la météo d'un joueur change, gagnez :\nPluie 5 💰 · Vent violent 15 💰 · Canicule −5 💰 · Neige 10 💰 · Grêle 50 💰.",
    "rules": "Passif : compte les changements de météo de tous les joueurs (un par joueur).",
    "image": "MET-13.jpg"
   },
@@ -4250,7 +4250,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Canicule : donnez 10 gold au joueur de votre choix. Vent violent : gagnez 1d20 gold.\nPuis repositionnez jusqu'à 3 cartes de vos terrains et de ceux de vos alliés (une carte peut passer sur le terrain d'un allié).\nSi votre météo est Grêle, chaque joueur repositionne ses propres cartes de la même façon.",
+   "text": "Canicule : donnez 10 💰 à un joueur. Vent violent : gagnez 🎲 1d20 💰.\nPuis repositionnez jusqu'à 3 cartes de votre terrain et de ceux de vos alliés (elles peuvent changer de terrain allié).\nGrêle : chaque joueur repositionne ses cartes de la même façon.",
    "rules": "En Grêle, chaque joueur joue la partie « repositionnez » pour lui-même (ses cartes et celles de ses alliés).",
    "image": "MET-14.jpg"
   },
@@ -4268,7 +4268,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre météo :\nPluie : tous les joueurs remettent leur main dans leur pioche, la mélangent et piochent 4 cartes.\nVent violent : chaque joueur a 10 % de chances que l'ordre de son terrain soit mélangé.\nCanicule : choisissez un trou noir provisoire, jusqu'à la fin de votre tour.\nGrêle : tous les joueurs défaussent leur main et piochent 1 carte.",
+   "text": "Selon votre météo :\nPluie : chacun mélange sa main dans sa pioche et pioche 4 cartes.\nVent violent : chaque terrain a 10 % de chances d'être mélangé.\nCanicule : choisissez un 🌀 provisoire (⏱ fin de votre tour).\nGrêle : chacun défausse sa main et pioche 1 carte.",
    "rules": "",
    "image": "MET-15.jpg"
   },
@@ -4286,7 +4286,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que votre météo est Pluie ou Vent violent, les gold que vous perdez sont stockés sur cette carte. Quand votre météo passe à Canicule, vous les récupérez ; si elle passe à Grêle ou Orage, ils sont perdus.",
+   "text": "Passif — Sous la Pluie ou le Vent violent : les 💰 que vous perdez sont stockés ici.\nCanicule : récupérez-les. Grêle ou Orage : ils sont perdus.",
    "rules": "Toute perte de gold compte (dépenses comprises).",
    "image": "MET-16.jpg"
   },
@@ -4304,7 +4304,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez désactiver la carte Météo. Puis, au choix : votre météo change au hasard, ou lancez le dé de sentience.",
+   "text": "Vous pouvez désactiver la carte Météo.\nPuis au choix : votre météo change au hasard, ou lancez le dé de sentience.",
    "rules": "Bloquer = désactiver la carte Météo jusqu'à nouvel ordre. Météo au hasard : Pluie, Vent violent, Canicule, Neige ou Grêle.",
    "image": "MET-17.jpg"
   },
@@ -4322,7 +4322,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : jouez une carte de votre main en la montrant à tous (elle reste dans votre main) et vous pouvez repositionner une carte de votre terrain.\nSentience fausse : chaque autre joueur montre une carte de sa main et la joue ; elle reste dans sa main.",
+   "text": "🧠 vraie : jouez une carte de votre main en la montrant (elle reste en main) ; vous pouvez déplacer une carte de votre terrain.\n🧠 fausse : chaque autre joueur montre une carte de sa main et la joue (elle reste en main).",
    "rules": "Une carte jouée depuis la main active son effet sans être posée et reste dans la main.",
    "image": "MET-18.jpg"
   },
@@ -4340,7 +4340,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagnez X gold maintenant, puis à chaque changement de météo de n'importe quel joueur. X = 1 pour Canicule, 20 pour Grêle, 50 pour Orage, 5 pour les autres.\nAprès 4 météos différentes pendant votre tour, chaque nouveau changement rapporte 50 gold.",
+   "text": "Gagnez X 💰 maintenant, puis à chaque changement de météo de n'importe qui.\nX : Canicule 1 · Grêle 20 · Orage 50 · autres 5.\nAprès 4 météos différentes dans votre tour, chaque changement rapporte 50 💰.",
    "rules": "Les changements de météo de tous les joueurs comptent.",
    "image": "MET-19.jpg"
   },
@@ -4358,7 +4358,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Pluie, un orage se prépare : à la prochaine activation de cette carte, elle est défaussée et l'Orage prend sa place.",
+   "text": "Si votre météo est Pluie : un orage se prépare. À sa prochaine activation, cette carte est défaussée et l'Orage prend sa place.",
    "rules": "L'orage éclate à la prochaine activation de la carte (en général à votre prochain tour).",
    "image": "MET-20.jpg"
   },
@@ -4376,7 +4376,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut être posé que par « Temps de merde » (ou « Temps pour prier »). Ne peut être ni défaussé, ni volé, ni déplacé, sauf par « Éclaircissement ».\nLe joueur qui a l'Orage sur son terrain a la météo Orage : ses cartes Sentience et Gold ne se jouent plus (sauf « Éclair »).\nÀ la fin de son tour, l'Orage part sur le terrain d'un autre joueur au hasard. Au bout de 5 tours, il se dissipe.",
+   "text": "Passif — 🔒 Posée seulement par Temps de merde ou Temps pour prier. Ni défaussée, ni volée, ni déplacée (sauf par Éclaircissement).\nSon terrain a la météo Orage : ses cartes Sentience et Gold ne se jouent plus (sauf Éclair).\nÀ la fin de ce tour, elle part chez un autre joueur au hasard ; elle se dissipe après 5 tours.",
    "rules": "La carte Orage reste à sa place sur le terrain. Les 5 tours comptent tous les tours joués depuis son arrivée. En se dissipant, elle va dans la défausse de son propriétaire.",
    "image": "MET-21.jpg"
   },
@@ -4394,7 +4394,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Une chance sur quatre de choisir votre météo. Puis lancez 1d100 :\n1 : l'Orage arrive sur votre terrain (s'il y est déjà, gagnez 500 gold) · 50 : donnez 50 gold à chaque joueur · 100 : gagnez 250 gold.",
+   "text": "1 chance sur 4 : choisissez votre météo.\nPuis 🎲 1d100 : 1 l'Orage arrive chez vous (s'il y est déjà, gagnez 500 💰) · 50 donnez 50 💰 à chaque joueur · 100 gagnez 250 💰.",
    "rules": "Le d4 est lancé d'abord (1 = vous choisissez votre météo), puis le d100 dans tous les cas.",
    "image": "MET-22.jpg"
   },
@@ -4412,7 +4412,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, vous pouvez payer selon votre météo :\nPluie, 20 gold : changez la position d'une carte.\nVent violent, 200 gold : échangez les terrains de deux joueurs.\nCanicule, 100 gold : changez le trou noir d'un joueur.\nNeige, 50 gold : défaussez la carte de n'importe qui.\nGrêle, 20 gold : une carte de votre choix ne se joue pas à son prochain passage.",
+   "text": "Si 🧠 vraie, vous pouvez payer selon votre météo :\nPluie, 20 💰 : déplacez une carte.\nVent violent, 200 💰 : échangez les terrains de deux joueurs.\nCanicule, 100 💰 : changez le 🌀 d'un joueur.\nNeige, 50 💰 : défaussez une carte de n'importe qui.\nGrêle, 20 💰 : une carte ne se joue pas à son prochain passage.",
    "rules": "Se joue à son tour en phase 1, comme les autres cartes.",
    "image": "MET-23.jpg"
   },
@@ -4430,7 +4430,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Un joueur est tiré au hasard parmi ceux qui ont une météo. Selon sa météo, changez le trou noir du joueur de votre choix :\nPluie : Quasar · Vent violent : Primordial · Canicule : Trou de ver · Neige : Blazard · Grêle : il choisit son trou noir.\nOrage : le trou noir de tous les joueurs est tiré au hasard, vous compris.",
+   "text": "Un joueur avec une météo est tiré au hasard. Selon sa météo, changez le 🌀 d'un joueur de votre choix :\nPluie Quasar · Vent violent Primordial · Canicule Trou de ver · Neige Blazard · Grêle il choisit.\nOrage : le 🌀 de tous est tiré au hasard.",
    "rules": "",
    "image": "MET-24.jpg"
   },
@@ -4448,7 +4448,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À la fin de votre tour, les gold gagnés pendant ce tour sont multipliés selon votre météo au moment où la carte s'active :\nPluie : ×1,5 · Vent violent : ×1 · Canicule : ×0,5 · Neige : ×2.",
+   "text": "À la fin de votre tour, les 💰 gagnés pendant ce tour sont multipliés selon votre météo :\nPluie ×1,5 · Vent violent ×1 · Canicule ×0,5 · Neige ×2.",
    "rules": "La différence (en plus ou en moins) est gagnée ou perdue à la fin de votre tour.",
    "image": "MET-25.jpg"
   },
@@ -4466,7 +4466,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez 1d100, multiplié selon votre météo : Pluie ×1,5 · Vent violent ×2 · Canicule ×0 · Neige ×0,5 · Grêle ×−1 · Orage ×−2.\nUne chance sur deux que le résultat (gain ou perte) soit réparti équitablement entre tous les joueurs ; sinon, il est pour vous.",
+   "text": "🎲 1d100 × météo : Pluie ×1,5 · Vent violent ×2 · Canicule ×0 · Neige ×0,5 · Grêle ×−1 · Orage ×−2.\n1 chance sur 2 que le résultat (gain ou perte) soit partagé entre tous ; sinon il est pour vous.",
    "rules": "",
    "image": "MET-26.jpg"
   },
@@ -4484,7 +4484,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est sur un terrain, au début de son tour, un joueur qui a la même météo qu'un autre peut jouer pour lui une carte du terrain de cet autre joueur. Vous pouvez le faire dès l'activation.",
+   "text": "Tant qu'elle est sur un terrain : au début de son tour, un joueur qui a la même météo qu'un autre peut jouer pour lui une carte du terrain de cet autre.\nVous pouvez le faire dès l'activation.",
    "rules": "La carte jouée s'active pour le joueur qui la joue.",
    "image": "MET-27.jpg"
   },
@@ -4502,7 +4502,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre météo :\nPluie : inversez la sentience de tous les joueurs qui ont la pluie.\nVent violent : jusqu'à 2 fois, un joueur de votre choix lance le dé trou noir.\nCanicule : rien.\nNeige : retirez jusqu'à 20 gold à un joueur.\nGrêle : le joueur à votre droite choisit votre nouveau trou noir et change le sien.\nOrage : tout le monde vous donne 25 gold.",
+   "text": "Selon votre météo :\nPluie : inversez la 🧠 de tous ceux qui ont la Pluie.\nVent violent : jusqu'à 2 fois, un joueur de votre choix lance le dé trou noir.\nCanicule : rien.\nNeige : retirez jusqu'à 20 💰 à un joueur.\nGrêle : le joueur à votre droite choisit votre 🌀 et change le sien.\nOrage : tout le monde vous donne 25 💰.",
    "rules": "Grêle : c'est le joueur à votre droite (le suivant) qui choisit les deux trous noirs.",
    "image": "MET-28.jpg"
   },
@@ -4520,7 +4520,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Orage ou Grêle : choisissez votre trou noir ; votre météo devient celle de ce trou noir. Si l'Orage est sur votre terrain, il va dans la défausse.",
+   "text": "Si votre météo est Orage ou Grêle : choisissez votre 🌀, votre météo suit.\nSi l'Orage est sur votre terrain, il est défaussé.",
    "rules": "",
    "image": "MET-29.jpg"
   },
@@ -4538,7 +4538,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Se joue seulement s'il y a un Orage. L'éclair tombe sur le terrain de l'Orage (Éclair y va) : chaque carte (sauf Orage et Éclair) a 50 % de chances d'aller dans la défausse ; une carte qui devrait être défaussée a 5 % de chances de se jouer à la place.",
+   "text": "Seulement s'il y a un Orage : cette carte va sur son terrain. Chaque carte (sauf Orage et Éclair) a 50 % de chances d'être défaussée ; une carte défaussée a 5 % de chances de se jouer à la place.",
    "rules": "Le 50 % est un dé à 2 faces, le 5 % un 1 sur 1d20. Para-Tonnerre doit être sur le terrain frappé.",
    "image": "MET-30.jpg"
   },
@@ -4556,7 +4556,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si un éclair tombe sur votre terrain, gagnez 1d100 × 10 gold et aucune carte n'est défaussée.",
+   "text": "Passif — Si un éclair tombe sur votre terrain : gagnez 🎲 1d100 × 10 💰 et aucune carte n'est défaussée.",
    "rules": "",
    "image": "MET-31.jpg"
   },
@@ -4574,7 +4574,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : récupérez une carte du deck Météo face visible (sur un terrain, le vôtre compris, dans une défausse ou montrée dans une main ; pas l'Orage) et posez-la sur votre terrain, sans activer son effet.\nSentience fausse : votre sentience passe à vraie.",
+   "text": "🧠 vraie : posez sur votre terrain, sans son effet, une carte Météo visible (terrain, défausse ou montrée en main ; pas l'Orage).\n🧠 fausse : 🧠 → vraie.",
    "rules": "Votre propre terrain compte aussi (la carte est déplacée en dernière position). L'Orage ne peut pas être récupéré.",
    "image": "MET-32.jpg"
   },
@@ -4592,7 +4592,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, volez une carte (face cachée) de la main du joueur de votre choix : elle va dans votre main.",
+   "text": "Si 🧠 vraie : ciblez un joueur, volez une carte de sa main (face cachée).",
    "rules": "La carte volée change de propriétaire.",
    "image": "PIR-01.jpg"
   },
@@ -4610,7 +4610,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que cette carte est sur votre terrain, chaque carte défaussée de votre main vous rapporte 20 gold, chaque carte défaussée de votre terrain 10 gold, et tout autre déplacement d'une de vos cartes 5 gold.",
+   "text": "Passif — Chaque carte défaussée de votre main : +20 💰 ; de votre terrain : +10 💰 ; tout autre déplacement d'une de vos cartes : +5 💰.",
    "rules": "« Autre déplacement » = une de vos cartes bouge à cause d'un effet (changement de place, de terrain, retour en main…). Les pioches et les poses normales ne comptent pas.",
    "image": "PIR-02.jpg"
   },
@@ -4628,7 +4628,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si vous n'êtes pas en Trou de ver, vous pouvez envoyer une carte de votre terrain, de votre main ou de votre défausse à la place de votre choix sur le terrain d'un joueur dont la sentience est vraie.",
+   "text": "Si 🌀 n'est pas Trou de ver : envoyez une carte de votre terrain, main ou défausse où vous voulez sur le terrain d'un joueur à 🧠 vraie.",
    "rules": "Le lanceur choisit la place sur le terrain de la cible. La carte envoyée active son effet pour ce joueur. L'envoi est facultatif.",
    "image": "PIR-03.jpg"
   },
@@ -4646,7 +4646,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : prenez les deux cartes du dessus de votre pioche. Retournez-en une au hasard : elle est visible de tous, l'autre reste cachée. Prenez l'une des deux dans votre main ; l'autre retourne au fond de la pioche.\nSentience fausse : retournez face cachée une carte de votre terrain et passez votre sentience à vraie. La carte retournée est désactivée ; à son prochain passage, elle se remet face visible et se réactive, sans jouer son effet.",
+   "text": "🧠 vraie : prenez les 2 cartes du dessus de votre pioche, une au hasard est montrée à tous. Gardez-en une en main, l'autre va au fond de la pioche.\n🧠 fausse : retournez face cachée une carte de votre terrain (désactivée) et 🧠 → vraie. À son prochain passage, elle se retourne et se réactive, sans son effet.",
    "rules": "Se joue à son tour en phase 1, comme les autres cartes. La carte choisie à l'aveugle est montrée à tous ; si elle va en main, elle y reste visible.",
    "image": "PIR-04.jpg"
   },
@@ -4664,7 +4664,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Blazard : jouez une carte de votre main, puis défaussez-la.\nTrou de ver : choisissez face cachée une carte de la main d'un autre joueur : elle se joue pour lui, puis va dans sa défausse.\nSentience vraie : piochez une carte.",
+   "text": "Blazard : jouez une carte de votre main, puis défaussez-la.\nTrou de ver : choisissez face cachée une carte de la main d'un autre joueur ; elle se joue pour lui, puis va dans sa défausse.\n🧠 vraie : piochez une carte.",
    "rules": "Jouer une carte = la poser à la place de votre choix sur votre terrain et activer son effet. Les effets de trou noir et de sentience s'additionnent.",
    "image": "PIR-05.png"
   },
@@ -4682,7 +4682,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Choisissez un joueur qui a le même trou noir que vous : il choisit entre vous payer 100 gold ou vous donner toute sa main. S'il donne sa main, vous lui rendez ensuite autant de cartes de votre main.",
+   "text": "Ciblez un joueur qui a le même 🌀 : il vous paie 100 💰 ou vous donne toute sa main (vous lui rendez alors autant de cartes).",
    "rules": "Les 100 gold vont au lanceur. Sans 100 gold, le joueur doit donner sa main. Les cartes rendues sont choisies par le lanceur.",
    "image": "PIR-06.png"
   },
@@ -4700,7 +4700,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand il est posé, le rat saute sur le terrain d'un autre joueur, au hasard.\nQuand il se joue, le joueur qui l'a sur son terrain passe sa sentience à fausse et perd 5 gold par carte Sentience de son terrain, puis le rat saute sur un autre terrain au hasard.",
+   "text": "Posé : le rat saute sur le terrain d'un autre joueur au hasard.\nQuand il se joue : ce joueur passe 🧠 → fausse et perd 5 💰 par carte Sentience de son terrain, puis le rat saute ailleurs au hasard.",
    "rules": "« Payer » = perdre les gold (ils ne vont à personne). Le rat ne fait rien le tour où il arrive sur un terrain. Les cartes Sentience comptées sont celles du terrain où se trouve le rat.",
    "image": "PIR-07.jpg"
   },
@@ -4718,7 +4718,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Au choix (facultatif), selon votre trou noir :\nBlazard : piochez 2 cartes et posez-en jusqu'à 2 sans activer leurs effets.\nTrou de ver : mettez une carte de votre main dans votre pioche, mélangez-la et piochez une carte.\nQuasar : piochez 2 cartes et défaussez jusqu'à 2 cartes de votre terrain.\nPrimordial : au prochain tour de chaque joueur, chaque carte de son terrain se joue deux fois. La Voile ne peut plus jamais être jouée.",
+   "text": "Facultatif, selon votre 🌀 :\nBlazard : piochez 2 cartes et posez-en jusqu'à 2, sans leur effet.\nTrou de ver : mélangez une carte de votre main dans votre pioche et piochez une carte.\nQuasar : piochez 2 cartes et défaussez jusqu'à 2 cartes de votre terrain.\nPrimordial : au prochain tour de chacun, ses cartes se jouent deux fois. La Voile ne se joue plus jamais.",
    "rules": "Primordial : chaque joueur, à son prochain tour, joue deux fois de suite chaque carte de son terrain pendant la phase d'activation. La Voile reste où elle est, désactivée pour toujours.",
    "image": "PIR-08.jpg"
   },
@@ -4736,7 +4736,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez 2 cartes de votre main par cran (autant de crans que vous voulez) : votre trou noir avance d'autant de crans, dans l'ordre Blazard → Quasar → Trou de ver → Primordial.",
+   "text": "Défaussez 2 cartes de votre main par cran : votre 🌀 avance d'autant (Blazard → Quasar → Trou de ver → Primordial).",
    "rules": "Ordre en boucle : après Primordial, on revient à Blazard. Pas de maximum de crans.",
    "image": "PIR-09.png"
   },
@@ -4754,7 +4754,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez X cartes de votre main :\n1 : gagnez 1 à 10 gold, ou donnez-les à un joueur ;\n2 : changez la sentience d'un joueur ;\n3 : volez une carte du terrain, de la main ou de la pioche d'un autre joueur, elle va dans votre main ;\n5 : changez la sentience de tous les joueurs ;\n10 : validez la condition personnelle d'un autre joueur, ou la condition commune de n'importe quelle équipe.",
+   "text": "Défaussez X cartes de votre main :\n1 : gagnez ou donnez 1 à 10 💰 ;\n2 : changez la 🧠 d'un joueur ;\n3 : volez une carte (terrain, main ou pioche) d'un autre joueur ;\n5 : changez la 🧠 de tous ;\n10 : validez la condition personnelle d'un autre joueur, ou la condition commune d'une équipe.",
    "rules": "3 : la carte volée change de propriétaire ; dans la main ou la pioche, elle est choisie à l'aveugle. 10 : n'importe quelle équipe, la vôtre comprise, pour la condition commune.",
    "image": "PIR-10.png"
   },
@@ -4772,7 +4772,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Choisissez une carte de votre main ou de la main d'un allié et posez-la où vous voulez sur n'importe quel terrain : son effet s'active. Le Pistolet revient dans votre main.\nSentience fausse : une chance sur deux d'exploser : la carte choisie et le Pistolet sont défaussés.",
+   "text": "Posez une carte de votre main ou d'un allié où vous voulez : elle s'active. Le Pistolet revient dans votre main.\n🧠 fausse : 1 chance sur 2 d'exploser, la carte et le Pistolet sont défaussés.",
    "rules": "Allié = joueur de votre équipe. La carte s'active pour le lanceur, même posée sur un autre terrain.",
    "image": "PIR-11.jpg"
   },
@@ -4790,7 +4790,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "10 % de chances de faire son effet, selon votre trou noir (raté : rien ne se passe) :\nBlazard : choisissez jusqu'à 3 cartes d'un terrain ; chacune a 25 % de chances d'être volée dans votre main. Puis Black pearl va dans la défausse.\nPrimordial : prenez jusqu'à 3 cartes du terrain d'un joueur dans votre main ; vous gagnez chacun 25 gold par carte prise. Puis Black pearl va dans la défausse.\nTrou de ver : mélangez votre pioche et piochez 3 cartes. Puis Black pearl va dans la défausse.\nQuasar : sacrifiez jusqu'à 3 cartes (terrain ou main) ; pour chacune, Black pearl va sur votre pioche, vous la piochez et la posez à la place de votre choix.",
+   "text": "10 % de chances de réussir, selon votre 🌀 :\nBlazard : jusqu'à 3 cartes d'un terrain, chacune 25 % de chances d'être volée. Puis défaussez cette carte.\nPrimordial : prenez jusqu'à 3 cartes d'un terrain ; chacun gagne 25 💰 par carte. Puis défaussez cette carte.\nTrou de ver : mélangez votre pioche et piochez 3 cartes. Puis défaussez cette carte.\nQuasar : sacrifiez jusqu'à 3 cartes ; pour chacune, piochez cette carte et reposez-la où vous voulez.",
    "rules": "Le 10 % est un 1 sur 1d10. Raté : Black pearl reste en place. Quasar : chaque fois que Black pearl est reposée, son effet peut s'activer à nouveau.",
    "image": "PIR-12.jpg"
   },
@@ -4808,7 +4808,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, regardez la main du joueur de votre choix, puis le Perroquet revient dans votre main.",
+   "text": "Si 🧠 vraie : regardez la main d'un joueur. Puis le Perroquet revient dans votre main.",
    "rules": "Seul le lanceur voit la main.",
    "image": "PIR-13.png"
   },
@@ -4826,7 +4826,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 25 gold : jusqu'à 4 cartes Sentience de votre terrain ou de votre main se jouent.",
+   "text": "Coût : 25 💰.\nJusqu'à 4 cartes Sentience de votre terrain ou de votre main se jouent.",
    "rules": "25 gold au total, pas par carte. Les cartes de la main sont posées à la place de votre choix puis s'activent.",
    "image": "PIR-14.jpg"
   },
@@ -4844,7 +4844,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Obligatoire si vous n'êtes pas en Trou de ver : choisissez 8 autres cartes de votre terrain ; chacune a 25 % de chances d'être défaussée.",
+   "text": "Obligatoire si 🌀 n'est pas Trou de ver : choisissez 8 autres cartes de votre terrain, chacune a 25 % de chances d'être défaussée.",
    "rules": "Le Kraken ne se choisit jamais lui-même. S'il y a moins de 8 autres cartes, toutes sont choisies. En Trou de ver, le lâcher est facultatif.",
    "image": "PIR-15.jpg"
   },
@@ -4862,7 +4862,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pendant votre prochain tour, si votre trou noir passe à Blazard, les cartes de votre main sont révélées à tous et jouent leur effet en restant dans votre main.",
+   "text": "Pendant votre prochain tour, si 🌀 → Blazard : votre main est montrée à tous et chaque carte joue son effet en restant en main.",
    "rules": "Seulement pendant votre prochain tour, et une seule fois. Les cartes restent dans votre main, visibles de tous.",
    "image": "PIR-16.jpg"
   },
@@ -4880,7 +4880,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, chaque carte placée avant la Mer : 25 % de chances d'aller dans votre main, 25 % d'être défaussée, 50 % de vous rapporter 10 gold.",
+   "text": "Si 🧠 vraie, pour chaque carte avant la Mer : 25 % dans votre main · 25 % défaussée · 50 % +10 💰.",
    "rules": "Les cartes reviennent dans la main du lanceur de la Mer.",
    "image": "PIR-17.png"
   },
@@ -4898,7 +4898,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Donnez 25 gold au joueur de votre choix (sans assez de gold, rien ne se passe). La carte se met sur le côté : la prochaine fois qu'elle se joue, une chance sur deux de vous rapporter 100 gold, puis elle est défaussée.",
+   "text": "Donnez 25 💰 à un joueur (sinon rien). La carte se met de côté.\nÀ son prochain passage : 1 chance sur 2 de gagner 100 💰, puis elle est défaussée.",
    "rules": "Tant qu'il est sur le côté, Le Fatigué ne refait pas son effet ; le tirage a lieu la prochaine fois qu'il se joue.",
    "image": "PIR-18.jpg"
   },
@@ -4916,7 +4916,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancez le dé trou noir : si le résultat est votre trou noir, le coffre s'ouvre : gagnez 1d100 gold, puis relancez le dé trou noir : votre trou noir devient le résultat.",
+   "text": "Lancez le dé trou noir : si c'est votre 🌀, gagnez 🎲 1d100 💰, puis relancez : votre 🌀 prend le résultat.",
    "rules": "",
    "image": "PIR-19.jpg"
   },
@@ -4934,7 +4934,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : la carte juste après se joue une fois de plus.\nSentience fausse : votre sentience passe à vraie, mais trop bourré, la carte juste après ne se joue pas ce tour.",
+   "text": "🧠 vraie : la carte suivante se joue une fois de plus.\n🧠 fausse : 🧠 → vraie, mais la carte suivante ne se joue pas ce tour.",
    "rules": "Avec la sentience vraie, la carte suivante se joue maintenant, puis encore une fois à son tour normal.",
    "image": "PIR-20.png"
   },
@@ -4952,7 +4952,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut pas être défaussée.\nÀ chaque fois que votre trou noir change :\nBlazard : perdez 20 gold et passez en Quasar ;\nQuasar : perdez 30 gold et passez votre sentience à vraie ;\nPrimordial : perdez 50 gold et changez le trou noir d'un joueur ;\nTrou de ver : gagnez 50 gold et passez votre sentience à fausse.",
+   "text": "Passif — 🔒 Ne peut pas être défaussée.\nQuand votre 🌀 change :\nBlazard : perdez 20 💰 et 🌀 → Quasar.\nQuasar : perdez 30 💰 et 🧠 → vraie.\nPrimordial : perdez 50 💰 et changez le 🌀 d'un joueur.\nTrou de ver : gagnez 50 💰 et 🧠 → fausse.",
    "rules": "Ne peut pas être défaussée par un effet. Réagit à chaque changement de son trou noir ; Blazard le fait passer en Quasar, ce qui déclenche aussi l'effet Quasar. Primordial : le porteur choisit un joueur (lui compris) et son nouveau trou noir.",
    "image": "FLE-01.png"
   },
@@ -4970,7 +4970,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois que votre sentience change :\nvraie : perdez 10 gold ;\nfausse : gagnez 20 gold.",
+   "text": "Passif — 🧠 → vraie : perdez 10 💰.\n🧠 → fausse : gagnez 20 💰.",
    "rules": "Chaque changement de la sentience du porteur.",
    "image": "FLE-02.jpg"
   },
@@ -4988,7 +4988,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, à chaque fois que vous perdez des gold, chaque autre joueur perd la même quantité.",
+   "text": "Passif — Si 🧠 vraie : quand vous perdez des 💰, chaque autre joueur perd autant.",
    "rules": "Avec la sentience vraie du porteur : quand il perd des gold, chaque autre joueur perd la même quantité.",
    "image": "FLE-03.png"
   },
@@ -5006,7 +5006,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand un autre joueur a une interaction avec vous, son trou noir prend l'état du vôtre et cette carte va à la fin de son terrain.",
+   "text": "Passif — Quand un autre joueur interagit avec vous : son 🌀 prend l'état du vôtre et cette carte va à la fin de son terrain.",
    "rules": "Quand un autre joueur fait une interaction avec le porteur : ce joueur prend le trou noir du porteur, puis la carte va à la fin de son terrain et lui appartient.",
    "image": "FLE-04.png"
   },
@@ -5024,7 +5024,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois que vous gagnez des gold, passez votre sentience à vraie.",
+   "text": "Passif — Quand vous gagnez des 💰 : 🧠 → vraie.",
    "rules": "",
    "image": "FLE-05.jpg"
   },
@@ -5042,7 +5042,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois qu'un effet défausse une carte d'un terrain, vous pouvez activer une carte de n'importe quel terrain comme si vous en étiez le lanceur.",
+   "text": "Passif — Quand un effet défausse une carte d'un terrain : vous pouvez activer une carte de n'importe quel terrain comme si vous la lanciez.",
    "rules": "Déclenché par toute défausse d'une carte d'un terrain causée par l'effet d'une carte (quelle que soit sa zone). Le porteur peut choisir une carte de n'importe quel terrain et l'active comme s'il en était le lanceur (ex. « gagnez 10 gold » lui fait gagner les 10 gold).",
    "image": "FLE-06.png"
   },
@@ -5060,7 +5060,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois que votre trou noir passe en Quasar : perdez 20 gold et les autres joueurs passent leur sentience à fausse.",
+   "text": "Passif — 🌀 → Quasar : perdez 20 💰 et la 🧠 des autres → fausse.",
    "rules": "Les autres joueurs passent leur sentience à fausse.",
    "image": "FLE-07.jpg"
   },
@@ -5078,7 +5078,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand le trou noir d'un autre joueur change, le vôtre prend le même état. Vous pouvez ensuite défausser cette carte.",
+   "text": "Passif — Quand le 🌀 d'un autre joueur change, le vôtre prend le même état.\nVous pouvez ensuite défausser cette carte.",
    "rules": "Quand un autre joueur change de trou noir, le porteur prend le même. Il peut ensuite choisir de défausser la carte.",
    "image": "FLE-08.png"
   },
@@ -5096,7 +5096,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut pas être défaussée.\nÀ chaque fois que vous perdez des gold, posez la première carte de votre défausse en première position de votre terrain et activez-la.",
+   "text": "Passif — 🔒 Ne peut pas être défaussée.\nQuand vous perdez des 💰 : posez la première carte de votre défausse en première place et activez-la.",
    "rules": "Ne peut pas être défaussée par un effet. À chaque perte de gold : la première carte de sa défausse va en première position de son terrain et s'active.",
    "image": "FLE-09.jpg"
   },
@@ -5114,7 +5114,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand un autre joueur change une de vos ressources, cette carte va à la fin de son terrain.\nS'il l'a encore à la fin de son prochain tour, il défausse sa main et ne peut pas poser de carte au tour suivant.",
+   "text": "Passif — Quand un autre joueur change vos 💰, 🧠 ou 🌀 : cette carte va à la fin de son terrain.\nS'il l'a encore à la fin de son prochain tour : il défausse sa main et ne pose rien au tour suivant.",
    "rules": "Déclenché quand un autre joueur change les gold, la sentience ou le trou noir du porteur. La carte va à la fin du terrain de ce joueur. À la fin de son prochain tour, s'il l'a encore : il défausse sa main avant de piocher, et au tour suivant il ne peut que défausser en phase 2.",
    "image": "FLE-10.jpg"
   },
@@ -5132,7 +5132,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que vous avez 0 gold, les passifs des cartes de votre main fonctionnent.",
+   "text": "Passif — À 0 💰 : les passifs des cartes de votre main fonctionnent.",
    "rules": "",
    "image": "FLE-11.jpg"
   },
@@ -5150,7 +5150,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand vous posez cette carte : perdez 10 gold et votre trou noir change au hasard.\nSi elle était déjà sur votre terrain : défaussez-la et gagnez 50 gold.",
+   "text": "Posée : perdez 10 💰 et votre 🌀 change au hasard.\nSi elle était déjà sur votre terrain : défaussez-la et gagnez 50 💰.",
    "rules": "Quand on la pose : −10 gold et trou noir au hasard. Quand elle s'active plus tard (phase 1) : défaussée, +50 gold.",
    "image": "FLE-12.png"
   },
@@ -5168,7 +5168,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois qu'une carte est posée sur un terrain, donnez X gold à chaque autre joueur (X = nombre de cartes sur votre terrain).",
+   "text": "Passif — Quand une carte est posée sur un terrain : donnez X 💰 à chaque autre joueur (X = cartes de votre terrain).",
    "rules": "Le porteur paie : à chaque carte posée sur n'importe quel terrain (depuis la main ou par un effet), chaque autre joueur reçoit X gold du porteur (dans la limite de ses gold).",
    "image": "FLE-13.png"
   },
@@ -5186,7 +5186,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois que votre trou noir passe en Primordial, défaussez la première carte de votre terrain.\nLes passifs de la première carte de votre défausse fonctionnent pour le joueur dont c'est le tour.",
+   "text": "Passif — 🌀 → Primordial : défaussez la première carte de votre terrain.\nLes passifs de la première carte de votre défausse fonctionnent pour le joueur dont c'est le tour.",
    "rules": "Le dessus de la défausse du porteur garde ses passifs, avec le joueur actif comme possesseur.",
    "image": "FLE-14.jpg"
   },
@@ -5204,7 +5204,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre sentience est vraie, les gold que vous perdez sont stockés sur cette carte.\nQuand vous tombez à 0 gold, récupérez tout le stock.",
+   "text": "Passif — Si 🧠 vraie : les 💰 que vous perdez sont stockés ici.\nÀ 0 💰 : récupérez tout le stock.",
    "rules": "Le stock est affiché sur la carte. Il est récupéré quand le porteur tombe à 0 gold avec cette carte sur son terrain.",
    "image": "FLE-15.png"
   },
@@ -5222,7 +5222,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vos gold peuvent devenir négatifs.\nSi votre sentience passe à fausse pendant que votre trou noir est Trou de ver, vos gold deviennent positifs (valeur absolue).",
+   "text": "Vos 💰 peuvent être négatifs.\nSi 🧠 → fausse pendant que 🌀 Trou de ver : vos 💰 redeviennent positifs (valeur absolue).",
    "rules": "Le porteur peut avoir des gold négatifs. Si sa sentience passe à fausse pendant qu'il est en Trou de ver, ses gold deviennent positifs (valeur absolue).",
    "image": "FLE-16.png"
   },
@@ -5240,7 +5240,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois qu'un joueur pioche, il pioche une carte de plus dans votre pioche.",
+   "text": "Passif — Quand un joueur pioche, il pioche une carte de plus dans votre pioche.",
    "rules": "Chaque pioche (de fin de tour ou d'un effet), par n'importe quel joueur : il pioche une carte de plus dans la pioche du porteur.",
    "image": "FLE-17.jpg"
   },
@@ -5258,7 +5258,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois que vous piochez, lancez le dé trou noir : votre trou noir prend le résultat.",
+   "text": "Passif — Quand vous piochez : lancez le dé trou noir, votre 🌀 prend le résultat.",
    "rules": "",
    "image": "FLE-18.png"
   },
@@ -5276,7 +5276,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand un autre joueur vous vole une carte, il vole aussi cette carte et 50 gold, et votre trou noir passe en Quasar.",
+   "text": "Passif — Quand un autre joueur vous vole une carte : il vole aussi cette carte et 50 💰, et votre 🌀 → Quasar.",
    "rules": "Voler = prendre une carte du porteur sans rien lui donner en retour. Le voleur prend aussi cette carte (dans la même zone que la carte volée) et 50 gold au porteur ; le trou noir du porteur passe en Quasar.",
    "image": "FLE-19.png"
   },
@@ -5294,7 +5294,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez toutes les cartes à passif de tous les terrains, puis cette carte. Votre trou noir passe en Trou de ver et gagnez 20 gold.",
+   "text": "Défaussez toutes les cartes à passif des terrains, puis cette carte.\n🌀 → Trou de ver. Gagnez 20 💰.",
    "rules": "Les cartes non défaussables restent.",
    "image": "FLE-20.jpg"
   },
@@ -5312,7 +5312,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que votre sentience est vraie, seules les cartes en position impaire (1, 3, 5…) de votre terrain s'activent.",
+   "text": "Tant que 🧠 vraie : seules les cartes en place impaire (1, 3, 5…) de votre terrain s'activent.",
    "rules": "Tant qu'elle est sur le terrain et que la sentience est vraie, les cartes en position paire ne s'activent pas pendant la phase 1.",
    "image": "FLE-21.jpg"
   },
@@ -5330,7 +5330,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Donnez une de vos cartes Fléaux (pioche, main, terrain ou défausse) à un autre joueur, dans la même zone chez lui. Défaussez cette carte et votre trou noir passe en Trou de ver.",
+   "text": "Donnez une de vos cartes Fléaux (pioche, main, terrain ou défausse) à un autre joueur, dans la même zone chez lui.\nDéfaussez cette carte. 🌀 → Trou de ver.",
    "rules": "Le lanceur choisit une de ses cartes Fléaux (pioche, main, terrain ou défausse), puis le joueur qui la reçoit dans la même zone (dessus de la pioche pour la pioche). La carte lui appartient ensuite.",
    "image": "FLE-22.jpg"
   },
@@ -5348,7 +5348,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si tous les joueurs ont au moins 3 cartes sur leur terrain : les cartes de tous les terrains et de toutes les mains retournent dans la pioche de leur propriétaire, chaque joueur mélange sa pioche, puis cette carte est retirée de la partie.",
+   "text": "Si chaque joueur a au moins 3 cartes sur son terrain : tous les terrains et toutes les mains retournent dans la pioche de leur propriétaire, mélangée.\nPuis cette carte est retirée de la partie.",
    "rules": "Chaque carte retourne dans la pioche de son propriétaire. « Disparaît » = retirée de la partie.",
    "image": "FLE-23.png"
   },
@@ -5366,7 +5366,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois qu'un joueur défausse une carte de sa main, défaussez une carte de votre main.",
+   "text": "Passif — Quand un joueur défausse une carte de sa main : défaussez une carte de votre main.",
    "rules": "Quand n'importe quel joueur (porteur compris) défausse une carte de sa main, le porteur choisit une carte de sa main à défausser.",
    "image": "FLE-24.png"
   },
@@ -5384,7 +5384,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Au tour suivant, posez Amanite juste après cette carte, où qu'elle soit.",
+   "text": "Au tour suivant, posez Amanite juste après cette carte.",
    "rules": "« Au tour suivant » = au tour suivant du porteur, pendant sa phase 1. Le champignon suivant est récupéré où qu'il soit, même chez un autre joueur, et posé juste après.",
    "image": "FLE-25.jpg"
   },
@@ -5402,7 +5402,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut être posée que par Agaric.\nAu tour suivant, posez Ascomycète juste après cette carte, où qu'elle soit.",
+   "text": "🔒 Posée seulement par Agaric.\nAu tour suivant, posez Ascomycète juste après cette carte.",
    "rules": "Ne peut arriver sur un terrain que par Agaric : aucun autre effet (pose, Tardigrade, Docteur malade…) ne passe outre. Récupère le champignon suivant où qu'il soit.",
    "image": "FLE-26.jpg"
   },
@@ -5420,7 +5420,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut être posée que par Amanite.\nAu tour suivant, posez Collybie juste après cette carte, où qu'elle soit.",
+   "text": "🔒 Posée seulement par Amanite.\nAu tour suivant, posez Collybie juste après cette carte.",
    "rules": "Ne peut arriver sur un terrain que par Amanite : aucun autre effet ne passe outre. Récupère le champignon suivant où qu'il soit.",
    "image": "FLE-27.jpg"
   },
@@ -5438,7 +5438,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut être posée que par Ascomycète.\nAu tour suivant, posez Polypore juste après cette carte, où qu'elle soit.",
+   "text": "🔒 Posée seulement par Ascomycète.\nAu tour suivant, posez Polypore juste après cette carte.",
    "rules": "Ne peut arriver sur un terrain que par Ascomycète : aucun autre effet ne passe outre. Récupère le champignon suivant où qu'il soit.",
    "image": "FLE-28.jpg"
   },
@@ -5456,7 +5456,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut être posée que par Collybie. Aucun effet.",
+   "text": "🔒 Posée seulement par Collybie. Aucun effet.",
    "rules": "Ne peut arriver sur un terrain que par Collybie : aucun autre effet ne passe outre.",
    "image": "FLE-29.jpg"
   },
@@ -5474,7 +5474,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si les 5 champignons sont sur votre terrain : défaussez-les, sauf Agaric. Le trou noir de tous les joueurs passe en Trou de ver et leur sentience prend l'état de votre choix. Gagnez 100 gold et vous pouvez défausser une carte de votre main ou de votre terrain.",
+   "text": "Si les 5 champignons sont sur votre terrain : défaussez-les (sauf Agaric).\n🌀 de tous → Trou de ver ; leur 🧠 prend l'état de votre choix.\nGagnez 100 💰 ; vous pouvez défausser une carte de votre main ou de votre terrain.",
    "rules": "Sans les 5 champignons, l'effet ne fait rien. Le lanceur choisit la sentience commune. La carte défaussée (facultative) vient de sa main ou de son terrain.",
    "image": "FLE-30.jpg"
   },
@@ -5492,7 +5492,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "À chaque fois qu'un joueur tombe à 0 gold, posez la première carte de votre pioche à la fin de son terrain et activez-la pour lui.",
+   "text": "Passif — Quand un joueur tombe à 0 💰 : posez la première carte de votre pioche à la fin de son terrain et activez-la pour lui.",
    "rules": "Quand un joueur tombe à 0 gold (lanceur compris) : la première carte de la pioche du porteur va en dernière position sur le terrain de ce joueur et s'active pour lui.",
    "image": "FLE-31.jpg"
   },
@@ -5510,7 +5510,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Quand un autre joueur remplit sa condition de victoire, votre condition est mise de côté : vous devez remplir la sienne à la place.",
+   "text": "Passif — Quand un autre joueur remplit sa condition de victoire : vous devez remplir la sienne à la place de la vôtre.",
    "rules": "Quand un autre joueur remplit sa condition personnelle, la condition du porteur (s'il n'a pas rempli la sienne) est mise de côté et remplacée par celle-ci. L'autre joueur garde sa condition remplie.",
    "image": "FLE-32.jpg"
   },
@@ -5528,7 +5528,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold. Ciblez un terrain : désactivez sa première carte ainsi que cette carte jusqu'à la fin de votre prochain tour.",
+   "text": "Coût : 10 💰.\nCiblez un terrain : désactivez sa première carte et cette carte (⏱ fin de votre prochain tour).",
    "rules": "Le coût est payé même s'il n'y a pas de carte à cibler.",
    "image": "POL-01.jpg"
   },
@@ -5546,7 +5546,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold. Le prochain vol que vous subissez est annulé : la carte à l'origine du vol et cette carte sont défaussées, puis lancez 1d100 et gagnez autant de gold.",
+   "text": "Coût : 10 💰.\nLe prochain vol contre vous est annulé : défaussez la carte qui vole et cette carte, puis gagnez 🎲 1d100 💰.",
    "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour. Ne protège que contre le premier vol (carte ou gold), puis la carte est défaussée.",
    "image": "POL-02.jpg"
   },
@@ -5564,7 +5564,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre trou noir en Quasar. Ciblez une carte d'un terrain : une chance sur deux de la défausser, sinon défaussez la carte juste après. Puis placez cette carte dans votre pioche et mélangez-la.",
+   "text": "Coût : 10 💰. 🌀 → Quasar.\nCiblez une carte d'un terrain : 1 chance sur 2 de la défausser, sinon défaussez sa voisine de droite.\nPuis mélangez cette carte dans votre pioche.",
    "rules": "« Celle d'après » = la carte juste à droite de la carte visée. S'il n'y en a pas, le tir rate.",
    "image": "POL-03.jpg"
   },
@@ -5582,7 +5582,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre trou noir en Blazard. Posez cette carte à la place de votre choix sur le terrain de votre choix : les cartes voisines sont désactivées. À la fin du tour de ce joueur, les cartes voisines sont réactivées, cette carte revient dans votre pioche et vous la mélangez.",
+   "text": "Coût : 10 💰. 🌀 → Blazard.\nPosez cette carte où vous voulez, sur n'importe quel terrain : désactivez ses voisines.\nÀ la fin du tour de ce joueur : les voisines sont réactivées et cette carte est mélangée dans votre pioche.",
    "rules": "Les voisines sont réactivées et le gaz revient à la fin du tour du joueur ciblé (le tour en cours si c'est vous). Le coût est payé même si l'effet ne peut pas aller au bout.",
    "image": "POL-04.jpg"
   },
@@ -5600,7 +5600,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagnez 50 gold. Si vous tombez à 0 gold, défaussez tout votre terrain. À chaque fois que vous, ou une de vos cartes, défaussez une carte, dépensez 10 gold.",
+   "text": "Passif — À l'arrivée : gagnez 50 💰.\nÀ 0 💰 : défaussez tout votre terrain.\nChaque carte défaussée par vous ou vos cartes : dépensez 10 💰.",
    "rules": "Les 50 gold sont gagnés quand la carte arrive sur un terrain. « Défausser une carte » = vous défaussez une carte (main, terrain…) ou une de vos cartes en défausse une. Sans les 10 gold, vous les perdez quand même (jusqu'à 0). La défausse du Ministre lui-même ne coûte rien.",
    "image": "POL-05.jpg"
   },
@@ -5618,7 +5618,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre trou noir en Trou de ver. Ciblez un terrain : ses cartes désactivées sont défaussées, puis tout le terrain est désactivé jusqu'au début du prochain tour de ce joueur. Défaussez cette carte.",
+   "text": "Coût : 10 💰. 🌀 → Trou de ver.\nCiblez un terrain : défaussez ses cartes désactivées, puis désactivez tout le terrain (⏱ début du prochain tour de ce joueur).\nPuis défaussez cette carte.",
    "rules": "",
    "image": "POL-06.jpg"
   },
@@ -5636,7 +5636,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold. Ciblez une carte d'un terrain : désactivez-la jusqu'au début du prochain tour de ce joueur. À la fin de chaque tour, lancez 1d6 : sur un 6, défaussez la carte ciblée.",
+   "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : désactivez-la (⏱ début du prochain tour de ce joueur).\nÀ chaque fin de tour : 🎲 1d6, sur un 6 défaussez-la.",
    "rules": "Le dé est lancé à la fin de chaque tour (de n'importe quel joueur) tant que la carte ciblée est sur un terrain.",
    "image": "POL-07.jpg"
   },
@@ -5654,7 +5654,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold. Les prochaines cartes désactivées sont placées sous cette carte. Si elle est défaussée avant la fin de votre prochain tour, ou s'il y a plus de 4 cartes dessous, les cartes retournent à leur place et sont réactivées (et cette carte est désactivée jusqu'au début de votre prochain tour). Sinon, à la fin de votre prochain tour, défaussez cette carte et les cartes dessous.",
+   "text": "Coût : 10 💰.\nJusqu'à la fin de votre prochain tour, les cartes désactivées vont sous cette carte ; ensuite, défaussez-la avec les cartes dessous.\nSi elle est défaussée avant, ou dès qu'il y a plus de 4 cartes dessous : elles reprennent leur place, réactivées, et cette carte est désactivée (⏱ début de votre prochain tour).",
    "rules": "Les cartes désactivées par n'importe quel effet vont dessous tant que la garde à vue dure. Quand la garde à vue est défaussée, les cartes d'autres joueurs défaussées avec elle comptent comme défaussées par son lanceur.",
    "image": "POL-08.jpg"
   },
@@ -5672,7 +5672,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Piochez une carte. Gagnez 20 gold à chaque fois qu'une de vos cartes défausse une carte d'un autre terrain.",
+   "text": "Passif — À l'arrivée : piochez une carte.\nChaque fois qu'une de vos cartes défausse une carte d'un autre terrain : gagnez 20 💰.",
    "rules": "La pioche se fait quand la carte arrive sur un terrain.",
    "image": "POL-09.jpg"
   },
@@ -5690,7 +5690,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold. Ciblez une carte d'un terrain : une chance sur deux de la désactiver, sinon défaussez-la.",
+   "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : 1 chance sur 2 de la désactiver (⏱ toujours), sinon défaussez-la.",
    "rules": "Désactivée sans durée = jusqu'à nouvel ordre.",
    "image": "POL-10.jpg"
   },
@@ -5708,7 +5708,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre trou noir en Trou de ver. Désactivez une carte de votre terrain jusqu'à la fin de votre prochain tour.",
+   "text": "Coût : 10 💰. 🌀 → Trou de ver.\nDésactivez une carte de votre terrain (⏱ fin de votre prochain tour).",
    "rules": "",
    "image": "POL-11.jpg"
   },
@@ -5726,7 +5726,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre trou noir en Quasar. Le prochain joueur qui modifie une de vos ressources défausse sa main, puis défaussez cette carte.",
+   "text": "Coût : 10 💰. 🌀 → Quasar.\nLe prochain joueur qui modifie vos 💰, 🧠 ou 🌀 défausse toute sa main, puis cette carte est défaussée.",
    "rules": "Seul un vrai changement compte : passer en Blazard quand on y est déjà n'est pas une modification.",
    "image": "POL-12.jpg"
   },
@@ -5744,7 +5744,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold. Choisissez la sentience de la cible.",
+   "text": "Coût : 10 💰.\nChoisissez la 🧠 d'un joueur (vraie ou fausse).",
    "rules": "",
    "image": "POL-13.jpg"
   },
@@ -5762,7 +5762,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold, passez votre trou noir en Primordial et votre sentience à vraie.",
+   "text": "Coût : 10 💰. 🌀 → Primordial. 🧠 → vraie.",
    "rules": "",
    "image": "POL-14.jpg"
   },
@@ -5780,7 +5780,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre sentience à fausse. Désactivez la première carte du terrain à votre droite et la dernière carte du terrain à votre gauche jusqu'au début de votre prochain tour.",
+   "text": "Coût : 10 💰. 🧠 → fausse.\nDésactivez la première carte du terrain à votre droite et la dernière du terrain à votre gauche (⏱ début de votre prochain tour).",
    "rules": "Droite = joueur suivant dans l'ordre du tour, gauche = joueur précédent.",
    "image": "POL-15.jpg"
   },
@@ -5798,7 +5798,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre trou noir en Blazard. Quand une carte arrive sur votre terrain sans venir de votre main, de votre défausse ou de votre pioche, désactivez-la jusqu'à la fin de votre prochain tour et choisissez sa place sur votre terrain.",
+   "text": "Coût : 10 💰. 🌀 → Blazard.\nQuand une carte arrive sur votre terrain sans venir de votre main, pioche ou défausse : choisissez sa place et désactivez-la (⏱ fin de votre prochain tour).",
    "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour.",
    "image": "POL-16.jpg"
   },
@@ -5816,7 +5816,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre sentience à vraie. Ciblez une carte du terrain du joueur suivant : désactivez-la, ainsi que cette carte, jusqu'au début du prochain tour de ce joueur.",
+   "text": "Coût : 10 💰. 🧠 → vraie.\nCiblez une carte du terrain à votre droite : désactivez-la, et cette carte aussi (⏱ début du prochain tour de ce joueur).",
    "rules": "",
    "image": "POL-17.jpg"
   },
@@ -5834,7 +5834,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagnez 20 gold, lancez le dé trou noir et inversez votre sentience.",
+   "text": "Gagnez 20 💰. Lancez le dé trou noir. Inversez votre 🧠.",
    "rules": "",
    "image": "POL-18.jpg"
   },
@@ -5852,7 +5852,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold. Ciblez une carte d'un terrain : désactivez-la jusqu'à la fin de votre prochain tour.",
+   "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : désactivez-la (⏱ fin de votre prochain tour).",
    "rules": "",
    "image": "POL-19.jpg"
   },
@@ -5870,7 +5870,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre sentience à fausse. Ciblez un joueur : défaussez la première carte désactivée de son terrain. Désactivez cette carte jusqu'à la fin de votre prochain tour.",
+   "text": "Coût : 10 💰. 🧠 → fausse.\nCiblez un joueur : défaussez la première carte désactivée de son terrain.\nPuis désactivez cette carte (⏱ fin de votre prochain tour).",
    "rules": "",
    "image": "POL-20.jpg"
   },
@@ -5888,7 +5888,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut être déplacée qu'avec l'accord de son possesseur. Dépensez 10 gold : ciblez une carte du terrain d'un de vos voisins, faites-la reculer de 3 places, puis désactivez-la jusqu'au début du tour de ce joueur.",
+   "text": "🔒 Déplacée seulement avec l'accord de son possesseur.\nCoût : 10 💰.\nCiblez une carte du terrain d'un voisin : reculez-la de 3 places et désactivez-la (⏱ début du prochain tour de ce joueur).",
    "rules": "Voisins = joueurs juste avant et juste après vous dans l'ordre du tour. Reculer = vers la fin du terrain.",
    "image": "POL-21.jpg"
   },
@@ -5906,7 +5906,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut être déplacée qu'avec l'accord de son possesseur ; son possesseur est toujours le joueur qui l'a posée. Dépensez 10 gold, puis au choix :\n- ne rien faire ;\n- déplacez cette carte de 3 places au plus vers la droite ou la gauche (au bout du terrain, elle passe sur le terrain voisin) ;\n- désactivez les cartes voisines, puis placez cette carte dans votre pioche et mélangez-la.",
+   "text": "🔒 Déplacée seulement avec l'accord de son possesseur (celui qui l'a posée).\nCoût : 10 💰. Au choix :\n- rien ;\n- déplacez-la de 3 places au plus (au bout, elle passe chez le voisin) ;\n- désactivez ses voisines (⏱ toujours), puis mélangez-la dans votre pioche.",
    "rules": "Les 10 gold sont payés dans tous les cas, même pour « ne rien faire ». Les cartes voisines sont désactivées jusqu'à nouvel ordre.",
    "image": "POL-22.jpg"
   },
@@ -5924,7 +5924,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Dépensez 10 gold et passez votre trou noir en Primordial. Tant que cette carte est sur le terrain, les cartes à la même position sur les terrains voisins sont désactivées.",
+   "text": "Coût : 10 💰. 🌀 → Primordial.\nTant qu'elle est en jeu, les cartes à la même place chez vos voisins sont désactivées.",
    "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour et ne désactive plus rien.",
    "image": "POL-23.jpg"
   },
@@ -5942,7 +5942,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut être déplacée qu'avec l'accord de son possesseur. Dépensez 10 gold, puis au choix :\n- ne rien faire ;\n- changez l'ordre de votre terrain ;\n- posez une carte de votre main sans activer son effet.",
+   "text": "🔒 Déplacée seulement avec l'accord de son possesseur.\nCoût : 10 💰. Au choix :\n- rien ;\n- réorganisez votre terrain ;\n- posez une carte de votre main, sans son effet.",
    "rules": "Les 10 gold sont payés dans tous les cas, même pour « ne rien faire ».",
    "image": "POL-24.jpg"
   },
@@ -5960,7 +5960,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez défausser une carte de votre terrain pour gagner 50 gold. À chaque fois que vous défaussez une carte de votre main, gagnez 10 gold.",
+   "text": "Passif — À l'arrivée : vous pouvez défausser une carte de votre terrain pour gagner 50 💰.\nChaque carte défaussée de votre main : gagnez 10 💰.",
    "rules": "Le choix de défausser se fait quand la carte arrive sur un terrain.",
    "image": "POL-25.jpg"
   },
