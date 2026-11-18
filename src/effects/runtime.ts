@@ -103,6 +103,8 @@ export class Ctx {
   private ai = 0;
   private ri = 0;
   private depth = 0;
+  /** passifs en cours de résolution : une carte ne se redéclenche pas pendant son propre effet (évite les cascades sans fin) */
+  private resolving = new Set<string>();
   /** joueur dont l'effet est en train de s'appliquer */
   actor: string | null = null;
   /** carte dont l'effet est en train de s'appliquer */
@@ -328,7 +330,7 @@ export class Ctx {
       for (const [uid, id, zone] of this.passiveCards()) {
         {
           const h = SCRIPTS[id]?.on?.[e.type] as ((x: Ctx, s: Self, e: GameEvent) => void) | undefined;
-          if (!h) continue;
+          if (!h || this.resolving.has(id)) continue;
           // La carte a pu bouger entre-temps (défaussée par un autre passif…).
           const still = zone === "discard" ? E.locate(this.g, id)?.zone === "discard" : this.p(uid)[zone].includes(id);
           if (!still) continue;
@@ -337,9 +339,11 @@ export class Ctx {
           this.actor = uid;
           this.source = id;
           if (e.type === "interaction") this.muteInteractions++;
+          this.resolving.add(id);
           try {
             h(this, { id, me: uid }, e);
           } finally {
+            this.resolving.delete(id);
             this.actor = prevActor;
             this.source = prevSource;
             if (e.type === "interaction") this.muteInteractions--;

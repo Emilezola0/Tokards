@@ -144,21 +144,22 @@ export const VICTOR: Record<string, CardScript> = {
       const others = x.others(me);
       let got = 0;
       let k = 0;
-      let empty = 0;
-      while (got < n && others.length && x.p(me).gold >= 2 && empty < others.length) {
+      // Joueurs dont on ne peut plus rien prendre (pioche vide, ou carte du dessus qui ne peut pas bouger).
+      const done = new Set<string>();
+      while (got < n && x.p(me).gold >= 2 && done.size < others.length) {
         const u = others[k++ % others.length];
+        if (done.has(u)) continue;
         const c = x.p(u).deck[0];
-        if (!c) {
-          empty++;
+        // La carte est prise d'abord, puis payée : une carte qui ne peut pas bouger ne coûte rien
+        // (sinon on payait sans fin pour la même carte).
+        if (!c || !x.moveExchange(c, { uid: me, zone: "terrain" }, { activate: false })) {
+          done.add(u);
           continue;
         }
-        empty = 0;
-        if (x.giveBack(me, u, 2) < 2) break;
-        if (x.moveExchange(c, { uid: me, zone: "terrain" }, { activate: false })) {
-          x.take(c, me);
-          if (x.g.phase === "activation" && x.current === me) x.g.activated = [...(x.g.activated ?? []), c];
-          got++;
-        }
+        x.take(c, me);
+        if (x.g.phase === "activation" && x.current === me) x.g.activated = [...(x.g.activated ?? []), c];
+        got++;
+        x.giveBack(me, u, 2);
       }
       x.log(`💧 Terrain reconstitué : ${got} carte(s) sur ${n}.`);
     },

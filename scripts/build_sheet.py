@@ -52,6 +52,7 @@ cards = table(src["Cartes"])
 vcs = table(src["Conditions"])
 gloss = table(src["Glossaire"])
 interp = table(src["Interprétations"]) if "Interprétations" in src.sheetnames else []
+equil = table(src["Équilibrage"]) if "Équilibrage" in src.sheetnames else []
 lists = list(src["Listes"].iter_rows(values_only=True))
 # Onglet libre « Prompt » (demandes écrites pour Claude) : recopié tel quel.
 PROMPT_HEAD = "↓ Écris ici tes nouvelles demandes pour Claude (une par ligne). Claude vide l'onglet une fois qu'elles sont faites. ↓"
@@ -351,6 +352,25 @@ fill_rule(it, "F2:F500", '$F2="Validée"', "D7F5E3")
 fill_rule(it, "F2:F500", '$F2="À changer"', "FDE2E7")
 fill_rule(it, "F2:F500", '$F2="À valider"', "FFF1D6")
 
+# ---------- Équilibrage ----------
+# Propositions de changement tirées des stats (parties simulées) : à accepter, refuser ou corriger.
+EQ_STATUS = ["À valider", "Validée", "À changer", "Refusée"]
+eh = ["ID", "Deck", "Carte / condition", "Type", "Constat (stats)", "Proposition", "Statut", "Ta réponse / changement voulu"]
+eq = sheet("Équilibrage", eh, [11, 18, 24, 16, 60, 60, 13, 44], "C0392B")
+for r in equil:
+    cid = str(get(r, "ID"))
+    deck, name = names.get(cid, (get(r, "Deck"), get(r, "Carte / condition")))
+    eq.append([cid, deck or get(r, "Deck"), name or get(r, "Carte / condition"), get(r, "Type"), get(r, "Constat (stats)"),
+               get(r, "Proposition"), get(r, "Statut") or "À valider", get(r, "Ta réponse")])
+body(eq, max(eq.max_row - 1, 1), len(eh), center=(1, 4, 7))
+eq.freeze_panes = "D2"
+eq.auto_filter.ref = f"A1:H{max(eq.max_row, 2)}"
+dv_list(eq, "G2:G500", '"' + ",".join(EQ_STATUS) + '"', "Validée : Claude applique le changement. Refusée : on garde la carte telle quelle. À changer : écris ta version dans la dernière colonne.")
+fill_rule(eq, "G2:G500", '$G2="Validée"', "D7F5E3")
+fill_rule(eq, "G2:G500", '$G2="À changer"', "FDE2E7")
+fill_rule(eq, "G2:G500", '$G2="Refusée"', "EEEEEE")
+fill_rule(eq, "G2:G500", '$G2="À valider"', "FFF1D6")
+
 # ---------- Lisez-moi ----------
 rd = wb.create_sheet("Lisez-moi", 0)
 rd.sheet_properties.tabColor = "3B2A6B"
@@ -408,6 +428,7 @@ line("Déclenchement", "Activation : s'applique pendant la phase 1 et quand on p
 line("Précisions (règles)", "Comment la carte est interprétée dans le jeu. Claude y note ses choix quand le texte peut se lire de plusieurs façons.", "k")
 line("Texte simplifié", "Onglet Cartes, colonnes Q à S : proposition de texte plus clair. Mets « Validé » pour qu'il remplace la description, ou « À changer » avec une remarque. L'ancien texte est gardé en colonne T (« Texte d'origine »). Les règles d'écriture sont dans l'onglet « Guide de style ».", "k")
 line("Interprétations", "Chaque choix d'interprétation de Claude, à relire. Mets « Validée » si c'est bon, ou « À changer » avec ta réponse dans la dernière colonne, puis envoie le classeur à Claude.", "k")
+line("Équilibrage", "Propositions de Claude tirées de parties simulées (cartes trop fortes / trop faibles, conditions impossibles pour certains decks). Mets « Validée » pour que Claude l'applique, « Refusée » pour garder la carte, ou « À changer » avec ta version.", "k")
 line("Image", "Nom du fichier image de la carte (ex. GOB-01.png), à envoyer avec le classeur ; ou un lien https://… vers une image en ligne (rien à envoyer, le jeu la charge directement). Le crédit de l'image va dans « Notes / changements ».", "k")
 row += 1
 line("Légende des couleurs", "", "h")
@@ -430,6 +451,7 @@ for name, desc in [("Decks", "Un deck par ligne, avec les compteurs et la vérif
                    ("Conditions", "Les conditions de victoire, une par ligne."),
                    ("Glossaire", "Le sens des mots des cartes, leur catégorie (couleur), les variantes reconnues et l'animation du glossaire du jeu."),
                    ("Interprétations", "Les choix faits quand un texte de carte est ambigu : à valider ou à corriger."),
+                   ("Équilibrage", "Propositions de changement tirées des stats : à valider, refuser ou corriger."),
                    ("Listes", "Les valeurs des menus déroulants. Ajoute une valeur en bas d'une colonne pour la proposer.")]:
     line(name, desc, "k")
 
