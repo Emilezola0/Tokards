@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { PLACEHOLDER, PLAYABLE_DECKS, cardImage } from "../data/cards";
+import { PLACEHOLDER, cardImage, deckBack } from "../data/cards";
 import { launch, update } from "../game/room";
 import type { Room } from "../game/types";
-import { SCRIPTS } from "../effects/scripts";
+import { LOBBY_DECKS } from "../effects/ready";
 import { DeckModal } from "./Viewers";
-
-const AUTO_COUNT = Object.keys(SCRIPTS).length;
 
 export default function Lobby({ room, uid }: { room: Room; uid: string }) {
   const me = room.players[uid];
@@ -20,6 +18,7 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
   const run = (p: Promise<unknown>) => p.catch((e) => setErr((e as Error).message));
   const pickDeck = (deck: string | null) =>
     run(update(room.code, (r) => {
+      if (deck && !LOBBY_DECKS.find((d) => d.deck.name === deck)?.status.ready) throw new Error("Ce deck est encore en cours de création.");
       const taken = Object.values(r.players).some((p) => p.uid !== uid && p.deck === deck);
       if (deck && taken) throw new Error("Ce deck vient d'être pris.");
       r.players[uid].deck = deck;
@@ -80,7 +79,7 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
               onChange={(e) => run(update(room.code, (r) => void (r.auto = e.target.checked)))}
             />
             <span>
-              <b>Mode automatique</b> — les cartes ⚙ ({AUTO_COUNT} pour l'instant) appliquent leur effet toutes seules ; les autres restent manuelles.
+              <b>Mode automatique</b> — les effets des cartes et les conditions de victoire s'appliquent tout seuls. Décoché : les joueurs appliquent les effets à la main.
             </span>
           </label>
           {isHost ? (
@@ -97,19 +96,24 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
         <section className="panel">
           <h2>Choisis ton deck</h2>
           <div className="deck-grid">
-            {PLAYABLE_DECKS.map((d) => {
+            {LOBBY_DECKS.map(({ deck: d, status }) => {
               const holder = players.find((p) => p.deck === d.name);
               const mine = holder?.uid === uid;
               return (
-                <div key={d.name} className="deck-choice-wrap">
+                <div key={d.name} className={`deck-choice-wrap ${status.ready ? "" : "wip"}`}>
                 <button
                   className={`deck-choice ${mine ? "selected" : ""}`}
-                  disabled={!!holder && !mine}
+                  disabled={!status.ready || (!!holder && !mine)}
+                  title={status.ready ? d.summary : `En cours : ${status.why}`}
                   onClick={() => pickDeck(mine ? null : d.name)}
                 >
-                  <img src={cardImage(d.cards[0])} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
+                  <img src={deckBack(d.name) ?? cardImage(d.cards[0])} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
+                  {!status.ready && <span className="wip-ribbon">🚧 En cours</span>}
                   <span className="deck-name">{d.name}</span>
-                  <span className="small muted">{holder ? (mine ? "Ton deck ✔" : `pris par ${holder.name}`) : `${d.cards.length} cartes`}</span>
+                  {!!d.keywords?.length && <span className="deck-kw">{d.keywords.slice(0, 3).map((k) => <i key={k}>{k}</i>)}</span>}
+                  <span className="small muted">
+                    {!status.ready ? status.why : holder ? (mine ? "Ton deck ✔" : `pris par ${holder.name}`) : `${d.cards.length} cartes`}
+                  </span>
                 </button>
                 <button className="mini deck-see" onClick={() => setViewDeck(d.name)}>👁 Voir le deck</button>
                 </div>

@@ -25,7 +25,13 @@ export type GameEvent =
   /** `uid` défausse `card` de sa main (action du tour ou effet) */
   | { type: "discard"; uid: string; card: string; src: string | null }
   /** un joueur tombe à 0 gold */
-  | { type: "zeroGold"; uid: string };
+  | { type: "zeroGold"; uid: string }
+  /** `card` est posée sur le terrain de `uid` (depuis la main, la pioche ou la défausse) */
+  | { type: "placed"; uid: string; card: string; src: string | null }
+  /** l'effet de `src` défausse `card` du terrain de `uid` */
+  | { type: "terrainDiscard"; uid: string; card: string; src: string }
+  /** `thief` prend une carte de `victim` sans rien donner en retour */
+  | { type: "steal"; thief: string; victim: string; card: string };
 
 type Handlers = { [K in GameEvent["type"]]: (x: Ctx, self: Self, e: Extract<GameEvent, { type: K }>) => void };
 export type CardScript = {
@@ -37,6 +43,8 @@ export type CardScript = {
   fixed?: boolean;
   /** ne peut pas être posée depuis la main (raison affichée) */
   noPlay?: string;
+  /** ne peut arriver sur un terrain que par l'effet de cette carte */
+  placedOnlyBy?: string;
 };
 
 export const isAutomated = (id: string) => !!SCRIPTS[id];
@@ -58,6 +66,8 @@ export class Ctx {
   /** carte dont l'effet est en train de s'appliquer */
   source: string | null = null;
   private muteInteractions = 0;
+  /** > 0 pendant un échange : les cartes déplacées ne comptent pas comme volées */
+  private exchanging = 0;
   /** pourquoi l'effet en cours a échoué (gold manquant, aucune cible, paiement refusé) */
   reason: string | null = null;
 
@@ -116,6 +126,15 @@ export class Ctx {
     return v;
   }
 
+  /** Dé trou noir (4 faces : Primordial, Quasar, Blazard, Trou de ver). */
+  bhDice(uid: string): BlackHole {
+    const v = 1 + Math.floor(this.rand() * 4);
+    const b = BLACK_HOLES[v - 1].id;
+    this.fx({ k: "dice", uid, faces: 4, value: v, bh: true });
+    this.log(`🎲 ${this.name(uid)} lance le dé trou noir : ${b}.`);
+    return b;
+  }
+
   // ----- choix des joueurs -----
   private ask<T>(prompt: Prompt): T {
     if (!prompt.cardId && this.source) prompt = { ...prompt, cardId: this.source };
@@ -166,6 +185,13 @@ export class Ctx {
     const a = this.ask<string[]>({ chooser, text, cardId, kind: "order", options });
     const ok = a.length === options.length && options.every((id) => a.includes(id));
     return ok ? a : options;
+  }
+  /** Place (0 = première position) où poser `id` sur le terrain de `uid`. */
+  chooseSlot(chooser: string, text: string, uid: string, id: string, cardId?: string): number {
+    const n = this.p(uid).terrain.length;
+    if (n === 0) return 0;
+    const a = this.ask<number>({ chooser, text, cardId, kind: "slot", uid, card: id });
+    return Math.max(0, Math.min(n, Math.trunc(Number(a) || 0)));
   }
   chooseBlackHole(chooser: string, text: string, exclude?: BlackHole, cardId?: string): BlackHole {
     const opts = BLACK_HOLES.filter((b) => b.id !== exclude);
@@ -252,6 +278,8 @@ export class Ctx {
     const min = Math.min(...list.map((u) => this.p(u).gold));
     return this.random(list.filter((u) => this.p(u).gold === min));
   }
+  /** La carte a-t-elle un effet automatique à activer ? */
+  canActivate = (id: string) => !!SCRIPTS[id]?.activate;
   isBlazard = (u: string) => this.p(u).blackHole === "Blazard";
 
   /** À appeler par un passif qui se déclenche, pour l'effet visuel et le journal. */
@@ -381,12 +409,17 @@ export class Ctx {
     if (k) this.emit({ type: "draw", uid, n: k, from, src: this.source });
     return k;
   }
-  move(id: string, dest: E.Dest) {
+  move(id: string, dest: E.Dest): boolean {
     const at = E.locate(this.g, id);
     const src = this.source;
     if (at?.zone === "terrain" && dest.zone === "discard" && SCRIPTS[id]?.fixed && src !== id) {
       this.log(`🛡 « ${card(id).name} » ne peut pas être défaussée.`, { dst: id });
-      return;
+      return false;
+    }
+    const only = SCRIPTS[id]?.placedOnlyBy;
+    if (only && dest.zone === "terrain" && at?.zone !== "terrain" && src !== only) {
+      this.log(`🚫 « ${card(id).name} » ne peut être posée que par « ${card(only).name} ».`, { dst: id });
+      return false;
     }
     E.moveCard(this.room, this.g, id, dest, !!(src && src !== id && at));
     if (src && src !== id && at) this.linkMove(src, id, at.uid, dest);
@@ -394,15 +427,59 @@ export class Ctx {
     this.touchCard(id, dest.zone === "terrain" ? dest.uid : null);
     if (at) this.interact(at.uid, at.zone);
     this.fx({ k: "move", card: id });
+    const now = E.locate(this.g, id);
+    const actor = this.actor;
+    if (at && now && actor && !this.exchanging && at.uid !== actor && now.uid === actor && this.p(at.uid))
+      this.emit({ type: "steal", thief: actor, victim: at.uid, card: id });
+    if (at?.zone === "terrain" && now?.zone !== "terrain" && src && src !== id && dest.zone === "discard")
+      this.emit({ type: "terrainDiscard", uid: at.uid, card: id, src });
+    if (now?.zone === "terrain" && at && at.zone !== "terrain") this.emit({ type: "placed", uid: now.uid, card: id, src });
+    return true;
   }
-  /** Envoie une carte dans la défausse de son propriétaire. */
+  /** Défausse une carte : elle va dans la défausse du joueur chez qui elle se trouve (terrain, main…). */
   discard(id: string) {
-    const owner = this.g.owner[id] ?? E.locate(this.g, id)?.uid;
-    if (owner) this.move(id, { uid: owner, zone: "discard" });
+    const at = E.locate(this.g, id);
+    if (at) this.move(id, { uid: at.uid, zone: "discard" });
+  }
+  /** Échange deux cartes : chacune prend exactement la place (joueur, zone, position) de l'autre. */
+  swap(a: string, b: string) {
+    const pa = E.locate(this.g, a);
+    const pb = E.locate(this.g, b);
+    if (!pa || !pb || a === b) return;
+    this.p(pa.uid)[pa.zone][pa.index] = b;
+    this.p(pb.uid)[pb.zone][pb.index] = a;
+    for (const [id, at, to] of [[a, pa, pb], [b, pb, pa]] as const) {
+      if (to.zone === "terrain" && at.zone !== "terrain") this.g.born = { ...(this.g.born ?? {}), [id]: E.pos(this.g) };
+      this.touchCard(id, to.zone === "terrain" ? to.uid : null);
+      this.fx({ k: "move", card: id });
+      if (this.source) this.fx({ k: "link", from: this.source, to: id, toUid: to.uid, text: `échange « ${card(id).name} »` });
+    }
+    this.exchanging++;
+    try {
+      this.interact(pa.uid, pa.zone);
+      if (pb.uid !== pa.uid) this.interact(pb.uid, pb.zone);
+    } finally {
+      this.exchanging--;
+    }
+    this.log(`🔁 « ${card(a).name} » et « ${card(b).name} » échangent leurs places.`, { dst: b, to: pb.uid });
+  }
+  /** Déplace sans compter de vol (échanges en plusieurs morceaux). */
+  moveExchange(id: string, dest: E.Dest) {
+    this.exchanging++;
+    try {
+      return this.move(id, dest);
+    } finally {
+      this.exchanging--;
+    }
   }
   /** La carte change de propriétaire (volée, récupérée…). */
   take(id: string, uid: string) {
     this.g.owner[id] = uid;
+  }
+  /** Mélange une seule zone d'un joueur (pioche ou défausse, sans les réunir). */
+  shuffleZone(uid: string, zone: "deck" | "discard") {
+    E.shuffleZone(this.room, this.g, uid, zone);
+    this.interact(uid, zone === "deck" ? "pioche" : "défausse");
   }
   shuffleDeck(uid: string, withDiscard = false) {
     E.shuffleDeck(this.room, this.g, uid, withDiscard);
@@ -486,6 +563,7 @@ export class Ctx {
     } finally {
       this.actor = prevActor;
       this.source = prevSource;
+      E.markSpent(this.g, id);
     }
   }
 
@@ -530,9 +608,11 @@ function perform(x: Ctx, a: EffectAction) {
     case "play": {
       const no = SCRIPTS[a.card]?.noPlay;
       if (no) throw new Error(no);
+      if (x.p(a.by).cantPlay) throw new Error(x.p(a.by).cantPlay!);
       E.playFromHand(x.room, x.g, a.by, a.card, a.target, a.index);
       x.fx({ k: "move", card: a.card });
-      x.activateCard(a.card, a.by);
+      x.emit({ type: "placed", uid: a.target, card: a.card, src: null });
+      if (E.locate(x.g, a.card)?.zone === "terrain") x.activateCard(a.card, a.by);
       break;
     }
     case "discard":
@@ -593,6 +673,7 @@ function defaultAnswer(p: Prompt): unknown {
     case "number": return p.max;
     case "cards": return p.options.slice(0, Math.max(1, p.min));
     case "order": return p.options;
+    case "slot": return 0;
   }
 }
 

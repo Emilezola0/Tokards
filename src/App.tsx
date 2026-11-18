@@ -10,6 +10,7 @@ import Table from "./ui/Table";
 import { getName } from "./ui/name";
 import UpdatePrompt from "./ui/UpdatePrompt";
 import HelpGuide from "./ui/HelpGuide";
+import Glossary from "./ui/Glossary";
 
 const codeFromHash = () => location.hash.replace(/^#\/?/, "").toUpperCase().slice(0, 5);
 
@@ -19,6 +20,7 @@ export default function App() {
       <Screen />
       <UpdatePrompt />
       <HelpGuide />
+      <Glossary />
     </>
   );
 }

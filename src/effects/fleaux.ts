@@ -1,5 +1,4 @@
 // Fléaux — effets automatiques. Les choix d'interprétation sont notés dans la colonne « Précisions » du tableau.
-// Restent manuelles (texte à préciser) : Demi Reversi, Agent neurotoxique, Rhume quantique, Aspiration Quazar.
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole, Zone } from "../game/types";
@@ -22,20 +21,24 @@ function grow(x: Ctx, { id, me }: Self): boolean | void {
     x.log(`🍄 « ${card(id).name} » vient d'être posée : « ${card(next).name} » poussera au prochain tour.`);
     return;
   }
+  // Le champignon suivant est récupéré où qu'il soit, même chez un autre joueur.
   const at = E.locate(x.g, next);
-  if (at?.zone === "terrain") {
+  if (at?.zone === "terrain" && at.uid === me) {
     x.log(`🍄 « ${card(next).name} » a déjà poussé.`);
     return;
   }
-  if (!at || (x.g.owner[next] ?? at.uid) !== me) {
-    x.reason = `« ${card(next).name} » n'est pas dans tes cartes.`;
+  if (!at) {
+    x.reason = `« ${card(next).name} » n'est plus dans la partie.`;
     return false;
   }
   const i = x.p(me).terrain.indexOf(id);
   x.move(next, { uid: me, zone: "terrain", index: i + 1 });
+  x.take(next, me);
   x.log(`🍄 « ${card(id).name} » fait pousser « ${card(next).name} ».`, { src: id, dst: next });
 }
 const onlyBy = (by: string) => `Ne peut être posée que par « ${card(by).name} ».`;
+/** Champignon qui n'arrive sur un terrain que par le précédent (aucun autre effet ne passe outre). */
+const mushroom = (prev: string, last = false): CardScript => ({ activate: last ? undefined : grow, noPlay: onlyBy(prev), placedOnlyBy: prev });
 
 export const FLEAUX: Record<string, CardScript> = {
   // Courroux d'oré : réagit à chaque changement de son trou noir
@@ -113,6 +116,20 @@ export const FLEAUX: Record<string, CardScript> = {
     },
   },
 
+  // Demi Reversi : chaque fois qu'un effet défausse une carte d'un terrain, le porteur peut activer
+  // n'importe quelle carte d'un terrain comme s'il en était le lanceur.
+  "FLE-06": {
+    on: {
+      terrainDiscard: (x, self, e) => {
+        const opts = x.allTerrainCards().filter((c) => c !== self.id && x.canActivate(c));
+        if (!opts.length) return;
+        x.triggered(self, `« ${card(e.card).name} » a été défaussée : ${x.name(self.me)} peut activer une carte.`);
+        const c = x.chooseCards(self.me, "Demi Reversi : activer une carte d'un terrain comme si tu en étais le lanceur ? (facultatif)", opts, 0, 1, self.id)[0];
+        if (c) x.activateCard(c, self.me);
+      },
+    },
+  },
+
   // Grippe stellaire
   "FLE-07": {
     on: {
@@ -146,8 +163,22 @@ export const FLEAUX: Record<string, CardScript> = {
         const c = x.p(self.me).discard[0];
         if (!c) return;
         x.triggered(self, `perte de gold → « ${card(c).name} » revient en première position et s'active.`);
-        x.move(c, { uid: self.me, zone: "terrain", index: 0 });
-        x.activateCard(c, self.me);
+        if (x.move(c, { uid: self.me, zone: "terrain", index: 0 })) x.activateCard(c, self.me);
+      },
+    },
+  },
+
+  // Rhume quantique : un autre joueur qui change une ressource du porteur l'attrape (fin de son terrain).
+  // La suite (main jetée, pas de pose au tour suivant) est appliquée par le moteur en fin de tour.
+  "FLE-10": {
+    on: {
+      interaction: (x, self, e) => {
+        if (e.target !== self.me || e.actor === self.me || !x.p(e.actor)) return;
+        if (!["gold", "sentience", "trou noir"].includes(e.what)) return;
+        x.triggered(self, `${x.name(e.actor)} a touché aux ressources de ${x.name(self.me)} : il attrape le rhume.`);
+        if (!x.move(self.id, { uid: e.actor, zone: "terrain" })) return;
+        x.take(self.id, e.actor);
+        x.g.rhume = { uid: e.actor, at: E.pos(x.g) };
       },
     },
   },
@@ -168,6 +199,20 @@ export const FLEAUX: Record<string, CardScript> = {
         x.discard(id);
         x.gain(me, 50);
       }
+    },
+  },
+
+  // Agent neurotoxique : à chaque carte posée sur un terrain, le porteur donne X gold à chaque autre joueur
+  // (X = nombre de cartes sur son terrain).
+  "FLE-13": {
+    on: {
+      placed: (x, self) => {
+        const n = x.p(self.me).terrain.length;
+        const others = x.others(self.me);
+        if (!n || !others.length || x.p(self.me).gold <= 0) return;
+        x.triggered(self, `une carte est posée : ${x.name(self.me)} donne ${n} gold à chaque joueur.`);
+        for (const u of others) x.transfer(self.me, u, n);
+      },
     },
   },
 
@@ -239,8 +284,21 @@ export const FLEAUX: Record<string, CardScript> = {
       draw: (x, self, e) => {
         if (e.uid !== self.me) return;
         x.triggered(self, "pioche → dé trou noir.");
-        const v = x.dice(self.me, 4);
-        x.setBlackHole(self.me, BLACK_HOLES[v - 1].id);
+        x.setBlackHole(self.me, x.bhDice(self.me));
+      },
+    },
+  },
+
+  // Aspiration Quasar : qui vole une carte du porteur vole aussi celle-ci et 50 gold ; le porteur passe en Quasar.
+  "FLE-19": {
+    on: {
+      steal: (x, self, e) => {
+        if (e.victim !== self.me || e.thief === self.me || e.card === self.id) return;
+        x.triggered(self, `${x.name(e.thief)} a volé « ${card(e.card).name} » : il prend aussi « ${card(self.id).name} » et 50 gold.`);
+        const zone = E.locate(x.g, e.card)?.zone ?? "hand";
+        if (x.move(self.id, { uid: e.thief, zone })) x.take(self.id, e.thief);
+        x.transfer(self.me, e.thief, 50);
+        x.setBlackHole(self.me, Q);
       },
     },
   },
@@ -313,7 +371,7 @@ export const FLEAUX: Record<string, CardScript> = {
         x.triggered(self, `${x.name(e.uid)} a défaussé : ${x.name(self.me)} défausse une carte de sa main.`);
         const c = x.chooseCard(self.me, "Quelle carte de ta main défausser ?", x.p(self.me).hand, self.id);
         if (!c) return;
-        x.move(c, { uid: x.g.owner[c] ?? self.me, zone: "discard" });
+        x.discard(c);
         x.emit({ type: "discard", uid: self.me, card: c, src: self.id });
       },
     },
@@ -321,14 +379,14 @@ export const FLEAUX: Record<string, CardScript> = {
 
   // Champignons
   "FLE-25": { activate: grow },
-  "FLE-26": { activate: grow, noPlay: onlyBy("FLE-25") },
-  "FLE-27": { activate: grow, noPlay: onlyBy("FLE-26") },
-  "FLE-28": { activate: grow, noPlay: onlyBy("FLE-27") },
-  "FLE-29": { noPlay: onlyBy("FLE-28") },
+  "FLE-26": mushroom("FLE-25"),
+  "FLE-27": mushroom("FLE-26"),
+  "FLE-28": mushroom("FLE-27"),
+  "FLE-29": mushroom("FLE-28", true),
 
-  // Champignoïte aiguë
+  // Champignoïte aiguë (ne fait rien si les 5 champignons ne sont pas sur le terrain)
   "FLE-30": {
-    activate: (x, { me }) => {
+    activate: (x, { id, me }) => {
       const t = x.p(me).terrain;
       if (!MUSHROOMS.every((m) => t.includes(m))) {
         x.reason = "Les 5 champignons ne sont pas sur ton terrain.";
@@ -341,8 +399,9 @@ export const FLEAUX: Record<string, CardScript> = {
         x.setSentience(u, v);
       }
       x.gain(me, 100);
-      const d = x.chooseCards(me, "Défausser une carte de ta main ? (facultatif)", x.p(me).hand, 0, 1);
-      for (const c of d) x.move(c, { uid: x.g.owner[c] ?? me, zone: "discard" });
+      const pool = [...x.p(me).hand, ...x.p(me).terrain.filter((c) => c !== id)];
+      const d = x.chooseCards(me, "Défausser une carte de ta main ou de ton terrain ? (facultatif)", pool, 0, 1);
+      for (const c of d) x.discard(c);
     },
   },
 
@@ -353,8 +412,7 @@ export const FLEAUX: Record<string, CardScript> = {
         const c = x.p(self.me).deck[0];
         if (!c) return;
         x.triggered(self, `${x.name(e.uid)} tombe à 0 gold : « ${card(c).name} » est posée sur son terrain et s'active.`);
-        x.move(c, { uid: e.uid, zone: "terrain" });
-        x.activateCard(c, e.uid);
+        if (x.move(c, { uid: e.uid, zone: "terrain" })) x.activateCard(c, e.uid);
       },
     },
   },

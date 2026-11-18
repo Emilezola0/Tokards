@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import Die3D, { type DieRoll } from "./Die3D";
 import { PLACEHOLDER, card, cardImage } from "../data/cards";
 import * as E from "../game/engine";
 import type { Fx, GameState, Room } from "../game/types";
@@ -173,8 +174,8 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
   const centerCard = useRef<{ id: string; el: HTMLElement; hidden: HTMLElement | null } | null>(null);
   const [banner, setBanner] = useState<{ text: string; key: number; kind: string } | null>(null);
   const [turn, setTurn] = useState<{ name: string; color: string; key: number; mine: boolean } | null>(null);
-  const [die, setDie] = useState<{ faces: number; value: number; shown: number; who: string; color: string } | null>(null);
-  const [phase, setPhase] = useState<{ n: number; label: string; key: number; color: string } | null>(null);
+  const [die, setDie] = useState<DieRoll | null>(null);
+  const [phase, setPhase] = useState<{ n: number; label: string; key: number; color: string; who: string } | null>(null);
   const [win, setWin] = useState<{ name: string; card: string; color: string; key: number; common: boolean } | null>(null);
 
   useEffect(() => {
@@ -389,15 +390,18 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       }
       case "dice": {
         await hideCenter(speed);
-        const who = E.nameOf(room, f.uid);
-        const color = colorOf(f.uid);
+        const board = q(`[data-board="${css(f.uid)}"]`);
+        const c = center();
+        const from = mid(board) ?? { x: c.cx, y: innerHeight - 80 };
+        const to = { x: c.cx + (Math.random() - 0.5) * 120, y: c.cy + (Math.random() - 0.5) * 60 };
+        const dur = 1200 * Math.max(speed, 0.5);
         sfx.dice();
-        for (let i = 0; i < 7; i++) {
-          setDie({ faces: f.faces, value: f.value, shown: 1 + Math.floor(Math.random() * f.faces), who, color });
-          await wait(60 * speed);
-        }
-        setDie({ faces: f.faces, value: f.value, shown: f.value, who, color });
-        await wait(800 * speed);
+        const roll: DieRoll = { key: f.id, faces: f.faces, value: f.value, bh: f.bh, who: E.nameOf(room, f.uid), color: colorOf(f.uid), from, to, dur, landed: false };
+        setDie(roll);
+        await wait(dur);
+        sfx.drop();
+        setDie({ ...roll, landed: true });
+        await wait(1300 * Math.max(speed, 0.6));
         setDie(null);
         break;
       }
@@ -470,8 +474,8 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         const n = f.phase === "activation" ? 1 : f.phase === "action" ? 2 : 3;
         const label = f.phase === "activation" ? "Activation du terrain" : f.phase === "action" ? "Poser ou défausser une carte" : "Pioche jusqu'à 4";
         sfx.phase();
-        setPhase({ n, label, key: f.id, color: colorOf(f.uid) });
-        await wait(900 * Math.max(speed, 0.5));
+        setPhase({ n, label, key: f.id, color: colorOf(f.uid), who: E.nameOf(room, f.uid) });
+        await wait(1400 * Math.max(speed, 0.5));
         break;
       }
       case "vcDone": {
@@ -529,8 +533,9 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       )}
       {phase && (
         <div key={phase.key} className="fx-phase" style={{ ["--pc" as string]: phase.color }} onAnimationEnd={() => setPhase((p) => (p?.key === phase.key ? null : p))}>
-          <span className="fx-phase-n">Phase {phase.n}</span>
+          <span className="fx-phase-n">{phase.who} · Phase {phase.n} / 3</span>
           <span className="fx-phase-label">{phase.label}</span>
+          <span className="fx-phase-steps">{[1, 2, 3].map((k) => <i key={k} className={k === phase.n ? "on" : k < phase.n ? "past" : ""} />)}</span>
         </div>
       )}
       {win && (
@@ -541,12 +546,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
           <span className="fx-win-card">« {card(win.card).name} »</span>
         </div>
       )}
-      {die && (
-        <div className="fx-die-wrap">
-          <div className={`fx-die ${die.shown === die.value ? "final" : ""}`} style={{ ["--pc" as string]: die.color }}>{die.shown}</div>
-          <div className="fx-die-who" style={{ color: die.color }}>{die.who} · d{die.faces}</div>
-        </div>
-      )}
+      {die && <Die3D key={die.key} roll={die} />}
     </div>
   );
 }

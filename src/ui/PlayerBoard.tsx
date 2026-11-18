@@ -30,6 +30,19 @@ function gridFor(n: number) {
 }
 
 export type Seat = { x: number; y: number; rot: number; s: number };
+/** Choix en cours sur la table : joueurs / cartes / place sélectionnables, le reste verrouillé. */
+export type PickState = {
+  kind: "player" | "cards" | "slot";
+  players: string[];
+  cards: string[];
+  picked: string[];
+  blind?: boolean;
+  slotUid?: string;
+  slotCard?: string;
+  onPlayer: (u: string) => void;
+  onCard: (id: string) => void;
+  onSlot: (index: number) => void;
+};
 export type DragSrc = { id: string; from: "hand" | "terrain" | "discard" };
 
 export function Odometer({ value }: { value: number }) {
@@ -83,6 +96,7 @@ type Props = {
   onDragEnd: () => void;
   onShowTerrain: (owner: string) => void;
   onShowDeck: (owner: string) => void;
+  pick?: PickState | null;
 };
 
 export default function PlayerBoard(p: Props) {
@@ -108,6 +122,17 @@ export default function PlayerBoard(p: Props) {
   const tgt = (k: keyof Preview, v: string) => !!preview && (preview[k] as string[] | undefined)?.includes(v);
   const vc = st.personalVC;
   const prog = vc ? vcProgress(room, g, vc, owner) : null;
+  const pick = p.pick ?? null;
+  const pickCards = pick?.kind === "cards";
+  const slotHere = pick?.kind === "slot" && pick.slotUid === owner;
+  const pickCls = !pick ? "" : pick.kind === "player" ? (pick.players.includes(owner) ? "pick-ok" : "pick-no")
+    : pick.kind === "slot" ? (slotHere ? "pick-slot" : "pick-no") : "picking";
+  /** Propriétés d'une carte visible pendant un choix de cartes. */
+  const pickProps = (id: string) => {
+    if (!pickCards) return {};
+    const ok = pick!.cards.includes(id);
+    return { locked: !ok, selected: pick!.picked.includes(id), onClick: ok ? () => pick!.onCard(id) : () => {} };
+  };
 
   const drag = (src: DragSrc) => (e: DragEvent) => {
     e.dataTransfer.setData("text/plain", src.id);
@@ -137,13 +162,18 @@ export default function PlayerBoard(p: Props) {
       data-board={owner}
       data-rot={seat.rot}
       data-scale={seat.s}
-      className={`board ${owner === current ? "active" : ""} ${st.out ? "out" : ""} ${owner === uid ? "mine" : ""} ${p.ally ? "ally" : ""} ${tgt("players", owner) ? "target" : ""}`}
+      className={`board ${pickCls} ${owner === current ? "active" : ""} ${st.out ? "out" : ""} ${owner === uid ? "mine" : ""} ${p.ally ? "ally" : ""} ${tgt("players", owner) ? "target" : ""}`}
       style={{
         width: BW, height: BH, left: seat.x, top: seat.y,
         transform: `translate(-50%, -50%) rotate(${seat.rot}deg) scale(${seat.s})`,
         ["--pc" as string]: color,
       }}
     >
+      {pick?.kind === "player" && pick.players.includes(owner) && (
+        <button className="pick-overlay" onClick={() => pick.onPlayer(owner)}>
+          <span>Choisir {lobbyP?.name}{owner === uid && " (toi)"}</span>
+        </button>
+      )}
       <header className="board-head">
         <span className="pdot" />
         <strong className="pname">{lobbyP?.name}{owner === uid && " (toi)"}</strong>
@@ -171,10 +201,12 @@ export default function PlayerBoard(p: Props) {
             return (
               <div
                 key={id ?? `e${i}`}
-                className={`cell ${id ? "full" : ""} ${isDrop ? "drop-ok" : ""}`}
+                className={`cell ${id ? "full" : ""} ${isDrop ? "drop-ok" : ""} ${slotHere && i <= st.terrain.length ? "slot-ok" : ""}`}
+                title={slotHere && i <= st.terrain.length ? (id ? `Poser avant « ${card(id).name} » (place ${i + 1})` : `Poser à la fin (place ${i + 1})`) : undefined}
                 onDragOver={isDrop ? allow : undefined}
                 onDragLeave={isDrop ? leave : undefined}
                 onDrop={isDrop ? drop(() => p.onDropTerrain(owner, index)) : undefined}
+                onClickCapture={slotHere && i <= st.terrain.length ? (e) => (e.stopPropagation(), pick!.onSlot(index)) : undefined}
                 onClick={isDrop && !id ? () => p.onDropTerrain(owner, index) : undefined}
               >
                 {id && (
@@ -185,12 +217,15 @@ export default function PlayerBoard(p: Props) {
                     highlight={id === nextCard}
                     target={tgt("cards", id)}
                     auto={auto && isAutomated(id)}
+                    spent={(g.spent ?? []).includes(id)}
+                    store={g.cardStore?.[id]}
                     selected={moving?.id === id}
                     draggable={p.canDragTerrain}
                     onDragStart={drag({ id, from: "terrain" })}
                     onDragEnd={p.onDragEnd}
                     onHover={p.onHover}
                     onClick={() => (isDrop ? p.onDropTerrain(owner, index) : p.onCard(id))}
+                    {...pickProps(id)}
                   />
                 )}
               </div>
@@ -238,7 +273,10 @@ export default function PlayerBoard(p: Props) {
                     onDragEnd={p.onDragEnd}
                     onHover={p.onHover}
                     onClick={() => (!fits ? setHandOpen(true) : p.onCard(id))}
+                    {...pickProps(id)}
                   />
+                ) : pickCards && pick!.cards.includes(id) ? (
+                  <span className="pickable-back"><CardBack id={id} size="s" selected={pick!.picked.includes(id)} onClick={() => pick!.onCard(id)} /></span>
                 ) : (
                   <CardBack id={id} size="s" />
                 )}
@@ -262,7 +300,7 @@ export default function PlayerBoard(p: Props) {
             </span>
           ))}
           {top ? (
-            <CardView id={top} size="s" target={tgt("cards", top)} onHover={p.onHover} onClick={() => p.onPlayer(owner)} />
+            <CardView id={top} size="s" target={tgt("cards", top)} onHover={p.onHover} onClick={() => p.onPlayer(owner)} {...pickProps(top)} />
           ) : (
             <button className="card s empty-slot" onClick={() => p.onPlayer(owner)}>Défausse</button>
           )}

@@ -9,6 +9,8 @@ import re
 import sys
 
 import openpyxl
+from openpyxl.cell.rich_text import CellRichText, TextBlock
+from openpyxl.cell.text import InlineFont
 from openpyxl.formatting.rule import FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
@@ -23,13 +25,21 @@ def scripted():
     ids = set()
     for f in os.listdir(os.path.join(ROOT, "src", "effects")):
         if f.endswith(".ts"):
-            ids |= set(re.findall(r'^  "([A-Z]+-\d+)": \{', open(os.path.join(ROOT, "src", "effects", f), encoding="utf-8").read(), re.M))
+            ids |= set(re.findall(r'^  "([A-Z]+-\d+)": ', open(os.path.join(ROOT, "src", "effects", f), encoding="utf-8").read(), re.M))
     v = open(os.path.join(ROOT, "src", "game", "victory.ts"), encoding="utf-8").read()
     ids |= set(re.findall(r'^  "(VC-[A-Z]+-\d+)":', v, re.M))
     return ids
 
 AUTO = scripted()
 AUTO_YES, AUTO_NO = "⚙ Automatique", "✋ Manuelle"
+MIN_CARDS = 10  # nombre de cartes minimum pour qu'un deck soit jouable (pas de maximum)
+# Animations du glossaire illustré (src/ui/Glossary.tsx)
+ANIMS = ["gold", "sentience", "blackhole", "resources", "tags", "activate", "passive", "zones", "positions", "draw", "play",
+         "discard", "spend", "give", "steal", "swap", "shuffle", "cycle", "remove", "lock", "dice", "bhdice", "target", "team",
+         "rich", "interaction", "turn", "round", "percent", "weather"]
+CATS = ["Ressource", "Carte", "Zone", "Action", "Joueur", "Règle"]
+# Couleur des mots-clés dans les descriptions (par catégorie du glossaire)
+KW_COLOR = {"Action": "B35C00", "Ressource": "7B3FC4", "Carte": "0F6E7A", "Zone": "1B7A43", "Joueur": "1F5FA8", "Règle": "9A3B8C"}
 
 src = openpyxl.load_workbook(SRC)
 def table(ws):
@@ -112,6 +122,8 @@ L = {
     "Vérification": [x for x in (r[4] for r in lists[1:]) if x],
     "Statut": ["À vérifier", "Validé", "À reformuler", "Nouvelle"],
     "Automatisation": [AUTO_YES, AUTO_NO],
+    "Catégorie": CATS,
+    "Animation": ANIMS,
 }
 li = wb.create_sheet("Listes")
 li.sheet_properties.tabColor = "9E9E9E"
@@ -127,27 +139,63 @@ for c, (name, vals) in enumerate(L.items(), 1):
 li.cell(row=1, column=len(L) + 2, value="Ajoute une valeur en bas d'une colonne : elle apparaît dans les menus déroulants.").font = Font(name=FONT, italic=True, size=9, color="6B6290")
 
 # ---------- Decks ----------
-dh = ["Deck", "Code", "Dans le jeu", "Couleur", "Description", "Nb cartes", "Nb conditions", "Complet ?", "Cartes automatiques", "À vérifier", "À mettre à jour"]
-dk = sheet("Decks", dh, [24, 9, 11, 11, 50, 10, 12, 26, 13, 11, 13], "7C4DFF")
+dh = ["Deck", "Code", "Dans le jeu", "Couleur", "Description", "Mots-clés", "Résumé du gameplay", "Dos (image)",
+      "Nb cartes", "Nb conditions", "Jouable ?", "Cartes automatiques", "À vérifier", "À mettre à jour"]
+dk = sheet("Decks", dh, [24, 9, 11, 11, 40, 34, 50, 16, 10, 12, 26, 13, 11, 13], "7C4DFF")
 for i, d in enumerate(decks, 2):
-    dk.append([d["Deck"], d["Code"], get(d, "Dans le jeu") or "Non", get(d, "Couleur"), get(d, "Description")])
-    dk[f"F{i}"] = f"=COUNTIF(Cartes!$B:$B,$A{i})"
-    dk[f"G{i}"] = f"=COUNTIF(Conditions!$B:$B,$A{i})"
-    dk[f"H{i}"] = (f'=IF($A{i}="BASE","— deck commun",IF($F{i}=32,IF($G{i}>=1,"✔ Complet","✖ Aucune condition"),'
-                   f'IF($F{i}<32,"✖ "&(32-$F{i})&" carte(s) manquante(s)","✖ "&($F{i}-32)&" carte(s) en trop")))')
-    dk[f"I{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$N:$N,"{AUTO_YES}")'
-    dk[f"J{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$M:$M,"À vérifier")+COUNTIFS(Conditions!$B:$B,$A{i},Conditions!$K:$K,"À vérifier")'
-    dk[f"K{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$O:$O,"Oui")+COUNTIFS(Conditions!$B:$B,$A{i},Conditions!$M:$M,"Oui")'
+    dk.append([d["Deck"], d["Code"], get(d, "Dans le jeu") or "Non", get(d, "Couleur"), get(d, "Description"),
+               get(d, "Mots-clés"), get(d, "Résumé du gameplay"), get(d, "Dos (image)")])
+    dk[f"I{i}"] = f"=COUNTIF(Cartes!$B:$B,$A{i})"
+    dk[f"J{i}"] = f"=COUNTIF(Conditions!$B:$B,$A{i})"
+    dk[f"K{i}"] = (f'=IF($A{i}="BASE","— deck commun",IF($I{i}<{MIN_CARDS},"✖ "&({MIN_CARDS}-$I{i})&" carte(s) manquante(s) (min. {MIN_CARDS})",'
+                   f'IF($J{i}<1,"✖ Aucune condition",IF($L{i}<$I{i},"🚧 En cours ("&$L{i}&"/"&$I{i}&" automatiques)","✔ Jouable"))))')
+    dk[f"L{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$N:$N,"{AUTO_YES}")'
+    dk[f"M{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$M:$M,"À vérifier")+COUNTIFS(Conditions!$B:$B,$A{i},Conditions!$K:$K,"À vérifier")'
+    dk[f"N{i}"] = f'=COUNTIFS(Cartes!$B:$B,$A{i},Cartes!$O:$O,"Oui")+COUNTIFS(Conditions!$B:$B,$A{i},Conditions!$M:$M,"Oui")'
 nd = len(decks)
-body(dk, nd, len(dh), center=(2, 3, 4, 6, 7, 9, 10, 11), calc=(6, 7, 8, 9, 10, 11))
+body(dk, nd, len(dh), center=(2, 3, 4, 8, 9, 10, 12, 13, 14), calc=(9, 10, 11, 12, 13, 14))
 dk.freeze_panes = "B2"
 dk.auto_filter.ref = f"A1:{get_column_letter(len(dh))}{nd + 1}"
-dv_list(dk, "C2:C200", REF["OuiNon"], "Oui = le deck est jouable (il doit être complet).")
-fill_rule(dk, f"H2:H{nd + 1}", 'LEFT($H2,1)="✔"', "D7F5E3", Font(name=FONT, color="1B7A43", bold=True))
-fill_rule(dk, f"H2:H{nd + 1}", 'LEFT($H2,1)="✖"', "FDE2E7", Font(name=FONT, color="B3261E"))
+dv_list(dk, "C2:C200", REF["OuiNon"], f"Oui = le deck peut être choisi. Il faut au moins {MIN_CARDS} cartes, 1 condition, et toutes les cartes automatiques (sinon « En cours » dans le jeu).")
+fill_rule(dk, f"K2:K{nd + 1}", 'LEFT($K2,1)="✔"', "D7F5E3", Font(name=FONT, color="1B7A43", bold=True))
+fill_rule(dk, f"K2:K{nd + 1}", 'LEFT($K2,1)="✖"', "FDE2E7", Font(name=FONT, color="B3261E"))
+fill_rule(dk, f"K2:K{nd + 1}", 'LEFT($K2,2)="🚧"', "FFF1D6", Font(name=FONT, color="9A5B00"))
 fill_rule(dk, "C2:C200", '$C2="Oui"', "D7F5E3", Font(name=FONT, color="1B7A43", bold=True))
-fill_rule(dk, f"K2:K{nd + 1}", "$K2>0", "FFE7C2", Font(name=FONT, color="9A5B00", bold=True))
-fill_rule(dk, f"A2:E{nd + 1}", 'AND($C2="Oui",LEFT($H2,1)="✖")', "FDE2E7")
+fill_rule(dk, f"N2:N{nd + 1}", "$N2>0", "FFE7C2", Font(name=FONT, color="9A5B00", bold=True))
+fill_rule(dk, f"A2:H{nd + 1}", 'AND($C2="Oui",LEFT($K2,1)="✖")', "FDE2E7")
+
+# ---------- Mots-clés colorés (d'après le glossaire) ----------
+def gloss_words():
+    out = []
+    for g in gloss:
+        color = KW_COLOR.get(get(g, "Catégorie"), "B35C00")
+        for w in str(get(g, "Mots reconnus") or "").split(","):
+            w = w.strip()
+            if w:
+                out.append((w, color))
+    out.sort(key=lambda x: -len(x[0]))
+    return out
+
+KW = gloss_words()
+KW_RE = re.compile(r"(?<![\w-])(" + "|".join(re.escape(w) for w, _ in KW) + r")(?![\w-])", re.I) if KW else None
+KW_COLORS = {w.lower(): c for w, c in KW}
+
+def rich(text):
+    """Description avec les mots du glossaire en gras et en couleur."""
+    text = str(text or "")
+    if not KW_RE or not text:
+        return text
+    parts, last = [], 0
+    for m in KW_RE.finditer(text):
+        if m.start() > last:
+            parts.append(TextBlock(InlineFont(rFont=FONT, sz=10, color=INK), text[last:m.start()]))
+        parts.append(TextBlock(InlineFont(rFont=FONT, sz=10, b=True, color=KW_COLORS.get(m.group(0).lower(), "B35C00")), m.group(0)))
+        last = m.end()
+    if not parts:
+        return text
+    if last < len(text):
+        parts.append(TextBlock(InlineFont(rFont=FONT, sz=10, color=INK), text[last:]))
+    return CellRichText(parts)
 
 # ---------- Cartes ----------
 ch = ["ID", "Deck", "Nom", "🧠 Sentience", "💰 Gold", "🌀 Trou noir", "Déclenchement", "Événement passif", "Cible",
@@ -160,6 +208,8 @@ for c in cards:
                AUTO_YES if c["ID"] in AUTO else AUTO_NO, "Non", ""])
 nc = len(cards)
 body(ca, nc, len(ch), center=(1, 4, 5, 6, 7, 12, 13, 14, 15))
+for r in range(2, nc + 2):
+    ca.cell(row=r, column=10).value = rich(ca.cell(row=r, column=10).value)
 ca.freeze_panes = "D2"
 ca.auto_filter.ref = f"A1:{get_column_letter(len(ch))}{nc + 1}"
 MAX = 2000
@@ -199,6 +249,8 @@ for c in vcs:
                get(c, "Statut") or "À vérifier", AUTO_YES if c["ID"] in AUTO else AUTO_NO, "Non", ""])
 nv = len(vcs)
 body(vc, nv, len(vh), center=(1, 4, 5, 6, 10, 11, 12, 13))
+for r in range(2, nv + 2):
+    vc.cell(row=r, column=8).value = rich(vc.cell(row=r, column=8).value)
 vc.freeze_panes = "D2"
 vc.auto_filter.ref = f"A1:{get_column_letter(len(vh))}{nv + 1}"
 dv_list(vc, f"B2:B{MAX}", f"=Decks!$A$2:$A${nd + 50}")
@@ -218,16 +270,19 @@ KNOWN = {
     "Passif": "Effet qui réagit à un événement tant que la carte est sur un terrain, même pendant le tour des autres.",
     "Cible": "Quand la carte ne précise pas, le lanceur choisit parmi toutes les possibilités, lui compris.",
 }
-gl = sheet("Glossaire", ["Terme", "Définition", "Exemple"], [32, 80, 40], "26A69A")
+gh = ["Terme", "Catégorie", "Définition", "Exemple", "Mots reconnus", "Animation"]
+gl = sheet("Glossaire", gh, [30, 13, 70, 36, 44, 13], "26A69A")
 for g in gloss:
     term = get(g, "Terme")
-    gl.append([term, get(g, "Définition") or KNOWN.get(term, ""), get(g, "Exemple")])
-for term, d in KNOWN.items():
-    if term not in [get(g, "Terme") for g in gloss]:
-        gl.append([term, d, ""])
-body(gl, gl.max_row - 1, 3)
+    gl.append([term, get(g, "Catégorie"), get(g, "Définition") or KNOWN.get(term, ""), get(g, "Exemple"), get(g, "Mots reconnus"), get(g, "Animation")])
+body(gl, gl.max_row - 1, len(gh), center=(2, 6))
 gl.freeze_panes = "B2"
-fill_rule(gl, "B2:B500", 'AND($A2<>"",$B2="")', "FFF1D6")
+gl.auto_filter.ref = f"A1:F{gl.max_row}"
+dv_list(gl, "B2:B500", REF["Catégorie"], "La couleur du mot sur les cartes dépend de la catégorie.")
+dv_list(gl, "F2:F500", REF["Animation"], "Illustration animée dans le glossaire du jeu.")
+fill_rule(gl, "C2:C500", 'AND($A2<>"",$C2="")', "FFF1D6")
+for cat, color in KW_COLOR.items():
+    fill_rule(gl, "B2:B500", f'$B2="{cat}"', "FFFFFF", Font(name=FONT, color=color, bold=True))
 
 # ---------- Lisez-moi ----------
 rd = wb.create_sheet("Lisez-moi", 0)
@@ -261,7 +316,7 @@ line("Résumé", "", "h")
 line("Cartes", "", "k"); rd[f"C{row - 1}"] = "=COUNTA(Cartes!$A:$A)-1"
 line("Conditions de victoire", "", "k"); rd[f"C{row - 1}"] = "=COUNTA(Conditions!$A:$A)-1"
 line("Decks jouables", "", "k"); rd[f"C{row - 1}"] = '=COUNTIF(Decks!$C:$C,"Oui")'
-line("Decks jouables incomplets", "", "k"); rd[f"C{row - 1}"] = '=COUNTIFS(Decks!$C:$C,"Oui",Decks!$H:$H,"✖*")'
+line("Decks marqués « Oui » pas encore jouables", "", "k"); rd[f"C{row - 1}"] = '=COUNTIFS(Decks!$C:$C,"Oui",Decks!$K:$K,"<>✔ Jouable")'
 line("Cartes automatiques", "", "k"); rd[f"C{row - 1}"] = f'=COUNTIF(Cartes!$N:$N,"{AUTO_YES}")'
 line("À mettre à jour dans le jeu", "", "k"); rd[f"C{row - 1}"] = '=COUNTIF(Cartes!$O:$O,"Oui")+COUNTIF(Conditions!$M:$M,"Oui")'
 for r in range(row - 6, row):
@@ -277,7 +332,9 @@ line("3. Envoie à Claude", "Claude met le jeu à jour, automatise les nouvelles
 row += 1
 line("Règles à respecter", "", "h")
 line("ID", "Ne change jamais l'ID d'une carte existante (le jeu s'en sert). Nouvelle carte : code du deck + numéro suivant (ex. GOB-33, VC-GOB-4). Un ID en double s'affiche en rouge.", "k")
-line("Deck jouable", "« Dans le jeu » = Oui seulement si le deck a 32 cartes et au moins 1 condition de victoire (colonne « Complet ? » de l'onglet Decks).", "k")
+line("Deck jouable", f"Au moins {MIN_CARDS} cartes (pas de maximum), au moins 1 condition de victoire et toutes les cartes automatiques (colonne « Jouable ? »). Sinon le jeu l'affiche « En cours » et on ne peut pas le choisir.", "k")
+line("Mots-clés / Résumé / Dos", "Affichés quand on regarde un deck. « Dos (image) » = fichier de l'image du dos de carte (ex. BACK-GOB.webp).", "k")
+line("Mots en couleur", "Les mots listés dans « Mots reconnus » du glossaire sont colorés dans les descriptions (ici et dans le jeu). Ajoute une variante pour qu'elle soit reconnue.", "k")
 line("Tags", "Oui / Non pour 🧠 Sentience, 💰 Gold, 🌀 Trou noir.", "k")
 line("Déclenchement", "Activation : s'applique pendant la phase 1 et quand on pose la carte. Passif : réagit à un événement (colonne « Événement passif »).", "k")
 line("Précisions (règles)", "Comment la carte est interprétée dans le jeu. Claude y note ses choix quand le texte peut se lire de plusieurs façons.", "k")
@@ -298,10 +355,10 @@ for name, desc, color in legend:
     rd[f"B{row - 1}"].border = Border(left=LINE, right=LINE, top=LINE, bottom=LINE)
 row += 1
 line("Onglets", "", "h")
-for name, desc in [("Decks", "Un deck par ligne, avec les compteurs et la vérification « Complet ? »."),
-                   ("Cartes", "Une carte par ligne (32 par deck)."),
+for name, desc in [("Decks", "Un deck par ligne, avec les compteurs et la vérification « Jouable ? »."),
+                   ("Cartes", f"Une carte par ligne (au moins {MIN_CARDS} par deck)."),
                    ("Conditions", "Les conditions de victoire, une par ligne."),
-                   ("Glossaire", "Le sens des mots des cartes (« interaction », « tour de table »…). Les définitions manquantes sont en orange."),
+                   ("Glossaire", "Le sens des mots des cartes, leur catégorie (couleur), les variantes reconnues et l'animation du glossaire du jeu."),
                    ("Listes", "Les valeurs des menus déroulants. Ajoute une valeur en bas d'une colonne pour la proposer.")]:
     line(name, desc, "k")
 

@@ -256,4 +256,5 @@ function resolveWord(room: Room, g: GameState) {
 }
 
 E.hooks.after = (room, g) => checkVictories(room, g);
+E.hooks.vcOk = isAutoVC;
 E.hooks.turnEnd = (room, g, uid) => checkVictories(room, g, uid);

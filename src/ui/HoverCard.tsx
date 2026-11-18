@@ -1,4 +1,5 @@
 import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
+import KwText from "./KwText";
 import type { Preview } from "../effects/runtime";
 
 /** Fiche agrandie d'une carte au survol, avec l'aperçu de son effet. */
@@ -21,7 +22,7 @@ export default function HoverCard({ id, x, y, preview, auto }: {
           {c.kind === "card" && auto && preview && <div className="small auto-note">⚙ Effet automatique</div>}
         </div>
       </div>
-      <p className={`hover-text ${impossible ? "dim" : ""}`} title={impossible ? preview!.reason : undefined}>{c.text}</p>
+      <p className={`hover-text ${impossible ? "dim" : ""}`} title={impossible ? preview!.reason : undefined}><KwText text={c.text} /></p>
       {impossible && <p className="hover-reason">✖ Impossible maintenant : {preview!.reason}</p>}
       {preview?.ok && (preview.cards.length + preview.gold.length + preview.sentience.length + preview.bh.length + preview.players.length > 0) && (
         <p className="small hover-hint">Les éléments touchés sont surlignés sur la table.</p>

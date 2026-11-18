@@ -1,4 +1,5 @@
 import { useState } from "react";
+import KwText from "./KwText";
 import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
@@ -146,7 +147,7 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose, onClai
               ? <span className="badge auto-badge">⚙ Effet automatique</span>
               : <span className="badge">✋ Effet manuel</span>)}
           </p>
-          <p className="card-text">{c.text}</p>
+          <p className="card-text"><KwText text={c.text} /></p>
           {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
           <div className="card-actions">{actions}</div>
           {!myTurn && isPlayer && c.kind === "card" && <p className="small muted">Seul le joueur dont c'est le tour peut agir.</p>}

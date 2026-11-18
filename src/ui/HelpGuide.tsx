@@ -133,9 +133,10 @@ const SLIDES: Slide[] = [
         <span className="hg-btn">🔊 Son <small>volume</small></span>
         <span className="hg-btn">🏳 Abandonner <small>en haut à droite, si tu ne peux plus jouer</small></span>
         <span className="hg-btn">❔ Aide <small>ce guide</small></span>
+        <span className="hg-btn">📖 Glossaire <small>le sens de chaque mot des cartes</small></span>
       </div>
     ),
-    text: <>Clique une carte pour la voir en grand avec ses précisions. Clique une condition (même remplie) pour revoir son détail.</>,
+    text: <>Clique une carte pour la voir en grand avec ses précisions. Les <b className="kw kw-act">mots en couleur</b> renvoient au glossaire. Clique une condition (même remplie) pour revoir son détail.</>,
   },
 ];
 

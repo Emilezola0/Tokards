@@ -34,7 +34,9 @@ wb = openpyxl.load_workbook(SRC, read_only=True, data_only=True)
 decks = []
 for d in rows(wb["Decks"]):
     decks.append({"name": d["Deck"], "code": d["Code"], "inGame": d["Dans le jeu"].lower() == "oui",
-                  "color": d.get("Couleur", ""), "description": d.get("Description", ""), "cards": [], "vcs": []})
+                  "color": d.get("Couleur", ""), "description": d.get("Description", ""),
+                  "keywords": [k.strip() for k in d.get("Mots-clés", "").split(",") if k.strip()],
+                  "summary": d.get("Résumé du gameplay", ""), "back": d.get("Dos (image)", ""), "cards": [], "vcs": []})
 by_name = {d["name"]: d for d in decks}
 
 
@@ -59,7 +61,14 @@ for r in rows(wb["Conditions"]):
     cards[c["id"]] = c
     by_name[c["deck"]]["vcs"].append(c["id"])
 
+glossary = []
+if "Glossaire" in wb.sheetnames:
+    for g in rows(wb["Glossaire"]):
+        glossary.append({"term": g.get("Terme", ""), "cat": g.get("Catégorie", ""), "def": g.get("Définition", ""),
+                         "example": g.get("Exemple", ""), "anim": g.get("Animation", ""),
+                         "words": [w.strip() for w in g.get("Mots reconnus", "").split(",") if w.strip()]})
+
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as f:
-    json.dump({"decks": decks, "cards": cards}, f, ensure_ascii=False, indent=1)
+    json.dump({"decks": decks, "cards": cards, "glossary": glossary}, f, ensure_ascii=False, indent=1)
 print(f"{len(cards)} cartes, decks jouables : {[d['name'] for d in decks if d['inGame']]}")

@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
-import { DECKS, PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
+import KwText from "./KwText";
+import { DECKS, PLACEHOLDER, card, cardImage, deckBack, tagIcons } from "../data/cards";
 import { isAutomated } from "../effects/runtime";
 import CardView from "./CardView";
 import { sfx } from "./sfx";
@@ -17,7 +18,7 @@ export function CardDetail({ id, onBack }: { id: string; onBack: () => void }) {
           {c.trigger && <span className="badge">{c.trigger}</span>} {c.event}
           {c.kind === "card" && (isAutomated(id) ? <span className="badge auto-badge">⚙ Effet automatique</span> : <span className="badge">✋ Effet manuel</span>)}
         </p>
-        <p className="card-text">{c.text}</p>
+        <p className="card-text"><KwText text={c.text} /></p>
         {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
         <button className="ghost" onClick={onBack}>← Retour au deck</button>
       </div>
@@ -41,7 +42,14 @@ export function DeckModal({ deck, onClose }: { deck: string; onClose: () => void
           <CardDetail id={sel} onBack={() => setSel(null)} />
         ) : (
           <>
-            {d.description && <p className="small muted">{d.description}</p>}
+            <div className="deck-head">
+              {deckBack(d.name) && <img className="deck-back-img" src={deckBack(d.name)!} alt="" />}
+              <div>
+                {!!d.keywords?.length && <div className="deck-kw big">{d.keywords.map((k) => <i key={k}>{k}</i>)}</div>}
+                {d.summary && <p className="deck-summary">{d.summary}</p>}
+                {d.description && <p className="small muted">{d.description}</p>}
+              </div>
+            </div>
             <p className="small muted">Clique une carte pour voir son effet en détail.</p>
             <div className="viewer-grid">
               {d.cards.map((id) => <CardView key={id} id={id} size="m" ghost auto={isAutomated(id)} onClick={() => setSel(id)} />)}
@@ -89,7 +97,7 @@ export function TerrainModal({ name, terrain, onCard, onClose }: { name: string;
                   <div className="chain-text">
                     <strong>{c.name}</strong> <span>{tagIcons(c.tags)}</span>
                     {c.trigger === "Passif" && <span className="badge passive-badge">✨ Passif · {c.event}</span>}
-                    <p className="small">{c.text}</p>
+                    <p className="small"><KwText text={c.text} /></p>
                   </div>
                 </div>
               </Fragment>

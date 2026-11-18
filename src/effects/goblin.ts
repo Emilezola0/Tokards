@@ -126,13 +126,7 @@ export const GOBLIN: Record<string, CardScript> = {
       const theirs = x.chooseCard(me, `Carte Gold à prendre chez ${x.name(t)}`, x.p(t).terrain.filter(isGold), id);
       const mine = x.chooseCard(me, "Carte Gold de ton terrain à échanger avec", mineAll.filter((c) => c !== theirs), id);
       if (!theirs || !mine) return false;
-      const ti = x.p(t).terrain.indexOf(theirs);
-      const mi = x.p(me).terrain.indexOf(mine);
-      x.p(t).terrain[ti] = mine;
-      x.p(me).terrain[mi] = theirs;
-      x.fx({ k: "link", from: id, to: mine, toUid: t, text: `échange « ${name(mine)} »` });
-      x.fx({ k: "link", from: id, to: theirs, toUid: me, text: `échange « ${name(theirs)} »` });
-      x.log(`🔗 « ${name(id)} » échange « ${name(mine)} » et « ${name(theirs)} » de place.`, { dst: theirs, to: t });
+      x.swap(mine, theirs);
     },
   },
 
@@ -203,19 +197,28 @@ export const GOBLIN: Record<string, CardScript> = {
     },
   },
 
-  // Charlatan : chaque autre joueur peut payer pour choisir un nouveau trou noir
+  // Charlatan : chaque autre joueur, dans l'ordre, propose un prix ; le lanceur accepte ou non,
+  // puis choisit le nouveau trou noir de ce joueur (différent de l'actuel).
   "GOB-15": {
     activate: (x, { id, me }) => {
       let any = false;
       for (const u of x.others(me)) {
         const max = x.p(u).gold;
         if (max < 1) continue;
-        const n = x.chooseNumber(u, `Charlatan de ${x.name(me)} : combien payer pour changer de trou noir ? (0 = non)`, 0, max, id);
-        if (n < 1) continue;
+        const n = x.chooseNumber(u, `Charlatan de ${x.name(me)} : combien lui proposes-tu pour qu'il change ton trou noir ? (0 = passer)`, 0, max, id);
+        if (n < 1) {
+          x.log(`${x.name(u)} passe son tour pour le Charlatan.`);
+          continue;
+        }
+        if (!x.confirm(me, `${x.name(u)} te propose ${n} gold pour changer son trou noir. Accepter ?`, id)) {
+          x.log(`${x.name(me)} refuse l'offre de ${x.name(u)} (${n} gold).`);
+          continue;
+        }
         x.transfer(u, me, n);
-        x.setBlackHole(u, x.chooseBlackHole(u, "Ton nouveau trou noir", x.p(u).blackHole, id));
+        x.setBlackHole(u, x.chooseBlackHole(me, `Nouveau trou noir de ${x.name(u)}`, x.p(u).blackHole, id));
         any = true;
       }
+      x.reason = any ? null : "Personne n'a conclu d'accord avec le Charlatan.";
       return any;
     },
   },
@@ -243,9 +246,13 @@ export const GOBLIN: Record<string, CardScript> = {
       const mine = x.p(me).terrain.filter((c) => c !== id && isSent(c));
       const target = pickTarget(x, me, id, "Avec qui échanger ?", (u) => mine.length > 0 || x.p(u).terrain.some(isGold));
       if (!target) return false;
-      const theirs = x.p(target).terrain.filter(isGold);
-      for (const c of mine) x.move(c, { uid: target, zone: "terrain" });
-      for (const c of theirs) x.move(c, { uid: me, zone: "terrain" });
+      const theirs = x.p(target).terrain.filter((c) => c !== id && isGold(c) && !mine.includes(c));
+      // La 1re carte 🧠 prend la place de la 1re carte 💰 et inversement, etc.
+      const n = Math.min(mine.length, theirs.length);
+      for (let i = 0; i < n; i++) x.swap(mine[i], theirs[i]);
+      // Sans correspondance : les cartes restantes vont à la fin de l'autre terrain, dans leur ordre.
+      for (const c of mine.slice(n)) x.moveExchange(c, { uid: target, zone: "terrain" });
+      for (const c of theirs.slice(n)) x.moveExchange(c, { uid: me, zone: "terrain" });
     },
   },
 
@@ -353,11 +360,13 @@ export const GOBLIN: Record<string, CardScript> = {
       if (choice.startsWith("Défausser")) {
         const t = x.choosePlayer(me, "Sur quel terrain défausser ?", withGold, id)!;
         const c = x.chooseCard(me, `Carte uniquement Gold à défausser chez ${x.name(t)}`, x.p(t).terrain.filter((c) => c !== id && goldOnly(c)), id);
-        if (c) x.move(c, { uid: t, zone: "discard" });
+        if (c) x.discard(c);
       } else {
         const c = x.chooseCard(me, "Carte uniquement Gold de ta main à poser", x.p(me).hand.filter(goldOnly), id);
         const t = x.choosePlayer(me, "Sur quel terrain la poser ?", all, id)!;
-        if (c) x.move(c, { uid: t, zone: "terrain" });
+        if (!c) return false;
+        const at = x.chooseSlot(me, `À quelle place poser « ${name(c)} » chez ${x.name(t)} ?`, t, c, id);
+        x.move(c, { uid: t, zone: "terrain", index: at });
       }
     },
   },
@@ -390,14 +399,20 @@ export const GOBLIN: Record<string, CardScript> = {
   // Hôpital du Dr. Goblinstein : règle permanente gérée par le moteur (moveCard)
   "GOB-30": {},
 
-  // Le donjon goblin
+  // Le donjon goblin : une chance sur quatre (il faut un 4 au d4)
   "GOB-31": {
     activate: (x, { id, me }) => {
+      const v = x.dice(me, 4);
+      if (v !== 4) {
+        x.reason = `Le dé donne ${v} : il fallait un 4.`;
+        return false;
+      }
       const t = pickTarget(x, me, id, "Quelle cible ?");
       if (!t) return false;
       const first = x.p(t).terrain[0];
       if (first) x.discard(first);
-      x.shuffleDeck(t, true);
+      x.shuffleZone(t, "deck");
+      x.shuffleZone(t, "discard");
     },
   },
 

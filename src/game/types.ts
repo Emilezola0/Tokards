@@ -7,6 +7,8 @@ export const BLACK_HOLES: { id: BlackHole; weather: string; icon: string }[] = [
   { id: "Blazard", weather: "Pluie", icon: "🌧️" },
   { id: "Trou de ver", weather: "Canicule", icon: "☀️" },
 ];
+/** Symbole de chaque état sur le dé trou noir et dans le glossaire. */
+export const BH_SYMBOL: Record<BlackHole, string> = { Primordial: "🌑", Quasar: "✴️", Blazard: "🔥", "Trou de ver": "🕳️" };
 /** La météo n'est mentionnée que si le deck Météo est en jeu (info contextuelle). */
 let SHOW_WEATHER = true;
 export const setShowWeather = (v: boolean) => void (SHOW_WEATHER = v);
@@ -46,6 +48,9 @@ export interface PlayerState {
   stats?: Stats;
   /** a abandonné la partie : ses tours sont passés */
   out?: boolean;
+  /** ne peut pas poser de carte ce tour (raison affichée) / au prochain tour */
+  cantPlay?: string;
+  cantPlayNext?: string;
 }
 
 /** Compteurs suivis pendant la partie pour vérifier les conditions de victoire. */
@@ -82,6 +87,8 @@ export type Prompt = { chooser: string; text: string; cardId?: string } & (
   | { kind: "number"; min: number; max: number }
   | { kind: "cards"; options: string[]; min: number; max: number; blind?: boolean }
   | { kind: "order"; options: string[] }
+  /** choisir une place (index d'insertion) sur le terrain de `uid` pour la carte `card` */
+  | { kind: "slot"; uid: string; card: string }
 );
 
 /** Action en cours de résolution (rejouée depuis l'état d'avant avec les réponses déjà données). */
@@ -107,7 +114,7 @@ export type Fx =
   | { id: number; k: "gold"; uid: string; delta: number }
   | { id: number; k: "sentience"; uid: string; v: boolean }
   | { id: number; k: "bh"; uid: string; to: BlackHole }
-  | { id: number; k: "dice"; uid: string; faces: number; value: number }
+  | { id: number; k: "dice"; uid: string; faces: number; value: number; bh?: boolean }
   | { id: number; k: "move"; card: string }
   | { id: number; k: "banner"; text: string }
   /** annonce du joueur dont c'est le tour */
@@ -173,6 +180,10 @@ export interface GameState {
   born?: Record<string, number>;
   /** gold stockés sur une carte (Maladie draconique) */
   cardStore?: Record<string, number>;
+  /** cartes qui ont joué leur effet et attendent le prochain tour de leur joueur pour rejouer */
+  spent?: string[];
+  /** Rhume quantique : joueur qui l'a reçu et tour global où il l'a reçu */
+  rhume?: { uid: string; at: number };
 }
 
 export interface LobbyPlayer {

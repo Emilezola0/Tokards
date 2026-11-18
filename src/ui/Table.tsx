@@ -5,7 +5,7 @@ import { act, backToLobby, effect, update } from "../game/room";
 import type { EffectAction, GameState, Room, Vote } from "../game/types";
 import { BLACK_HOLES, setShowWeather } from "../game/types";
 import { isAutomated, previewEffect } from "../effects/runtime";
-import ChoiceModal from "./ChoiceModal";
+import ChoiceModal, { ChoiceDock, onTable, useTablePick } from "./ChoiceModal";
 import FxLayer from "./FxLayer";
 import CardView from "./CardView";
 import CardModal, { type Placing } from "./CardModal";
@@ -24,9 +24,10 @@ import { dealDuration, useCardFlip } from "./useCardFlip";
 const PHASE_LABEL = { activation: "Activation", action: "Poser / défausser", end: "Fin du tour" };
 
 /** Place les plateaux en cercle autour de la table (le mien en bas), tous à l'endroit pour rester lisibles. */
-function seats(n: number, W: number, H: number): Seat[] {
-  const HUB_W = 160;
-  const HUB_H = 175;
+function seats(n: number, W: number, H: number, teams = 1): Seat[] {
+  // Place réservée au centre pour la condition commune et les jauges des équipes.
+  const HUB_W = 200;
+  const HUB_H = 120 + teams * 40;
   let last: Seat[] = [];
   for (let s = 1.1; s >= 0.2; s -= 0.02) {
     const out: Seat[] = [];
@@ -112,6 +113,9 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
 
   const colorOf = (u: string) => PLAYER_COLORS[Math.max(0, g.order.indexOf(u)) % PLAYER_COLORS.length];
   const myTeam = room.players[uid]?.team.trim();
+  const myPrompt = g.pending?.prompt.chooser === uid && !fx.busy ? g.pending.prompt : null;
+  const answerPrompt = (a: unknown) => effect(room.code, null, a).catch((e) => setErr((e as Error).message));
+  const tablePick = useTablePick(g, myPrompt, answerPrompt, `${g.pending?.answers.length ?? -1}:${g.pending?.prompt.text ?? ""}`);
 
   useCardFlip(arena, g, fresh);
 
@@ -169,6 +173,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
     if (!src || !isPlayer || !myTurn || g.pending) return;
     if (src.from === "hand") {
       if (!canPlay || owner !== uid) return;
+      if (me.cantPlay) return setErr(me.cantPlay);
       if (auto) runAuto({ t: "play", by: uid, card: src.id, target: owner, index });
       else run((r, gg) => E.playFromHand(r, gg, uid, src.id, owner, index));
     } else {
@@ -202,14 +207,13 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
 
   const viewer = Math.max(0, g.order.indexOf(uid));
   const seated = [...g.order.slice(viewer), ...g.order.slice(0, viewer)];
-  const layout = useMemo(() => seats(seated.length, size.w, size.h), [seated.length, size.w, size.h]);
   const teams = useMemo(() => [...new Set(g.order.map((u) => E.teamKey(room, u)))], [g.order, room]);
+  const layout = useMemo(() => seats(seated.length, size.w, size.h, teams.length), [seated.length, size.w, size.h, teams.length]);
 
   return (
     <div className="table">
       <header className="topbar">
         <span className="code">{room.code}</span>
-        <span className="muted">Tour {g.round}</span>
         <span className={`badge ${auto ? "auto-badge" : ""}`} title={auto ? "Les cartes ⚙ s'appliquent toutes seules" : "Tous les effets sont manuels"}>
           {auto ? "⚙ Auto" : "✋ Manuel"}
         </span>
@@ -240,8 +244,9 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         )}
         <button className="ghost" onClick={() => (location.hash = "")}>Quitter</button>
       </header>
+      <OrderBar g={g} room={room} uid={uid} colorOf={colorOf} />
 
-      <div className={`arena ${moving ? "is-moving" : ""}`} ref={arena}>
+      <div className={`arena ${moving ? "is-moving" : ""} ${tablePick.pick ? "is-picking" : ""}`} ref={arena}>
         <div className="table-felt" />
         {seated.map((owner, i) =>
           layout[i] ? (
@@ -273,6 +278,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
               onDragEnd={() => setTimeout(() => setDrag(null), 0)}
               onShowTerrain={setViewTerrain}
               onShowDeck={(o) => setViewDeck(room.players[o]?.deck ?? null)}
+              pick={tablePick.pick}
             />
           ) : null,
         )}
@@ -333,14 +339,11 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       {openPlayer && (
         <PlayerModal owner={openPlayer} room={room} uid={uid} run={run} onCard={setOpenCard} onClose={() => setOpenPlayer(null)} />
       )}
-      {g.pending?.prompt.chooser === uid && !fx.busy && (
-        <ChoiceModal
-          key={g.pending.answers.length}
-          room={room}
-          prompt={g.pending.prompt}
-          onAnswer={(a) => effect(room.code, null, a).catch((e) => setErr((e as Error).message))}
-          onCard={setOpenCard}
-        />
+      {myPrompt && !onTable(myPrompt) && (
+        <ChoiceModal key={g.pending!.answers.length} room={room} prompt={myPrompt} onAnswer={answerPrompt} onCard={setOpenCard} />
+      )}
+      {myPrompt && tablePick.pick && (
+        <ChoiceDock room={room} g={g} prompt={myPrompt} pick={tablePick.pick} answer={tablePick.answer} onCard={setOpenCard} />
       )}
       <FxLayer g={g} room={room} me={uid} fresh={fresh} startDelay={fresh ? dealDuration(g) : 0} colorOf={colorOf} />
       {viewDeck && <DeckModal deck={viewDeck} onClose={() => setViewDeck(null)} />}
@@ -350,6 +353,40 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       {g.wordClaim && <WordVote room={room} uid={uid} />}
       {g.vote && <VoteModal room={room} uid={uid} isHost={isHost} />}
       {room.status === "ended" && <EndModal room={room} isHost={isHost} />}
+    </div>
+  );
+}
+
+/** Ordre du tour et durée de la partie, toujours visibles. */
+function OrderBar({ g, room, uid, colorOf }: { g: GameState; room: Room; uid: string; colorOf: (u: string) => string }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const secs = Math.max(0, Math.floor((now - (g.startedAt ?? now)) / 1000));
+  const hh = Math.floor(secs / 3600);
+  const mm = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
+  const ss = String(secs % 60).padStart(2, "0");
+  const current = E.currentPlayer(g);
+  return (
+    <div className="order-bar">
+      <span className="ob-label">Ordre du tour</span>
+      {g.order.map((u, i) => (
+        <span key={u} className="ob-item">
+          {i > 0 && <span className="ob-arrow">›</span>}
+          <span
+            className={`ob-player ${u === current ? "on" : ""} ${g.players[u]?.out ? "out" : ""} ${u === uid ? "me" : ""}`}
+            style={{ ["--pc" as string]: colorOf(u) }}
+            title={`d20 : ${g.rolls[u] ?? "?"}`}
+          >
+            {u === current && "▶ "}{E.nameOf(room, u)}
+          </span>
+        </span>
+      ))}
+      <span className="grow" />
+      <span className="ob-stat" title="Numéro du tour de table">🔁 Tour {g.round}</span>
+      <span className="ob-stat" title="Durée de la partie">⏱ {hh ? `${hh}:` : ""}{mm}:{ss}</span>
     </div>
   );
 }
@@ -374,7 +411,8 @@ function TurnControls({ g, room, uid, myTurn, auto, autoEnd, busy, run, runAuto 
   if (g.phase === "action")
     return (
       <span className="controls hint-text">
-        {g.players[uid].hand.length ? "Glisse une carte de ta main sur ton terrain (pose) ou sur ta défausse" : "Main vide"}
+        {g.players[uid].cantPlay ? `🤧 ${g.players[uid].cantPlay}`
+          : g.players[uid].hand.length ? "Glisse une carte de ta main sur ton terrain (pose) ou sur ta défausse" : "Main vide"}
       </span>
     );
   return (
@@ -400,7 +438,7 @@ function Dice({ run, uid, enabled }: { uid: string; enabled: boolean; run: (fn: 
       const name = E.nameOf(r, uid);
       if (faces === "bh") {
         const v = E.roll(4);
-        E.pushFx(g, { k: "dice", uid, faces: 4, value: v });
+        E.pushFx(g, { k: "dice", uid, faces: 4, value: v, bh: true });
         E.log(g, `🎲 ${name} lance le dé trou noir : ${BLACK_HOLES[v - 1].id}.`);
       } else {
         const v = E.roll(faces);

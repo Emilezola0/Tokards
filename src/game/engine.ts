@@ -46,6 +46,8 @@ export const pos = (g: GameState) => (g.round - 1) * g.order.length + g.turn;
 export const hooks: {
   turnEnd?: (room: Room, g: GameState, uid: string) => void;
   after?: (room: Room, g: GameState) => void;
+  /** condition de victoire vérifiable automatiquement */
+  vcOk?: (vc: string) => boolean;
   /** pioche de fin de tour (pour les passifs qui réagissent à la pioche) */
   drew?: (g: GameState, uid: string, n: number) => void;
 } = {};
@@ -109,6 +111,8 @@ export function startGame(room: Room): GameState {
       personalVC: null, personalDone: false, stats: { bhHist: [{ pos: 0, bh: "Primordial" }] },
     };
   }
+  // Mode automatique : seules les conditions vérifiées automatiquement sont tirées.
+  if (room.auto !== false && hooks.vcOk) vcPool = vcPool.filter(hooks.vcOk);
   vcPool = shuffle(vcPool);
   g.commonVC = vcPool.shift()!;
   log(g, `Condition de victoire commune : « ${card(g.commonVC).name} ».`);
@@ -134,12 +138,20 @@ function beginTurn(room: Room, g: GameState) {
   const s = st(p);
   s.bhTurn = 0;
   s.gainSinceBH = null;
+  s.failed = 0; // « Inhibition toxique » se vérifie sur un seul tour
+  if (p.cantPlay) delete p.cantPlay;
+  if (p.cantPlayNext) {
+    p.cantPlay = p.cantPlayNext;
+    delete p.cantPlayNext;
+  }
   if (p.locked) {
     p.locked = false;
     log(g, `🔓 ${nameOf(room, uid)} n'est plus bloqué.`);
   }
   g.phase = p.terrain.length ? "activation" : "action";
   g.lastPlayed = null;
+  // Les cartes de son terrain peuvent rejouer leur effet.
+  if (g.spent?.length) g.spent = g.spent.filter((id) => !p.terrain.includes(id));
   pushFx(g, { k: "turn", uid });
   pushFx(g, { k: "phase", uid, phase: g.phase });
   log(g, `— Tour ${g.round} : à ${nameOf(room, uid)} de jouer.`);
@@ -164,8 +176,15 @@ export function activationStep(room: Room, g: GameState, applied: boolean) {
       st(g.players[uid]).failed = (st(g.players[uid]).failed ?? 0) + 1;
     }
     g.activated = [...(g.activated ?? []), id];
+    markSpent(g, id);
   }
   if (!nextActivation(g)) setPhase(g, "action");
+}
+
+/** La carte a joué son effet : elle reste marquée jusqu'au prochain tour du joueur qui l'a sur son terrain. */
+export function markSpent(g: GameState, id: string) {
+  if (locate(g, id)?.zone !== "terrain" || g.spent?.includes(id)) return;
+  g.spent = [...(g.spent ?? []), id];
 }
 
 export function skipActivation(room: Room, g: GameState) {
@@ -194,6 +213,7 @@ export function grantExtraAction(room: Room, g: GameState) {
 export function endTurn(room: Room, g: GameState) {
   const uid = currentPlayer(g);
   const p = g.players[uid];
+  rhumeCheck(room, g, uid);
   const need = Math.max(0, g.handSize - p.hand.length);
   const drawn = drawCards(g, uid, need);
   if (drawn) hooks.drew?.(g, uid, drawn);
@@ -202,6 +222,21 @@ export function endTurn(room: Room, g: GameState) {
   hooks.turnEnd?.(room, g, uid);
   nextTurn(room, g);
   hooks.after?.(room, g);
+}
+
+/** Rhume quantique : à la fin du prochain tour de celui qui l'a reçu, s'il l'a encore, il jette sa main et ne pose rien au tour suivant. */
+export const RHUME = "FLE-10";
+function rhumeCheck(room: Room, g: GameState, uid: string) {
+  const r = g.rhume;
+  if (!r || r.uid !== uid || pos(g) <= r.at) return;
+  delete g.rhume;
+  const p = g.players[uid];
+  if (!p.terrain.includes(RHUME)) return;
+  const n = p.hand.length;
+  for (const c of [...p.hand]) moveCard(room, g, c, { uid, zone: "discard" }, true);
+  p.cantPlayNext = "Rhume quantique : tu ne peux pas poser de carte ce tour (tu peux seulement défausser).";
+  log(g, `🤧 Rhume quantique : ${nameOf(room, uid)} jette sa main (${n} carte${n > 1 ? "s" : ""}) et ne pourra pas poser de carte au prochain tour.`, { src: RHUME, from: uid });
+  pushFx(g, { k: "banner", text: `🤧 Rhume quantique : ${nameOf(room, uid)} jette sa main` });
 }
 
 /** Passe au joueur suivant encore en jeu (ceux qui ont abandonné sont sautés). */
@@ -282,6 +317,7 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
   }
   const from = g.players[at.uid][at.zone];
   from.splice(at.index, 1);
+  if (at.zone === "terrain" && dest.zone !== "terrain" && g.spent?.includes(id)) g.spent = g.spent.filter((c) => c !== id);
   const to = g.players[dest.uid][dest.zone];
   let index = dest.index ?? (dest.zone === "deck" ? (dest.bottom ? to.length : 0) : to.length);
   if (dest.zone === "discard" && dest.index === undefined) index = 0; // dessus de la défausse = index 0
@@ -307,8 +343,9 @@ export function playFromHand(room: Room, g: GameState, uid: string, id: string, 
 }
 
 export function discardFromHand(room: Room, g: GameState, uid: string, id: string) {
-  const owner = g.owner[id] ?? uid;
-  moveCard(room, g, id, { uid: owner, zone: "discard" }, true);
+  // Une carte défaussée va dans la défausse du joueur chez qui elle se trouve.
+  const holder = locate(g, id)?.uid ?? uid;
+  moveCard(room, g, id, { uid: holder, zone: "discard" }, true);
   log(g, `${nameOf(room, uid)} défausse « ${card(id).name} » de sa main.`, { dst: id, from: uid });
   g.lastPlayed = null;
   if (uid === currentPlayer(g) && g.phase === "action") consumeAction(g);
@@ -331,6 +368,13 @@ export function shuffleDeck(room: Room, g: GameState, uid: string, withDiscard: 
   p.deck = shuffle(p.deck);
   pushFx(g, { k: "shuffle", uid, zone: "deck" });
   log(g, `🔀 ${nameOf(room, uid)} mélange sa pioche${withDiscard ? " avec sa défausse" : ""}.`);
+}
+
+export function shuffleZone(room: Room, g: GameState, uid: string, zone: "deck" | "discard") {
+  const p = g.players[uid];
+  p[zone] = shuffle(p[zone]);
+  pushFx(g, { k: "shuffle", uid, zone });
+  log(g, `🔀 ${nameOf(room, uid)} mélange sa ${ZONE_LABEL[zone]}.`);
 }
 
 // ---------- Ressources ----------
