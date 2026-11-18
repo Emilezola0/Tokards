@@ -2216,8 +2216,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "🧠 fausse : inversez l'ordre du terrain d'un joueur.\n🧠 vraie : 1 chance sur 2 de changer le 🌀 d'un autre joueur.",
-   "rules": "",
+   "text": "🧠 fausse : inversez l'ordre du terrain d'un joueur.\n🧠 vraie : 1 chance sur 2 de changer le 🌀 d'un joueur (vous compris).",
+   "rules": "Les deux effets peuvent viser n'importe quel joueur, vous compris.",
    "image": "EMI-26.png"
   },
   "EMI-27": {

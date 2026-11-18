@@ -551,7 +551,8 @@ export const EMILE: Record<string, CardScript> = {
         x.interact(u, "terrain");
         return;
       }
-      const u = x.choosePlayer(me, "Gratin : quel adversaire ?", x.others(me), id);
+      // N'importe quel joueur, toi compris.
+      const u = x.choosePlayer(me, "Gratin : le trou noir de quel joueur (toi compris) ?", x.turnOrder(), id);
       if (!u) return false;
       if (x.dice(me, 2) === 1) x.setBlackHole(u, x.chooseBlackHole(me, `Nouveau trou noir de ${x.name(u)} ?`, x.p(u).blackHole, id));
       else x.log("Raté : le trou noir ne change pas.");
