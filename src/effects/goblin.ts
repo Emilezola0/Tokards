@@ -1,6 +1,7 @@
 // Empire Goblin — effets automatiques. Les choix d'interprétation sont notés dans
 // la colonne « Précisions » du tableau des cartes.
 import { card } from "../data/cards";
+import * as E from "../game/engine";
 import type { BlackHole } from "../game/types";
 import type { CardScript, Ctx } from "./runtime";
 
@@ -9,7 +10,7 @@ const Q: BlackHole = "Quasar";
 const B: BlackHole = "Blazard";
 const T: BlackHole = "Trou de ver";
 
-const tags = (id: string) => card(id).tags;
+const tags = (id: string) => E.tagsOf(E.live.g, id);
 const isGold = (id: string) => tags(id).gold;
 const isSent = (id: string) => tags(id).sentience;
 const isBH = (id: string) => tags(id).blackHole;

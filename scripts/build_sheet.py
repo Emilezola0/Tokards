@@ -36,7 +36,7 @@ MIN_CARDS = 10  # nombre de cartes minimum pour qu'un deck soit jouable (pas de 
 # Animations du glossaire illustré (src/ui/Glossary.tsx)
 ANIMS = ["gold", "sentience", "blackhole", "resources", "tags", "activate", "passive", "zones", "positions", "draw", "play",
          "discard", "spend", "give", "steal", "swap", "shuffle", "cycle", "remove", "lock", "dice", "bhdice", "target", "team",
-         "rich", "interaction", "turn", "round", "percent", "weather"]
+         "rich", "interaction", "turn", "round", "percent", "weather", "disable", "under", "sentdice", "random", "neighbours"]
 CATS = ["Ressource", "Carte", "Zone", "Action", "Joueur", "Règle"]
 # Couleur des mots-clés dans les descriptions (par catégorie du glossaire)
 KW_COLOR = {"Action": "B35C00", "Ressource": "7B3FC4", "Carte": "0F6E7A", "Zone": "1B7A43", "Joueur": "1F5FA8", "Règle": "9A3B8C"}

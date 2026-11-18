@@ -7,6 +7,8 @@ export type DieRoll = {
   value: number;
   /** dé trou noir : symboles des 4 états au lieu des chiffres */
   bh?: boolean;
+  /** dé de sentience : ✔ Vraie / ✖ Fausse */
+  sent?: boolean;
   who: string;
   color: string;
   from: { x: number; y: number };
@@ -18,7 +20,8 @@ export type DieRoll = {
 /** Rotation qui amène chaque face du cube vers l'avant. */
 const FACE_POS = ["rotateY(0deg)", "rotateY(90deg)", "rotateY(180deg)", "rotateY(-90deg)", "rotateX(90deg)", "rotateX(-90deg)"];
 
-const label = (bh: boolean | undefined, v: number) => (bh ? BH_SYMBOL[BLACK_HOLES[v - 1]?.id ?? "Primordial"] : String(v));
+const label = (r: { bh?: boolean; sent?: boolean }, v: number) =>
+  r.bh ? BH_SYMBOL[BLACK_HOLES[v - 1]?.id ?? "Primordial"] : r.sent ? (v === 1 ? "✔" : "✖") : String(v);
 
 /** Dé en 3D qui roule depuis le plateau du joueur jusqu'au centre de la table, puis affiche le résultat. */
 export default function Die3D({ roll }: { roll: DieRoll }) {
@@ -59,21 +62,23 @@ export default function Die3D({ roll }: { roll: DieRoll }) {
     );
   }, [roll.key]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const result = roll.bh ? `${BH_SYMBOL[BLACK_HOLES[roll.value - 1]?.id ?? "Primordial"]} ${BLACK_HOLES[roll.value - 1]?.id}` : String(roll.value);
+  const result = roll.bh
+    ? `${BH_SYMBOL[BLACK_HOLES[roll.value - 1]?.id ?? "Primordial"]} ${BLACK_HOLES[roll.value - 1]?.id}`
+    : roll.sent ? `🧠 ${roll.value === 1 ? "Vraie" : "Fausse"}` : String(roll.value);
   return (
     <div className="die3d-layer">
       <div ref={wrap} className="die3d-pos" style={{ transform: `translate(${roll.from.x}px, ${roll.from.y}px)` }}>
         <div className="die3d-shadow" />
-        <div ref={cube} className={`die3d ${roll.bh ? "bh" : ""}`} style={{ ["--pc" as string]: roll.color }}>
+        <div ref={cube} className={`die3d ${roll.bh ? "bh" : ""} ${roll.sent ? "sent" : ""}`} style={{ ["--pc" as string]: roll.color }}>
           {faces.map((v, i) => (
             <span key={i} className={`die3d-face ${i === 0 ? "front" : ""}`} style={{ transform: `${FACE_POS[i]} translateZ(32px)` }}>
-              {label(roll.bh, v)}
+              {label(roll, v)}
             </span>
           ))}
         </div>
         {roll.landed && (
           <div className="die3d-result" style={{ color: roll.color }}>
-            <span className="die3d-who">{roll.who} · {roll.bh ? "dé trou noir" : `d${roll.faces}`}</span>
+            <span className="die3d-who">{roll.who} · {roll.bh ? "dé trou noir" : roll.sent ? "dé de sentience" : `d${roll.faces}`}</span>
             <span className="die3d-value">{result}</span>
           </div>
         )}

@@ -46,6 +46,12 @@ type Props = {
   store?: number;
   /** verrouillée : ne peut pas être choisie */
   locked?: boolean;
+  /** désactivée : son effet et ses passifs ne fonctionnent pas */
+  disabled?: boolean;
+  /** cartes placées sous celle-ci */
+  under?: string[];
+  /** tag 🧠 ajouté jusqu'à la fin du tour */
+  extraSent?: boolean;
 };
 
 export function CardBack({ deck, size = "m", selected, onClick, id, count }: {
@@ -70,7 +76,7 @@ export function CardBack({ deck, size = "m", selected, onClick, id, count }: {
 }
 
 export default function CardView(p: Props) {
-  const { id, hidden, size = "m", highlight, target, selected, done, auto, onClick, badge, ghost, spent, store, locked } = p;
+  const { id, hidden, size = "m", highlight, target, selected, done, auto, onClick, badge, ghost, spent, store, locked, disabled, under, extraSent } = p;
   const recharged = useRecharge(!!spent);
   if (hidden || !id) return <CardBack id={ghost ? undefined : id} deck={p.deck} size={size} selected={selected} onClick={onClick} />;
   const c = card(id);
@@ -78,7 +84,7 @@ export default function CardView(p: Props) {
     <button
       type="button"
       data-card={ghost ? undefined : id}
-      className={`card ${size} ${c.kind === "victory" ? "victory" : ""} ${highlight ? "highlight" : ""} ${target ? "target" : ""} ${selected ? "selected" : ""} ${done ? "done" : ""} ${c.trigger === "Passif" ? "passive" : ""} ${spent ? "spent" : ""} ${recharged ? "recharged" : ""} ${locked ? "locked" : ""}`}
+      className={`card ${size} ${c.kind === "victory" ? "victory" : ""} ${highlight ? "highlight" : ""} ${target ? "target" : ""} ${selected ? "selected" : ""} ${done ? "done" : ""} ${c.trigger === "Passif" ? "passive" : ""} ${spent ? "spent" : ""} ${recharged ? "recharged" : ""} ${locked ? "locked" : ""} ${disabled ? "disabled" : ""} ${under?.length ? "has-under" : ""}`}
       onClick={onClick}
       draggable={p.draggable}
       onDragStart={p.onDragStart}
@@ -87,7 +93,7 @@ export default function CardView(p: Props) {
       onMouseLeave={p.onHover ? () => p.onHover!(null) : undefined}
     >
       <img src={cardImage(id)} alt="" loading="lazy" draggable={false} onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
-      <span className="card-tags">{c.kind === "victory" ? "🏁" : tagIcons(c.tags)}</span>
+      <span className="card-tags">{c.kind === "victory" ? "🏁" : tagIcons(extraSent ? { ...c.tags, sentience: true } : c.tags)}{extraSent && !c.tags.sentience && <i className="tag-extra" title="Tag 🧠 ajouté jusqu'à la fin du tour">+</i>}</span>
       {badge && <span className="card-badge">{badge}</span>}
       {auto && <span className="card-auto" title="Effet automatique">⚙</span>}
       {c.trigger === "Passif" && <span className="card-passive" title={`Passif : ${c.event}`}>✨</span>}
@@ -95,6 +101,12 @@ export default function CardView(p: Props) {
       {spent && <span className="card-spent" title="Effet déjà joué : se recharge au prochain tour de son joueur">✓</span>}
       {!!store && <span className="card-store" title="Gold stockés sur cette carte">💰 {store}</span>}
       {locked && <span className="card-lock">🔒</span>}
+      {disabled && <span className="card-disabled" title="Désactivée : son effet et ses passifs ne fonctionnent pas">⛔</span>}
+      {!!under?.length && (
+        <span className="card-under" title={`Dessous : ${under.map((u) => card(u).name).join(", ")}`}>
+          ⤵ {under.length}
+        </span>
+      )}
     </button>
   );
 }

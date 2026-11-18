@@ -4,8 +4,7 @@ import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
-import { isAutomated } from "../effects/runtime";
-import { SCRIPTS } from "../effects/scripts";
+import { isAutomated, noPlayReason } from "../effects/runtime";
 import { isAutoVC, lettersOf, teamProgress, vcProgress, wordFits } from "../game/victory";
 import { Gauge } from "./PlayerBoard";
 
@@ -93,8 +92,8 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose, onClai
     if (at.zone === "hand" && at.uid === uid) {
       actions = (
         <>
-          <button className="primary" disabled={g.phase !== "action" || (room.auto !== false && !!SCRIPTS[id]?.noPlay)} onClick={() => onPlace({ id, from: "hand" })}>Poser sur mon terrain…</button>
-          {room.auto !== false && SCRIPTS[id]?.noPlay && <span className="small error">{SCRIPTS[id].noPlay}</span>}
+          <button className="primary" disabled={g.phase !== "action" || (room.auto !== false && !!noPlayReason(g, id))} onClick={() => onPlace({ id, from: "hand" })}>Poser sur mon terrain…</button>
+          {room.auto !== false && noPlayReason(g, id) && <span className="small error">{noPlayReason(g, id)}</span>}
           <button disabled={g.phase !== "action" || !onDiscard} onClick={() => { onDiscard?.(id); onClose(); }}>Défausser (action du tour)</button>
           <span className="small muted">Outils manuels :</span>
           <button onClick={() => move({ uid: owner ?? uid, zone: "deck" })}>Remettre sur la pioche</button>

@@ -219,6 +219,9 @@ export default function PlayerBoard(p: Props) {
                     auto={auto && isAutomated(id)}
                     spent={(g.spent ?? []).includes(id)}
                     store={g.cardStore?.[id]}
+                    disabled={E.isDisabled(g, id)}
+                    under={g.under?.[id]}
+                    extraSent={g.tempTags?.includes(id)}
                     selected={moving?.id === id}
                     draggable={p.canDragTerrain}
                     onDragStart={drag({ id, from: "terrain" })}
@@ -275,6 +278,8 @@ export default function PlayerBoard(p: Props) {
                     onClick={() => (!fits ? setHandOpen(true) : p.onCard(id))}
                     {...pickProps(id)}
                   />
+                ) : g.revealed?.includes(id) ? (
+                  <CardView id={id} size="s" badge="👁" onHover={p.onHover} onClick={() => p.onCard(id)} {...pickProps(id)} />
                 ) : pickCards && pick!.cards.includes(id) ? (
                   <span className="pickable-back"><CardBack id={id} size="s" selected={pick!.picked.includes(id)} onClick={() => pick!.onCard(id)} /></span>
                 ) : (

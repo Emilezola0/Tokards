@@ -1,7 +1,7 @@
 // Moteur de la table virtuelle : fonctions pures qui modifient l'état du salon.
 // Les effets des cartes ne sont pas automatisés : les joueurs les appliquent avec les outils manuels.
 import { BASE_VCS, DECKS, card } from "../data/cards";
-import type { BlackHole, Fx, FxInput, GameState, LogEntry, Phase, PlayerState, Room, Stats, Vote, Zone } from "./types";
+import type { BlackHole, Fx, FxInput, GameState, LogEntry, Phase, PlayerState, Room, Stats, Until, Vote, Zone } from "./types";
 import { blackHoleLabel, ZONE_LABEL } from "./types";
 
 export const START_GOLD = 10;
@@ -51,6 +51,68 @@ export const hooks: {
   /** pioche de fin de tour (pour les passifs qui réagissent à la pioche) */
   drew?: (g: GameState, uid: string, n: number) => void;
 } = {};
+
+/** Partie en cours de résolution (pour les aides qui n'ont pas l'état sous la main). */
+export const live: { g: GameState | null } = { g: null };
+
+/** Tags d'une carte, avec le 🧠 ajouté jusqu'à la fin du tour (Transformers). */
+export function tagsOf(g: GameState | null | undefined, id: string) {
+  const t = card(id).tags;
+  return g?.tempTags?.includes(id) ? { ...t, sentience: true } : t;
+}
+
+/** Drone de surveillance : désactive les cartes à la même position sur les terrains voisins. */
+export const DRONE = "POL-23";
+
+/** Voisins d'un joueur dans l'ordre du tour : [à gauche (précédent), à droite (suivant)]. */
+export function neighbours(g: GameState, uid: string): [string, string] {
+  const o = g.order;
+  const i = o.indexOf(uid);
+  return [o[(i - 1 + o.length) % o.length], o[(i + 1) % o.length]];
+}
+
+/** La carte est-elle désactivée (son effet et ses passifs ne fonctionnent pas) ? */
+export function isDisabled(g: GameState, id: string): boolean {
+  if (g.disabled?.[id]) return true;
+  const at = locate(g, id);
+  if (!at || at.zone !== "terrain" || g.order.length < 2) return false;
+  for (const n of new Set(neighbours(g, at.uid))) {
+    if (n === at.uid) continue;
+    if (g.players[n].terrain[at.index] === DRONE && !g.disabled?.[DRONE]) return true;
+  }
+  return false;
+}
+
+/** Désactive une carte jusqu'à `until` (absent = jusqu'à nouvel ordre). */
+export function disableCard(g: GameState, id: string, until?: Until) {
+  g.disabled = { ...(g.disabled ?? {}), [id]: until ? { ...until } : {} };
+}
+export function enableCard(g: GameState, id: string) {
+  if (!g.disabled?.[id]) return false;
+  const d = { ...g.disabled };
+  delete d[id];
+  g.disabled = d;
+  return true;
+}
+
+/** Fin des états temporaires liés au début ou à la fin du tour de `uid`. */
+function expire(room: Room, g: GameState, uid: string, edge: "start" | "end") {
+  const P = pos(g);
+  for (const [id, u] of Object.entries(g.disabled ?? {})) {
+    if (u.uid !== uid || u.edge !== edge || P <= (u.after ?? Infinity)) continue;
+    enableCard(g, id);
+    log(g, `✅ « ${card(id).name} » est réactivée.`, { dst: id });
+  }
+  if (edge !== "end") return;
+  if (g.tempTags?.length) g.tempTags = [];
+  for (const t of (g.temp ?? []).filter((t) => t.uid === uid)) {
+    const p = g.players[uid];
+    if (t.kind === "bh") p.blackHole = t.prev as BlackHole;
+    else p.sentience = t.prev === "true";
+    log(g, `⏪ ${nameOf(room, uid)} retrouve ${t.kind === "bh" ? `son trou noir ${blackHoleLabel(t.prev as BlackHole)}` : `sa sentience ${t.prev === "true" ? "Vraie" : "Fausse"}`} (valeur provisoire terminée).`);
+  }
+  if (g.temp?.length) g.temp = g.temp.filter((t) => t.uid !== uid);
+}
 
 /** Change de phase en l'annonçant. */
 export function setPhase(g: GameState, phase: Phase) {
@@ -139,6 +201,8 @@ function beginTurn(room: Room, g: GameState) {
   s.bhTurn = 0;
   s.gainSinceBH = null;
   s.failed = 0; // « Inhibition toxique » se vérifie sur un seul tour
+  s.spentTurn = 0;
+  s.lostTurn = 0;
   if (p.cantPlay) delete p.cantPlay;
   if (p.cantPlayNext) {
     p.cantPlay = p.cantPlayNext;
@@ -152,6 +216,7 @@ function beginTurn(room: Room, g: GameState) {
   g.lastPlayed = null;
   // Les cartes de son terrain peuvent rejouer leur effet.
   if (g.spent?.length) g.spent = g.spent.filter((id) => !p.terrain.includes(id));
+  expire(room, g, uid, "start");
   pushFx(g, { k: "turn", uid });
   pushFx(g, { k: "phase", uid, phase: g.phase });
   log(g, `— Tour ${g.round} : à ${nameOf(room, uid)} de jouer.`);
@@ -219,6 +284,7 @@ export function endTurn(room: Room, g: GameState) {
   if (drawn) hooks.drew?.(g, uid, drawn);
   log(g, `${nameOf(room, uid)} termine son tour${drawn ? ` et pioche ${drawn} carte${drawn > 1 ? "s" : ""}` : ""}.`);
   st(p).turnsPlayed = (st(p).turnsPlayed ?? 0) + 1;
+  expire(room, g, uid, "end");
   hooks.turnEnd?.(room, g, uid);
   nextTurn(room, g);
   hooks.after?.(room, g);
@@ -242,10 +308,19 @@ function rhumeCheck(room: Room, g: GameState, uid: string) {
 /** Passe au joueur suivant encore en jeu (ceux qui ont abandonné sont sautés). */
 function nextTurn(room: Room, g: GameState) {
   if (g.order.every((u) => g.players[u].out)) return;
-  do {
+  for (;;) {
     g.turn = (g.turn + 1) % g.order.length;
     if (g.turn === 0) g.round++;
-  } while (g.players[currentPlayer(g)].out);
+    const p = g.players[currentPlayer(g)];
+    if (p.out) continue;
+    if (p.skipNext) {
+      delete p.skipNext;
+      log(g, `⏭ ${nameOf(room, currentPlayer(g))} passe son tour.`);
+      pushFx(g, { k: "banner", text: `⏭ ${nameOf(room, currentPlayer(g))} passe son tour` });
+      continue;
+    }
+    break;
+  }
   beginTurn(room, g);
 }
 
@@ -318,6 +393,8 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
   const from = g.players[at.uid][at.zone];
   from.splice(at.index, 1);
   if (at.zone === "terrain" && dest.zone !== "terrain" && g.spent?.includes(id)) g.spent = g.spent.filter((c) => c !== id);
+  if (at.zone === "terrain" && dest.zone !== "terrain") leaveTerrain(room, g, id, at.uid);
+  if (at.zone === "hand" && dest.zone !== "hand" && g.revealed?.includes(id)) g.revealed = g.revealed.filter((c) => c !== id);
   const to = g.players[dest.uid][dest.zone];
   let index = dest.index ?? (dest.zone === "deck" ? (dest.bottom ? to.length : 0) : to.length);
   if (dest.zone === "discard" && dest.index === undefined) index = 0; // dessus de la défausse = index 0
@@ -333,6 +410,48 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
     log(g, `${label} : ${ZONE_LABEL[at.zone]} de ${nameOf(room, at.uid)} → ${where} de ${nameOf(room, dest.uid)}.`);
   }
 }
+
+/** Une carte quitte les terrains : elle n'est plus désactivée et les cartes placées dessous vont dans la défausse. */
+function leaveTerrain(room: Room, g: GameState, id: string, holder: string) {
+  enableCard(g, id);
+  const under = g.under?.[id];
+  if (!under?.length) return;
+  const u = { ...g.under };
+  delete u[id];
+  g.under = u;
+  for (const c of under) {
+    g.players[holder].discard.unshift(c);
+    if (g.underFrom?.[c]) delete g.underFrom[c];
+  }
+  log(g, `« ${card(id).name} » quitte le terrain : ${under.map((c) => `« ${card(c).name} »`).join(", ")} ${under.length > 1 ? "vont" : "va"} dans la défausse.`);
+}
+
+/** Retire une carte de sa zone et la place sous `host` (elle ne compte plus sur aucun terrain). */
+export function attachUnder(g: GameState, id: string, host: string) {
+  const at = locate(g, id);
+  if (!at) return;
+  g.players[at.uid][at.zone].splice(at.index, 1);
+  if (g.spent?.includes(id)) g.spent = g.spent.filter((c) => c !== id);
+  enableCard(g, id);
+  g.under = { ...(g.under ?? {}), [host]: [...(g.under?.[host] ?? []), id] };
+  if (at.zone === "terrain") g.underFrom = { ...(g.underFrom ?? {}), [id]: { uid: at.uid, index: at.index } };
+}
+/** Sort une carte de sous son hôte et la met dans `dest`. */
+export function detachUnder(g: GameState, id: string, dest: Dest) {
+  for (const [host, list] of Object.entries(g.under ?? {})) {
+    if (!list.includes(id)) continue;
+    g.under = { ...g.under, [host]: list.filter((c) => c !== id) };
+    if (!g.under[host].length) delete g.under[host];
+    const to = g.players[dest.uid][dest.zone];
+    to.splice(Math.max(0, Math.min(dest.index ?? to.length, to.length)), 0, id);
+    if (g.underFrom?.[id]) delete g.underFrom[id];
+    if (dest.zone === "terrain") g.born = { ...(g.born ?? {}), [id]: pos(g) };
+    return true;
+  }
+  return false;
+}
+/** Carte sous laquelle `id` est placée. */
+export const hostOf = (g: GameState, id: string) => Object.entries(g.under ?? {}).find(([, l]) => l.includes(id))?.[0] ?? null;
 
 export function playFromHand(room: Room, g: GameState, uid: string, id: string, target: string, index: number) {
   moveCard(room, g, id, { uid: target, zone: "terrain", index }, true);

@@ -7,12 +7,13 @@
 import { DEFAULT_REASON, REASONS } from "./reasons";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
-import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room } from "../game/types";
+import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room, Until, Zone } from "../game/types";
 import { BLACK_HOLES, blackHoleLabel, showWeather } from "../game/types";
 import { SCRIPTS } from "./scripts";
 import "../game/victory";
 
 export type Self = { id: string; me: string };
+export type Loc = { uid: string; zone: Zone; index: number };
 export type GameEvent =
   | { type: "goldGained"; uid: string; amount: number }
   | { type: "goldLost"; uid: string; amount: number }
@@ -26,12 +27,17 @@ export type GameEvent =
   | { type: "discard"; uid: string; card: string; src: string | null }
   /** un joueur tombe à 0 gold */
   | { type: "zeroGold"; uid: string }
-  /** `card` est posée sur le terrain de `uid` (depuis la main, la pioche ou la défausse) */
-  | { type: "placed"; uid: string; card: string; src: string | null }
+  /** `card` est posée sur le terrain de `uid` (venant de la zone `fromZone` de `fromUid`) */
+  | { type: "placed"; uid: string; card: string; src: string | null; fromUid?: string; fromZone?: Zone }
   /** l'effet de `src` défausse `card` du terrain de `uid` */
   | { type: "terrainDiscard"; uid: string; card: string; src: string }
   /** `thief` prend une carte de `victim` sans rien donner en retour */
-  | { type: "steal"; thief: string; victim: string; card: string };
+  | { type: "steal"; thief: string; victim: string; card: string; src?: string | null; from?: Loc }
+  /** `thief` vole `amount` gold à `victim` */
+  | { type: "goldStolen"; thief: string; victim: string; amount: number; src: string | null }
+  /** début / fin du tour de `uid` */
+  | { type: "turnStart"; uid: string }
+  | { type: "turnEnd"; uid: string };
 
 type Handlers = { [K in GameEvent["type"]]: (x: Ctx, self: Self, e: Extract<GameEvent, { type: K }>) => void };
 export type CardScript = {
@@ -42,12 +48,25 @@ export type CardScript = {
   /** ne peut pas être défaussée par un effet */
   fixed?: boolean;
   /** ne peut pas être posée depuis la main (raison affichée) */
-  noPlay?: string;
+  noPlay?: string | ((g: GameState, id: string) => string | null | undefined);
+  /** après chaque déplacement de la carte elle-même (pose, changement de place ou de terrain, départ) */
+  onMove?: (x: Ctx, self: Self, from: Loc | null, to: Loc | null) => void;
+  /** juste avant que la carte quitte les terrains */
+  beforeLeave?: (x: Ctx, self: Self) => void;
+  /** ne peut être déplacée par l'effet d'un autre joueur qu'avec l'accord de son possesseur */
+  guarded?: boolean;
+  /** ses passifs écoutent aussi quand elle est face visible dans une main */
+  inHand?: boolean;
   /** ne peut arriver sur un terrain que par l'effet de cette carte */
   placedOnlyBy?: string;
 };
 
 export const isAutomated = (id: string) => !!SCRIPTS[id];
+/** Pourquoi la carte ne peut pas être posée depuis la main (null = elle peut). */
+export function noPlayReason(g: GameState, id: string): string | null {
+  const np = SCRIPTS[id]?.noPlay;
+  return (typeof np === "function" ? np(g, id) : np) ?? null;
+}
 
 class NeedChoice extends Error {
   constructor(public prompt: Prompt) {
@@ -68,6 +87,13 @@ export class Ctx {
   private muteInteractions = 0;
   /** > 0 pendant un échange : les cartes déplacées ne comptent pas comme volées */
   private exchanging = 0;
+  /** joueurs dont les choix se font au hasard (Crapaud stratège) */
+  private forcedRandom: string[] = [];
+  private actDepth = 0;
+  /** joueur dont l'effet a déplacé la carte (pendant `onMove`) */
+  mover: string | null = null;
+  /** garde-fous contre les boucles (passifs qui se relancent eux-mêmes) */
+  private busy = new Set<string>();
   /** pourquoi l'effet en cours a échoué (gold manquant, aucune cible, paiement refusé) */
   reason: string | null = null;
 
@@ -135,9 +161,65 @@ export class Ctx {
     return b;
   }
 
+  /** Dé de sentience (2 faces : Vraie, Fausse). */
+  sentDice(uid: string): boolean {
+    const v = 1 + Math.floor(this.rand() * 2);
+    this.fx({ k: "dice", uid, faces: 2, value: v, sent: true });
+    this.log(`🎲 ${this.name(uid)} lance le dé de sentience : ${v === 1 ? "Vraie" : "Fausse"}.`);
+    return v === 1;
+  }
+  /** Chance sur 100 (affichée comme un d100 réussi si ≤ pct). */
+  chance(uid: string, pct: number): boolean {
+    return this.dice(uid, 100) <= pct;
+  }
+  /** Joueur tiré au hasard parmi `list`, annoncé dans le journal. */
+  randomPlayer(list: string[]): string | null {
+    if (!list.length) {
+      this.reason = "Aucune cible possible.";
+      return null;
+    }
+    const u = this.random(list);
+    this.log(`🎯 Cible tirée au hasard : ${this.name(u)}.`, { to: u });
+    return u;
+  }
+
+  /** Exécute `fn` une seule fois à la fois pour `key` (évite qu'un passif se relance lui-même). */
+  once(key: string, fn: () => void) {
+    if (this.busy.has(key)) return;
+    this.busy.add(key);
+    try {
+      fn();
+    } finally {
+      this.busy.delete(key);
+    }
+  }
+
   // ----- choix des joueurs -----
+  private randomAnswer(p: Prompt): unknown {
+    const r = (n: number) => Math.floor(this.rand() * n);
+    switch (p.kind) {
+      case "player": return p.options[r(p.options.length)];
+      case "option": return r(p.options.length);
+      case "number": return p.min + r(p.max - p.min + 1);
+      case "cards": {
+        const pool = [...p.options];
+        const n = Math.max(p.min, Math.min(p.max, 1));
+        const out: string[] = [];
+        while (out.length < n && pool.length) out.push(pool.splice(r(pool.length), 1)[0]);
+        return out;
+      }
+      case "order": {
+        const pool = [...p.options];
+        const out: string[] = [];
+        while (pool.length) out.push(pool.splice(r(pool.length), 1)[0]);
+        return out;
+      }
+      case "slot": return r(this.p(p.uid).terrain.length + 1);
+    }
+  }
   private ask<T>(prompt: Prompt): T {
     if (!prompt.cardId && this.source) prompt = { ...prompt, cardId: this.source };
+    if (this.forcedRandom.includes(prompt.chooser) && !this.preview) return this.randomAnswer(prompt) as T;
     if (this.ai < this.answers.length) return JSON.parse(this.answers[this.ai++]) as T;
     if (this.preview) {
       this.preview.push(prompt);
@@ -239,8 +321,9 @@ export class Ctx {
       for (const id of p.terrain) out.push([uid, id, "terrain"]);
       if (p.terrain.includes("FLE-11") && p.gold <= 0) for (const id of p.hand) out.push([uid, id, "hand"]);
       if (p.terrain.includes("FLE-14") && p.discard[0] && SCRIPTS[p.discard[0]]?.on) out.push([this.current, p.discard[0], "discard"]);
+      for (const id of p.hand) if (this.g.revealed?.includes(id) && SCRIPTS[id]?.inHand && !out.some((o) => o[1] === id)) out.push([uid, id, "hand"]);
     }
-    return out;
+    return out.filter(([, id, zone]) => zone !== "terrain" || !E.isDisabled(this.g, id));
   }
   /** Un effet touche quelque chose de `target` : compte l'interaction et prévient les passifs. */
   interact(target: string, what: string) {
@@ -293,6 +376,14 @@ export class Ctx {
   gain(uid: string, n: number): number {
     n = Math.trunc(n);
     if (n <= 0) return 0;
+    // Tung Tung Tung Sahur (Trou de ver) : les gold gagnés par les autres sont aspirés.
+    const asp = this.g.aspire;
+    if (asp && asp.uid !== uid && this.p(asp.uid) && E.pos(this.g) <= asp.until) {
+      this.log(`🌪 Tung Tung Tung Sahur : les ${n} gold de ${this.name(uid)} sont aspirés par ${this.name(asp.uid)}.`, { src: "EMI-10" });
+      uid = asp.uid;
+    }
+    // Gravité grave : chaque source de gold rapporte 1 gold de plus à son joueur.
+    if (this.active("EMI-20", uid)) n += 1;
     const p = this.p(uid);
     p.gold += n;
     p.goldGainedSince = (p.goldGainedSince ?? 0) + n;
@@ -311,6 +402,7 @@ export class Ctx {
     if (real <= 0) return 0;
     p.gold -= real;
     E.st(p).lost = (E.st(p).lost ?? 0) + real;
+    if (uid === this.current) E.st(p).lostTurn = (E.st(p).lostTurn ?? 0) + real;
     this.fx({ k: "gold", uid, delta: -real });
     this.log(`${this.name(uid)} perd ${real} gold (${p.gold}).`, { to: uid });
     this.interact(uid, "gold");
@@ -318,7 +410,14 @@ export class Ctx {
     if (p.gold === 0) this.emit({ type: "zeroGold", uid });
     return real;
   }
+  /** ADS : les coûts de son joueur (ou de tous, s'il était Primordial) sont doublés. */
+  cost(uid: string, n: number) {
+    const at = E.locate(this.g, "EMI-13");
+    if (!at || at.zone !== "terrain" || E.isDisabled(this.g, "EMI-13")) return n;
+    return at.uid === uid || this.g.marks?.["EMI-13"] === "all" ? n * 2 : n;
+  }
   canPay(uid: string, n: number) {
+    n = this.cost(uid, n);
     const p = this.p(uid);
     const ok = p.allowNegativeGold || p.gold >= n;
     if (!ok) this.reason = `Pas assez de gold : ${n} requis, ${this.name(uid)} en a ${p.gold}.`;
@@ -328,19 +427,39 @@ export class Ctx {
   spend(uid: string, n: number): boolean {
     if (n <= 0) return true;
     if (!this.canPay(uid, n)) {
+      n = this.cost(uid, n);
       this.log(`${this.name(uid)} n'a pas assez de gold (${n} requis).`);
       return false;
     }
-    this.lose(uid, n);
+    const c = this.cost(uid, n);
+    if (c !== n) this.log(`📺 ADS : le coût est doublé (${c} gold).`, { src: "EMI-13" });
+    this.lose(uid, c);
     const s = E.st(this.p(uid));
-    s.spent = (s.spent ?? 0) + n;
+    s.spent = (s.spent ?? 0) + c;
+    if (uid === this.current) s.spentTurn = (s.spentTurn ?? 0) + c;
     return true;
   }
   transfer(from: string, to: string, n: number): number {
+    const stolen = from !== to && this.actor === to && !this.exchanging;
+    // Rainette spéculative : un vol de gold est remplacé par un d100.
+    if (stolen && n > 0 && this.active("GRE-24", from)) {
+      this.log(`🐸 Rainette spéculative : le montant volé à ${this.name(from)} est remplacé par un d100.`, { src: "GRE-24" });
+      n = this.dice(from, 100);
+    }
     const real = this.lose(from, n);
     if (real) this.gain(to, real);
     if (from !== to) this.moved(real);
+    if (stolen && real > 0) this.emit({ type: "goldStolen", thief: to, victim: from, amount: real, src: this.source });
     return real;
+  }
+  /** Rend des gold sans que cela compte comme un vol. */
+  giveBack(from: string, to: string, n: number) {
+    this.exchanging++;
+    try {
+      return this.transfer(from, to, n);
+    } finally {
+      this.exchanging--;
+    }
   }
   /** Échange les gold de deux joueurs. */
   swapGold(a: string, b: string) {
@@ -409,9 +528,71 @@ export class Ctx {
     if (k) this.emit({ type: "draw", uid, n: k, from, src: this.source });
     return k;
   }
+  /** La carte `id` (sur un terrain, de `holder`) a-t-elle son effet actif ? */
+  active(id: string, holder?: string) {
+    const at = E.locate(this.g, id);
+    return !!at && at.zone === "terrain" && (!holder || at.uid === holder) && !E.isDisabled(this.g, id);
+  }
+  /** Une carte d'un terrain peut-elle être déplacée par l'effet en cours ? (Goudron, cartes protégées, Grenouille tampon) */
+  private canDisplace(id: string, at: Loc, dest: E.Dest | null): boolean {
+    const src = this.source;
+    if (at.zone !== "terrain" || !src || src === id) return true;
+    if (this.active("EMI-30", at.uid) && (this.g.armed ?? []).includes("EMI-30") && id !== "EMI-30") {
+      this.log(`🛢 Goudron : les cartes de ${this.name(at.uid)} sont fixées, « ${card(id).name} » ne bouge pas.`, { dst: id, src: "EMI-30" });
+      this.reason = "Goudron : les cartes de ce terrain sont fixées.";
+      return false;
+    }
+    const owner = this.g.owner[id] ?? at.uid;
+    if (SCRIPTS[id]?.guarded && this.actor !== owner && this.p(owner)) {
+      if (!this.confirm(owner, `Autoriser l'effet de « ${card(src).name} » à déplacer ta carte « ${card(id).name} » ?`, id)) {
+        this.log(`🛡 ${this.name(owner)} refuse de laisser déplacer « ${card(id).name} ».`, { dst: id });
+        return false;
+      }
+    }
+    const leaves = !dest || dest.zone !== "terrain" || dest.uid !== at.uid;
+    if (leaves && id !== "GRE-19" && this.active("GRE-19", at.uid)) {
+      this.log(`🐸 Grenouille tampon : elle part à la place de « ${card(id).name} ».`, { src: "GRE-19", dst: id });
+      const prev = this.source;
+      this.source = "GRE-19";
+      try {
+        this.move("GRE-19", { uid: at.uid, zone: "discard" });
+      } finally {
+        this.source = prev;
+      }
+      return false;
+    }
+    return true;
+  }
+  /** Lance la réaction d'une carte à son propre déplacement. */
+  private afterMove(id: string, from: Loc | null) {
+    const h = SCRIPTS[id]?.onMove;
+    if (!h) return;
+    const now = E.locate(this.g, id);
+    if (now?.zone === "terrain" && E.isDisabled(this.g, id)) return;
+    this.mover = this.actor;
+    this.once(`move:${id}`, () => this.runAs(id, now?.uid ?? from?.uid ?? this.current, () => h(this, { id, me: now?.uid ?? from?.uid ?? this.current }, from, now)));
+  }
+  /** Exécute `fn` comme si la carte `id` de `me` agissait. */
+  runAs(id: string, me: string, fn: () => void) {
+    const prevActor = this.actor;
+    const prevSource = this.source;
+    this.actor = me;
+    this.source = id;
+    try {
+      fn();
+    } finally {
+      this.actor = prevActor;
+      this.source = prevSource;
+    }
+  }
+
   move(id: string, dest: E.Dest): boolean {
     const at = E.locate(this.g, id);
     const src = this.source;
+    if (!at) return false;
+    if (!this.canDisplace(id, at, dest)) return false;
+    if (at.zone === "terrain" && dest.zone !== "terrain") SCRIPTS[id]?.beforeLeave?.(this, { id, me: at.uid });
+    if (!E.locate(this.g, id)) return false;
     if (at?.zone === "terrain" && dest.zone === "discard" && SCRIPTS[id]?.fixed && src !== id) {
       this.log(`🛡 « ${card(id).name} » ne peut pas être défaussée.`, { dst: id });
       return false;
@@ -423,17 +604,22 @@ export class Ctx {
     }
     E.moveCard(this.room, this.g, id, dest, !!(src && src !== id && at));
     if (src && src !== id && at) this.linkMove(src, id, at.uid, dest);
+    if (dest.zone === "discard" && src && this.actor && at.uid !== this.actor && (at.zone === "terrain" || at.zone === "hand") && this.p(this.actor)) {
+      const s = E.st(this.p(this.actor));
+      s.discOthers = (s.discOthers ?? 0) + 1;
+    }
     if (dest.zone === "terrain" && !(this.g.movedCards ?? []).includes(id)) this.g.movedCards = [...(this.g.movedCards ?? []), id];
     this.touchCard(id, dest.zone === "terrain" ? dest.uid : null);
     if (at) this.interact(at.uid, at.zone);
     this.fx({ k: "move", card: id });
     const now = E.locate(this.g, id);
     const actor = this.actor;
+    this.afterMove(id, at);
     if (at && now && actor && !this.exchanging && at.uid !== actor && now.uid === actor && this.p(at.uid))
-      this.emit({ type: "steal", thief: actor, victim: at.uid, card: id });
+      this.emit({ type: "steal", thief: actor, victim: at.uid, card: id, src, from: at });
     if (at?.zone === "terrain" && now?.zone !== "terrain" && src && src !== id && dest.zone === "discard")
       this.emit({ type: "terrainDiscard", uid: at.uid, card: id, src });
-    if (now?.zone === "terrain" && at && at.zone !== "terrain") this.emit({ type: "placed", uid: now.uid, card: id, src });
+    if (now?.zone === "terrain" && at && at.zone !== "terrain") this.emit({ type: "placed", uid: now.uid, card: id, src, fromUid: at.uid, fromZone: at.zone });
     return true;
   }
   /** Défausse une carte : elle va dans la défausse du joueur chez qui elle se trouve (terrain, main…). */
@@ -446,6 +632,8 @@ export class Ctx {
     const pa = E.locate(this.g, a);
     const pb = E.locate(this.g, b);
     if (!pa || !pb || a === b) return;
+    if (!this.canDisplace(a, pa, pb) || !this.canDisplace(b, pb, pa)) return;
+    if (!E.locate(this.g, a) || !E.locate(this.g, b)) return;
     this.p(pa.uid)[pa.zone][pa.index] = b;
     this.p(pb.uid)[pb.zone][pb.index] = a;
     for (const [id, at, to] of [[a, pa, pb], [b, pb, pa]] as const) {
@@ -462,6 +650,8 @@ export class Ctx {
       this.exchanging--;
     }
     this.log(`🔁 « ${card(a).name} » et « ${card(b).name} » échangent leurs places.`, { dst: b, to: pb.uid });
+    this.afterMove(a, pa);
+    this.afterMove(b, pb);
   }
   /** Déplace sans compter de vol (échanges en plusieurs morceaux). */
   moveExchange(id: string, dest: E.Dest) {
@@ -518,13 +708,71 @@ export class Ctx {
     const s = E.st(this.p(actor));
     const t = s.cardTags ?? { s: [], g: [], b: [] };
     if ([...t.s, ...t.g, ...t.b].includes(id)) return;
-    const tg = card(id).tags;
+    const tg = E.tagsOf(this.g, id);
     const opts = (["s", "g", "b"] as const).filter((k) => (k === "s" ? tg.sentience : k === "g" ? tg.gold : tg.blackHole));
     if (!opts.length) return;
     // Une carte à plusieurs tags compte pour le tag le moins rempli.
     const k = opts.reduce((a, b) => (t[b].length < t[a].length ? b : a));
     s.cardTags = { ...t, [k]: [...t[k], id] };
   }
+  // ----- désactivation & cartes placées dessous -----
+  /** Fin du prochain tour de `uid` (ou du tour en cours si c'est encore le sien… et qu'il n'est pas commencé). */
+  untilEndOfNext = (uid: string): Until => ({ uid, edge: "end", after: E.pos(this.g) });
+  /** Début du prochain tour de `uid`. */
+  untilStartOfNext = (uid: string): Until => ({ uid, edge: "start", after: E.pos(this.g) });
+  /** Fin du tour en cours. */
+  untilEndOfTurn = (): Until => ({ uid: this.current, edge: "end", after: E.pos(this.g) - 1 });
+  private untilLabel(u?: Until) {
+    if (!u) return "";
+    if (u.after < E.pos(this.g)) return " jusqu'à la fin du tour";
+    return u.edge === "start" ? ` jusqu'au début du prochain tour de ${this.name(u.uid)}` : ` jusqu'à la fin du prochain tour de ${this.name(u.uid)}`;
+  }
+  isDisabled = (id: string) => E.isDisabled(this.g, id);
+  /** Désactive une carte d'un terrain (sans `until` : jusqu'à nouvel ordre). */
+  disable(id: string, until?: Until): boolean {
+    const at = E.locate(this.g, id);
+    if (!at || at.zone !== "terrain") return false;
+    const c = this.g.custody;
+    if (c && c.host !== id && this.active(c.host)) {
+      this.putUnder(id, c.host);
+      this.log(`🚔 Garde à vue : « ${card(id).name} » est placée sous « ${card(c.host).name} ».`, { src: c.host, dst: id });
+      if ((this.g.under?.[c.host]?.length ?? 0) > 4) this.releaseCustody(true);
+      return true;
+    }
+    E.disableCard(this.g, id, until);
+    this.fx({ k: "fail", card: id, uid: at.uid, reason: "Désactivée" });
+    if (this.source && this.source !== id) this.fx({ k: "link", from: this.source, to: id, toUid: at.uid, text: `désactive « ${card(id).name} »` });
+    this.log(`⛔ « ${card(id).name} » (${this.name(at.uid)}) est désactivée${this.untilLabel(until)}.`, { dst: id, to: at.uid });
+    this.interact(at.uid, "carte");
+    return true;
+  }
+  enable(id: string) {
+    if (E.enableCard(this.g, id)) this.log(`✅ « ${card(id).name} » est réactivée.`, { dst: id });
+  }
+  /** Place `id` sous la carte `host` (elle quitte sa zone). */
+  putUnder(id: string, host: string) {
+    const at = E.locate(this.g, id);
+    if (!at) return;
+    E.attachUnder(this.g, id, host);
+    const h = E.locate(this.g, host);
+    if (this.source && this.source !== id) this.fx({ k: "link", from: this.source, to: host, toUid: h?.uid, text: `place « ${card(id).name} » dessous` });
+    this.interact(at.uid, at.zone);
+  }
+  /** Garde à vue : les cartes dessous retournent à leur place, réactivées. */
+  releaseCustody(disableHost: boolean) {
+    const c = this.g.custody;
+    if (!c) return;
+    this.g.custody = null;
+    const list = [...(this.g.under?.[c.host] ?? [])];
+    for (const id of list) {
+      const from = this.g.underFrom?.[id];
+      const uid = from && this.p(from.uid) ? from.uid : this.g.owner[id] ?? c.uid;
+      E.detachUnder(this.g, id, { uid, zone: "terrain", index: from?.index });
+    }
+    if (list.length) this.log(`🚔 Garde à vue levée : ${list.map((id) => `« ${card(id).name} »`).join(", ")} retournent à leur place, réactivées.`, { src: c.host });
+    if (disableHost && E.locate(this.g, c.host)?.zone === "terrain") this.disable(c.host, this.untilStartOfNext(c.uid));
+  }
+
   /** Bloque la sentience et le trou noir du joueur jusqu'au début de son prochain tour. */
   lock(uid: string) {
     this.p(uid).locked = true;
@@ -541,6 +789,21 @@ export class Ctx {
       this.log(`« ${c.name} » n'a pas d'effet à activer (passif).`);
       return;
     }
+    if (E.isDisabled(this.g, id)) {
+      this.fx({ k: "fail", card: id, uid: me, reason: "Désactivée" });
+      this.log(`⛔ « ${c.name} » est désactivée : son effet ne se joue pas.`, { dst: id });
+      return;
+    }
+    if (this.actDepth >= MAX_DEPTH) {
+      this.log(`« ${c.name} » : trop d'effets en chaîne, celui-ci est ignoré.`);
+      return;
+    }
+    const strat = (this.g.under?.[id] ?? []).includes("GRE-21");
+    if (strat) {
+      this.log(`🐸 Crapaud stratège : les choix de « ${c.name} » se font au hasard.`, { src: "GRE-21", dst: id });
+      this.forcedRandom.push(me);
+    }
+    this.actDepth++;
     this.countOffTurn(id, me);
     if (this.source && this.source !== id) {
       this.fx({ k: "link", from: this.source, to: id, toUid: me, text: `réactive « ${c.name} »` });
@@ -563,8 +826,15 @@ export class Ctx {
     } finally {
       this.actor = prevActor;
       this.source = prevSource;
+      this.actDepth--;
+      if (strat) this.forcedRandom.splice(this.forcedRandom.lastIndexOf(me), 1);
       E.markSpent(this.g, id);
     }
+  }
+
+  /** Carte posée depuis la main : réaction à son propre déplacement. */
+  played(id: string, from: Loc | null) {
+    this.afterMove(id, from);
   }
 
   /** Une carte de `owner` qui s'active pendant le tour d'un autre (condition « Symbiote »). */
@@ -592,6 +862,17 @@ export class Ctx {
         this.log(`« ${card(id).name} » ne se joue pas. ${why}`, { src: "FLE-21", dst: id });
         continue;
       }
+      const skip = E.isDisabled(g, id)
+        ? "Désactivée : son effet ne se joue pas."
+        : t[t.indexOf(id) - 1] === "EMI-13" && !E.isDisabled(g, "EMI-13")
+          ? "ADS : la carte qui suit ADS ne se joue pas."
+          : null;
+      if (skip) {
+        g.activated = [...(g.activated ?? []), id];
+        this.fx({ k: "fail", card: id, uid: this.current, reason: skip });
+        this.log(`« ${card(id).name} » ne se joue pas. ${skip}`, { dst: id });
+        continue;
+      }
       if (!SCRIPTS[id]) return; // carte manuelle : le joueur l'applique lui-même
       g.activated = [...(g.activated ?? []), id];
       this.activateCard(id, this.current);
@@ -606,12 +887,14 @@ function perform(x: Ctx, a: EffectAction) {
       x.runActivation();
       break;
     case "play": {
-      const no = SCRIPTS[a.card]?.noPlay;
+      const no = noPlayReason(x.g, a.card);
       if (no) throw new Error(no);
       if (x.p(a.by).cantPlay) throw new Error(x.p(a.by).cantPlay!);
+      const from = E.locate(x.g, a.card);
       E.playFromHand(x.room, x.g, a.by, a.card, a.target, a.index);
       x.fx({ k: "move", card: a.card });
-      x.emit({ type: "placed", uid: a.target, card: a.card, src: null });
+      x.played(a.card, from);
+      x.emit({ type: "placed", uid: a.target, card: a.card, src: null, fromUid: from?.uid, fromZone: from?.zone });
       if (E.locate(x.g, a.card)?.zone === "terrain") x.activateCard(a.card, a.by);
       break;
     }
@@ -622,11 +905,13 @@ function perform(x: Ctx, a: EffectAction) {
     case "endTurn": {
       const prev = E.hooks.drew;
       E.hooks.drew = (_g, uid, n) => x.emit({ type: "draw", uid, n, from: uid, src: null });
+      x.emit({ type: "turnEnd", uid: a.by });
       try {
         E.endTurn(x.room, x.g);
       } finally {
         E.hooks.drew = prev;
       }
+      x.emit({ type: "turnStart", uid: x.current });
       break;
     }
   }
@@ -653,6 +938,8 @@ export function runEffect(room: Room, action: EffectAction | null, answer?: unkn
   const x = new Ctx(room, work, answers, rolls);
   const prev = E.RNG.next;
   E.RNG.next = () => x.rand();
+  const prevLive = E.live.g;
+  E.live.g = work;
   try {
     perform(x, act);
     E.hooks.after?.(room, work);
@@ -663,6 +950,7 @@ export function runEffect(room: Room, action: EffectAction | null, answer?: unkn
     room.game = base;
   } finally {
     E.RNG.next = prev;
+    E.live.g = prevLive;
   }
 }
 
@@ -700,6 +988,8 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
   if (!at) return null;
   const x = new Ctx({ ...room, game: g }, g, [], []);
   x.preview = [];
+  const prevLive = E.live.g;
+  E.live.g = g;
   const out: Preview = { ok: true, cards: [], gold: [], sentience: [], bh: [], players: [] };
   const fxStart = g.fxSeq ?? 0;
   try {
@@ -709,6 +999,8 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
     out.ok = s.activate(x, { id, me }) !== false;
   } catch {
     return null;
+  } finally {
+    E.live.g = prevLive;
   }
   if (!out.ok) out.reason = x.reason ?? REASONS[id] ?? DEFAULT_REASON;
   const add = (arr: string[], v: string) => !arr.includes(v) && arr.push(v);

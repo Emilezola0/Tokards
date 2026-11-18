@@ -148,6 +148,16 @@ export function GlossAnim({ anim }: { anim: string }) {
           {BLACK_HOLES.map((b) => <span key={b.id} className="ga-state still"><b>{b.icon}</b><small>{b.weather}</small></span>)}
         </div>
       );
+    case "disable":
+      return <div className="ga ga-row"><Card cls="ga-off" /><span className="ga-lock">⛔</span><span className="ga-note">Reste en place, n'agit plus.</span></div>;
+    case "under":
+      return <div className="ga ga-row ga-under"><Card id={B} cls="u-host" /><Card cls="u-slide" /><span className="ga-note">⤵ dessous</span></div>;
+    case "sentdice":
+      return <div className="ga ga-row"><span className="ga-cube">✔</span><Arrow /><b className="ga-big">🧠 Vraie</b></div>;
+    case "random":
+      return <div className="ga ga-row"><Who n="🙂 A" /><Who n="🙂 B" cls="ga-blink" /><Who n="🙂 C" /><span className="ga-note">🎯 tirage annoncé</span></div>;
+    case "neighbours":
+      return <div className="ga ga-row"><Who n="⬅ Gauche (avant)" /><Who n="✨ Toi" /><Who n="Droite (après) ➡" /></div>;
     default:
       return <div className="ga ga-row"><Card cls="ga-glow" /></div>;
   }

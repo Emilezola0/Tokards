@@ -396,7 +396,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         const to = { x: c.cx + (Math.random() - 0.5) * 120, y: c.cy + (Math.random() - 0.5) * 60 };
         const dur = 1200 * Math.max(speed, 0.5);
         sfx.dice();
-        const roll: DieRoll = { key: f.id, faces: f.faces, value: f.value, bh: f.bh, who: E.nameOf(room, f.uid), color: colorOf(f.uid), from, to, dur, landed: false };
+        const roll: DieRoll = { key: f.id, faces: f.faces, value: f.value, bh: f.bh, sent: f.sent, who: E.nameOf(room, f.uid), color: colorOf(f.uid), from, to, dur, landed: false };
         setDie(roll);
         await wait(dur);
         sfx.drop();

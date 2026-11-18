@@ -51,7 +51,12 @@ export interface PlayerState {
   /** ne peut pas poser de carte ce tour (raison affichée) / au prochain tour */
   cantPlay?: string;
   cantPlayNext?: string;
+  /** son prochain tour est passé (Thommage) */
+  skipNext?: boolean;
 }
+
+/** Fin d'un état temporaire : au début (`start`) ou à la fin (`end`) d'un tour de `uid` joué après le tour global `after`. */
+export type Until = { uid: string; edge: "start" | "end"; after: number };
 
 /** Compteurs suivis pendant la partie pour vérifier les conditions de victoire. */
 export interface Stats {
@@ -79,6 +84,11 @@ export interface Stats {
   bhHist?: { pos: number; bh: BlackHole }[];
   /** début de la série « strictement le plus riche » */
   richSince?: number | null;
+  /** gold dépensés / perdus pendant son tour en cours */
+  spentTurn?: number;
+  lostTurn?: number;
+  /** cartes d'autres joueurs défaussées par ses effets (Guerre civile) */
+  discOthers?: number;
 }
 
 export type Prompt = { chooser: string; text: string; cardId?: string } & (
@@ -114,7 +124,7 @@ export type Fx =
   | { id: number; k: "gold"; uid: string; delta: number }
   | { id: number; k: "sentience"; uid: string; v: boolean }
   | { id: number; k: "bh"; uid: string; to: BlackHole }
-  | { id: number; k: "dice"; uid: string; faces: number; value: number; bh?: boolean }
+  | { id: number; k: "dice"; uid: string; faces: number; value: number; bh?: boolean; sent?: boolean }
   | { id: number; k: "move"; card: string }
   | { id: number; k: "banner"; text: string }
   /** annonce du joueur dont c'est le tour */
@@ -184,6 +194,26 @@ export interface GameState {
   spent?: string[];
   /** Rhume quantique : joueur qui l'a reçu et tour global où il l'a reçu */
   rhume?: { uid: string; at: number };
+  /** cartes désactivées : leur effet et leurs passifs ne fonctionnent plus (objet vide = jusqu'à nouvel ordre) */
+  disabled?: Record<string, Partial<Until>>;
+  /** cartes placées sous une autre carte (hôte → cartes dessous) : elles ne sont dans aucune zone */
+  under?: Record<string, string[]>;
+  /** place d'origine des cartes mises sous une carte (pour les remettre en place) */
+  underFrom?: Record<string, { uid: string; index: number }>;
+  /** cartes « armées » : un effet en attente (prochain tour, prochain vol…) */
+  armed?: string[];
+  /** lien d'une carte vers un joueur ou une autre carte (cible suivie, expéditeur…) */
+  marks?: Record<string, string>;
+  /** cartes face visible dans une main */
+  revealed?: string[];
+  /** tag 🧠 ajouté jusqu'à la fin du tour en cours (Transformers) */
+  tempTags?: string[];
+  /** valeurs provisoires remises à la fin du tour en cours (Disconnect) */
+  temp?: { uid: string; kind: "bh" | "sent"; prev: string }[];
+  /** Garde à vue : les prochaines cartes désactivées vont sous `host` */
+  custody?: { host: string; uid: string; at: number } | null;
+  /** Tung Tung Tung Sahur : les gold gagnés par les autres vont à `uid` jusqu'au tour global `until` */
+  aspire?: { uid: string; until: number } | null;
 }
 
 export interface LobbyPlayer {

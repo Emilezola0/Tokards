@@ -888,3 +888,24 @@ button.danger:hover { border-color: var(--bad); }
 }
 .ga-hand-ptr { position: absolute; left: 50%; top: 50%; margin: -11px 0 0 -6px; font-size: 18px; color: var(--gold); animation: ga-orbit 3.2s steps(4) infinite; }
 @keyframes ga-orbit { from { transform: rotate(-90deg) translateX(24px); } to { transform: rotate(270deg) translateX(24px); } }
+
+/* ===== v0.9 : désactivation, cartes dessous ===== */
+.card.disabled img { filter: grayscale(1) brightness(0.45) sepia(0.4) hue-rotate(-30deg); }
+.card.disabled { box-shadow: inset 0 0 0 2px #ff5a6a; }
+.card-disabled {
+  position: absolute; left: 3px; bottom: 16px; font-size: 14px; line-height: 1; pointer-events: none;
+  filter: drop-shadow(0 1px 3px #000); animation: spent-in 0.4s ease-out;
+}
+.card.has-under { box-shadow: 4px 4px 0 -1px #3b2a6b, 5px 5px 0 0 #7ee2a288; }
+.card-under {
+  position: absolute; right: 3px; bottom: 16px; padding: 0 5px; border-radius: 99px; font-size: 10px; font-weight: 800;
+  background: #7ee2a2; color: #08251a; box-shadow: 0 2px 6px #000a;
+}
+.tag-extra { font-style: normal; font-size: 9px; color: #7ee2a2; font-weight: 900; }
+.die3d.sent .die3d-face { background: radial-gradient(circle at 30% 25%, #e9fff3, #8fe0b4 70%); color: #08251a; }
+
+/* v0.9 glossaire : désactiver / sous une carte */
+.ga .ga-off { filter: grayscale(1) brightness(.7); }
+.ga-under { position: relative; }
+.ga-under .u-slide { margin-left: -40px; transform: translateY(14px) scale(.9); opacity: .75; z-index: -1; animation: ga-under-slide 2.4s ease-in-out infinite; }
+@keyframes ga-under-slide { 0%, 20% { transform: translate(40px, 0) scale(1); opacity: 1; } 60%, 100% { transform: translateY(14px) scale(.9); opacity: .75; } }

@@ -53,9 +53,9 @@ function statesInWindow(hist: { pos: number; bh: BlackHole }[], from: number, N:
 
 const CHECKS: Record<string, (c: C) => Progress> = {
   // Conquête de l'espace : 3 🌀 et 3 🧠 sur le terrain à la fin de son tour (une carte 🧠🌀 compte des deux côtés)
-  "VC-GOB-1": ({ p, turnEnd }) => {
-    const b = count(p.terrain, (id) => card(id).tags.blackHole);
-    const s = count(p.terrain, (id) => card(id).tags.sentience);
+  "VC-GOB-1": ({ p, g, turnEnd }) => {
+    const b = count(p.terrain, (id) => E.tagsOf(g, id).blackHole);
+    const s = count(p.terrain, (id) => E.tagsOf(g, id).sentience);
     return {
       ratio: (Math.min(b, 3) + Math.min(s, 3)) / 6, text: `🌀 ${Math.min(b, 3)}/3 · 🧠 ${Math.min(s, 3)}/3 (fin du tour)`,
       done: turnEnd && b >= 3 && s >= 3, endOfTurn: true,
@@ -109,6 +109,35 @@ const CHECKS: Record<string, (c: C) => Progress> = {
     const need = Math.max(0, 20 - Math.floor(Math.max(0, p.gold) / 50));
     const v = s.turnsPlayed ?? 0;
     return { ratio: need ? clamp(v / need) : 1, text: `Tours joués ${v}/${need} (−1 par 50 gold)`, done: v >= need };
+  },
+  // Marchandise amphibienne : dépenser 50 gold et en gagner 50 pendant un même tour
+  "VC-GRE-1": ({ s, p, g, uid }) => {
+    const mine = E.currentPlayer(g) === uid;
+    const sp = mine ? s.spentTurn ?? 0 : 0;
+    const ga = mine ? p.goldGainedSince ?? 0 : 0;
+    return {
+      ratio: (Math.min(sp, 50) + Math.min(ga, 50)) / 100, done: sp >= 50 && ga >= 50,
+      text: mine ? `Ce tour : dépensés ${Math.min(sp, 50)}/50 · gagnés ${Math.min(ga, 50)}/50` : "Se joue pendant ton tour",
+    };
+  },
+  // Frog TV : sentience fausse et gold impairs à la fin de son tour
+  "VC-GRE-2": ({ p, turnEnd }) => {
+    const a = !p.sentience;
+    const b = Math.abs(p.gold) % 2 === 1;
+    return {
+      ratio: ((a ? 1 : 0) + (b ? 1 : 0)) / 2, endOfTurn: true, done: turnEnd && a && b,
+      text: `${a ? "✔" : "✖"} sentience fausse · ${b ? "✔" : "✖"} gold impairs (fin du tour)`,
+    };
+  },
+  "VC-POL-1": ({ s }) => frac(s.discOthers ?? 0, 5, "Cartes adverses défaussées :"),
+  // Coup d'état : un autre joueur n'a plus aucune carte sur son terrain (pas pendant le premier tour de table)
+  "VC-POL-2": ({ g, all, uid, room }) => {
+    if (g.round < 2) return { ratio: 0, text: "Possible à partir du 2e tour de table", done: false };
+    const empty = all.filter((u) => u !== uid && !g.players[u].out && !g.players[u].terrain.length);
+    return {
+      ratio: empty.length ? 1 : 0, done: empty.length > 0,
+      text: empty.length ? `Terrain vide : ${empty.map((u) => E.nameOf(room, u)).join(", ")}` : "Aucun autre terrain n'est vide",
+    };
   },
   "VC-FLE-1": ({ s }) => frac(s.lost ?? 0, 200, "Gold perdus :"),
   "VC-FLE-2": ({ s }) => frac(s.offTurn ?? 0, 5, "Activations pendant le tour d'un autre :"),

@@ -3,13 +3,14 @@
 // Règles communes : 10 % = arrondi à l'inférieur ; « le plus riche / pauvre » : tirage au hasard en cas
 // d'égalité ; « payer X » est optionnel (le joueur confirme) et échoue s'il n'a pas assez de gold.
 import { card } from "../data/cards";
+import * as E from "../game/engine";
 import type { BlackHole } from "../game/types";
 import { BLACK_HOLES } from "../game/types";
 import type { CardScript, Ctx } from "./runtime";
 
 const B: BlackHole = "Blazard";
-const isGold = (id: string) => card(id).tags.gold;
-const isBH = (id: string) => card(id).tags.blackHole;
+const isGold = (id: string) => E.tagsOf(E.live.g, id).gold;
+const isBH = (id: string) => E.tagsOf(E.live.g, id).blackHole;
 
 /** Paiement optionnel : faux si le joueur ne peut pas ou ne veut pas payer. */
 function pay(x: Ctx, me: string, id: string, n: number, what: string) {
