@@ -57,14 +57,20 @@ export function card(id: string): CardDef {
 const BASE = import.meta.env?.BASE_URL ?? "/";
 export const PLACEHOLDER = `${BASE}cards/placeholder.svg`;
 
+/** Une image peut être un lien (https://…) : elle est alors chargée telle quelle, sans fichier dans le projet. */
+const isUrl = (s: string) => /^https?:\/\//i.test(s);
+
 export function cardImage(id: string): string {
-  return CARDS[id]?.image ? `${BASE}cards/${id}.webp` : PLACEHOLDER;
+  const img = CARDS[id]?.image;
+  if (!img) return PLACEHOLDER;
+  return isUrl(img) ? img : `${BASE}cards/${id}.webp`;
 }
 
 /** Image du dos des cartes d'un deck (null = dos dessiné par défaut). */
 export function deckBack(deck?: string): string | null {
   const d = DECKS.find((x) => x.name === deck);
-  return d?.back ? `${BASE}cards/${d.back.replace(/\.[^.]+$/, "")}.webp` : null;
+  if (!d?.back) return null;
+  return isUrl(d.back) ? d.back : `${BASE}cards/${d.back.replace(/\.[^.]+$/, "")}.webp`;
 }
 
 export function tagIcons(t: Tags): string {

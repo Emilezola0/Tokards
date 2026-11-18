@@ -408,7 +408,7 @@ line("Déclenchement", "Activation : s'applique pendant la phase 1 et quand on p
 line("Précisions (règles)", "Comment la carte est interprétée dans le jeu. Claude y note ses choix quand le texte peut se lire de plusieurs façons.", "k")
 line("Texte simplifié", "Onglet Cartes, colonnes Q à S : proposition de texte plus clair. Mets « Validé » pour qu'il remplace la description, ou « À changer » avec une remarque. L'ancien texte est gardé en colonne T (« Texte d'origine »). Les règles d'écriture sont dans l'onglet « Guide de style ».", "k")
 line("Interprétations", "Chaque choix d'interprétation de Claude, à relire. Mets « Validée » si c'est bon, ou « À changer » avec ta réponse dans la dernière colonne, puis envoie le classeur à Claude.", "k")
-line("Image", "Nom du fichier image de la carte (ex. GOB-01.png). Envoie les nouvelles images avec le classeur.", "k")
+line("Image", "Nom du fichier image de la carte (ex. GOB-01.png), à envoyer avec le classeur ; ou un lien https://… vers une image en ligne (rien à envoyer, le jeu la charge directement). Le crédit de l'image va dans « Notes / changements ».", "k")
 row += 1
 line("Légende des couleurs", "", "h")
 legend = [

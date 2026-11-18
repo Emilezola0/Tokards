@@ -1426,7 +1426,7 @@
    "check": "",
    "text": "Passif — Gagnez les 💰 qui vous manquent pour égaler le plus riche.\nPuis mélangez cette carte dans la pioche du joueur le plus pauvre.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Marathon_runners_on_Parliament_Street_-_geograph.org.uk_-_7312496.jpg/500px-Marathon_runners_on_Parliament_Street_-_geograph.org.uk_-_7312496.jpg"
   },
   "VIC-02": {
    "id": "VIC-02",
@@ -1444,7 +1444,7 @@
    "check": "",
    "text": "Coût facultatif : 5 💰.\nLa prochaine carte se joue deux fois.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/NFB_Photostory_066_-_Stock_Exchange_20th_Century_Trading_Post.jpg/500px-NFB_Photostory_066_-_Stock_Exchange_20th_Century_Trading_Post.jpg"
   },
   "VIC-03": {
    "id": "VIC-03",
@@ -1462,7 +1462,7 @@
    "check": "",
    "text": "Activez la première carte du terrain de chaque joueur qui a le même 🌀 que vous.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Echo_Canyon_-_Flickr_-_brewbooks_%283%29.jpg/500px-Echo_Canyon_-_Flickr_-_brewbooks_%283%29.jpg"
   },
   "VIC-04": {
    "id": "VIC-04",
@@ -1480,7 +1480,7 @@
    "check": "",
    "text": "Ciblez un joueur qui a le même 🌀 que vous : désignez à l'aveugle une carte de sa main, il la met de côté face cachée.\nIl doit la jouer à son tour, puis elle va dans sa défausse.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Marionettes_in_line.jpg/500px-Marionettes_in_line.jpg"
   },
   "VIC-05": {
    "id": "VIC-05",
@@ -1498,7 +1498,7 @@
    "check": "",
    "text": "Ciblez un joueur : piochez à l'aveugle une carte de sa main et activez-la.\nPuis elle va dans sa défausse avec cette carte.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/A_boy_with_slingshot.JPG/500px-A_boy_with_slingshot.JPG"
   },
   "VIC-06": {
    "id": "VIC-06",
@@ -1516,7 +1516,7 @@
    "check": "",
    "text": "Mélangez votre terrain (cette carte comprise) et répartissez-le dans les défausses de tous les joueurs.\nPuis reconstituez votre terrain avec les pioches des autres, dans l'ordre du tour, en payant 2 💰 par carte (pas plus de cartes qu'avant ni que vous ne pouvez payer).",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Beaux-Arts_de_Carcassonne_-_Paysage_%C3%A0_la_cascade_-_Claude_Joseph_Vernet_-_Joconde04400000570.jpg/500px-Beaux-Arts_de_Carcassonne_-_Paysage_%C3%A0_la_cascade_-_Claude_Joseph_Vernet_-_Joconde04400000570.jpg"
   },
   "VIC-07": {
    "id": "VIC-07",
@@ -1534,7 +1534,7 @@
    "check": "",
    "text": "🎲 1d100, sur 100 : validez une de vos conditions de victoire pour ce tour.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Roulette_casino.JPG/500px-Roulette_casino.JPG"
   },
   "VIC-08": {
    "id": "VIC-08",
@@ -1552,7 +1552,7 @@
    "check": "",
    "text": "🎲 1d6 :\n1 : votre voisin de droite prend une carte de votre terrain et la place où il veut ;\n2 : rien ;\n3 : une carte posée d'un joueur va dans sa pioche ;\n4-5 : une carte posée d'un joueur va dans sa défausse ;\n6 : une carte posée d'un joueur va sur votre terrain.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Painting_of_a_pirate_ship_%28after_1852%29%2C_after_Ambroise_Louis_Garneray.jpg/500px-Painting_of_a_pirate_ship_%28after_1852%29%2C_after_Ambroise_Louis_Garneray.jpg"
   },
   "VIC-09": {
    "id": "VIC-09",
@@ -1570,7 +1570,7 @@
    "check": "",
    "text": "Passif — Placez cette carte sous une carte d'un autre joueur : quand elle s'active, ses effets vous concernent.\nLe parasite suit la carte.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Tutankhamun_Pectoral_with_a_scarab_beetle_2019_%28cropped%29.jpg/500px-Tutankhamun_Pectoral_with_a_scarab_beetle_2019_%28cropped%29.jpg"
   },
   "VIC-10": {
    "id": "VIC-10",
@@ -1588,7 +1588,7 @@
    "check": "",
    "text": "Vous pouvez reprendre une carte de votre terrain dans votre main.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Cast-iron_pan_with_a_blue_handle_-_20060905.jpg/500px-Cast-iron_pan_with_a_blue_handle_-_20060905.jpg"
   },
   "VIC-11": {
    "id": "VIC-11",
@@ -1606,7 +1606,7 @@
    "check": "",
    "text": "Jusqu'à votre prochain tour : chaque carte jouée vous rapporte 3 💰, chaque carte passée vous coûte 3 💰.\nÀ votre prochain tour, défaussez cette carte.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Reymerswaele_Two_tax_collectors_01.jpg/500px-Reymerswaele_Two_tax_collectors_01.jpg"
   },
   "VIC-12": {
    "id": "VIC-12",
@@ -1624,7 +1624,7 @@
    "check": "",
    "text": "Ciblez un joueur : posez la première carte de votre pioche à la fin de son terrain. Il vous paie 10 💰.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Whydah-gold.jpg/500px-Whydah-gold.jpg"
   },
   "VIC-13": {
    "id": "VIC-13",
@@ -1642,7 +1642,7 @@
    "check": "",
    "text": "Passif — Si 🌀 Primordial : sous chaque carte que vous posez, mettez la première carte de votre pioche.\nQuand la carte du dessus quitte le terrain, celle du dessous est révélée et posée.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/The_royal_Janus-_or-_two_faces_under_a_hood_%28BM_1868%2C0808.5092%29.jpg/500px-The_royal_Janus-_or-_two_faces_under_a_hood_%28BM_1868%2C0808.5092%29.jpg"
   },
   "VIC-14": {
    "id": "VIC-14",
@@ -1660,7 +1660,7 @@
    "check": "",
    "text": "Coût facultatif : 10 💰.\nCiblez un joueur : mélangez l'ordre de son terrain.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/William_Merritt_Chase_Keying_up.jpg/500px-William_Merritt_Chase_Keying_up.jpg"
   },
   "VIC-15": {
    "id": "VIC-15",
@@ -1678,7 +1678,7 @@
    "check": "",
    "text": "Si un joueur a les mêmes 💰, 🧠 et 🌀 que vous : mélangez vos deux pioches et partagez-les équitablement.\nPuis défaussez cette carte.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Pomegranate_juice_with_slice.jpg/500px-Pomegranate_juice_with_slice.jpg"
   },
   "VIC-16": {
    "id": "VIC-16",
@@ -1696,7 +1696,7 @@
    "check": "",
    "text": "Passif — Toutes les cartes face cachée sont visibles, pioches comprises (pas les mains).\nÀ son tour, un joueur peut vous payer 50 💰 pour défausser cette carte.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Crystal_Ball_Mystery%2C_The_Haunted_Churchyard.jpg/500px-Crystal_Ball_Mystery%2C_The_Haunted_Churchyard.jpg"
   },
   "VIC-17": {
    "id": "VIC-17",
@@ -1714,7 +1714,7 @@
    "check": "",
    "text": "Passif — Vos cartes qui doivent aller dans votre défausse peuvent aller dans celle d'un autre joueur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Trois_tr%C3%A9buchets_Castelnaud.jpg/500px-Trois_tr%C3%A9buchets_Castelnaud.jpg"
   },
   "VIC-18": {
    "id": "VIC-18",
@@ -1732,7 +1732,7 @@
    "check": "",
    "text": "Choisissez votre 🌀.\nPuis cette carte va dans la défausse d'un autre joueur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Soyuz_TMA-16_approaching_ISS.jpg/500px-Soyuz_TMA-16_approaching_ISS.jpg"
   },
   "VIC-19": {
    "id": "VIC-19",
@@ -1750,7 +1750,7 @@
    "check": "",
    "text": "Passif — Quand un joueur veut modifier votre terrain (ajout, retrait, échange, ordre) : l'action est annulée et il vous paie 50 💰 (sinon, volez une carte de son terrain).\nPuis défaussez cette carte.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/A_bear_trap_in_Russia%2C_c._1913.jpg/500px-A_bear_trap_in_Russia%2C_c._1913.jpg"
   },
   "EMI-01": {
    "id": "EMI-01",
@@ -3676,7 +3676,7 @@
    "check": "",
    "text": "Passif — Tous les 3 tours : 🧠 → vraie, puis 🧠 → fausse à la fin de ce tour.\nQuand votre 🧠 est fausse, elle recule d'une place. Les changements de 🧠 venant des autres ne vous touchent pas.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Sleeping_boy_%28Nikifor_Krylov%29.jpg/500px-Sleeping_boy_%28Nikifor_Krylov%29.jpg"
   },
   "REV-02": {
    "id": "REV-02",
@@ -3694,7 +3694,7 @@
    "check": "",
    "text": "Si le Rêveur n'est pas sur votre terrain : cherchez-le et posez-le en première place.\nSinon : prenez une carte Trou noir de votre pioche ou de votre défausse dans votre main.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Bed%2C_Settler%27s_bedroom%2C_McNicol_Homestead.jpg/500px-Bed%2C_Settler%27s_bedroom%2C_McNicol_Homestead.jpg"
   },
   "REV-03": {
    "id": "REV-03",
@@ -3712,7 +3712,7 @@
    "check": "",
    "text": "Vous pouvez révéler les 3 premières cartes de votre pioche : s'il y a un Rêve, activez-le puis défaussez-le.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Blue_dream_catcher_%28Unsplash%29.jpg/500px-Blue_dream_catcher_%28Unsplash%29.jpg"
   },
   "REV-04": {
    "id": "REV-04",
@@ -3730,7 +3730,7 @@
    "check": "",
    "text": "Ciblez un autre joueur.\nSi 🧠 fausse : désactivez une carte d'un terrain (⏱ 1 tour).\nPuis sa 🧠 → vraie.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Sleeping_cat_on_her_back.jpg/500px-Sleeping_cat_on_her_back.jpg"
   },
   "REV-05": {
    "id": "REV-05",
@@ -3748,7 +3748,7 @@
    "check": "",
    "text": "Ciblez un joueur : sa 🧠 → fausse.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Single-Bell_Alarm_Clock.png/500px-Single-Bell_Alarm_Clock.png"
   },
   "REV-06": {
    "id": "REV-06",
@@ -3766,7 +3766,7 @@
    "check": "",
    "text": "Révélez les 3 cartes du dessus de la défausse. S'il y a au moins un Rêve et un Cauchemar : posez-en une, mélangez-en une dans la pioche et prenez la dernière en main.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Old_Memories%29.jpg/500px-Old_Memories%29.jpg"
   },
   "REV-07": {
    "id": "REV-07",
@@ -3784,7 +3784,7 @@
    "check": "",
    "text": "Passif — Si 🧠 vraie : échangez 2 cartes sur les terrains.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Hot_air_balloon_and_moon.jpg/500px-Hot_air_balloon_and_moon.jpg"
   },
   "REV-08": {
    "id": "REV-08",
@@ -3802,7 +3802,7 @@
    "check": "",
    "text": "Passif — Si 🧠 vraie : gagnez 50 💰 ; sinon 2 💰.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/DFC_4172_A_handheld_magnifying_glass_resting_on_a_scattered_pile_of_coins_and_medallions_highlighting_intricate_details.jpg/500px-DFC_4172_A_handheld_magnifying_glass_resting_on_a_scattered_pile_of_coins_and_medallions_highlighting_intricate_details.jpg"
   },
   "REV-09": {
    "id": "REV-09",
@@ -3820,7 +3820,7 @@
    "check": "",
    "text": "Passif — Si 🧠 vraie : posez 1 carte de plus ce tour ; sinon piochez 1 carte.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/International_books_at_Kent_Library.jpg/500px-International_books_at_Kent_Library.jpg"
   },
   "REV-10": {
    "id": "REV-10",
@@ -3838,7 +3838,7 @@
    "check": "",
    "text": "Si 🧠 vraie : ciblez un joueur, à son prochain tour il ne peut pas vous nuire.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Cat_friends_hugging.jpg/500px-Cat_friends_hugging.jpg"
   },
   "REV-11": {
    "id": "REV-11",
@@ -3856,7 +3856,7 @@
    "check": "",
    "text": "Si 🧠 vraie : mélangez votre défausse et votre main dans votre pioche, puis piochez 4 cartes.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Monarch_butterfly_after_emerging_from_chrysalis_%2827850956870%29.jpg/500px-Monarch_butterfly_after_emerging_from_chrysalis_%2827850956870%29.jpg"
   },
   "REV-12": {
    "id": "REV-12",
@@ -3874,7 +3874,7 @@
    "check": "",
    "text": "Ciblez un joueur. Si 🧠 vraie : regardez sa main ; sinon regardez une carte de sa main.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Ferdinand_Bol_-_Jacob%27s_Dream_-_WGA02362.jpg/500px-Ferdinand_Bol_-_Jacob%27s_Dream_-_WGA02362.jpg"
   },
   "REV-13": {
    "id": "REV-13",
@@ -3892,7 +3892,7 @@
    "check": "",
    "text": "Si 🧠 vraie : posez une carte de votre défausse.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Phoenix-Fabelwesen.jpg/500px-Phoenix-Fabelwesen.jpg"
   },
   "REV-14": {
    "id": "REV-14",
@@ -3910,7 +3910,7 @@
    "check": "",
    "text": "Si 🧠 vraie, choisissez un état de 🌀 et son effet :\nPrimordial : la 🧠 d'un joueur → vraie.\nBlazard : changez le 🌀 d'un joueur.\nQuasar : échangez la place de 2 de vos cartes.\nTrou de ver : gagnez 10 💰.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Spanish_Royal_Crown_1crop.jpg/500px-Spanish_Royal_Crown_1crop.jpg"
   },
   "REV-15": {
    "id": "REV-15",
@@ -3928,7 +3928,7 @@
    "check": "",
    "text": "Ciblez un joueur à 🧠 vraie : défaussez une carte de son terrain.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Nagasaki_temple_destroyed.jpg/500px-Nagasaki_temple_destroyed.jpg"
   },
   "REV-16": {
    "id": "REV-16",
@@ -3946,7 +3946,7 @@
    "check": "",
    "text": "Ciblez un joueur à 🧠 vraie. Selon votre 🌀 :\nPrimordial : il perd 5 💰.\nBlazard : défaussez la première carte de sa pioche.\nQuasar : défaussez une carte de sa main.\nTrou de ver : défaussez cette carte.\nSi votre 🧠 est fausse : cyclez votre 🌀.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Foggy_forest_-_Rinderschinken%2C_St._Jakob_in_Defereggen%2C_Tyrol.jpg/500px-Foggy_forest_-_Rinderschinken%2C_St._Jakob_in_Defereggen%2C_Tyrol.jpg"
   },
   "REV-17": {
    "id": "REV-17",
@@ -3964,7 +3964,7 @@
    "check": "",
    "text": "Ciblez un joueur à 🧠 vraie : à son prochain tour, il ne peut pas interagir avec les autres.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Prison_Bars_Jail_Cell.jpg/500px-Prison_Bars_Jail_Cell.jpg"
   },
   "REV-18": {
    "id": "REV-18",
@@ -3982,7 +3982,7 @@
    "check": "",
    "text": "Une seule fois — Ciblez un joueur à 🧠 vraie : posez cette carte à la fin de son terrain.\nÀ chaque tour, elle recule d'une place et il perd 2 💰. En première place, tout son terrain est défaussé.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Nightmare_%281790-1791%29_-_Johann_Heinrich_F%C3%BCssli.jpg/500px-The_Nightmare_%281790-1791%29_-_Johann_Heinrich_F%C3%BCssli.jpg"
   },
   "REV-19": {
    "id": "REV-19",
@@ -4000,7 +4000,7 @@
    "check": "",
    "text": "Ciblez un joueur à 🧠 vraie : il perd 10 💰.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Lost_wallet_%2810623155873%29.jpg/500px-Lost_wallet_%2810623155873%29.jpg"
   },
   "MET-01": {
    "id": "MET-01",
@@ -6304,7 +6304,7 @@
    "check": "",
    "text": "Avoir 5 cartes sentience sur le terrain et sa sentience à vraie.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Milky_Way_and_starry_night_sky_%2826972689115%29.jpg/500px-Milky_Way_and_starry_night_sky_%2826972689115%29.jpg"
   },
   "VC-REV-2": {
    "id": "VC-REV-2",
@@ -6322,7 +6322,7 @@
    "check": "",
    "text": "Changer votre sentience d'état 10 fois.",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Lightning_NOAA.jpg/500px-Lightning_NOAA.jpg"
   },
   "VC-VIC-1": {
    "id": "VC-VIC-1",
@@ -6340,7 +6340,7 @@
    "check": "",
    "text": "Ne plus avoir de cartes ni dans votre pioche, ni dans votre défausse",
    "rules": "",
-   "image": ""
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Box.agr.jpg/500px-Box.agr.jpg"
   },
   "VC-MET-1": {
    "id": "VC-MET-1",
