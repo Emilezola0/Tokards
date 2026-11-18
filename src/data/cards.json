@@ -382,7 +382,7 @@
     "Trou noir",
     "Probabilités"
    ],
-   "summary": "Chaque état de trou noir est une météo ; les cartes changent d'effet selon le temps qu'il fait.",
+   "summary": "Chaque joueur a sa météo : pluie, vent, canicule, neige, grêle ou orage. Les cartes changent d'effet selon le temps qu'il fait.",
    "back": "",
    "cards": [
     "MET-01",
@@ -4003,8 +4003,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Change la météo de tout le monde en fonction du trou noir :\nBlazard : Pluie\nQuasar : Vent violent\nTrou de ver : Canicule\nPrimordial : Neige",
-   "rules": "",
+   "text": "La météo de tous les joueurs change selon votre trou noir :\nBlazard : Pluie · Quasar : Vent violent · Trou de ver : Canicule · Primordial : Neige.",
+   "rules": "Chaque joueur a sa propre météo, à part de son trou noir. Au début de la partie : Beau temps.",
    "image": "MET-01.png"
   },
   "MET-02": {
@@ -4021,8 +4021,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si trou noir n'est pas trou de ver, fais appel à la carte météo et peut décider de la jouer ou non.\nSi la carte \"Météo\" est déjà sur le terrain, tu peux changer le trou noir contre 10 gold.",
-   "rules": "",
+   "text": "Si la carte Météo est déjà sur un terrain : vous pouvez changer de trou noir pour 10 gold.\nSinon, si vous n'êtes pas en Trou de ver : vous pouvez faire appel à la carte Météo (où qu'elle soit) et la jouer.",
+   "rules": "La carte Météo est jouée sur votre terrain (son effet s'active) et devient la vôtre.",
    "image": "MET-02.jpg"
   },
   "MET-03": {
@@ -4039,7 +4039,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "(Cette carte s'applique à tous les joueurs ayant les conditions réunies)\nSentience vraie et il pleut, toutes les cartes ayant le tag sentience ont 5% de retourner dans le deck. \nCette carte n'est pas affectée.",
+   "text": "Pour chaque joueur dont la sentience est vraie et la météo Pluie : chacune de ses cartes Sentience a 5 % de chances de retourner dans sa pioche. Cette carte n'est pas affectée.",
    "rules": "",
    "image": "MET-03.jpg"
   },
@@ -4057,7 +4057,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "(Cette carte s'applique à tous les joueurs ayant les conditions réunies)\nSentience à vrai et il y a des vents violents, 80% de chance que l'ordre des cartes se joue dans l'autre sens.\nCette carte n'est pas affectée.",
+   "text": "Pour chaque joueur dont la sentience est vraie et la météo Vent violent : 80 % de chances que l'ordre de son terrain s'inverse. Cette carte garde sa place.",
    "rules": "",
    "image": "MET-04.jpg"
   },
@@ -4075,7 +4075,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "(Cette carte s'applique à tous les joueurs ayant les conditions réunies)\nSentience vraie et canicule, toute carte ayant le tag sentience ont 50% de ne pas être jouée.\nCette carte n'est pas affectée.",
+   "text": "Pour chaque joueur dont la sentience est vraie et la météo Canicule : chacune de ses cartes Sentience a 50 % de chances de ne pas se jouer à son prochain passage. Cette carte n'est pas affectée.",
    "rules": "",
    "image": "MET-05.jpg"
   },
@@ -4093,8 +4093,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "(Cette carte s'applique à tous les joueurs ayant les conditions réunies)\nSentience vraie et neige, les joueurs ont 10% de chance qu'une carte soit ensevelit sous la neige. Lorsqu'une carte est enseveli, elle sort du terrain et est mélangée aux autres cartes enlevées. Lorsque la neige se dissipe, les cartes sont mélangées puis redistribuées.\nCette carte n'est pas affectée.",
-   "rules": "",
+   "text": "Au début du tour de chaque joueur dont la sentience est vraie et la météo Neige : 10 % de chances qu'une de ses cartes, au hasard, soit ensevelie sous la neige (elle quitte le terrain). Quand plus personne n'a la neige, les cartes ensevelies sont mélangées et redistribuées.",
+   "rules": "Les cartes ensevelies ne sont dans aucune zone. Elles reviennent sur les terrains d'où elles sont parties, mais mélangées.",
    "image": "MET-06.jpg"
   },
   "MET-07": {
@@ -4111,7 +4111,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "(Cette carte s'applique à tous les joueurs ayant les conditions réunies)\nSentience vraie et grêle, tous les joueurs ont 50% de chance de gagner 50 gold, sinon le joueur donne aux autres joueurs 25 gold.",
+   "text": "Pour chaque joueur dont la sentience est vraie et la météo Grêle : une chance sur deux de gagner 50 gold, sinon il donne 25 gold à chaque autre joueur.",
    "rules": "",
    "image": "MET-07.jpg"
   },
@@ -4125,12 +4125,12 @@
     "gold": true,
     "blackHole": false
    },
-   "trigger": "Activation",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si neige, gagne un montant qui dépend du nombre de cartes qui s'est joué depuis que cette carte est posée. \nLe fait qu'il n'y ait plus de neige ne remet pas les compteurs à zéro, mais ne le fait pas avancer non plus.",
-   "rules": "",
+   "text": "Si votre météo est Neige, gagnez 1 gold par carte jouée (par n'importe qui) sous la neige depuis que Trace de pneu est posée. Le compteur ne bouge pas quand il ne neige pas, et repart à zéro après chaque gain.",
+   "rules": "« Carte jouée » = un effet de carte activé, par n'importe quel joueur, pendant que votre météo est Neige.",
    "image": "MET-08.jpg"
   },
   "MET-09": {
@@ -4147,7 +4147,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si canicule, manger chaud c'est pas ouf, vous prenez ce risque ou pas ? :\n20% (1 à 20) : Gagne 50 gold\n20% (21 à 40) : Perds 50 gold\n60% (41 à 100) : Tout le monde reçoit 20 gold",
+   "text": "Si votre météo est Canicule, vous pouvez prendre le risque. Lancez 1d100 :\n1-20 : gagnez 50 gold · 21-40 : perdez 50 gold · 41-100 : tout le monde gagne 20 gold.",
    "rules": "",
    "image": "MET-09.jpg"
   },
@@ -4165,7 +4165,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si pluie sur votre terrain, chaque joueur a 50% de chance de gagner un montant de dé 100/2 ou de perdre ce montant. Le joueur décide s'il veut les rejoindre.",
+   "text": "Si votre météo est Pluie, les autres joueurs peuvent rejoindre le pari. Chaque participant (vous compris) a une chance sur deux de gagner 1d100/2 gold, sinon il les perd.",
    "rules": "",
    "image": "MET-10.jpg"
   },
@@ -4183,7 +4183,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si Pluie : Devient Grêle\nSi Vent violent : Permet de rejouer 1 carte de votre terrain.\nSi Canicule : Choisissez une nouvelle valeur de trou noir contre sentience à faux et 10 gold.\nSi Neige ou Grêle : Devient Pluie (pass trou noir à Blazard)",
+   "text": "Selon votre météo :\nPluie : passe à Grêle.\nVent violent : rejouez une carte de votre terrain.\nCanicule : choisissez un nouveau trou noir contre 10 gold et votre sentience (qui passe à fausse).\nNeige ou Grêle : passe à Pluie et votre trou noir à Blazard.",
    "rules": "",
    "image": "MET-11.jpg"
   },
@@ -4201,7 +4201,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Permet de changer la sentience de n'importe qui contre 10 gold et votre sentience gratuitement.",
+   "text": "Vous pouvez inverser votre sentience gratuitement, et celle d'un autre joueur pour 10 gold.",
    "rules": "",
    "image": "MET-12.jpg"
   },
@@ -4215,12 +4215,12 @@
     "gold": true,
     "blackHole": true
    },
-   "trigger": "Activation",
+   "trigger": "Passif",
    "event": "",
    "target": "",
    "check": "",
-   "text": "A chaque changement de météo, gagne X gold par joueur pour X :\nPluie : 5 gold\nVent violent : 15 gold\nCanicule : -5 gold\nNeige : 10 gold\nGrêle : 50 gold",
-   "rules": "",
+   "text": "Tant que cette carte est sur votre terrain, à chaque fois que la météo d'un joueur change, gagnez :\nPluie : 5 gold · Vent violent : 15 gold · Canicule : −5 gold · Neige : 10 gold · Grêle : 50 gold.",
+   "rules": "Passif : compte les changements de météo de tous les joueurs (un par joueur).",
    "image": "MET-13.jpg"
   },
   "MET-14": {
@@ -4237,7 +4237,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Canicule : Vous perdez 10 gold que vous devez donner.\nVent violent : Dé 20 en gold.\nSi Grêle sur un de vos terrains c'est les adversaires qui peuvent utiliser cette effet.\nEffet : Vous pouvez changer de positions jusqu'à un maximum de 3 cartes de vous et de vos alliés (possible de changer la carte de terrain avec celui de ses alliés).",
+   "text": "Canicule : donnez 10 gold au joueur de votre choix. Vent violent : gagnez 1d20 gold.\nPuis repositionnez jusqu'à 3 cartes de vos terrains et de ceux de vos alliés (une carte peut passer sur le terrain d'un allié).\nSi votre météo est Grêle, c'est le joueur suivant qui repositionne.",
    "rules": "",
    "image": "MET-14.jpg"
   },
@@ -4255,7 +4255,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pluie : Tous les joueurs renvoient leur main dans leur deck, mélangent puis piochent 4 cartes.\nVent violent : Tous les joueurs ont chacun 10% que l'ordre des cartes soit mélangé.\nCanicule : Choisie ton trou noir, temporaire jusqu'à la fin de votre tour.\nGrêle : Tous les joueurs envoient leur main dans leur défausse et piochent 1 carte.",
+   "text": "Selon votre météo :\nPluie : tous les joueurs remettent leur main dans leur pioche, la mélangent et piochent 4 cartes.\nVent violent : chaque joueur a 10 % de chances que l'ordre de son terrain soit mélangé.\nCanicule : choisissez un trou noir provisoire, jusqu'à la fin de votre tour.\nGrêle : tous les joueurs défaussent leur main et piochent 1 carte.",
    "rules": "",
    "image": "MET-15.jpg"
   },
@@ -4273,8 +4273,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si pluie ou vent violent, l'argent perdu (par n'importe quel type de source) est stocké. L'argent pourra être récupéré que quand c'est la canicule, sinon si grêle ou orage, l'argent est perdu définitivement.",
-   "rules": "",
+   "text": "Tant que votre météo est Pluie ou Vent violent, les gold que vous perdez sont stockés sur cette carte. Quand votre météo passe à Canicule, vous les récupérez ; si elle passe à Grêle ou Orage, ils sont perdus.",
+   "rules": "Toute perte de gold compte (dépenses comprises).",
    "image": "MET-16.jpg"
   },
   "MET-17": {
@@ -4291,8 +4291,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vous pouvez décider de bloquer l'effet de la Carte Météo et changer votre météo aléatoirement ou randomiser votre sentience.",
-   "rules": "",
+   "text": "Vous pouvez désactiver la carte Météo. Puis, au choix : votre météo change au hasard, ou lancez le dé de sentience.",
+   "rules": "Bloquer = désactiver la carte Météo jusqu'à nouvel ordre. Météo au hasard : Pluie, Vent violent, Canicule, Neige ou Grêle.",
    "image": "MET-17.jpg"
   },
   "MET-18": {
@@ -4309,8 +4309,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience à vrai : jouez 1 carte que vous avez en main (reste dans votre main), vous devez toutefois la montrer à tout le monde et vous pouvez repositionner 1 carte de votre terrain.\nSentience à faux : tous les joueurs sauf vous doivent prendre 1 carte de leur main, la montrer et la jouer.",
-   "rules": "",
+   "text": "Sentience vraie : jouez une carte de votre main en la montrant à tous (elle reste dans votre main) et vous pouvez repositionner une carte de votre terrain.\nSentience fausse : chaque autre joueur montre une carte de sa main et la joue.",
+   "rules": "Une carte jouée depuis la main active son effet sans être posée.",
    "image": "MET-18.jpg"
   },
   "MET-19": {
@@ -4323,12 +4323,12 @@
     "gold": true,
     "blackHole": true
    },
-   "trigger": "Activation",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagne X gold, gagne automatiquement X gold à chaque changement de météo.\nX = 1 si changement vers Canicule, X = 5 pour les autres sauf Grêle = 20 et Orage = 50 gold.\nSi 4 états de météo différents avant la fin de votre tour gagnent 50 gold à chaque nouveau changement.",
-   "rules": "",
+   "text": "Gagnez X gold maintenant, puis à chaque changement de votre météo. X = 1 pour Canicule, 20 pour Grêle, 50 pour Orage, 5 pour les autres.\nAprès 4 météos différentes pendant votre tour, chaque nouveau changement rapporte 50 gold.",
+   "rules": "Seuls les changements de votre météo comptent.",
    "image": "MET-19.jpg"
   },
   "MET-20": {
@@ -4341,11 +4341,11 @@
     "gold": false,
     "blackHole": true
    },
-   "trigger": "Activation",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si pluie : un orage se prépare, si cette carte est là au prochain tour, l'orage est arrivé/le temps passe à Orage. Cette carte ce défausse et Orage prend ça place.",
+   "text": "Si votre météo est Pluie, un orage se prépare : si cette carte est encore sur votre terrain au début de votre prochain tour, elle est défaussée et l'Orage prend sa place.",
    "rules": "",
    "image": "MET-20.jpg"
   },
@@ -4363,8 +4363,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne peut pas être placé sauf avec \"Temps de merde\", ne peut pas être défaussé, volé, déplacer (sauf avec \"Éclaircissement\").\nLorsque l'orage est sur votre terrain, vos cartes Sentience et Gold ne peuvent plus être jouées (sauf exception, ex : éclair).\nÀ la fin de votre tour, Orage va sur un terrain random, après 5 tours l'orage disparaît.",
-   "rules": "",
+   "text": "Ne peut être posé que par « Temps de merde » (ou « Temps pour prier »). Ne peut être ni défaussé, ni volé, ni déplacé, sauf par « Éclaircissement ».\nLe joueur qui a l'Orage sur son terrain a la météo Orage : ses cartes Sentience et Gold ne se jouent plus (sauf « Éclair »).\nÀ la fin de son tour, l'Orage part sur le terrain d'un autre joueur au hasard. Au bout de 5 tours, il se dissipe.",
+   "rules": "La carte Orage reste à sa place sur le terrain. Les 5 tours comptent tous les tours joués depuis son arrivée. En se dissipant, elle va dans la défausse de son propriétaire.",
    "image": "MET-21.jpg"
   },
   "MET-22": {
@@ -4381,8 +4381,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "25% de chance de pouvoir changer la météo,  lancer un dé 100, faire 1 invoque un orage s'il y a déjà un \"Orage\" sur votre terrain donne ça vous donnent 500 gold, faire 100 recevez 250 gold et 50 vous devez donner 50 gold à tous les joueurs.",
-   "rules": "",
+   "text": "Une chance sur quatre de choisir votre météo. Puis lancez 1d100 :\n1 : l'Orage arrive sur votre terrain (s'il y est déjà, gagnez 500 gold) · 50 : donnez 50 gold à chaque joueur · 100 : gagnez 250 gold.",
+   "rules": "Le d4 est lancé d'abord (1 = vous choisissez votre météo), puis le d100 dans tous les cas.",
    "image": "MET-22.jpg"
   },
   "MET-23": {
@@ -4399,8 +4399,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si conditions remplies (peut être utilisé à tout moment si la condition sentience est vraie) :\nPluie & 20 gold : Changer la position d'une carte.\nVent Violent & 200 gold : Échange les cartes de terrain de deux personnes au choix.\nCanicule & 100 gold : Changer la valeur Trou noir d'une personne.\nNeige & 50 gold : Défausser la carte de n'importe qui.\nGrêle & 20 gold : Empêche 1 carte de votre choix d'être jouée (retourner là pour aider) se défreeze lorsqu'elle devait être jouée.",
-   "rules": "",
+   "text": "Au début de votre tour, si votre sentience est vraie, vous pouvez payer selon votre météo :\nPluie, 20 gold : changez la position d'une carte.\nVent violent, 200 gold : échangez les terrains de deux joueurs.\nCanicule, 100 gold : changez le trou noir d'un joueur.\nNeige, 50 gold : défaussez la carte de n'importe qui.\nGrêle, 20 gold : une carte de votre choix ne se joue pas à son prochain passage.",
+   "rules": "Passif proposé au début de votre tour, une fois par tour.",
    "image": "MET-23.jpg"
   },
   "MET-24": {
@@ -4417,7 +4417,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Change le trou noir de n'importe qui en fonction de la météo d'une personne aléatoire :\nPluie : Quasar\nVent Violent : Primordial\nCanicule : Trou de ver\nNeige : Blazard\nGrêle : permet au joueur de choisir son trou noir\nOrage : randomise le trou noir de tous les joueurs, même vous",
+   "text": "Un joueur est tiré au hasard parmi ceux qui ont une météo. Selon sa météo, changez le trou noir du joueur de votre choix :\nPluie : Quasar · Vent violent : Primordial · Canicule : Trou de ver · Neige : Blazard · Grêle : il choisit son trou noir.\nOrage : le trou noir de tous les joueurs est tiré au hasard, vous compris.",
    "rules": "",
    "image": "MET-24.jpg"
   },
@@ -4431,12 +4431,12 @@
     "gold": false,
     "blackHole": true
    },
-   "trigger": "Activation",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Multipliez les gold gagnés à la fin de votre tour par prend la météo au moment de cette carte :\nPluie : 1.5\nVent violent : 1\nCanicule : 0.5\nNeige : 2",
-   "rules": "",
+   "text": "À la fin de votre tour, les gold gagnés pendant ce tour sont multipliés selon votre météo au moment où la carte s'active :\nPluie : ×1,5 · Vent violent : ×1 · Canicule : ×0,5 · Neige : ×2.",
+   "rules": "La différence (en plus ou en moins) est gagnée ou perdue à la fin de votre tour.",
    "image": "MET-25.jpg"
   },
   "MET-26": {
@@ -4453,7 +4453,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Lancer un dé de 100, ce montant sera reçu en gains. 50% chance que les gains/coût soient répartis équitablement entre tous les joueurs. De plus, la météo ajoute un multiplicateur après le montant du dé : \nPluie : 1.5\nVent violent : 2\nCanicule : 0\nNeige : 0.5\nGrêle : -1 et Orage : -2",
+   "text": "Lancez 1d100, multiplié selon votre météo : Pluie ×1,5 · Vent violent ×2 · Canicule ×0 · Neige ×0,5 · Grêle ×−1 · Orage ×−2.\nUne chance sur deux que le résultat (gain ou perte) soit réparti équitablement entre tous les joueurs ; sinon, il est pour vous.",
    "rules": "",
    "image": "MET-26.jpg"
   },
@@ -4467,12 +4467,12 @@
     "gold": true,
     "blackHole": true
    },
-   "trigger": "Activation",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si deux joueurs ont la même météo, ils peuvent jouer 1 carte de l'autre joueur au début de leur tour.",
-   "rules": "",
+   "text": "Tant que cette carte est sur un terrain, au début de son tour, un joueur qui a la même météo qu'un autre peut jouer pour lui une carte du terrain de cet autre joueur. Vous pouvez le faire dès l'activation.",
+   "rules": "La carte jouée s'active pour le joueur qui la joue.",
    "image": "MET-27.jpg"
   },
   "MET-28": {
@@ -4489,7 +4489,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pluie : Pouvoir changer toutes les sentiences des personnes qui ont pluie\nVent violent : Jusqu'à 2 utilisations maximum choisir une personne qui va devoir randomiser son trou noir.\nCanicule : Rien\nNeige : Retirer jusqu'à un maximum de 20 gold à une personne\nGrêle : Le joueur qui a joué avant vous peut choisir votre nouvelle valeur de trou noir et changer la sienne.\nSi la personne a Orage : Tout le monde lui donne 25 gold.",
+   "text": "Selon votre météo :\nPluie : inversez la sentience de tous les joueurs qui ont la pluie.\nVent violent : jusqu'à 2 fois, un joueur de votre choix lance le dé trou noir.\nCanicule : rien.\nNeige : retirez jusqu'à 20 gold à un joueur.\nGrêle : le joueur avant vous choisit votre nouveau trou noir et change le sien.\nOrage : tout le monde vous donne 25 gold.",
    "rules": "",
    "image": "MET-28.jpg"
   },
@@ -4507,7 +4507,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "S'il y a Orage ou Grêle : choisir votre trou noir et plus d'effet d'orage ou de grêle. La carte orage est retirée si elle se trouve sur votre terrain.",
+   "text": "Si votre météo est Orage ou Grêle : choisissez votre trou noir ; votre météo devient celle de ce trou noir. Si l'Orage est sur votre terrain, il va dans la défausse.",
    "rules": "",
    "image": "MET-29.jpg"
   },
@@ -4525,8 +4525,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Se joue uniquement si Orage : Tombe sur un le terrain possédant \"Orage\", chaque carte a 50% d'aller dans la défausse (sauf Orage et Éclair) si cette carte doit aller dans la défausse suite à éclair, à 5% de chance que la carte ne se défausse pas et se joue.",
-   "rules": "",
+   "text": "Se joue seulement s'il y a un Orage. L'éclair tombe sur le terrain de l'Orage (Éclair y va) : chaque carte (sauf Orage et Éclair) a 50 % de chances d'aller dans la défausse ; une carte qui devrait être défaussée a 5 % de chances de se jouer à la place.",
+   "rules": "Le 50 % est un dé à 2 faces, le 5 % un 1 sur 1d20. Para-Tonnerre doit être sur le terrain frappé.",
    "image": "MET-30.jpg"
   },
   "MET-31": {
@@ -4539,11 +4539,11 @@
     "gold": true,
     "blackHole": false
    },
-   "trigger": "Activation",
+   "trigger": "Passif",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si un éclair tombe sur votre terrain, vous recevez le montant d'un dé 100 * 10 en gold et bloque l'effet de \"Éclair\" (l'effet qui retire les cartes).",
+   "text": "Si un éclair tombe sur votre terrain, gagnez 1d100 × 10 gold et aucune carte n'est défaussée.",
    "rules": "",
    "image": "MET-31.jpg"
   },
@@ -4561,7 +4561,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Sentience vraie : vous pouvez récupérer 1 carte du deck météo de n'importe où du moment qu'elle est face visible ou dans la défausse et vous pouvez la poser sur le terrain, son effet ne sera pas joué.\nSentience fausse : vous passez votre sentience à vraie",
+   "text": "Sentience vraie : récupérez une carte du deck Météo face visible (sur un terrain, dans une défausse ou montrée dans une main) et posez-la sur votre terrain, sans activer son effet.\nSentience fausse : votre sentience passe à vraie.",
    "rules": "",
    "image": "MET-32.jpg"
   },
@@ -6996,11 +6996,18 @@
   {
    "term": "Météo",
    "cat": "Règle",
-   "def": "Surnom de chaque état du trou noir, utilisé par le deck Météo : Primordial = Neige, Quasar = Vent violent, Blazard = Pluie, Trou de ver = Canicule.",
-   "example": "",
+   "def": "Chaque joueur a une météo, à part de son trou noir : Beau temps au départ, puis Pluie, Vent violent, Canicule, Neige, Grêle ou Orage. La carte « Météo » la fait suivre le trou noir : Blazard = Pluie, Quasar = Vent violent, Trou de ver = Canicule, Primordial = Neige.",
+   "example": "Si votre météo est Pluie, un orage se prépare.",
    "anim": "weather",
    "words": [
-    "météo"
+    "météo",
+    "pluie",
+    "vent violent",
+    "canicule",
+    "neige",
+    "grêle",
+    "orage",
+    "beau temps"
    ]
   },
   {

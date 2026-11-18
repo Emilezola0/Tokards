@@ -7,8 +7,8 @@
 import { DEFAULT_REASON, REASONS } from "./reasons";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
-import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room, Until, Zone } from "../game/types";
-import { BLACK_HOLES, blackHoleLabel, showWeather } from "../game/types";
+import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room, Until, Weather, Zone } from "../game/types";
+import { BH_SYMBOL, BLACK_HOLES, blackHoleLabel, weatherIcon, weatherLabel } from "../game/types";
 import { SCRIPTS } from "./scripts";
 import "../game/victory";
 
@@ -39,6 +39,10 @@ export type GameEvent =
   /** une carte change de place à cause d'un effet ou d'une défausse de main (to = null : elle a quitté les zones) */
   | { type: "cardMoved"; card: string; from: Loc; to: Loc | null; src: string | null }
   | { type: "turnStart"; uid: string }
+  /** la météo de `uid` change (deck Météo) */
+  | { type: "weather"; uid: string; from: Weather | null; to: Weather | null }
+  /** l'effet de `card` vient d'être joué pour `uid` */
+  | { type: "activated"; uid: string; card: string }
   | { type: "turnEnd"; uid: string };
 
 type Handlers = { [K in GameEvent["type"]]: (x: Ctx, self: Self, e: Extract<GameEvent, { type: K }>) => void };
@@ -60,7 +64,9 @@ export type CardScript = {
   /** ses passifs écoutent aussi quand elle est face visible dans une main */
   inHand?: boolean;
   /** ne peut arriver sur un terrain que par l'effet de cette carte */
-  placedOnlyBy?: string;
+  placedOnlyBy?: string | string[];
+  /** sur un terrain, ne peut être déplacée (défausse, vol…) que par ses propres effets et ceux de ces cartes */
+  immovableExcept?: string[];
 };
 
 export const isAutomated = (id: string) => !!SCRIPTS[id];
@@ -279,7 +285,7 @@ export class Ctx {
   }
   chooseBlackHole(chooser: string, text: string, exclude?: BlackHole, cardId?: string): BlackHole {
     const opts = BLACK_HOLES.filter((b) => b.id !== exclude);
-    return opts[this.chooseOption(chooser, text, opts.map((b) => `${showWeather() ? `${b.icon} ` : ""}${blackHoleLabel(b.id)}`), cardId)].id;
+    return opts[this.chooseOption(chooser, text, opts.map((b) => `${BH_SYMBOL[b.id]} ${blackHoleLabel(b.id)}`), cardId)].id;
   }
 
   // ----- événements & passifs -----
@@ -484,6 +490,49 @@ export class Ctx {
     if (ga > gb) this.emit({ type: "goldGained", uid: b, amount: ga - gb });
     else this.emit({ type: "goldLost", uid: b, amount: gb - ga });
   }
+  /** Météo d'un joueur (Orage sur son terrain = Orage). */
+  weather = (uid: string) => E.weatherOf(this.g, uid);
+  setWeather(uid: string, w: Weather | null) {
+    const p = this.p(uid);
+    if (!p) return;
+    const from = this.weather(uid);
+    p.weather = w;
+    const to = this.weather(uid);
+    if (from === to) {
+      this.log(`${this.name(uid)} garde sa météo ${weatherIcon(to)} ${weatherLabel(to)}.`);
+      return;
+    }
+    this.announceWeather(uid, from, to);
+  }
+  private announceWeather(uid: string, from: Weather | null, to: Weather | null) {
+    this.fx({ k: "weather", uid, to });
+    this.log(`${weatherIcon(to)} Météo de ${this.name(uid)} : ${weatherLabel(from)} → ${weatherLabel(to)}.`, { to: uid });
+    this.interact(uid, "météo");
+    this.emit({ type: "weather", uid, from, to });
+    this.thawSnow();
+  }
+  /** Neige parfaite : quand plus aucun joueur n'a la neige, les cartes ensevelies sont mélangées et redistribuées. */
+  thawSnow() {
+    const buried = this.g.under?.[E.SNOW] ?? [];
+    if (!buried.length || this.turnOrder().some((u) => this.weather(u) === "Neige")) return;
+    const homes = buried.map((c) => this.g.underFrom?.[c]?.uid ?? this.g.owner[c] ?? this.current);
+    const cards = E.shuffle([...buried]);
+    this.log(`🌤️ La neige fond : ${cards.length} carte${cards.length > 1 ? "s" : ""} ensevelie${cards.length > 1 ? "s sont mélangées et redistribuées" : " revient"}.`);
+    cards.forEach((c, i) => {
+      const u = this.p(homes[i]) ? homes[i] : this.current;
+      E.detachUnder(this.g, c, { uid: u, zone: "terrain" });
+      this.fx({ k: "move", card: c });
+      this.log(`❄️ « ${card(c).name} » ressort de la neige sur le terrain de ${this.name(u)}.`, { dst: c, to: u });
+    });
+  }
+  /** L'Orage change de terrain : la météo des deux joueurs change avec lui. */
+  private orageMoved(at: Loc | null, now: Loc | null) {
+    const a = at?.zone === "terrain" ? at.uid : null;
+    const b = now?.zone === "terrain" ? now.uid : null;
+    if (a === b) return;
+    if (a) this.announceWeather(a, "Orage", this.weather(a));
+    if (b) this.announceWeather(b, this.p(b).weather ?? null, "Orage");
+  }
   setSentience(uid: string, v: boolean) {
     const p = this.p(uid);
     if (p.sentience === v) return;
@@ -540,6 +589,12 @@ export class Ctx {
   private canDisplace(id: string, at: Loc, dest: E.Dest | null): boolean {
     const src = this.source;
     if (at.zone !== "terrain" || !src || src === id) return true;
+    const imm = SCRIPTS[id]?.immovableExcept;
+    if (imm && !imm.includes(src)) {
+      this.log(`🛡 « ${card(id).name} » ne peut pas être déplacée.`, { dst: id });
+      this.reason = `« ${card(id).name} » ne peut pas être déplacée.`;
+      return false;
+    }
     if (this.active("EMI-30", at.uid) && (this.g.armed ?? []).includes("EMI-30") && id !== "EMI-30") {
       this.log(`🛢 Goudron : les cartes de ${this.name(at.uid)} sont fixées, « ${card(id).name} » ne bouge pas.`, { dst: id, src: "EMI-30" });
       this.reason = "Goudron : les cartes de ce terrain sont fixées.";
@@ -601,8 +656,9 @@ export class Ctx {
       return false;
     }
     const only = SCRIPTS[id]?.placedOnlyBy;
-    if (only && dest.zone === "terrain" && at?.zone !== "terrain" && src !== only) {
-      this.log(`🚫 « ${card(id).name} » ne peut être posée que par « ${card(only).name} ».`, { dst: id });
+    const onlyList = only ? (Array.isArray(only) ? only : [only]) : [];
+    if (only && dest.zone === "terrain" && at?.zone !== "terrain" && !onlyList.includes(src ?? "")) {
+      this.log(`🚫 « ${card(id).name} » ne peut être posée que par ${onlyList.map((o) => `« ${card(o).name} »`).join(" ou ")}.`, { dst: id });
       return false;
     }
     E.moveCard(this.room, this.g, id, dest, !!(src && src !== id && at));
@@ -624,6 +680,7 @@ export class Ctx {
       this.emit({ type: "terrainDiscard", uid: at.uid, card: id, src });
     if (now?.zone === "terrain" && at && at.zone !== "terrain") this.emit({ type: "placed", uid: now.uid, card: id, src, fromUid: at.uid, fromZone: at.zone });
     if (at) this.emit({ type: "cardMoved", card: id, from: at, to: now, src });
+    if (id === E.ORAGE) this.orageMoved(at, now);
     return true;
   }
   /** Défausse une carte : elle va dans la défausse du joueur chez qui elle se trouve (terrain, main…). */
@@ -800,6 +857,15 @@ export class Ctx {
       this.log(`⛔ « ${c.name} » est désactivée : son effet ne se joue pas.`, { dst: id });
       return;
     }
+    const at0 = E.locate(this.g, id);
+    if (at0?.zone === "terrain" && id !== E.ORAGE && id !== "MET-30" && this.p(at0.uid).terrain.includes(E.ORAGE) && !E.isDisabled(this.g, E.ORAGE)) {
+      const t = E.tagsOf(this.g, id);
+      if (t.sentience || t.gold) {
+        this.fx({ k: "fail", card: id, uid: me, reason: "Orage" });
+        this.log(`⛈️ Orage : « ${c.name} » (Sentience ou Gold) ne peut pas être jouée.`, { dst: id, src: E.ORAGE });
+        return;
+      }
+    }
     if (this.actDepth >= MAX_DEPTH) {
       this.log(`« ${c.name} » : trop d'effets en chaîne, celui-ci est ignoré.`);
       return;
@@ -823,7 +889,9 @@ export class Ctx {
     this.log(`✨ ${this.name(me)} active « ${c.name} ».`);
     this.reason = null;
     try {
-      if (s.activate(this, { id, me }) === false) {
+      const res = s.activate(this, { id, me });
+      if (res !== false) this.emit({ type: "activated", uid: me, card: id });
+      if (res === false) {
         const why = this.reason ?? REASONS[id] ?? DEFAULT_REASON;
         this.fx({ k: "fail", card: id, uid: me, reason: why });
         if (me === this.current && this.g.phase === "activation") E.st(this.p(me)).failed = (E.st(this.p(me)).failed ?? 0) + 1;

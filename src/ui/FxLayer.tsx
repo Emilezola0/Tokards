@@ -3,7 +3,7 @@ import Die3D, { type DieRoll } from "./Die3D";
 import { PLACEHOLDER, card, cardImage } from "../data/cards";
 import * as E from "../game/engine";
 import type { Fx, GameState, Room } from "../game/types";
-import { BLACK_HOLES, showWeather } from "../game/types";
+import { WEATHERS, weatherIcon, weatherLabel } from "../game/types";
 import { fxStore } from "./fxStore";
 import { css, nearRot, poseOf, poseTransform, q, type Pose } from "./pose";
 import { sfx } from "./sfx";
@@ -131,7 +131,6 @@ function bubble(at: Pt | null, text: string, color: string) {
   setTimeout(() => el.remove(), 3200);
 }
 
-const WEATHER: Record<string, string> = { Primordial: "snow", Quasar: "wind", Blazard: "rain", "Trou de ver": "heat" };
 
 function makeCard(id: string, label?: string, text?: string) {
   const el = document.createElement("div");
@@ -382,10 +381,17 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         await burst(from, at, "🌀", 1, speed);
         fxStore.hold(f.uid, { bh: f.to });
         flash(el, "fx-swirl", 900);
-        if (showWeather()) flash(q(`[data-board="${css(f.uid)}"]`), `fx-weather-${WEATHER[f.to] ?? "snow"}`, 1800);
-        const b = BLACK_HOLES.find((x) => x.id === f.to);
-        floatText(mid(el), `${showWeather() ? b?.icon ?? "🌀" : "🌀"} ${f.to}`, "bh");
+        floatText(mid(el), `🌀 ${f.to}`, "bh");
         await wait(300 * speed);
+        break;
+      }
+      case "weather": {
+        const w = WEATHERS.find((x) => x.id === f.to);
+        flash(q(`[data-board="${css(f.uid)}"]`), `fx-weather-${w?.fx ?? "clear"}`, 1800);
+        const el = q(`[data-weather="${css(f.uid)}"]`) ?? q(`[data-bh="${css(f.uid)}"]`);
+        flash(el, "fx-swirl", 900);
+        floatText(mid(el), `${weatherIcon(f.to)} ${weatherLabel(f.to)}`, "bh");
+        await wait(500 * speed);
         break;
       }
       case "dice": {

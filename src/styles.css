@@ -909,3 +909,11 @@ button.danger:hover { border-color: var(--bad); }
 .ga-under { position: relative; }
 .ga-under .u-slide { margin-left: -40px; transform: translateY(14px) scale(.9); opacity: .75; z-index: -1; animation: ga-under-slide 2.4s ease-in-out infinite; }
 @keyframes ga-under-slide { 0%, 20% { transform: translate(40px, 0) scale(1); opacity: 1; } 60%, 100% { transform: translateY(14px) scale(.9); opacity: .75; } }
+
+/* v0.11 météo par joueur */
+.res.weather { background: var(--panel2); border: 1px dashed var(--line); opacity: .75; }
+.res.weather.on { border-style: solid; opacity: 1; }
+.fx-weather-hail::after { background-image: radial-gradient(#e8f4ff 2.5px, transparent 3px), radial-gradient(#cfe6ff 2px, transparent 2.5px); background-size: 34px 34px, 22px 22px; animation: snow 1.2s linear forwards; }
+.fx-weather-storm::after { background: linear-gradient(180deg, #1a1f3a88, transparent 70%); animation: storm 1.8s steps(1) forwards; }
+.fx-weather-clear::after { background: radial-gradient(circle at 80% 10%, #ffe9a066, transparent 55%); animation: heat 1.8s ease-in-out forwards; }
+@keyframes storm { 0%, 30%, 60% { filter: brightness(1); } 20%, 50% { filter: brightness(3); } 100% { opacity: 0; } }

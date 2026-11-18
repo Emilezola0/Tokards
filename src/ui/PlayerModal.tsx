@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
-import { BLACK_HOLES, showWeather } from "../game/types";
+import { BH_SYMBOL, BLACK_HOLES, WEATHERS, showWeather, weatherLabel } from "../game/types";
 import CardView from "./CardView";
 
 type Run = (fn: (r: Room, g: GameState) => void) => void;
@@ -55,10 +55,26 @@ export default function PlayerModal({ owner, room, uid, run, onCard, onClose }: 
           <div className="row wrap">
             {BLACK_HOLES.map((b) => (
               <button key={b.id} className={p.blackHole === b.id ? "primary" : ""} onClick={() => run((r, gg) => E.setBlackHole(r, gg, owner, b.id))}>
-                {showWeather() ? `${b.icon} ` : ""}{b.id}{showWeather() && <span className="small muted"> ({b.weather})</span>}
+                {BH_SYMBOL[b.id]} {b.id}
               </button>
             ))}
           </div>
+
+          {showWeather() && (
+            <>
+              <h3>🌦️ Météo : {weatherLabel(E.weatherOf(g, owner))}</h3>
+              <div className="row wrap">
+                {[null, ...WEATHERS.filter((w) => w.id !== "Orage")].map((w) => (
+                  <button key={w?.id ?? "clear"} className={(p.weather ?? null) === (w?.id ?? null) ? "primary" : ""} onClick={() => run((r, gg) => {
+                    gg.players[owner].weather = w?.id ?? null;
+                    E.log(gg, `${E.nameOf(r, owner)} : météo ${weatherLabel(w?.id ?? null)}.`);
+                  })}>
+                    {w?.icon ?? "🌤️"} {weatherLabel(w?.id ?? null)}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           <h3>Cartes</h3>
           <div className="row wrap">

@@ -6,6 +6,7 @@ import { GRENOUILLES } from "./grenouilles";
 import { POLICE } from "./police";
 import { EMILE } from "./emile";
 import { PIRATE } from "./pirate";
+import { METEO } from "./meteo";
 
 /** Toutes les cartes automatisées, par ID. Une carte absente reste en mode manuel. */
 export const SCRIPTS: Record<string, CardScript> = {
@@ -16,4 +17,5 @@ export const SCRIPTS: Record<string, CardScript> = {
   ...POLICE,
   ...EMILE,
   ...PIRATE,
+  ...METEO,
 };

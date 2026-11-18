@@ -2,7 +2,7 @@ import { useState, type DragEvent, type MouseEvent } from "react";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
-import { BLACK_HOLES, showWeather } from "../game/types";
+import { showWeather, weatherIcon, weatherLabel } from "../game/types";
 import { isAutomated, type Preview } from "../effects/runtime";
 import { vcProgress } from "../game/victory";
 import CardView, { CardBack } from "./CardView";
@@ -107,7 +107,7 @@ export default function PlayerBoard(p: Props) {
   const gold = held.gold ?? st.gold;
   const sentience = held.sentience ?? st.sentience;
   const bhId = held.bh ?? st.blackHole;
-  const bh = BLACK_HOLES.find((b) => b.id === bhId);
+  const weather = E.weatherOf(g, owner);
   const lobbyP = room.players[owner];
   const current = E.currentPlayer(g);
   const nextCard = g.phase === "activation" && owner === current ? E.nextActivation(g) : undefined;
@@ -319,8 +319,13 @@ export default function PlayerBoard(p: Props) {
             🧠<small>{sentience ? "Vraie" : "Fausse"}</small>
           </span>
           <span className={`res bh ${tgt("bh", owner) ? "target" : ""}`} data-bh={owner} title="Trou noir">
-            🌀 {bhId}{showWeather() && bh && <small> {bh.icon}</small>}
+            🌀 {bhId}
           </span>
+          {showWeather() && (
+            <span className={`res weather ${weather ? "on" : ""}`} data-weather={owner} title={`Météo : ${weatherLabel(weather)}`}>
+              {weatherIcon(weather)}<small>{weatherLabel(weather)}</small>
+            </span>
+          )}
           <span className={`res gold ${tgt("gold", owner) ? "target" : ""}`} data-gold={owner}>
             <Odometer value={gold} /> 💰
           </span>

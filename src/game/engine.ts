@@ -1,7 +1,7 @@
 // Moteur de la table virtuelle : fonctions pures qui modifient l'état du salon.
 // Les effets des cartes ne sont pas automatisés : les joueurs les appliquent avec les outils manuels.
 import { BASE_VCS, DECKS, card } from "../data/cards";
-import type { BlackHole, Fx, FxInput, GameState, LogEntry, Phase, PlayerState, Room, Stats, Until, Vote, Zone } from "./types";
+import type { BlackHole, Fx, FxInput, GameState, LogEntry, Phase, PlayerState, Room, Stats, Until, Vote, Zone, Weather } from "./types";
 import { blackHoleLabel, ZONE_LABEL } from "./types";
 
 export const START_GOLD = 10;
@@ -63,6 +63,16 @@ export function tagsOf(g: GameState | null | undefined, id: string) {
 
 /** Drone de surveillance : désactive les cartes à la même position sur les terrains voisins. */
 export const DRONE = "POL-23";
+/** Orage (deck Météo) : le joueur qui l'a sur son terrain a la météo Orage. */
+export const ORAGE = "MET-21";
+/** Hôte fictif des cartes ensevelies sous la neige (Neige parfaite). */
+export const SNOW = "NEIGE";
+export function weatherOf(g: GameState, uid: string): Weather | null {
+  const p = g.players[uid];
+  if (!p) return null;
+  if (p.terrain.includes(ORAGE)) return "Orage";
+  return p.weather ?? null;
+}
 
 /** Voisins d'un joueur dans l'ordre du tour : [à gauche (précédent), à droite (suivant)]. */
 export function neighbours(g: GameState, uid: string): [string, string] {

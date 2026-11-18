@@ -7,16 +7,27 @@ export const BLACK_HOLES: { id: BlackHole; weather: string; icon: string }[] = [
   { id: "Blazard", weather: "Pluie", icon: "🌧️" },
   { id: "Trou de ver", weather: "Canicule", icon: "☀️" },
 ];
+/** Météo d'un joueur (deck Météo) : un état à part du trou noir. null = Beau temps. */
+export type Weather = "Pluie" | "Vent violent" | "Canicule" | "Neige" | "Grêle" | "Orage";
+export const WEATHERS: { id: Weather; icon: string; fx: string }[] = [
+  { id: "Pluie", icon: "🌧️", fx: "rain" },
+  { id: "Vent violent", icon: "🌬️", fx: "wind" },
+  { id: "Canicule", icon: "☀️", fx: "heat" },
+  { id: "Neige", icon: "❄️", fx: "snow" },
+  { id: "Grêle", icon: "🌨️", fx: "hail" },
+  { id: "Orage", icon: "⛈️", fx: "storm" },
+];
+export const weatherIcon = (w: Weather | null | undefined) => WEATHERS.find((x) => x.id === w)?.icon ?? "🌤️";
+export const weatherLabel = (w: Weather | null | undefined) => w ?? "Beau temps";
+/** Météo correspondant à chaque trou noir (carte « Météo »). */
+export const BH_WEATHER: Record<BlackHole, Weather> = { Blazard: "Pluie", Quasar: "Vent violent", "Trou de ver": "Canicule", Primordial: "Neige" };
 /** Symbole de chaque état sur le dé trou noir et dans le glossaire. */
 export const BH_SYMBOL: Record<BlackHole, string> = { Primordial: "🌑", Quasar: "✴️", Blazard: "🔥", "Trou de ver": "🕳️" };
 /** La météo n'est mentionnée que si le deck Météo est en jeu (info contextuelle). */
 let SHOW_WEATHER = true;
 export const setShowWeather = (v: boolean) => void (SHOW_WEATHER = v);
 export const showWeather = () => SHOW_WEATHER;
-export const blackHoleLabel = (b: BlackHole) => {
-  const x = BLACK_HOLES.find((h) => h.id === b);
-  return x && SHOW_WEATHER ? `${b} (${x.weather})` : b;
-};
+export const blackHoleLabel = (b: BlackHole) => b;
 
 export type Zone = "deck" | "hand" | "terrain" | "discard";
 export const ZONE_LABEL: Record<Zone, string> = {
@@ -53,6 +64,8 @@ export interface PlayerState {
   cantPlayNext?: string;
   /** son prochain tour est passé (Thommage) */
   skipNext?: boolean;
+  /** météo (deck Météo) ; absente ou null = Beau temps */
+  weather?: Weather | null;
 }
 
 /** Fin d'un état temporaire : au début (`start`) ou à la fin (`end`) d'un tour de `uid` joué après le tour global `after`. */
@@ -127,6 +140,7 @@ export type Fx =
   | { id: number; k: "gold"; uid: string; delta: number }
   | { id: number; k: "sentience"; uid: string; v: boolean }
   | { id: number; k: "bh"; uid: string; to: BlackHole }
+  | { id: number; k: "weather"; uid: string; to: Weather | null }
   | { id: number; k: "dice"; uid: string; faces: number; value: number; bh?: boolean; sent?: boolean }
   | { id: number; k: "move"; card: string }
   | { id: number; k: "banner"; text: string }
