@@ -290,6 +290,8 @@ export const POPO: Record<string, CardScript> = {
     activate: (x, { id, me }) => {
       const poor = x.poorest(x.others(me));
       if (!poor || !x.p(poor).terrain.length) return false;
+      // Coût facultatif : 25 gold pour pouvoir défausser.
+      if (!pay(x, me, id, 25, `défausser une carte du terrain de ${x.name(poor)}`)) return false;
       const c = x.chooseCard(me, `Quelle carte du terrain de ${x.name(poor)} défausser ?`, x.p(poor).terrain, id);
       if (!c) return false;
       x.discard(c);

@@ -3476,8 +3476,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez une carte du terrain du joueur le plus pauvre (sauf vous).",
-   "rules": "Le plus pauvre hors lanceur ; le lanceur choisit la carte défaussée.",
+   "text": "Coût facultatif : 25 💰.\nDéfaussez une carte du terrain du joueur le plus pauvre (sauf vous).",
+   "rules": "Paiement optionnel de 25. Le plus pauvre hors lanceur ; le lanceur choisit la carte défaussée. Sans payer, rien ne se passe.",
    "image": "POP-24.jpg"
   },
   "POP-25": {
