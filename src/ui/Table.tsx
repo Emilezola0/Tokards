@@ -4,7 +4,7 @@ import * as E from "../game/engine";
 import { act, backToLobby, effect, update } from "../game/room";
 import type { EffectAction, GameState, Room, Vote } from "../game/types";
 import { BLACK_HOLES, setShowWeather } from "../game/types";
-import { isAutomated, previewEffect } from "../effects/runtime";
+import { isAutomated, noPlayReason, previewEffect } from "../effects/runtime";
 import ChoiceModal, { ChoiceDock, onTable, useTablePick } from "./ChoiceModal";
 import FxLayer from "./FxLayer";
 import CardView from "./CardView";
@@ -95,6 +95,36 @@ function useSize(ref: React.RefObject<HTMLElement | null>) {
   return size;
 }
 
+/**
+ * Précharge (en tâche de fond, quand le navigateur est libre) les images de toutes les cartes des decks en jeu :
+ * une carte qui arrive au centre de la table pendant une animation s'affiche tout de suite au lieu d'apparaître vide.
+ */
+const preloaded = new Set<string>();
+function usePreloadImages(decks: (string | null | undefined)[]) {
+  const key = decks.join("|");
+  useEffect(() => {
+    const ids = DECKS.filter((d) => decks.includes(d.name)).flatMap((d) => [...d.cards, ...d.vcs]);
+    const urls = [...new Set(ids.map(cardImage))].filter((u) => !preloaded.has(u));
+    const idle = (cb: () => void) => ("requestIdleCallback" in window ? requestIdleCallback(cb) : setTimeout(cb, 200));
+    let i = 0;
+    let stop = false;
+    // Quelques images à la fois pour ne pas gêner le chargement du reste.
+    const next = () => {
+      if (stop) return;
+      for (const u of urls.slice(i, i + 6)) {
+        preloaded.add(u);
+        const im = new Image();
+        im.decoding = "async";
+        im.src = u;
+      }
+      i += 6;
+      if (i < urls.length) idle(next);
+    };
+    idle(next);
+    return () => void (stop = true);
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
 export default function Table({ room, uid }: { room: Room; uid: string }) {
   const g = room.game!;
   const [openCard, setOpenCard] = useState<string | null>(null);
@@ -141,6 +171,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const tablePick = useTablePick(g, myPrompt, answerPrompt, `${g.pending?.answers.length ?? -1}:${g.pending?.prompt.text ?? ""}`);
 
   useCardFlip(arena, g, fresh);
+  usePreloadImages(decksInPlay);
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
@@ -424,9 +455,9 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       </div>
 
       {err && <p className="toast error" onClick={() => setErr("")}>{err}</p>}
-      {showLog && <Log g={g} room={room} colorOf={colorOf} onClose={() => setShowLog(false)} />}
+      {showLog && <Log g={g} room={room} uid={uid} colorOf={colorOf} onClose={() => setShowLog(false)} />}
 
-      {hover && !openCard && !drag && <HoverCard id={hover.id} x={hover.x} y={hover.y} preview={preview} auto={auto} />}
+      {hover && !openCard && !drag && <HoverCard id={hover.id} x={hover.x} y={hover.y} preview={preview} auto={auto} nameOf={(u) => E.nameOf(room, u)} me={uid} noPlay={auto && me?.hand.includes(hover.id) ? me.cantPlay ?? noPlayReason(g, hover.id) : null} />}
 
       {openCard && (
         <CardModal
@@ -599,11 +630,28 @@ const LOG_KINDS: [RegExp, string, string, string][] = [
 ];
 const logKind = (t: string) => LOG_KINDS.find(([re]) => re.test(t)) ?? null;
 
-function Log({ g, room, colorOf, onClose }: { g: GameState; room: Room; colorOf: (u: string) => string; onClose: () => void }) {
+type LogFilter = "all" | "turn" | "me";
+function Log({ g, room, uid, colorOf, onClose }: { g: GameState; room: Room; uid: string; colorOf: (u: string) => string; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [filter, setFilter] = useState<LogFilter>("all");
   useEffect(() => {
     ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
-  }, [g.log.length]);
+  }, [g.log.length, filter]);
+  // « Ce tour » : depuis la dernière ligne de début de tour. « Me concerne » : mes cartes, ou moi comme acteur ou cible.
+  const lines = useMemo(() => {
+    if (filter === "turn") {
+      let start = 0;
+      g.log.forEach((l, i) => l.text.startsWith("—") && (start = i));
+      return g.log.slice(start);
+    }
+    if (filter === "me") {
+      const name = E.nameOf(room, uid);
+      return g.log.filter(
+        (l) => l.text.startsWith("—") || l.from === uid || l.to === uid || (l.src && g.owner[l.src] === uid) || (l.dst && g.owner[l.dst] === uid) || l.text.includes(name),
+      );
+    }
+    return g.log;
+  }, [g.log, g.owner, filter, room, uid]);
   const who = (u?: string) =>
     u && g.players[u] ? <span className="log-who" style={{ ["--pc" as string]: colorOf(u) }}>{E.nameOf(room, u)}</span> : null;
   return (
@@ -613,8 +661,13 @@ function Log({ g, room, colorOf, onClose }: { g: GameState; room: Room; colorOf:
         <VersionTag />
         <button className="ghost" onClick={onClose}>✕</button>
       </div>
+      <div className="log-filters">
+        {([["all", "Tout"], ["turn", "Ce tour"], ["me", "Me concerne"]] as [LogFilter, string][]).map(([k, label]) => (
+          <button key={k} className={`mini ${filter === k ? "primary" : ""}`} onClick={() => setFilter(k)}>{label}</button>
+        ))}
+      </div>
       <div className="log-body" ref={ref}>
-        {g.log.map((l, i) => {
+        {lines.map((l, i) => {
           const cls = l.text.startsWith("—") ? "log-turn" : l.text.startsWith("🎲") ? "log-dice" : l.dst || (l.to && l.to !== l.from) ? "log-link" : "";
           return (
             <div key={i} className={`log-entry ${cls}`}>

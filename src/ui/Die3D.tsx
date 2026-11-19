@@ -27,6 +27,7 @@ const label = (r: { bh?: boolean; sent?: boolean }, v: number) =>
 export default function Die3D({ roll }: { roll: DieRoll }) {
   const wrap = useRef<HTMLDivElement>(null);
   const cube = useRef<HTMLDivElement>(null);
+  const shadow = useRef<HTMLDivElement>(null);
   // Face avant = résultat ; les autres faces montrent d'autres valeurs.
   const faces = useMemo(() => {
     const others: number[] = [];
@@ -38,7 +39,8 @@ export default function Die3D({ roll }: { roll: DieRoll }) {
   useEffect(() => {
     const w = wrap.current;
     const c = cube.current;
-    if (!w || !c) return;
+    const sh = shadow.current;
+    if (!w || !c || !sh) return;
     const { from, to, dur } = roll;
     const dx = to.x - from.x;
     const dy = to.y - from.y;
@@ -46,20 +48,24 @@ export default function Die3D({ roll }: { roll: DieRoll }) {
     const pts = [
       [0, 0, 0.5], [0.45, -0.25, 1.1], [0.7, 0, 1], [0.82, -0.08, 1.04], [0.92, 0, 1], [0.97, -0.02, 1], [1, 0, 1],
     ];
-    w.animate(
-      pts.map(([k, up, s]) => ({ transform: `translate(${from.x + dx * k}px, ${from.y + dy * k + up * 180}px) scale(${s})` })),
-      { duration: dur, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" },
-    );
+    const opts = { duration: dur, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" as const };
+    const anims = [
+      w.animate(pts.map(([k, up, s]) => ({ transform: `translate3d(${from.x + dx * k}px, ${from.y + dy * k + up * 180}px, 0) scale(${s})` })), opts),
+      // L'ombre reste au sol : elle suit la même course sans monter, et rétrécit quand le dé est haut.
+      sh.animate(pts.map(([k, up]) => ({ transform: `translate3d(${from.x + dx * k}px, ${from.y + dy * k + 34}px, 0) scale(${1 + up * 1.6})`, opacity: 0.8 + up * 2 })), opts),
+    ];
     const spinX = 360 * (3 + Math.floor(Math.random() * 2));
     const spinY = 360 * (2 + Math.floor(Math.random() * 2));
-    c.animate(
+    anims.push(c.animate(
       [
         { transform: `rotateX(${Math.random() * 360}deg) rotateY(${Math.random() * 360}deg) rotateZ(20deg)` },
         { transform: `rotateX(${spinX + 25}deg) rotateY(${spinY - 30}deg) rotateZ(-10deg)`, offset: 0.8 },
         { transform: `rotateX(${spinX}deg) rotateY(${spinY}deg) rotateZ(0deg)` },
       ],
       { duration: dur, easing: "cubic-bezier(.15,.6,.25,1)", fill: "forwards" },
-    );
+    ));
+    // Démontage (fin du lancer ou effet interrompu) : on libère les animations 3D, sinon le navigateur peut garder des traces à l'écran.
+    return () => anims.forEach((a) => a.cancel());
   }, [roll.key]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const result = roll.bh
@@ -67,15 +73,20 @@ export default function Die3D({ roll }: { roll: DieRoll }) {
     : roll.sent ? `🧠 ${roll.value === 1 ? "Vraie" : "Fausse"}` : String(roll.value);
   return (
     <div className="die3d-layer">
-      <div ref={wrap} className="die3d-pos" style={{ transform: `translate(${roll.from.x}px, ${roll.from.y}px)` }}>
-        <div className="die3d-shadow" />
+      <div ref={shadow} className="die3d-shadow" style={{ transform: `translate3d(${roll.from.x}px, ${roll.from.y + 34}px, 0)` }} />
+      <div ref={wrap} className="die3d-pos" style={{ transform: `translate3d(${roll.from.x}px, ${roll.from.y}px, 0)` }}>
         <div ref={cube} className={`die3d ${roll.bh ? "bh" : ""} ${roll.sent ? "sent" : ""}`} style={{ ["--pc" as string]: roll.color }}>
+          {/* Noyau opaque : bouche les coins arrondis des faces (sinon on voit à travers le cube). */}
+          <span className="die3d-core" />
+          <span className="die3d-core" style={{ transform: "rotateY(90deg)" }} />
+          <span className="die3d-core" style={{ transform: "rotateX(90deg)" }} />
           {faces.map((v, i) => (
             <span key={i} className={`die3d-face ${i === 0 ? "front" : ""}`} style={{ transform: `${FACE_POS[i]} translateZ(32px)` }}>
               {label(roll, v)}
             </span>
           ))}
         </div>
+        {roll.landed && <span className="die3d-impact" style={{ ["--pc" as string]: roll.color }} />}
         {roll.landed && (
           <div className="die3d-result" style={{ color: roll.color }}>
             <span className="die3d-who">{roll.who} · {roll.bh ? "dé trou noir" : roll.sent ? "dé de sentience" : `d${roll.faces}`}</span>

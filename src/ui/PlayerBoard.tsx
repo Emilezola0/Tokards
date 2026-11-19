@@ -3,7 +3,7 @@ import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
 import { showWeather, weatherIcon, weatherLabel } from "../game/types";
-import { isAutomated, type Preview, chainOf } from "../effects/runtime";
+import { isAutomated, noPlayReason, type Preview, chainOf } from "../effects/runtime";
 import { vcProgress } from "../game/victory";
 import CardView, { CardBack } from "./CardView";
 import { useFx } from "./fxStore";
@@ -122,6 +122,8 @@ export default function PlayerBoard(p: Props) {
   const fits = n * HAND_CARD + (n - 1) * 6 <= HAND_W;
   const overlap = fits || n < 2 ? 6 : (HAND_W - n * HAND_CARD) / (n - 1);
   const dropping = !!moving && p.canDropHere;
+  // Pourquoi une carte de ma main ne peut pas être posée (effets automatiques seulement).
+  const whyNot = (id: string): string | null => (auto ? st.cantPlay ?? noPlayReason(g, id) : null);
   const tgt = (k: keyof Preview, v: string) => !!preview && (preview[k] as string[] | undefined)?.includes(v);
   const vc = st.personalVC;
   const prog = vc ? vcProgress(room, g, vc, owner) : null;
@@ -287,6 +289,7 @@ export default function PlayerBoard(p: Props) {
                     size="s"
                     target={tgt("cards", id)}
                     selected={moving?.id === id}
+                    noPlay={owner === uid ? whyNot(id) : null}
                     draggable={p.canDragHand}
                     onDragStart={drag({ id, from: "hand" })}
                     onDragEnd={p.onDragEnd}
@@ -348,7 +351,7 @@ export default function PlayerBoard(p: Props) {
         </button>
         {vc && !st.personalDone && (
           <button
-            className="vc-chip"
+            className={`vc-chip ${prog && prog.ratio >= 0.75 ? "near" : ""}`}
             data-vc={owner}
             onClick={() => p.onCard(vc)}
             onMouseEnter={(e) => p.onHover(vc, e)}
@@ -358,7 +361,7 @@ export default function PlayerBoard(p: Props) {
             <span className="vc-line">
               <span className="vc-flag">🏁</span>
               <span className="vc-name">{card(vc).name}</span>
-              {prog && <span className="vc-pct">{Math.round(prog.ratio * 100)}%</span>}
+              {prog && <span className="vc-pct">{prog.ratio >= 0.75 && <span title="Proche de remplir sa condition">🔥 </span>}{Math.round(prog.ratio * 100)}%</span>}
             </span>
             {prog && <Gauge ratio={prog.ratio} />}
             {prog && <span className="vc-text">{prog.text}</span>}
@@ -380,11 +383,12 @@ export default function PlayerBoard(p: Props) {
             </div>
             <div className="hand-grid-cards" onClick={() => setHandOpen(false)}>
               {st.hand.map((id) => (
+                <span key={id} className="hand-grid-item">
                 <CardView
-                  key={id}
                   id={id}
                   size="m"
                   ghost
+                  noPlay={owner === uid ? whyNot(id) : null}
                   draggable={p.canDragHand}
                   onDragStart={drag({ id, from: "hand" })}
                   onDragEnd={p.onDragEnd}
@@ -393,6 +397,8 @@ export default function PlayerBoard(p: Props) {
                     p.onCard(id);
                   }}
                 />
+                {owner === uid && whyNot(id) && <span className="noplay-why">🚫 {whyNot(id)}</span>}
+                </span>
               ))}
             </div>
             <p className="small muted">Clique une carte pour la choisir, ou glisse-la sur ton terrain.</p>

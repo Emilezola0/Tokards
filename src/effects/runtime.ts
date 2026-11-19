@@ -1304,6 +1304,10 @@ export type Preview = {
   sentience: string[];
   bh: string[];
   players: string[];
+  /** Bilan chiffré par joueur (gold gagnés ou perdus, 🧠 et 🌀 qui changent). */
+  summary?: { uid: string; gold: number; sent?: boolean; bh?: string }[];
+  /** Le résultat dépend d'un choix ou d'un dé : le bilan n'est qu'un exemple. */
+  uncertain?: boolean;
 };
 
 /**
@@ -1359,6 +1363,19 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
     if (p.kind === "player") p.options.forEach((u) => add(out.players, u));
     if (p.kind === "cards" && !p.blind) p.options.forEach((c) => add(out.cards, c));
     if (p.kind === "order") p.options.forEach((c) => add(out.cards, c));
+  }
+  // Bilan chiffré : état simulé comparé à l'état réel.
+  if (out.ok) {
+    out.summary = [];
+    for (const [uid, p] of Object.entries(g.players)) {
+      const b = before.players[uid];
+      if (!b) continue;
+      const row: { uid: string; gold: number; sent?: boolean; bh?: string } = { uid, gold: p.gold - b.gold };
+      if (p.sentience !== b.sentience) row.sent = p.sentience;
+      if (p.blackHole !== b.blackHole) row.bh = p.blackHole;
+      if (row.gold || row.sent !== undefined || row.bh) out.summary.push(row);
+    }
+    out.uncertain = x.preview.length > 0 || (g.fx ?? []).some((f) => f.id > fxStart && f.k === "dice");
   }
   return out;
 }

@@ -29,4 +29,16 @@ export default defineConfig({
   plugins: [react(), versionFile()],
   define: { __APP_VERSION__: JSON.stringify(VERSION) },
   server: { port: 5173 },
+  build: {
+    rollupOptions: {
+      output: {
+        // Firebase et React changent rarement : dans leurs propres fichiers, le navigateur les garde en cache
+        // d'une version du site à l'autre et ne retélécharge que le code du jeu.
+        manualChunks(id) {
+          if (id.includes("node_modules/firebase") || id.includes("node_modules/@firebase")) return "firebase";
+          if (id.includes("node_modules/react") || id.includes("node_modules/scheduler")) return "react";
+        },
+      },
+    },
+  },
 });

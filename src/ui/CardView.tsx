@@ -54,6 +54,8 @@ type Props = {
   extraSent?: boolean;
   /** déplacement bloqué : chaînes qui la lient au sol (texte = raison) */
   chained?: string;
+  /** carte en main qu'on ne peut pas poser maintenant (texte = raison) */
+  noPlay?: string | null;
 };
 
 /** Maillons d'une chaîne entre deux points (repère 0-100 × 0-150 de la carte). */
@@ -110,7 +112,7 @@ export function CardBack({ deck, size = "m", selected, onClick, id, count }: {
 }
 
 export default function CardView(p: Props) {
-  const { id, hidden, size = "m", highlight, target, selected, done, auto, onClick, badge, ghost, spent, store, locked, disabled, under, extraSent, chained } = p;
+  const { id, hidden, size = "m", highlight, target, selected, done, auto, onClick, badge, ghost, spent, store, locked, disabled, under, extraSent, chained, noPlay } = p;
   const recharged = useRecharge(!!spent);
   if (hidden || !id) return <CardBack id={ghost ? undefined : id} deck={p.deck} size={size} selected={selected} onClick={onClick} />;
   const c = card(id);
@@ -119,7 +121,7 @@ export default function CardView(p: Props) {
     <button
       type="button"
       data-card={ghost ? undefined : id}
-      className={`card ${size} ${c.kind === "victory" ? "victory" : ""} ${highlight ? "highlight" : ""} ${target ? "target" : ""} ${selected ? "selected" : ""} ${done ? "done" : ""} ${c.trigger === "Passif" ? "passive" : ""} ${spent ? "spent" : ""} ${recharged ? "recharged" : ""} ${locked ? "locked" : ""} ${disabled ? "disabled" : ""} ${under?.length ? "has-under" : ""} ${chained ? "chained" : ""}`}
+      className={`card ${size} ${c.kind === "victory" ? "victory" : ""} ${highlight ? "highlight" : ""} ${target ? "target" : ""} ${selected ? "selected" : ""} ${done ? "done" : ""} ${c.trigger === "Passif" ? "passive" : ""} ${spent ? "spent" : ""} ${recharged ? "recharged" : ""} ${locked ? "locked" : ""} ${disabled ? "disabled" : ""} ${under?.length ? "has-under" : ""} ${chained ? "chained" : ""} ${noPlay ? "unplayable" : ""}`}
       onClick={onClick}
       draggable={p.draggable}
       onDragStart={p.onDragStart}
@@ -139,6 +141,7 @@ export default function CardView(p: Props) {
       {locked && <span className="card-lock">🔒</span>}
       {disabled && <span className="card-disabled" title="Désactivée : son effet et ses passifs ne fonctionnent pas">⛔</span>}
       {chained && <Chains why={chained} />}
+      {noPlay && <span className="card-noplay" title={`Impossible à poser : ${noPlay}`}>🚫</span>}
       {!!under?.length && (
         <span className="card-under" title={`Dessous : ${under.map((u) => card(u).name).join(", ")}`}>
           ⤵ {under.length}

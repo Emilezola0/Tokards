@@ -17,6 +17,7 @@ const done = (a: Animation) => {
   return Promise.race([a.finished.then(() => undefined, () => undefined), wait(ms + 250)]);
 };
 const EASE = "cubic-bezier(.25,.8,.3,1)";
+const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const CW = 200;
 const CH = 300;
 
@@ -119,6 +120,63 @@ function arrow(from: Pt, to: Pt, color: string, speed: number) {
   return done(a);
 }
 
+/** Onde lumineuse qui part d'un point (activation, gros gain, trou noir…). */
+function ring(at: Pt | null, color: string, size = 220, cls = "") {
+  if (!at || reduced()) return;
+  const el = document.createElement("div");
+  el.className = `fx-ring ${cls}`;
+  el.style.left = `${at.x}px`;
+  el.style.top = `${at.y}px`;
+  el.style.width = el.style.height = `${size}px`;
+  el.style.setProperty("--pc", color);
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+/** Pluie de confettis aux couleurs du joueur (condition remplie). */
+function confetti(color: string, n = 70) {
+  if (reduced()) return;
+  const colors = [color, "#ffcf5a", "#ffffff", color, "#b39cff"];
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement("div");
+    el.className = "fx-confetti";
+    el.style.background = colors[i % colors.length];
+    el.style.left = `${Math.random() * innerWidth}px`;
+    document.body.appendChild(el);
+    const drift = (Math.random() - 0.5) * 240;
+    const a = el.animate(
+      [
+        { transform: `translate(0, -20px) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${drift}px, ${innerHeight + 40}px) rotate(${(Math.random() - 0.5) * 1440}deg)`, opacity: 0.9 },
+      ],
+      { duration: 2200 + Math.random() * 1600, delay: Math.random() * 600, easing: "cubic-bezier(.3,.1,.6,1)", fill: "both" },
+    );
+    void done(a).then(() => el.remove());
+  }
+}
+
+/** Étincelles qui jaillissent d'un point. */
+function sparks(at: Pt | null, color: string, n = 10) {
+  if (!at || reduced()) return;
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement("div");
+    el.className = "fx-spark";
+    el.style.background = color;
+    el.style.boxShadow = `0 0 8px ${color}`;
+    document.body.appendChild(el);
+    const ang = (i / n) * Math.PI * 2 + Math.random() * 0.5;
+    const d = 40 + Math.random() * 50;
+    const a = el.animate(
+      [
+        { transform: `translate(${at.x}px, ${at.y}px) scale(1)`, opacity: 1 },
+        { transform: `translate(${at.x + Math.cos(ang) * d}px, ${at.y + Math.sin(ang) * d}px) scale(0.2)`, opacity: 0 },
+      ],
+      { duration: 520 + Math.random() * 200, easing: "cubic-bezier(.2,.8,.4,1)", fill: "both" },
+    );
+    void done(a).then(() => el.remove());
+  }
+}
+
 /** Petite bulle de résumé posée sur le plateau, près de la carte touchée. */
 function bubble(at: Pt | null, text: string, color: string) {
   if (!at) return;
@@ -219,6 +277,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
           else await step(f, speed);
         } catch (e) {
           console.warn("[fx]", f.k, e);
+          setDie(null);
           dropCenter();
         }
       }
@@ -309,6 +368,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         await hideCenter(speed);
         if (f.uid !== me) sfx.turn();
         setTurn({ name: E.nameOf(room, f.uid), color: colorOf(f.uid), key: f.id, mine: f.uid === me });
+        flash(q(`[data-board="${css(f.uid)}"]`), "fx-board-turn", 1600);
         await wait(1500 * Math.max(speed, 0.6));
         setTurn(null);
         break;
@@ -319,6 +379,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         sfx.activate();
         playVoice(f.card);
         if (el) flash(el, "glow", 900);
+        ring(centerPoint(), colorOf(f.uid), 300);
         await wait(380 * speed);
         break;
       }
@@ -357,6 +418,8 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         const cur = fxStore.get().held[f.uid]?.gold;
         if (cur !== undefined) fxStore.hold(f.uid, { gold: cur + f.delta });
         flash(odo, f.delta > 0 ? "fx-bump-up" : "fx-bump-down", 600);
+        if (f.delta > 0) sparks(target, "#ffcf5a", Math.min(16, 6 + f.delta / 3));
+        if (Math.abs(f.delta) >= 20) ring(target, f.delta > 0 ? "#ffcf5a" : "#ff6b8a", 160);
         floatText(target, `${f.delta > 0 ? "+" : "−"}${Math.abs(f.delta)} 💰`, f.delta > 0 ? "up" : "down");
         await wait(120 * speed);
         break;
@@ -371,6 +434,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         else await burst(at, from, "🧠", 1, speed);
         fxStore.hold(f.uid, { sentience: f.v });
         flash(el, "fx-pulse", 700);
+        sparks(at, f.v ? "#8fe0b4" : "#ff6b8a", 8);
         floatText(mid(el), f.v ? "🧠 Vraie" : "🧠 Fausse", f.v ? "up" : "down");
         await wait(200 * speed);
         break;
@@ -383,6 +447,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         await burst(from, at, "🌀", 1, speed);
         fxStore.hold(f.uid, { bh: f.to });
         flash(el, "fx-swirl", 900);
+        ring(at, "#9b7bff", 140, "vortex");
         floatText(mid(el), `🌀 ${f.to}`, "bh");
         await wait(300 * speed);
         break;
@@ -406,11 +471,15 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         sfx.dice();
         const roll: DieRoll = { key: f.id, faces: f.faces, value: f.value, bh: f.bh, sent: f.sent, who: E.nameOf(room, f.uid), color: colorOf(f.uid), from, to, dur, landed: false };
         setDie(roll);
-        await wait(dur);
-        sfx.drop();
-        setDie({ ...roll, landed: true });
-        await wait(1300 * Math.max(speed, 0.6));
-        setDie(null);
+        try {
+          await wait(dur);
+          sfx.drop();
+          setDie({ ...roll, landed: true });
+          await wait(1300 * Math.max(speed, 0.6));
+        } finally {
+          // Toujours retirer le dé, même si l'effet est interrompu : sinon il reste figé à l'écran.
+          setDie(null);
+        }
         break;
       }
       case "vc": {
@@ -491,6 +560,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         const common = f.card === gRef.current.commonVC;
         sfx.victory();
         setWin({ name: E.nameOf(room, f.uid), card: f.card, color: colorOf(f.uid), key: f.id, common });
+        confetti(colorOf(f.uid));
         await wait(3200);
         setWin(null);
         flash(q(`[data-vc="${css(common ? "common" : f.uid)}"]`), "fx-pulse", 900);
@@ -512,6 +582,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         sfx.link();
         if (from && to) await arrow(from, to, color, speed);
         if (dest) flash(dest, "fx-linked", 1400);
+        sparks(to, color, 8);
         bubble(to, `${card(f.from).name} → ${f.text}${f.toUid ? ` · ${E.nameOf(room, f.toUid)}` : ""}`, color);
         await wait(350 * speed);
         break;
