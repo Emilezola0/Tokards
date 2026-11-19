@@ -1,5 +1,5 @@
 import type { DragEvent, MouseEvent } from "react";
-import { PLACEHOLDER, card, cardImage, deckBack, tagIcons } from "../data/cards";
+import { PLACEHOLDER, card, cardImage, claudeMark, deckBack, tagIcons } from "../data/cards";
 import { deckColor } from "./pose";
 import { useEffect, useRef, useState } from "react";
 
@@ -114,6 +114,7 @@ export default function CardView(p: Props) {
   const recharged = useRecharge(!!spent);
   if (hidden || !id) return <CardBack id={ghost ? undefined : id} deck={p.deck} size={size} selected={selected} onClick={onClick} />;
   const c = card(id);
+  const mark = claudeMark(c);
   return (
     <button
       type="button"
@@ -131,6 +132,7 @@ export default function CardView(p: Props) {
       {badge && <span className="card-badge">{badge}</span>}
       {auto && <span className="card-auto" title="Effet automatique">⚙</span>}
       {c.trigger === "Passif" && <span className="card-passive" title={`Passif : ${c.event}`}>✨</span>}
+      {mark && <span className="card-claude" title={mark.label}>{mark.icon}</span>}
       <span className="card-name">{c.name}</span>
       {spent && <span className="card-spent" title="Effet déjà joué : se recharge au prochain tour de son joueur">✓</span>}
       {!!store && <span className="card-store" title="Gold stockés sur cette carte">💰 {store}</span>}

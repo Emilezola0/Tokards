@@ -498,7 +498,8 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       }
       case "link": {
         // Une carte agit sur une autre : flèche de la carte source vers la carte touchée.
-        playVoice(f.to, 0.7);
+        // La carte qui subit parle une octave plus bas (hauteur divisée par deux).
+        playVoice(f.to, 0.7, 0.5);
         const fromCenter = centerCard.current?.id === f.from;
         const from = fromCenter ? { x: center().cx, y: center().cy } : mid(q(`.arena [data-card="${css(f.from)}"]`));
         let dest = q(`.arena [data-card="${css(f.to)}"]`);

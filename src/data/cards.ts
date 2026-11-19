@@ -15,6 +15,8 @@ export type CardDef = {
   /** colonne « Précisions (règles) » du tableau */
   rules?: string;
   image: string;
+  /** colonne « Changé par Claude » : « ✏️ Modifiée v… » ou « 🆕 Ajoutée v… » (vide sinon) */
+  claude?: string;
 };
 export type DeckDef = {
   name: string;
@@ -43,6 +45,15 @@ export const BASE_DECK = "BASE";
 /** Decks qu'un joueur peut choisir : complets et marqués « Dans le jeu ». */
 export const PLAYABLE_DECKS = DECKS.filter((d) => d.inGame && d.name !== BASE_DECK);
 export const BASE_VCS = DECKS.find((d) => d.name === BASE_DECK)?.vcs ?? [];
+
+/** Logo des cartes changées ou ajoutées par Claude (null si la carte est d'origine). */
+export function claudeMark(c: CardDef): { icon: string; label: string } | null {
+  if (!c.claude) return null;
+  const added = c.claude.includes("Ajout");
+  const what = c.claude.replace(/^\S+\s*/, "").replace(/^(Modifiée|Ajoutée)/, "$1 par Claude");
+  const undo = added ? "nouvelle carte, à retirer de l'Excel pour revenir en arrière" : "ancienne version dans l'Excel (« Avant le changement »)";
+  return { icon: added ? "🆕" : "✏️", label: `${what} — ${undo}` };
+}
 
 export function card(id: string): CardDef {
   return (

@@ -266,8 +266,10 @@ export const EMILE: Record<string, CardScript> = {
         x.log(`Quasar : aspire les gold de ${x.name(right)}.`);
         x.transfer(right, me, x.p(right).gold);
       } else if (bh === P) {
-        x.log("Primordial : tu perds tous tes gold.");
-        x.lose(me, x.p(me).gold);
+        // v0.23 : la moitié (arrondie à l'inférieur) au lieu de tout.
+        const half = Math.floor(Math.max(0, x.p(me).gold) / 2);
+        x.log(`Primordial : tu perds la moitié de tes gold (${half}).`);
+        x.lose(me, half);
       } else if (bh === T) {
         x.g.aspire = { uid: me, until: E.pos(x.g) + 2 };
         x.log("🌪 Trou de ver : pendant 3 tours (celui-ci compris), tous les gold gagnés par les autres sont aspirés par toi.");
@@ -362,7 +364,20 @@ export const EMILE: Record<string, CardScript> = {
   "EMI-13": {
     activate: (x, { id, me }) => {
       const all = x.p(me).blackHole === P;
-      for (const u of all ? x.turnOrder() : [me]) if (x.p(u).gold > 0) x.gain(u, x.p(u).gold);
+      // v0.23 : les gold ne sont doublés qu'une fois par joueur tant qu'ADS reste sur un terrain (pas de cumul).
+      const key = `${id}:x`;
+      const stamp = String(x.g.born?.[id] ?? -1);
+      const [st, list] = (x.g.marks?.[key] ?? "").split("|");
+      const done = st === stamp && list ? list.split(",") : [];
+      for (const u of all ? x.turnOrder() : [me]) {
+        if (done.includes(u)) {
+          x.log(`📺 ADS : les gold de ${x.name(u)} ont déjà été doublés.`);
+          continue;
+        }
+        done.push(u);
+        if (x.p(u).gold > 0) x.gain(u, x.p(u).gold);
+      }
+      setMark(x, key, `${stamp}|${done.join(",")}`);
       setMark(x, id, all ? "all" : null);
       x.log(all ? "📺 ADS (Primordial) : l'argent et les coûts de tout le monde sont doublés." : "📺 ADS : ton argent et tes coûts sont doublés.");
     },
@@ -412,9 +427,9 @@ export const EMILE: Record<string, CardScript> = {
   // Octogone : 50 gold pour changer de trou noir, puis une chance sur deux de rejouer la carte
   "EMI-16": {
     activate: (x, { id, me }) => {
-      if (!x.spend(me, 50)) return false;
+      if (!x.spend(me, 20)) return false;
       x.setBlackHole(me, x.chooseBlackHole(me, "Octogone : nouveau trou noir ?", x.p(me).blackHole, id));
-      if (x.dice(me, 2) === 1 && x.canPay(me, 50) && x.confirm(me, "Octogone : rejouer la carte (50 gold) ?", id)) x.activateCard(id, me);
+      if (x.dice(me, 2) === 1 && x.canPay(me, 20) && x.confirm(me, "Octogone : rejouer la carte (20 gold) ?", id)) x.activateCard(id, me);
     },
   },
 
@@ -514,10 +529,16 @@ export const EMILE: Record<string, CardScript> = {
         return t.sentience === t0.sentience && t.gold === t0.gold && t.blackHole === t0.blackHole;
       };
       const holder = E.locate(x.g, id)?.uid ?? me;
-      const pool = playable(x, x.p(holder).terrain.filter((c) => c !== id && same(c)));
+      const twins = x.p(holder).terrain.filter((c) => c !== id && same(c));
+      const pool = playable(x, twins);
       const c = x.chooseCard(me, "Ding Dong : quel effet copier ?", pool, id);
       if (!c) {
-        x.reason = "Aucune carte de ce terrain n'a les mêmes tags (🧠💰🌀).";
+        const icons = `${t0.sentience ? "🧠" : ""}${t0.gold ? "💰" : ""}${t0.blackHole ? "🌀" : ""}` || "aucun tag";
+        const names = twins.map((t) => `« ${card(t).name} »`).join(", ");
+        // Une carte passive n'a pas d'effet d'activation à copier ; une carte désactivée ne se joue pas.
+        x.reason = !twins.length
+          ? `Aucune autre carte de ce terrain n'a exactement les mêmes tags (${icons}).`
+          : `${names} : mêmes tags, mais rien à copier (carte passive sans effet d'activation, ou désactivée).`;
         return false;
       }
       x.activateCard(c, me);

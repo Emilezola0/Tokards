@@ -222,7 +222,6 @@ function beginTurn(room: Room, g: GameState) {
   g.actionsLeft = 1;
   const s = st(p);
   s.bhTurn = 0;
-  s.gainSinceBH = null;
   s.failed = 0; // « Inhibition toxique » se vérifie sur un seul tour
   s.spentTurn = 0;
   s.lostTurn = 0;

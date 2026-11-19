@@ -45,8 +45,11 @@ function drop(p: (typeof playing)[number]) {
   if (i >= 0) playing.splice(i, 1);
 }
 
-/** Joue la voiceline de la carte `id` (rien si elle n'en a pas). `gain` : 0 à 1, relatif au curseur. */
-export function playVoice(id: string, gain = 1) {
+/**
+ * Joue la voiceline de la carte `id` (rien si elle n'en a pas). `gain` : 0 à 1, relatif au curseur.
+ * `rate` : vitesse de lecture ; 0.5 = voix une octave plus grave (carte qui subit un effet).
+ */
+export function playVoice(id: string, gain = 1, rate = 1) {
   const url = URLS[id];
   if (!url || isMuted() || !volume || document.hidden) return;
   if (playing.length >= MAX) {
@@ -57,6 +60,11 @@ export function playVoice(id: string, gain = 1) {
   const el = new Audio(url);
   const p = { el, at: performance.now(), gain };
   el.volume = gain * volume;
+  if (rate !== 1) {
+    // La hauteur suit la vitesse (sinon le navigateur garde la même hauteur).
+    el.preservesPitch = false;
+    el.playbackRate = rate;
+  }
   el.onended = () => drop(p);
   el.onerror = () => drop(p);
   playing.push(p);

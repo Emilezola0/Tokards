@@ -50,7 +50,7 @@ export const POPO: Record<string, CardScript> = {
     activate: (x, { me }) => {
       const n = x.p(me).terrain.filter(isGold).length;
       if (!n) return false;
-      x.gain(me, 10 * n);
+      x.gain(me, 5 * n);
     },
   },
 
@@ -324,7 +324,7 @@ export const POPO: Record<string, CardScript> = {
     activate: (x) => {
       const o = x.order;
       if (o.length < 2 || longestRun(o, x.isBlazard) < o.length - 1) return false;
-      for (const u of x.turnOrder().filter(x.isBlazard)) x.gain(u, 200);
+      for (const u of x.turnOrder().filter(x.isBlazard)) x.gain(u, 100);
     },
   },
 

@@ -52,22 +52,22 @@ function statesInWindow(hist: { pos: number; bh: BlackHole }[], from: number, N:
 }
 
 const CHECKS: Record<string, (c: C) => Progress> = {
-  // Conquête de l'espace : 3 🌀 et 3 🧠 sur le terrain à la fin de son tour (une carte 🧠🌀 compte des deux côtés)
+  // Conquête de l'espace : 4 🌀 et 4 🧠 sur le terrain à la fin de son tour (une carte 🧠🌀 compte des deux côtés)
   "VC-GOB-1": ({ p, g, turnEnd }) => {
     const b = count(p.terrain, (id) => E.tagsOf(g, id).blackHole);
     const s = count(p.terrain, (id) => E.tagsOf(g, id).sentience);
     return {
-      ratio: (Math.min(b, 3) + Math.min(s, 3)) / 6, text: `🌀 ${Math.min(b, 3)}/3 · 🧠 ${Math.min(s, 3)}/3 (fin du tour)`,
-      done: turnEnd && b >= 3 && s >= 3, endOfTurn: true,
+      ratio: (Math.min(b, 4) + Math.min(s, 4)) / 8, text: `🌀 ${Math.min(b, 4)}/4 · 🧠 ${Math.min(s, 4)}/4 (fin du tour)`,
+      done: turnEnd && b >= 4 && s >= 4, endOfTurn: true,
     };
   },
-  "VC-GOB-2": ({ s }) => frac(s.spent ?? 0, 250, "Gold dépensés"),
-  // Astrophysicienne : 50 gold gagnés entre deux changements de son trou noir pendant son tour
-  "VC-GOB-3": ({ s, g, uid }) => {
-    if (s.bhGainHit) return { ratio: 1, text: "50 gold gagnés entre deux changements", done: true };
-    const mine = E.currentPlayer(g) === uid;
-    if (!mine || s.gainSinceBH == null) return { ratio: 0, text: "Change ton trou noir pendant ton tour pour lancer le compteur", done: false };
-    return { ...frac(s.gainSinceBH, 50, "Gold depuis le dernier changement :"), done: false };
+  // Dette public : 150 gold dépensés ou donnés à d'autres joueurs
+  "VC-GOB-2": ({ s }) => frac((s.spent ?? 0) + (s.given ?? 0), 150, "Gold dépensés ou donnés :"),
+  // Astrophysicienne : 30 gold gagnés entre deux changements de son trou noir (même sur plusieurs tours)
+  "VC-GOB-3": ({ s }) => {
+    if (s.bhGainHit) return { ratio: 1, text: "30 gold gagnés entre deux changements", done: true };
+    if (s.gainSinceBH == null) return { ratio: 0, text: "Change ton trou noir pour lancer le compteur", done: false };
+    return { ...frac(s.gainSinceBH, 30, "Gold depuis le dernier changement :"), done: false };
   },
   // The Word : validé par le vote des autres joueurs
   "VC-EMI-1": ({ p }) => {
@@ -90,18 +90,18 @@ const CHECKS: Record<string, (c: C) => Progress> = {
     const v = [t.s.length, t.g.length, t.b.length].map((x) => Math.min(x, 3));
     return { ratio: (v[0] + v[1] + v[2]) / 9, text: `🧠 ${v[0]}/3 · 💰 ${v[1]}/3 · 🌀 ${v[2]}/3`, done: v.every((x) => x >= 3) };
   },
-  "VC-POP-1": ({ s }) => frac(s.interOthers ?? 0, 66, "Interactions avec d'autres joueurs :"),
+  "VC-POP-1": ({ s }) => frac(s.interOthers ?? 0, 30, "Interactions avec d'autres joueurs :"),
   "VC-POP-2": ({ g, all }) => frac(count(all, (u) => g.players[u].blackHole === "Blazard"), all.length, "Joueurs en Blazard :"),
-  "VC-POP-3": ({ s }) => frac(s.goldMoved ?? 0, 500, "Gold échangés entre joueurs :"),
+  "VC-POP-3": ({ s }) => frac(s.goldMoved ?? 0, 200, "Gold échangés entre joueurs :"),
   "VC-MET-1": ({ s, g, uid }) => {
     const v = E.currentPlayer(g) === uid ? s.bhTurn ?? 0 : 0;
-    return frac(v, 4, "Changements de trou noir ce tour :");
+    return frac(v, 3, "Changements de trou noir ce tour :");
   },
   "VC-MET-2": ({ p }) => {
     const w = p.blackHole === "Trou de ver";
     return {
-      ratio: (Math.min(p.gold, 250) / 250 + (w ? 1 : 0)) / 2, done: w && p.gold >= 250,
-      text: `💰 ${Math.min(p.gold, 250)}/250 · ${w ? "✔" : "✖"} Trou de ver`,
+      ratio: (Math.min(p.gold, 150) / 150 + (w ? 1 : 0)) / 2, done: w && p.gold >= 150,
+      text: `💰 ${Math.min(p.gold, 150)}/150 · ${w ? "✔" : "✖"} Trou de ver`,
     };
   },
   // Cent Temps : 20 de ses tours, −1 par tranche de 50 gold possédés
@@ -110,15 +110,15 @@ const CHECKS: Record<string, (c: C) => Progress> = {
     const v = s.turnsPlayed ?? 0;
     return { ratio: need ? clamp(v / need) : 1, text: `Tours joués ${v}/${need} (−1 par 50 gold)`, done: v >= need };
   },
-  // Marchandise amphibienne : dépenser 50 gold et en gagner 50 pendant un même tour
+  // Marchandise amphibienne : perdre 30 gold et en gagner 30 pendant un même tour
   "VC-GRE-1": ({ s, p, g, uid }) => {
     const mine = E.currentPlayer(g) === uid;
     // Gold sortis : dépensés, perdus ou volés (tout ce qui retire des gold compte).
     const sp = mine ? s.lostTurn ?? 0 : 0;
     const ga = mine ? p.goldGainedSince ?? 0 : 0;
     return {
-      ratio: (Math.min(sp, 50) + Math.min(ga, 50)) / 100, done: sp >= 50 && ga >= 50,
-      text: mine ? `Ce tour : sortis ${Math.min(sp, 50)}/50 · gagnés ${Math.min(ga, 50)}/50` : "Se joue pendant ton tour",
+      ratio: (Math.min(sp, 30) + Math.min(ga, 30)) / 60, done: sp >= 30 && ga >= 30,
+      text: mine ? `Ce tour : sortis ${Math.min(sp, 30)}/30 · gagnés ${Math.min(ga, 30)}/30` : "Se joue pendant ton tour",
     };
   },
   // Frog TV : sentience fausse et gold impairs à la fin de son tour
@@ -130,31 +130,35 @@ const CHECKS: Record<string, (c: C) => Progress> = {
       text: `${a ? "✔" : "✖"} sentience fausse · ${b ? "✔" : "✖"} gold impairs (fin du tour)`,
     };
   },
-  // Coffre vide : 10 cartes de sa main défaussées
-  "VC-PIR-1": ({ s }) => frac(s.handDisc ?? 0, 10, "Cartes de ta main défaussées :"),
+  // Coffre vide : 7 cartes de sa main défaussées
+  "VC-PIR-1": ({ s }) => frac(s.handDisc ?? 0, 7, "Cartes de ta main défaussées :"),
   // Bateau vide : plus de 100 gold et au moins une carte de son terrain défaussée
   "VC-PIR-2": ({ p, s }) => {
     const a = p.gold > 100;
     const b = (s.terrDisc ?? 0) >= 1;
     return { ratio: ((a ? 1 : 0) + (b ? 1 : 0)) / 2, done: a && b, text: `${a ? "✔" : "✖"} plus de 100 gold · ${b ? "✔" : "✖"} carte du terrain défaussée` };
   },
-  // Équipage au complet : 4 cartes 🧠 sur le terrain, une sur le dessus de la défausse et une en main
+  // Équipage au complet : 3 cartes 🧠 sur le terrain, une sur le dessus de la défausse et une en main
   "VC-PIR-3": ({ g, p }) => {
     const sent = (id: string) => E.tagsOf(g, id).sentience;
-    const t = Math.min(4, count(p.terrain, sent));
+    const t = Math.min(3, count(p.terrain, sent));
     const d = p.discard[0] && sent(p.discard[0]) ? 1 : 0;
     const h = p.hand.some(sent) ? 1 : 0;
-    return { ratio: (t + d + h) / 6, done: t === 4 && d === 1 && h === 1, text: `🧠 terrain ${t}/4 · ${d ? "✔" : "✖"} dessus de la défausse · ${h ? "✔" : "✖"} en main` };
+    return { ratio: (t + d + h) / 5, done: t === 3 && d === 1 && h === 1, text: `🧠 terrain ${t}/3 · ${d ? "✔" : "✖"} dessus de la défausse · ${h ? "✔" : "✖"} en main` };
   },
   "VC-POL-1": ({ s }) => frac(s.discOthers ?? 0, 5, "Cartes adverses défaussées :"),
-  // Coup d'état : un autre joueur n'a plus aucune carte sur son terrain (pas pendant le premier tour de table)
-  "VC-POL-2": ({ g, all, uid, room }) => {
+  // Coup d'état : le terrain d'un autre joueur reste vide pendant un tour de table complet (compté à partir du 2e tour de table)
+  "VC-POL-2": ({ g, all, uid, room, pos, N }) => {
     if (g.round < 2) return { ratio: 0, text: "Possible à partir du 2e tour de table", done: false };
-    const empty = all.filter((u) => u !== uid && !g.players[u].out && !g.players[u].terrain.length);
-    return {
-      ratio: empty.length ? 1 : 0, done: empty.length > 0,
-      text: empty.length ? `Terrain vide : ${empty.map((u) => E.nameOf(room, u)).join(", ")}` : "Aucun autre terrain n'est vide",
-    };
+    let best: { u: string; v: number } | null = null;
+    for (const u of all) {
+      const since = g.players[u].stats?.emptySince;
+      if (u === uid || g.players[u].out || since == null) continue;
+      const v = pos - since;
+      if (!best || v > best.v) best = { u, v };
+    }
+    if (!best) return { ratio: 0, text: "Aucun autre terrain n'est vide", done: false };
+    return { ratio: clamp(best.v / N), done: best.v >= N, text: `Terrain de ${E.nameOf(room, best.u)} vide depuis ${Math.min(best.v, N)}/${N} tour(s)` };
   },
   // Nuit de sommeil : 5 cartes 🧠 sur le terrain et la sentience vraie
   "VC-REV-1": ({ p, g }) => {
@@ -166,15 +170,16 @@ const CHECKS: Record<string, (c: C) => Progress> = {
   },
   // Nuit agitée : la sentience change 10 fois (par n'importe quel effet)
   "VC-REV-2": ({ s }) => frac(s.sentFlips ?? 0, 10, "Changements de sentience :"),
-  // Pee is stored in the balls : plus aucune carte dans sa pioche ni sa défausse
+  // Pee is stored in the balls : plus aucune carte dans sa pioche (la défausse ne compte pas)
   "VC-VIC-1": ({ p, g, uid }) => {
-    const left = p.deck.length + p.discard.length;
+    const left = p.deck.length;
     const total = Math.max(1, Object.values(g.owner).filter((o) => o === uid).length);
-    return { ratio: clamp(1 - left / total), text: `Pioche ${p.deck.length} · défausse ${p.discard.length}`, done: left === 0 };
+    return { ratio: clamp(1 - left / total), text: `Cartes dans ta pioche : ${left}`, done: left === 0 };
   },
   "VC-FLE-1": ({ s }) => frac(s.lost ?? 0, 200, "Gold perdus :"),
   "VC-FLE-2": ({ s }) => frac(s.offTurn ?? 0, 5, "Activations pendant le tour d'un autre :"),
-  "VC-FLE-3": ({ s }) => frac(s.failed ?? 0, 5, "Activations ratées en phase 1 :"),
+  // Inhibition toxique : 5 de ses cartes ne se sont pas activées pendant sa phase 1 (passifs, désactivées, effets ratés…)
+  "VC-FLE-3": ({ s }) => frac(s.failed ?? 0, 5, "Cartes non activées en phase 1 ce tour :"),
   // Transcendance : seul joueur sentient à la fin de son tour
   "VC-BASE-1": ({ g, all, uid, p, turnEnd }) => {
     const others = count(all, (u) => u !== uid && g.players[u].sentience);
@@ -190,21 +195,23 @@ const CHECKS: Record<string, (c: C) => Progress> = {
     const v = pos - s.richSince;
     return { ratio: clamp(v / N), text: `Le plus riche depuis ${v}/${N} tour(s)`, done: v >= N };
   },
-  // Hole in one : les 4 trous noirs pendant un tour de table
+  // Hole in one : 3 trous noirs différents pendant un tour de table
   "VC-BASE-3": ({ s, pos, N }) => {
     const hist = s.bhHist ?? [];
     let best = 0;
     for (let from = Math.max(0, pos - 60); from <= pos; from++) {
       const n = statesInWindow(hist, from, N).size;
-      if (n >= 4) return { ratio: 1, text: "4 trous noirs en un tour de table", done: true };
+      if (n >= 3) return { ratio: 1, text: "3 trous noirs différents en un tour de table", done: true };
       if (from >= pos - N + 1) best = Math.max(best, n);
     }
-    return { ratio: best / 4, text: `Trous noirs différents sur le dernier tour de table : ${best}/4`, done: false };
+    return { ratio: best / 3, text: `Trous noirs différents sur le dernier tour de table : ${best}/3`, done: false };
   },
+  // Racoon : au moins 2 interactions avec chaque autre joueur
   "VC-BASE-4": ({ s, all, uid }) => {
     const others = all.filter((u) => u !== uid);
-    const v = count(others, (u) => (s.met ?? []).includes(u));
-    return frac(v, others.length, "Joueurs avec qui tu as interagi :");
+    const n = (u: string) => Math.min(2, s.metN?.[u] ?? ((s.met ?? []).includes(u) ? 1 : 0));
+    const v = others.reduce((t, u) => t + n(u), 0);
+    return { ...frac(v, others.length * 2, "Interactions (2 par autre joueur) :"), done: others.every((u) => n(u) >= 2) };
   },
 };
 
@@ -237,6 +244,9 @@ function trackRichest(g: GameState) {
     const s = g.players[u].stats ?? (g.players[u].stats = {});
     if (!richest) s.richSince = null;
     else if (s.richSince == null) s.richSince = p;
+    // Coup d'état : depuis quand son terrain est vide (à partir du 2e tour de table).
+    if (g.players[u].terrain.length || g.round < 2) s.emptySince = null;
+    else if (s.emptySince == null) s.emptySince = p;
   }
 }
 

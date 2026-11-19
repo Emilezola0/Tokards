@@ -1017,3 +1017,7 @@ button.danger:hover { border-color: var(--bad); }
 
 /* ===== v0.18 : exclusion ===== */
 .lp-kick { flex: none; padding: 2px 8px; }
+
+/* ===== v0.23 : cartes changées / ajoutées par Claude ===== */
+.card-claude { position: absolute; bottom: 42%; left: 3px; font-size: 10px; line-height: 1; background: #2a1650cc; border: 1px solid #a98bff88; border-radius: 6px; padding: 1px 3px; }
+.claude-note { color: #c9b5ff; background: #a98bff14; border-left: 3px solid #a98bff; padding: 4px 8px; border-radius: 6px; }

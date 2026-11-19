@@ -122,7 +122,9 @@
     "VIC-16",
     "VIC-17",
     "VIC-18",
-    "VIC-19"
+    "VIC-19",
+    "VIC-21",
+    "VIC-20"
    ],
    "vcs": [
     "VC-VIC-1"
@@ -373,7 +375,10 @@
     "REV-16",
     "REV-17",
     "REV-18",
-    "REV-19"
+    "REV-19",
+    "REV-21",
+    "REV-20",
+    "REV-22"
    ],
    "vcs": [
     "VC-REV-1",
@@ -598,7 +603,8 @@
    "check": "",
    "text": "🧠 → vraie.\nQuand cette carte est défaussée : 🧠 → fausse.",
    "rules": "",
-   "image": "BASE-01.png"
+   "image": "BASE-01.png",
+   "claude": ""
   },
   "BASE-02": {
    "id": "BASE-02",
@@ -616,7 +622,8 @@
    "check": "",
    "text": "Si 🧠 vraie : 🌀 → Blazard ; sinon 🌀 → Trou de ver.",
    "rules": "",
-   "image": "BASE-02.jpg"
+   "image": "BASE-02.jpg",
+   "claude": ""
   },
   "BASE-03": {
    "id": "BASE-03",
@@ -634,7 +641,8 @@
    "check": "",
    "text": "Coût : 5 💰.\n🎲 1d6 : 1 rien · 2 Trou de ver · 3 Quasar · 4 Blazard · 5 Primordial · 6 au choix.",
    "rules": "",
-   "image": "BASE-03.jpg"
+   "image": "BASE-03.jpg",
+   "claude": ""
   },
   "BASE-04": {
    "id": "BASE-04",
@@ -652,7 +660,8 @@
    "check": "",
    "text": "Inversez votre 🧠.",
    "rules": "",
-   "image": "BASE-04.png"
+   "image": "BASE-04.png",
+   "claude": ""
   },
   "BASE-05": {
    "id": "BASE-05",
@@ -670,7 +679,8 @@
    "check": "",
    "text": "Gagnez autant de 💰 que le joueur le plus pauvre.",
    "rules": "",
-   "image": "BASE-05.jpg"
+   "image": "BASE-05.jpg",
+   "claude": ""
   },
   "BASE-06": {
    "id": "BASE-06",
@@ -688,7 +698,8 @@
    "check": "",
    "text": "Ciblez un joueur : votre 🌀 prend l'état du sien.",
    "rules": "",
-   "image": "BASE-06.jpg"
+   "image": "BASE-06.jpg",
+   "claude": ""
   },
   "BASE-07": {
    "id": "BASE-07",
@@ -706,7 +717,8 @@
    "check": "",
    "text": "Ciblez un joueur : chacun choisit une carte de sa main, puis vous les échangez.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "BASE-08": {
    "id": "BASE-08",
@@ -724,7 +736,8 @@
    "check": "",
    "text": "Si 🌀 Blazard : gagnez 20 💰 ; sinon 🧠 → fausse.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "BASE-09": {
    "id": "BASE-09",
@@ -742,7 +755,8 @@
    "check": "",
    "text": "Activez la première carte de votre défausse.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "BASE-10": {
    "id": "BASE-10",
@@ -760,7 +774,8 @@
    "check": "",
    "text": "Si vous avez gagné des 💰 plus tôt dans ce tour : 🧠 → vraie.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "BASE-11": {
    "id": "BASE-11",
@@ -778,7 +793,8 @@
    "check": "",
    "text": "🌀 → Blazard.\n🎲 1d2 : 1 perdez 10 💰 · 2 gagnez 10 💰.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "BASE-12": {
    "id": "BASE-12",
@@ -796,7 +812,8 @@
    "check": "",
    "text": "Votre 🧠 prend l'état le moins répandu parmi les joueurs.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "BASE-13": {
    "id": "BASE-13",
@@ -814,7 +831,8 @@
    "check": "",
    "text": "Si 🌀 Primordial : 🧠 → fausse.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "BASE-14": {
    "id": "BASE-14",
@@ -832,7 +850,8 @@
    "check": "",
    "text": "Ciblez un joueur : donnez-lui 20 💰, puis piochez une carte dans sa pioche.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "GOB-01": {
    "id": "GOB-01",
@@ -850,7 +869,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Quasar.",
    "rules": "Sans 10 gold, l'effet échoue.",
-   "image": "GOB-01.jpg"
+   "image": "GOB-01.jpg",
+   "claude": ""
   },
   "GOB-02": {
    "id": "GOB-02",
@@ -868,7 +888,8 @@
    "check": "",
    "text": "Coût facultatif : 15 💰 (0 si 🌀 Trou de ver).\nMettez une carte au hasard de votre défausse au fond de votre pioche.",
    "rules": "Optionnel : le joueur choisit de payer (15, ou 0 en Trou de ver). Une carte au hasard de la défausse va au fond de la pioche.",
-   "image": "GOB-02.jpg"
+   "image": "GOB-02.jpg",
+   "claude": ""
   },
   "GOB-03": {
    "id": "GOB-03",
@@ -886,7 +907,8 @@
    "check": "",
    "text": "Ciblez un joueur : volez-lui 2 💰 par carte de son terrain.",
    "rules": "Cible : un adversaire au choix ayant au moins 1 carte sur son terrain et des gold. Vol limité à ce qu'il possède.",
-   "image": "GOB-03.jpg"
+   "image": "GOB-03.jpg",
+   "claude": ""
   },
   "GOB-04": {
    "id": "GOB-04",
@@ -904,7 +926,8 @@
    "check": "",
    "text": "Chaque joueur gagne 5 💰 ; vous et votre équipe, 10 💰 à la place.",
    "rules": "Les joueurs hors de l'équipe du lanceur gagnent 5 ; le lanceur et ses coéquipiers gagnent 10 (pas 15).",
-   "image": "GOB-04.jpg"
+   "image": "GOB-04.jpg",
+   "claude": ""
   },
   "GOB-05": {
    "id": "GOB-05",
@@ -922,7 +945,8 @@
    "check": "",
    "text": "Vous et votre équipe : inversez votre 🧠 et cyclez votre 🌀 (Primordial → Quasar → Trou de ver → Blazard).\nPas pour vous si vous avez gagné des 💰 au tour précédent.",
    "rules": "S'applique à chaque membre de l'équipe du lanceur. Seul le lanceur est soumis à la condition : s'il a gagné des gold depuis le début de son tour précédent, il est ignoré.",
-   "image": "GOB-05.jpg"
+   "image": "GOB-05.jpg",
+   "claude": ""
   },
   "GOB-06": {
    "id": "GOB-06",
@@ -940,7 +964,8 @@
    "check": "",
    "text": "Si 🌀 Quasar : 🧠 de tous → fausse ; sinon 🧠 de tous → vraie.",
    "rules": "« Votre trou noir » = celui du lanceur.",
-   "image": "GOB-06.jpg"
+   "image": "GOB-06.jpg",
+   "claude": ""
   },
   "GOB-07": {
    "id": "GOB-07",
@@ -958,7 +983,8 @@
    "check": "",
    "text": "Toutes les cartes Trou noir des terrains vont dans votre pioche et deviennent les vôtres.\nPuis mélangez votre pioche.",
    "rules": "Toutes les cartes 🌀 de tous les terrains (y compris celle-ci) rejoignent la pioche du lanceur et lui appartiennent désormais.",
-   "image": "GOB-07.jpg"
+   "image": "GOB-07.jpg",
+   "claude": ""
   },
   "GOB-08": {
    "id": "GOB-08",
@@ -976,7 +1002,8 @@
    "check": "",
    "text": "Défaussez toutes les cartes Gold de tous les terrains.",
    "rules": "Toutes les cartes 💰 de tous les terrains (y compris celle-ci) vont dans la défausse de leur propriétaire.",
-   "image": "GOB-08.jpg"
+   "image": "GOB-08.jpg",
+   "claude": ""
   },
   "GOB-09": {
    "id": "GOB-09",
@@ -994,7 +1021,8 @@
    "check": "",
    "text": "Ciblez un joueur : échangez une carte Gold de son terrain avec une carte Gold du vôtre.",
    "rules": "Les deux cartes échangent exactement leurs places (terrain et position).",
-   "image": "GOB-09.jpg"
+   "image": "GOB-09.jpg",
+   "claude": ""
   },
   "GOB-10": {
    "id": "GOB-10",
@@ -1012,7 +1040,8 @@
    "check": "",
    "text": "Si 🌀 Primordial : 🧠 → vraie, gagnez 20 💰 et défaussez une carte de votre main.",
    "rules": "Si la main est vide, on ne défausse rien.",
-   "image": "GOB-10.jpg"
+   "image": "GOB-10.jpg",
+   "claude": ""
   },
   "GOB-11": {
    "id": "GOB-11",
@@ -1030,7 +1059,8 @@
    "check": "",
    "text": "Si 🌀 n'est pas Blazard : ciblez un joueur, il mélange sa main ; prenez-y une carte face cachée et mettez-la au fond de votre pioche.\n🌀 → Primordial. Puis défaussez cette carte.",
    "rules": "La main de la cible est mélangée puis le lanceur choisit une carte face cachée. La carte volée appartient désormais au lanceur. Le trou noir qui passe en Primordial est celui du lanceur. La cible est choisie parmi tous les joueurs, lanceur compris, quand la carte ne précise pas.",
-   "image": "GOB-11.jpg"
+   "image": "GOB-11.jpg",
+   "claude": ""
   },
   "GOB-12": {
    "id": "GOB-12",
@@ -1048,7 +1078,8 @@
    "check": "",
    "text": "Si 🌀 Trou de ver : réorganisez votre terrain.",
    "rules": "Le joueur réorganise son terrain en glissant les cartes.",
-   "image": "GOB-12.jpg"
+   "image": "GOB-12.jpg",
+   "claude": ""
   },
   "GOB-13": {
    "id": "GOB-13",
@@ -1066,7 +1097,8 @@
    "check": "",
    "text": "Défaussez autant de cartes de votre terrain que vous voulez : gagnez 10 💰 par carte.",
    "rules": "0 carte choisie = effet impossible. Peut se défausser elle-même.",
-   "image": "GOB-13.jpg"
+   "image": "GOB-13.jpg",
+   "claude": ""
   },
   "GOB-14": {
    "id": "GOB-14",
@@ -1084,7 +1116,8 @@
    "check": "",
    "text": "Passif — 🧠 → fausse : 🌀 → Quasar et piochez une carte dans la pioche de votre choix.\n🧠 → vraie : gagnez 10 💰.",
    "rules": "Passif, uniquement quand la carte est sur le terrain. « Pioche de votre choix » = la pioche de n'importe quel joueur.",
-   "image": "GOB-14.jpg"
+   "image": "GOB-14.jpg",
+   "claude": ""
   },
   "GOB-15": {
    "id": "GOB-15",
@@ -1102,7 +1135,8 @@
    "check": "",
    "text": "Chaque autre joueur, dans l'ordre, peut vous proposer un prix (1 💰 minimum).\nSi vous acceptez : il vous paie et vous choisissez son nouveau 🌀 (différent de l'actuel).",
    "rules": "Dans l'ordre du tour, chaque autre joueur propose un prix (0 = passer). Le lanceur accepte ou refuse ; s'il accepte, le joueur paie et le lanceur choisit son nouveau trou noir (différent de l'actuel). Puis on passe au joueur suivant.",
-   "image": "GOB-15.png"
+   "image": "GOB-15.png",
+   "claude": ""
   },
   "GOB-16": {
    "id": "GOB-16",
@@ -1120,7 +1154,8 @@
    "check": "",
    "text": "Piochez 6 cartes, défaussez une carte de votre main.\nPuis défaussez cette carte.",
    "rules": "Pioche 6, défausse 1 carte de la main, puis cette carte est défaussée.",
-   "image": "GOB-16.webp"
+   "image": "GOB-16.webp",
+   "claude": ""
   },
   "GOB-17": {
    "id": "GOB-17",
@@ -1138,7 +1173,8 @@
    "check": "",
    "text": "Cyclez le 🌀 de tous les joueurs (Primordial → Quasar → Blazard → Trou de ver).",
    "rules": "Ordre du cycle tel qu'écrit : Primordial → Quasar → Blazard → Trou de ver.",
-   "image": "GOB-17.jpg"
+   "image": "GOB-17.jpg",
+   "claude": ""
   },
   "GOB-18": {
    "id": "GOB-18",
@@ -1156,7 +1192,8 @@
    "check": "",
    "text": "Ciblez un joueur : échangez une par une vos cartes Sentience avec les cartes Gold de son terrain.\nLes cartes sans paire vont à la fin de l'autre terrain.",
    "rules": "La 1re carte 🧠 du lanceur prend la place de la 1re carte 💰 de la cible et inversement, puis la 2e avec la 2e, etc. Les cartes sans correspondance vont à la fin de l'autre terrain en gardant leur ordre. La cible est choisie parmi tous les joueurs, lanceur compris.",
-   "image": "GOB-18.jpg"
+   "image": "GOB-18.jpg",
+   "claude": ""
   },
   "GOB-19": {
    "id": "GOB-19",
@@ -1174,7 +1211,8 @@
    "check": "",
    "text": "Si 🌀 Blazard : gagnez 50 💰 ; sinon dépensez 10 💰.",
    "rules": "Hors Blazard : sans 10 gold, l'effet échoue.",
-   "image": "GOB-19.jpg"
+   "image": "GOB-19.jpg",
+   "claude": ""
   },
   "GOB-20": {
    "id": "GOB-20",
@@ -1192,7 +1230,8 @@
    "check": "",
    "text": "Inversez la 🧠 de tous les joueurs.",
    "rules": "",
-   "image": "GOB-20.jpg"
+   "image": "GOB-20.jpg",
+   "claude": ""
   },
   "GOB-21": {
    "id": "GOB-21",
@@ -1210,7 +1249,8 @@
    "check": "",
    "text": "Défaussez toutes les cartes Gold de votre terrain.\nChoisissez votre 🌀 et votre 🧠. Puis défaussez cette carte.",
    "rules": "Les cartes 💰 du terrain du lanceur (sauf celle-ci) sont défaussées, puis il choisit trou noir et sentience, puis cette carte est défaussée.",
-   "image": "GOB-21.jpg"
+   "image": "GOB-21.jpg",
+   "claude": ""
   },
   "GOB-22": {
    "id": "GOB-22",
@@ -1226,9 +1266,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ciblez un joueur : il prend une carte de votre main. Gagnez 40 💰.\nPuis défaussez cette carte.",
+   "text": "Ciblez un joueur : il prend une carte de votre main. Gagnez 25 💰.\nPuis défaussez cette carte.",
    "rules": "La cible voit la main du lanceur et choisit la carte qu'elle reçoit.",
-   "image": "GOB-22.jpg"
+   "image": "GOB-22.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "GOB-23": {
    "id": "GOB-23",
@@ -1246,7 +1287,8 @@
    "check": "",
    "text": "Si 🌀 Primordial ou Blazard : gagnez 30 💰 et mettez une carte de votre main au fond de votre pioche.\nSinon : gagnez 10 💰 et piochez une carte.",
    "rules": "",
-   "image": "GOB-23.jpg"
+   "image": "GOB-23.jpg",
+   "claude": ""
   },
   "GOB-24": {
    "id": "GOB-24",
@@ -1264,7 +1306,8 @@
    "check": "",
    "text": "Passif — 🌀 → Primordial : 🧠 → vraie et gagnez 20 💰.",
    "rules": "Passif, uniquement quand la carte est sur le terrain.",
-   "image": "GOB-24.jpg"
+   "image": "GOB-24.jpg",
+   "claude": ""
   },
   "GOB-25": {
    "id": "GOB-25",
@@ -1282,7 +1325,8 @@
    "check": "",
    "text": "Ciblez un joueur : défaussez les cartes de son terrain qui ont au moins 2 tags.\nPuis défaussez cette carte.",
    "rules": "Les cartes vont dans la défausse de la cible (comme écrit), même si elles appartiennent à un autre joueur. La cible est choisie parmi tous les joueurs, lanceur compris (la carte elle-même exclue).",
-   "image": "GOB-25.jpg"
+   "image": "GOB-25.jpg",
+   "claude": ""
   },
   "GOB-26": {
    "id": "GOB-26",
@@ -1300,7 +1344,8 @@
    "check": "",
    "text": "Ciblez un joueur : volez une carte de son terrain avec exactement les tags Sentience et Trou noir. Elle va dans votre main.",
    "rules": "Exactement 🧠🌀, sans 💰. La carte volée appartient désormais au lanceur. La cible est choisie parmi tous les joueurs, lanceur compris, quand la carte ne précise pas.",
-   "image": "GOB-26.jpg"
+   "image": "GOB-26.jpg",
+   "claude": ""
   },
   "GOB-27": {
    "id": "GOB-27",
@@ -1318,7 +1363,8 @@
    "check": "",
    "text": "Ciblez un joueur. Au choix :\n- défaussez une carte uniquement Gold de son terrain ;\n- posez une carte uniquement Gold de votre main sur son terrain, où vous voulez.",
    "rules": "« Uniquement Gold » = seul tag 💰. Le lanceur choisit l'option, puis le terrain (n'importe quel joueur), puis la carte, puis (pour la pose) sa place sur le terrain.",
-   "image": "GOB-27.jpg"
+   "image": "GOB-27.jpg",
+   "claude": ""
   },
   "GOB-28": {
    "id": "GOB-28",
@@ -1336,7 +1382,8 @@
    "check": "",
    "text": "Autant de fois que vous voulez : dépensez 20 💰 pour cycler votre 🌀 (Primordial → Trou de ver → Quasar → Blazard).",
    "rules": "Le joueur confirme chaque cycle (20 gold) tant qu'il peut payer. Cycle : Primordial → Trou de ver → Quasar → Blazard.",
-   "image": "GOB-28.jpg"
+   "image": "GOB-28.jpg",
+   "claude": ""
   },
   "GOB-29": {
    "id": "GOB-29",
@@ -1354,7 +1401,8 @@
    "check": "",
    "text": "Ciblez un joueur : cyclez son 🌀 (Primordial → Blazard → Trou de ver → Quasar).",
    "rules": "Cycle : Primordial → Blazard → Trou de ver → Quasar. La cible est choisie parmi tous les joueurs, lanceur compris, quand la carte ne précise pas.",
-   "image": "GOB-29.jpg"
+   "image": "GOB-29.jpg",
+   "claude": ""
   },
   "GOB-30": {
    "id": "GOB-30",
@@ -1372,7 +1420,8 @@
    "check": "",
    "text": "Passif — Tant qu'elle est sur votre terrain, vos cartes qui devraient aller dans votre défausse vont au fond de votre pioche.",
    "rules": "Règle permanente : les cartes qui iraient dans la défausse du joueur qui a l'Hôpital sur son terrain vont au fond de SA pioche.",
-   "image": "GOB-30.jpg"
+   "image": "GOB-30.jpg",
+   "claude": ""
   },
   "GOB-31": {
    "id": "GOB-31",
@@ -1390,7 +1439,8 @@
    "check": "",
    "text": "🎲 1d2, sur un 2 : ciblez un joueur, défaussez la première carte de son terrain ; il mélange sa pioche, puis sa défausse.",
    "rules": "Une chance sur deux : l'effet n'a lieu que sur un 2. La première carte va dans la défausse de la cible ; sa pioche et sa défausse sont mélangées chacune de leur côté.",
-   "image": "GOB-31.jpg"
+   "image": "GOB-31.jpg",
+   "claude": ""
   },
   "GOB-32": {
    "id": "GOB-32",
@@ -1408,7 +1458,8 @@
    "check": "",
    "text": "Coût facultatif : 50 💰.\nDéfaussez une carte de n'importe quel terrain.",
    "rules": "Optionnel. N'importe quelle carte de n'importe quel terrain (sauf celle-ci).",
-   "image": "GOB-32.jpg"
+   "image": "GOB-32.jpg",
+   "claude": ""
   },
   "VIC-01": {
    "id": "VIC-01",
@@ -1424,9 +1475,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — Gagnez les 💰 qui vous manquent pour égaler le plus riche.\nPuis mélangez cette carte dans la pioche du joueur le plus pauvre.",
-   "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Marathon_runners_on_Parliament_Street_-_geograph.org.uk_-_7312496.jpg/500px-Marathon_runners_on_Parliament_Street_-_geograph.org.uk_-_7312496.jpg"
+   "text": "Passif — Gagnez la moitié des 💰 qui vous manquent pour égaler le plus riche.\nPuis mélangez cette carte dans la pioche du joueur le plus pauvre.",
+   "rules": "La moitié de l'écart, arrondie à l'inférieur.",
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Marathon_runners_on_Parliament_Street_-_geograph.org.uk_-_7312496.jpg/500px-Marathon_runners_on_Parliament_Street_-_geograph.org.uk_-_7312496.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VIC-02": {
    "id": "VIC-02",
@@ -1444,7 +1496,8 @@
    "check": "",
    "text": "Coût facultatif : 5 💰.\nLa prochaine carte se joue deux fois.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/NFB_Photostory_066_-_Stock_Exchange_20th_Century_Trading_Post.jpg/500px-NFB_Photostory_066_-_Stock_Exchange_20th_Century_Trading_Post.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/NFB_Photostory_066_-_Stock_Exchange_20th_Century_Trading_Post.jpg/500px-NFB_Photostory_066_-_Stock_Exchange_20th_Century_Trading_Post.jpg",
+   "claude": ""
   },
   "VIC-03": {
    "id": "VIC-03",
@@ -1462,7 +1515,8 @@
    "check": "",
    "text": "Activez la première carte du terrain de chaque joueur qui a le même 🌀 que vous.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Echo_Canyon_-_Flickr_-_brewbooks_%283%29.jpg/500px-Echo_Canyon_-_Flickr_-_brewbooks_%283%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Echo_Canyon_-_Flickr_-_brewbooks_%283%29.jpg/500px-Echo_Canyon_-_Flickr_-_brewbooks_%283%29.jpg",
+   "claude": ""
   },
   "VIC-04": {
    "id": "VIC-04",
@@ -1480,7 +1534,8 @@
    "check": "",
    "text": "Ciblez un joueur qui a le même 🌀 que vous : désignez à l'aveugle une carte de sa main, il la met de côté face cachée.\nIl doit la jouer à son tour, puis elle va dans sa défausse.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Marionettes_in_line.jpg/500px-Marionettes_in_line.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Marionettes_in_line.jpg/500px-Marionettes_in_line.jpg",
+   "claude": ""
   },
   "VIC-05": {
    "id": "VIC-05",
@@ -1498,7 +1553,8 @@
    "check": "",
    "text": "Ciblez un joueur : piochez à l'aveugle une carte de sa main et activez-la.\nPuis elle va dans sa défausse avec cette carte.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/A_boy_with_slingshot.JPG/500px-A_boy_with_slingshot.JPG"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/A_boy_with_slingshot.JPG/500px-A_boy_with_slingshot.JPG",
+   "claude": ""
   },
   "VIC-06": {
    "id": "VIC-06",
@@ -1516,7 +1572,8 @@
    "check": "",
    "text": "Mélangez votre terrain (cette carte comprise) et répartissez-le dans les défausses de tous les joueurs.\nPuis reconstituez votre terrain avec les pioches des autres, dans l'ordre du tour, en payant 2 💰 par carte (pas plus de cartes qu'avant ni que vous ne pouvez payer).",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Beaux-Arts_de_Carcassonne_-_Paysage_%C3%A0_la_cascade_-_Claude_Joseph_Vernet_-_Joconde04400000570.jpg/500px-Beaux-Arts_de_Carcassonne_-_Paysage_%C3%A0_la_cascade_-_Claude_Joseph_Vernet_-_Joconde04400000570.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Beaux-Arts_de_Carcassonne_-_Paysage_%C3%A0_la_cascade_-_Claude_Joseph_Vernet_-_Joconde04400000570.jpg/500px-Beaux-Arts_de_Carcassonne_-_Paysage_%C3%A0_la_cascade_-_Claude_Joseph_Vernet_-_Joconde04400000570.jpg",
+   "claude": ""
   },
   "VIC-07": {
    "id": "VIC-07",
@@ -1534,7 +1591,8 @@
    "check": "",
    "text": "🎲 1d100, sur 100 : validez une de vos conditions de victoire pour ce tour.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Roulette_casino.JPG/500px-Roulette_casino.JPG"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Roulette_casino.JPG/500px-Roulette_casino.JPG",
+   "claude": ""
   },
   "VIC-08": {
    "id": "VIC-08",
@@ -1552,7 +1610,8 @@
    "check": "",
    "text": "🎲 1d6 :\n1 : votre voisin de droite prend une carte de votre terrain et la place où il veut ;\n2 : rien ;\n3 : une carte posée d'un joueur va dans sa pioche ;\n4-5 : une carte posée d'un joueur va dans sa défausse ;\n6 : une carte posée d'un joueur va sur votre terrain.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Painting_of_a_pirate_ship_%28after_1852%29%2C_after_Ambroise_Louis_Garneray.jpg/500px-Painting_of_a_pirate_ship_%28after_1852%29%2C_after_Ambroise_Louis_Garneray.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Painting_of_a_pirate_ship_%28after_1852%29%2C_after_Ambroise_Louis_Garneray.jpg/500px-Painting_of_a_pirate_ship_%28after_1852%29%2C_after_Ambroise_Louis_Garneray.jpg",
+   "claude": ""
   },
   "VIC-09": {
    "id": "VIC-09",
@@ -1570,7 +1629,8 @@
    "check": "",
    "text": "Passif — Placez cette carte sous une carte d'un autre joueur : quand elle s'active, ses effets vous concernent.\nLe parasite suit la carte.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Tutankhamun_Pectoral_with_a_scarab_beetle_2019_%28cropped%29.jpg/500px-Tutankhamun_Pectoral_with_a_scarab_beetle_2019_%28cropped%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Tutankhamun_Pectoral_with_a_scarab_beetle_2019_%28cropped%29.jpg/500px-Tutankhamun_Pectoral_with_a_scarab_beetle_2019_%28cropped%29.jpg",
+   "claude": ""
   },
   "VIC-10": {
    "id": "VIC-10",
@@ -1588,7 +1648,8 @@
    "check": "",
    "text": "Vous pouvez reprendre une carte de votre terrain dans votre main.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Cast-iron_pan_with_a_blue_handle_-_20060905.jpg/500px-Cast-iron_pan_with_a_blue_handle_-_20060905.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Cast-iron_pan_with_a_blue_handle_-_20060905.jpg/500px-Cast-iron_pan_with_a_blue_handle_-_20060905.jpg",
+   "claude": ""
   },
   "VIC-11": {
    "id": "VIC-11",
@@ -1606,7 +1667,8 @@
    "check": "",
    "text": "Jusqu'à votre prochain tour : chaque carte jouée vous rapporte 3 💰, chaque carte passée vous coûte 3 💰.\nÀ votre prochain tour, défaussez cette carte.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Reymerswaele_Two_tax_collectors_01.jpg/500px-Reymerswaele_Two_tax_collectors_01.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Reymerswaele_Two_tax_collectors_01.jpg/500px-Reymerswaele_Two_tax_collectors_01.jpg",
+   "claude": ""
   },
   "VIC-12": {
    "id": "VIC-12",
@@ -1624,7 +1686,8 @@
    "check": "",
    "text": "Ciblez un joueur : posez la première carte de votre pioche à la fin de son terrain. Il vous paie 10 💰.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Whydah-gold.jpg/500px-Whydah-gold.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Whydah-gold.jpg/500px-Whydah-gold.jpg",
+   "claude": ""
   },
   "VIC-13": {
    "id": "VIC-13",
@@ -1642,7 +1705,8 @@
    "check": "",
    "text": "Passif — Si 🌀 Primordial : sous chaque carte que vous posez, mettez la première carte de votre pioche.\nQuand la carte du dessus quitte le terrain, celle du dessous est révélée et posée.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/The_royal_Janus-_or-_two_faces_under_a_hood_%28BM_1868%2C0808.5092%29.jpg/500px-The_royal_Janus-_or-_two_faces_under_a_hood_%28BM_1868%2C0808.5092%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/The_royal_Janus-_or-_two_faces_under_a_hood_%28BM_1868%2C0808.5092%29.jpg/500px-The_royal_Janus-_or-_two_faces_under_a_hood_%28BM_1868%2C0808.5092%29.jpg",
+   "claude": ""
   },
   "VIC-14": {
    "id": "VIC-14",
@@ -1660,7 +1724,8 @@
    "check": "",
    "text": "Coût facultatif : 10 💰.\nCiblez un joueur : mélangez l'ordre de son terrain.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/William_Merritt_Chase_Keying_up.jpg/500px-William_Merritt_Chase_Keying_up.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/William_Merritt_Chase_Keying_up.jpg/500px-William_Merritt_Chase_Keying_up.jpg",
+   "claude": ""
   },
   "VIC-15": {
    "id": "VIC-15",
@@ -1678,7 +1743,8 @@
    "check": "",
    "text": "Si un joueur a les mêmes 💰, 🧠 et 🌀 que vous : mélangez vos deux pioches et partagez-les équitablement.\nPuis défaussez cette carte.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Pomegranate_juice_with_slice.jpg/500px-Pomegranate_juice_with_slice.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Pomegranate_juice_with_slice.jpg/500px-Pomegranate_juice_with_slice.jpg",
+   "claude": ""
   },
   "VIC-16": {
    "id": "VIC-16",
@@ -1696,7 +1762,8 @@
    "check": "",
    "text": "Passif — Toutes les cartes face cachée sont visibles, pioches comprises (pas les mains).\nÀ son tour, un joueur peut vous payer 50 💰 pour défausser cette carte.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Crystal_Ball_Mystery%2C_The_Haunted_Churchyard.jpg/500px-Crystal_Ball_Mystery%2C_The_Haunted_Churchyard.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Crystal_Ball_Mystery%2C_The_Haunted_Churchyard.jpg/500px-Crystal_Ball_Mystery%2C_The_Haunted_Churchyard.jpg",
+   "claude": ""
   },
   "VIC-17": {
    "id": "VIC-17",
@@ -1714,7 +1781,8 @@
    "check": "",
    "text": "Passif — Vos cartes qui doivent aller dans votre défausse peuvent aller dans celle d'un autre joueur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Trois_tr%C3%A9buchets_Castelnaud.jpg/500px-Trois_tr%C3%A9buchets_Castelnaud.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Trois_tr%C3%A9buchets_Castelnaud.jpg/500px-Trois_tr%C3%A9buchets_Castelnaud.jpg",
+   "claude": ""
   },
   "VIC-18": {
    "id": "VIC-18",
@@ -1732,7 +1800,8 @@
    "check": "",
    "text": "Choisissez votre 🌀.\nPuis cette carte va dans la défausse d'un autre joueur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Soyuz_TMA-16_approaching_ISS.jpg/500px-Soyuz_TMA-16_approaching_ISS.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Soyuz_TMA-16_approaching_ISS.jpg/500px-Soyuz_TMA-16_approaching_ISS.jpg",
+   "claude": ""
   },
   "VIC-19": {
    "id": "VIC-19",
@@ -1750,7 +1819,46 @@
    "check": "",
    "text": "Passif — Quand un joueur veut modifier votre terrain (ajout, retrait, échange, ordre) : l'action est annulée et il vous paie 50 💰 (sinon, volez une carte de son terrain).\nPuis défaussez cette carte.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/A_bear_trap_in_Russia%2C_c._1913.jpg/500px-A_bear_trap_in_Russia%2C_c._1913.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/A_bear_trap_in_Russia%2C_c._1913.jpg/500px-A_bear_trap_in_Russia%2C_c._1913.jpg",
+   "claude": ""
+  },
+  "VIC-21": {
+   "id": "VIC-21",
+   "kind": "card",
+   "deck": "Victor",
+   "name": "Miroir",
+   "tags": {
+    "sentience": true,
+    "gold": false,
+    "blackHole": false
+   },
+   "trigger": "Activation",
+   "event": "",
+   "target": "",
+   "check": "",
+   "text": "Inversez votre 🧠.\nPuis cette carte va dans la défausse d'un autre joueur.",
+   "rules": "La carte appartient ensuite à ce joueur.",
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Reflection_in_a_Mirror.jpg/500px-Reflection_in_a_Mirror.jpg",
+   "claude": "🆕 Ajoutée v0.23"
+  },
+  "VIC-20": {
+   "id": "VIC-20",
+   "kind": "card",
+   "deck": "Victor",
+   "name": "Girouette",
+   "tags": {
+    "sentience": false,
+    "gold": false,
+    "blackHole": true
+   },
+   "trigger": "Activation",
+   "event": "",
+   "target": "",
+   "check": "",
+   "text": "Choisissez votre 🌀.\nPuis posez cette carte à la fin du terrain d'un autre joueur.",
+   "rules": "Un état différent de l'actuel. La carte reste à vous : elle se jouera pour ce joueur à son tour.",
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Weather_vane_Trinitatis_kirke_Copenhagen_Denmark.jpg/500px-Weather_vane_Trinitatis_kirke_Copenhagen_Denmark.jpg",
+   "claude": "🆕 Ajoutée v0.23"
   },
   "EMI-01": {
    "id": "EMI-01",
@@ -1768,7 +1876,8 @@
    "check": "",
    "text": "Gagnez 1 💰 par autre joueur (2 💰 si cette carte est parmi les 3 dernières de votre terrain).",
    "rules": "« Par autre joueur » = tous les joueurs de la partie sauf vous.",
-   "image": "EMI-01.png"
+   "image": "EMI-01.png",
+   "claude": ""
   },
   "EMI-02": {
    "id": "EMI-02",
@@ -1786,7 +1895,8 @@
    "check": "",
    "text": "Ciblez un joueur : volez une carte Sentience de son terrain, activez-la pour vous et posez-la sur votre terrain.\nS'il lui reste une carte Sentience, choisissez-en une : elle s'active pour lui.",
    "rules": "",
-   "image": "EMI-02.png"
+   "image": "EMI-02.png",
+   "claude": ""
   },
   "EMI-03": {
    "id": "EMI-03",
@@ -1804,7 +1914,8 @@
    "check": "",
    "text": "🎲 1d6, sur un 1 : cette carte va sur le terrain du joueur le plus pauvre.\nSinon, pour vous ou un allié, au choix : inversez la 🧠, gagnez ou perdez jusqu'à 20 💰, ou changez le 🌀.",
    "rules": "Le lanceur peut choisir sa propre ressource.",
-   "image": "EMI-03.png"
+   "image": "EMI-03.png",
+   "claude": ""
   },
   "EMI-04": {
    "id": "EMI-04",
@@ -1822,7 +1933,8 @@
    "check": "",
    "text": "Passif — Quand sa place change ou qu'une carte est posée sur son terrain : gagnez autant de 💰 que sa place (1, 2, 3…).\nPuis elle avance d'une place vers la droite, si possible.",
    "rules": "Le décalage vers la droite ne redéclenche pas l'effet.",
-   "image": "EMI-04.png"
+   "image": "EMI-04.png",
+   "claude": ""
   },
   "EMI-05": {
    "id": "EMI-05",
@@ -1840,7 +1952,8 @@
    "check": "",
    "text": "🎲 3 chances sur 10 : ramenez l'Obélisque de la vérité et 🧠 → vraie.\nSinon : ramenez le Sanglier chasseur d'or et 🧠 → fausse.\n(Ramener = poser la carte sur votre terrain, d'où qu'elle vienne, sans son effet.)",
    "rules": "Le dé est un d10 : 1-3 = Obélisque, 4-10 = Sanglier.",
-   "image": "EMI-05.png"
+   "image": "EMI-05.png",
+   "claude": ""
   },
   "EMI-06": {
    "id": "EMI-06",
@@ -1858,7 +1971,8 @@
    "check": "",
    "text": "🧠 vraie : le joueur le plus riche lance un dé par carte Gold de son terrain, 1 chance sur 5 de la défausser. Puis défaussez cette carte.\n🧠 fausse : au prochain tour (tout de suite si Obelix est sur votre terrain), gagnez 5 💰 par carte Gold sur tous les terrains, puis défaussez cette carte.",
    "rules": "1 chance sur 5 = un 1 sur 1d5. « Au prochain tour » = la prochaine fois que la carte s'active.",
-   "image": "EMI-06.png"
+   "image": "EMI-06.png",
+   "claude": ""
   },
   "EMI-07": {
    "id": "EMI-07",
@@ -1876,7 +1990,8 @@
    "check": "",
    "text": "🌀 → Primordial.\nSi vous avez 2 cartes Sentience et qu'il y a 3 cartes Gold sur les terrains : posez jusqu'à 3 cartes ce tour, elles s'activent dans l'ordre de pose.",
    "rules": "Avec le bonus, vous avez 3 poses au total ce tour (la pose qui a joué Bluebeu compte). Vous pouvez vous arrêter avant.",
-   "image": "EMI-07.png"
+   "image": "EMI-07.png",
+   "claude": ""
   },
   "EMI-08": {
    "id": "EMI-08",
@@ -1894,7 +2009,8 @@
    "check": "",
    "text": "Passif — Au début de votre tour : déplacez-la où vous voulez (elle reste à vous).\nAu début du tour de celui qui l'a, si sa 🧠 est vraie : elle chasse 🎲 1d6 💰, encaissés quand elle revient chez vous. Si quelqu'un la défausse, il encaisse.",
    "rules": "Le déplacement est facultatif. Les gold chassés sont stockés sur la carte.",
-   "image": "EMI-08.png"
+   "image": "EMI-08.png",
+   "claude": ""
   },
   "EMI-09": {
    "id": "EMI-09",
@@ -1912,7 +2028,8 @@
    "check": "",
    "text": "Si un autre joueur est en 🌀 Trou de ver : cette carte va dans sa main, visible (au hasard s'ils sont plusieurs). Elle ne peut pas être posée ; défaussée quand son 🌀 → Primordial.\nTant qu'il l'a et que sa 🧠 est vraie : chaque carte qu'il pose vous rapporte 2 💰 (volés).",
    "rules": "Elle part quand elle se joue (phase 1 ou à sa pose). « La personne qui a envoyé la carte » = le joueur qui l'avait sur son terrain.",
-   "image": "EMI-09.png"
+   "image": "EMI-09.png",
+   "claude": ""
   },
   "EMI-10": {
    "id": "EMI-10",
@@ -1928,9 +2045,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre 🌀 :\nQuasar : prenez tous les 💰 du joueur à votre droite.\nPrimordial : perdez tous vos 💰.\nTrou de ver : ⏱ 3 tours, les 💰 gagnés par les autres sont pour vous.\nBlazard : les 💰 de tous sont égalisés.",
-   "rules": "Droite = joueur suivant dans l'ordre du tour. Trou de ver : ce tour et les 2 suivants. Blazard : le reste de la division revient au lanceur.",
-   "image": "EMI-10.png"
+   "text": "Selon votre 🌀 :\nQuasar : prenez tous les 💰 du joueur à votre droite.\nPrimordial : perdez la moitié de vos 💰.\nTrou de ver : ⏱ 3 tours, les 💰 gagnés par les autres sont pour vous.\nBlazard : les 💰 de tous sont égalisés.",
+   "rules": "Droite = joueur suivant dans l'ordre du tour. Primordial : la moitié arrondie à l'inférieur. Trou de ver : ce tour et les 2 suivants. Blazard : le reste de la division revient au lanceur.",
+   "image": "EMI-10.png",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "EMI-11": {
    "id": "EMI-11",
@@ -1948,7 +2066,8 @@
    "check": "",
    "text": "🧠 vraie : au prochain tour, elle explose : tout son terrain est défaussé.\n🧠 fausse : si les autres ne vous donnent pas 25 💰 au total, elle part sur le terrain d'un autre joueur au hasard.",
    "rules": "Chaque autre joueur, dans l'ordre du tour, choisit combien il donne jusqu'à atteindre 25 gold. Si à eux tous ils n'ont pas 25 gold, ils donnent automatiquement tout ce qu'ils ont et la carte part quand même.",
-   "image": "EMI-11.png"
+   "image": "EMI-11.png",
+   "claude": ""
   },
   "EMI-12": {
    "id": "EMI-12",
@@ -1966,7 +2085,8 @@
    "check": "",
    "text": "🧠 vraie : chaque joueur vous donne 1 💰 par carte Gold de son terrain (les vôtres comptent). Doublé si ADS est sur votre terrain.\n🧠 fausse : perdez 1 💰 par carte Gold sur tous les terrains.",
    "rules": "« La carte AD » = ADS (EMI-13) sur votre terrain.",
-   "image": "EMI-12.png"
+   "image": "EMI-12.png",
+   "claude": ""
   },
   "EMI-13": {
    "id": "EMI-13",
@@ -1982,9 +2102,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant qu'elle est sur votre terrain : vos 💰 et vos coûts sont doublés. La carte qui la suit ne se joue pas.\nSi 🌀 Primordial : pour tous les joueurs.",
-   "rules": "Chaque activation double à nouveau vos gold. Les coûts doublés : toute dépense de gold.",
-   "image": "EMI-13.png"
+   "text": "Tant qu'elle est sur votre terrain : vos 💰 (une seule fois) et vos coûts sont doublés. La carte qui la suit ne se joue pas.\nSi 🌀 Primordial : pour tous les joueurs.",
+   "rules": "Les gold de chaque joueur ne sont doublés qu'une fois tant qu'ADS reste sur un terrain (pas de cumul à chaque activation). Les coûts doublés : toute dépense de gold.",
+   "image": "EMI-13.png",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "EMI-14": {
    "id": "EMI-14",
@@ -2002,7 +2123,8 @@
    "check": "",
    "text": "Selon votre 🌀 :\nQuasar : choisissez un 🌀 provisoire (⏱ fin du tour).\nTrou de ver : désactivez une carte d'un terrain (⏱ fin du tour).\nPrimordial : chaque joueur désactive une carte d'un terrain (⏱ fin du tour).\nBlazard : choisissez une 🧠 provisoire (⏱ fin du tour).",
    "rules": "Les valeurs provisoires reviennent à la valeur d'avant à la fin du tour de celui qui les a choisies.",
-   "image": "EMI-14.png"
+   "image": "EMI-14.png",
+   "claude": ""
   },
   "EMI-15": {
    "id": "EMI-15",
@@ -2020,7 +2142,8 @@
    "check": "",
    "text": "🎲 1d6 : sur un 6, le joueur suivant passe son prochain tour ; sur un 1, vous passez le vôtre.",
    "rules": "",
-   "image": "EMI-15.png"
+   "image": "EMI-15.png",
+   "claude": ""
   },
   "EMI-16": {
    "id": "EMI-16",
@@ -2036,9 +2159,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Coût : 50 💰. Changez votre 🌀.\n1 chance sur 2 de pouvoir rejouer cette carte.",
-   "rules": "La relance demande de pouvoir payer à nouveau 50 gold.",
-   "image": "EMI-16.png"
+   "text": "Coût : 20 💰. Changez votre 🌀.\n1 chance sur 2 de pouvoir rejouer cette carte.",
+   "rules": "La relance demande de pouvoir payer à nouveau 20 gold.",
+   "image": "EMI-16.png",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "EMI-17": {
    "id": "EMI-17",
@@ -2056,7 +2180,8 @@
    "check": "",
    "text": "Ciblez un joueur : volez-lui 2 💰 par carte Sentience de votre terrain.\nSi ses deux voisines sont des cartes Sentience : choisissez aussi votre 🌀.",
    "rules": "",
-   "image": "EMI-17.png"
+   "image": "EMI-17.png",
+   "claude": ""
   },
   "EMI-18": {
    "id": "EMI-18",
@@ -2074,7 +2199,8 @@
    "check": "",
    "text": "Une carte de votre choix gagne le tag Sentience (⏱ fin du tour).",
    "rules": "",
-   "image": "EMI-18.png"
+   "image": "EMI-18.png",
+   "claude": ""
   },
   "EMI-19": {
    "id": "EMI-19",
@@ -2092,7 +2218,8 @@
    "check": "",
    "text": "La première carte de chaque terrain passe en première place sur le terrain du joueur suivant.",
    "rules": "Sens horaire = ordre du tour. Les joueurs sans carte en reçoivent une sans en donner.",
-   "image": "EMI-19.png"
+   "image": "EMI-19.png",
+   "claude": ""
   },
   "EMI-20": {
    "id": "EMI-20",
@@ -2110,7 +2237,8 @@
    "check": "",
    "text": "Tant qu'elle est sur un terrain : chaque gain de 💰, pour tous, rapporte 1 💰 de plus.",
    "rules": "+1 gold par gain de n'importe quel joueur, avant les multiplicateurs.",
-   "image": "EMI-20.png"
+   "image": "EMI-20.png",
+   "claude": ""
   },
   "EMI-21": {
    "id": "EMI-21",
@@ -2128,7 +2256,8 @@
    "check": "",
    "text": "Si 🧠 vraie : réorganisez votre terrain.",
    "rules": "",
-   "image": "EMI-21.png"
+   "image": "EMI-21.png",
+   "claude": ""
   },
   "EMI-22": {
    "id": "EMI-22",
@@ -2146,7 +2275,8 @@
    "check": "",
    "text": "Si 🧠 vraie : 🎲 1d4 pour votre 🌀 (1 Quasar · 2 Blazard · 3 Trou de ver · 4 Primordial).\nSinon : 🧠 → vraie.",
    "rules": "",
-   "image": "EMI-22.png"
+   "image": "EMI-22.png",
+   "claude": ""
   },
   "EMI-23": {
    "id": "EMI-23",
@@ -2164,7 +2294,8 @@
    "check": "",
    "text": "1 chance sur 2 : chaque carte Sentience, sinon chaque carte Trou noir de votre terrain, vous rapporte 2 💰.",
    "rules": "Gravité grave ajoute +1 à chaque carte (chaque carte compte comme un gain).",
-   "image": "EMI-23.png"
+   "image": "EMI-23.png",
+   "claude": ""
   },
   "EMI-24": {
    "id": "EMI-24",
@@ -2182,7 +2313,8 @@
    "check": "",
    "text": "Copiez l'effet d'une carte de son terrain avec exactement les mêmes tags (au choix s'il y en a plusieurs).",
    "rules": "Exactement les mêmes tags que Ding Dong (les trois).",
-   "image": "EMI-24.png"
+   "image": "EMI-24.png",
+   "claude": ""
   },
   "EMI-25": {
    "id": "EMI-25",
@@ -2200,7 +2332,8 @@
    "check": "",
    "text": "Coût facultatif : 20 💰.\nVolez une carte du terrain d'un adversaire et mettez-la dans votre main.",
    "rules": "N'importe quelle carte du terrain d'un autre joueur ; elle vous appartient ensuite (elle ira dans votre défausse).",
-   "image": "EMI-25.png"
+   "image": "EMI-25.png",
+   "claude": ""
   },
   "EMI-26": {
    "id": "EMI-26",
@@ -2218,7 +2351,8 @@
    "check": "",
    "text": "🧠 fausse : inversez l'ordre du terrain d'un joueur.\n🧠 vraie : 1 chance sur 2 de changer le 🌀 d'un joueur (vous compris).",
    "rules": "Les deux effets peuvent viser n'importe quel joueur, vous compris.",
-   "image": "EMI-26.png"
+   "image": "EMI-26.png",
+   "claude": ""
   },
   "EMI-27": {
    "id": "EMI-27",
@@ -2236,7 +2370,8 @@
    "check": "",
    "text": "Cette carte va en première place de son terrain.\nSi elle y est déjà : jouez la carte juste après.",
    "rules": "",
-   "image": "EMI-27.png"
+   "image": "EMI-27.png",
+   "claude": ""
   },
   "EMI-28": {
    "id": "EMI-28",
@@ -2254,7 +2389,8 @@
    "check": "",
    "text": "Cette carte va en dernière place de son terrain.\nSi elle y est déjà : rejouez la carte juste avant.",
    "rules": "",
-   "image": "EMI-28.png"
+   "image": "EMI-28.png",
+   "claude": ""
   },
   "EMI-29": {
    "id": "EMI-29",
@@ -2272,7 +2408,8 @@
    "check": "",
    "text": "Si 🌀 Primordial : prenez la carte à la même place sur le terrain du joueur suivant et posez-la sur votre terrain, sans son effet.\nRien s'il n'y a pas de carte à cette place.",
    "rules": "Dash reste à sa place. La carte prise arrive en dernière position de votre terrain et change de propriétaire.",
-   "image": "EMI-29.png"
+   "image": "EMI-29.png",
+   "claude": ""
   },
   "EMI-30": {
    "id": "EMI-30",
@@ -2290,7 +2427,8 @@
    "check": "",
    "text": "Si 🌀 Trou de ver : 🔒 vos autres cartes ne peuvent plus être déplacées ni volées tant que cette carte est sur votre terrain (elle-même n'est pas protégée).",
    "rules": "Protège contre les déplacements causés par les effets des autres cartes, tant que Goudron est sur votre terrain.",
-   "image": "EMI-30.png"
+   "image": "EMI-30.png",
+   "claude": ""
   },
   "EMI-31": {
    "id": "EMI-31",
@@ -2308,7 +2446,8 @@
    "check": "",
    "text": "Si 🌀 n'est pas Trou de ver : récupérez les 💰 perdus pendant ce tour.",
    "rules": "",
-   "image": "EMI-31.png"
+   "image": "EMI-31.png",
+   "claude": ""
   },
   "EMI-32": {
    "id": "EMI-32",
@@ -2326,7 +2465,8 @@
    "check": "",
    "text": "Passif — Vous pouvez proposer à un joueur d'échanger cette carte contre une carte de son terrain.\nS'il accepte, il peut activer une de ses cartes.",
    "rules": "La proposition est faite quand la carte arrive sur un terrain ; vous pouvez ne pas proposer. Les deux cartes échangent leurs places et leurs propriétaires.",
-   "image": "EMI-32.png"
+   "image": "EMI-32.png",
+   "claude": ""
   },
   "ANT-01": {
    "id": "ANT-01",
@@ -2344,7 +2484,8 @@
    "check": "",
    "text": "Éphémère — Gagnez 100 💰.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-02": {
    "id": "ANT-02",
@@ -2362,7 +2503,8 @@
    "check": "",
    "text": "Permanent — Posez-la sur un terrain allié : gagnez 5 💰 à chaque tour tant qu'elle y reste.\nCumulable sur la même place (compte pour 1 carte). 1 fois par tour, une carte uniquement Gold peut devenir une Rente.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-03": {
    "id": "ANT-03",
@@ -2380,7 +2522,8 @@
    "check": "",
    "text": "Éphémère — Gagnez 10 💰, +1 💰 par Rente active sur le terrain allié.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-04": {
    "id": "ANT-04",
@@ -2398,7 +2541,8 @@
    "check": "",
    "text": "Permanent — Posez-la sur le terrain d'un adversaire : à chaque tour, volez-lui 10 💰.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-05": {
    "id": "ANT-05",
@@ -2416,7 +2560,8 @@
    "check": "",
    "text": "Éphémère — Posez-la sur le terrain d'un adversaire : la prochaine fois qu'il pose une carte, volez-lui 50 💰.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-06": {
    "id": "ANT-06",
@@ -2434,7 +2579,8 @@
    "check": "",
    "text": "Pari — Misez 100 💰 et ciblez un adversaire.\nS'il perd des 💰 au prochain tour : gagnez 2 fois la mise et inversez votre 🧠.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-07": {
    "id": "ANT-07",
@@ -2452,7 +2598,8 @@
    "check": "",
    "text": "Éphémère — Posez-la sur un terrain allié (⏱ 3 tours). Tous les joueurs perdent 10 💰, stockés ici.\nSi vous ne perdez aucun 💰 pendant ces 3 tours, gardez-les ; sinon ils sont rendus.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-08": {
    "id": "ANT-08",
@@ -2470,7 +2617,8 @@
    "check": "",
    "text": "Éphémère — Empruntez X 💰 à un joueur d'accord ; fixez ensemble l'échéance et le taux.\nSans remboursement à temps : excusez-vous publiquement.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-09": {
    "id": "ANT-09",
@@ -2488,7 +2636,8 @@
    "check": "",
    "text": "Mettez 100 💰 à l'abri (ni utilisables ni volables jusqu'à la fin de la partie). 🌀 → Trou de ver.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-10": {
    "id": "ANT-10",
@@ -2506,7 +2655,8 @@
    "check": "",
    "text": "Ciblez un joueur.\nSi 🌀 Primordial : volez-lui 50 💰.\nSi 🌀 Trou de ver : volez une carte de sa main.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-11": {
    "id": "ANT-11",
@@ -2524,7 +2674,8 @@
    "check": "",
    "text": "Passif — Le joueur qui l'active est maudit : il perd 5 💰 par tour.\n🧠 vraie : tous les joueurs gagnent 50 💰. 🧠 fausse : chacun donne 10 💰 au maudit.\nInverser sa 🧠 lève la malédiction.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-12": {
    "id": "ANT-12",
@@ -2542,7 +2693,8 @@
    "check": "",
    "text": "Coût : 5 💰.\nDéfaussez une carte d'un terrain adverse.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-13": {
    "id": "ANT-13",
@@ -2560,7 +2712,8 @@
    "check": "",
    "text": "Permanent — Posez-la sur un terrain allié. 1 fois par tour : dépensez 5 💰 pour défausser une carte d'un terrain adverse.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-14": {
    "id": "ANT-14",
@@ -2578,7 +2731,8 @@
    "check": "",
    "text": "Les joueurs dont le 🌀 n'est pas le même que le vôtre perdent 50 💰.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-15": {
    "id": "ANT-15",
@@ -2596,7 +2750,8 @@
    "check": "",
    "text": "Permanent — Posez-la sur un terrain allié : vous êtes Banquier. Les autres peuvent vous confier 🎲 1d20 💰.\nÀ chaque tour, ils touchent 1 💰 par tranche de 5 💰 placés. Si la carte est défaussée, l'argent est perdu.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "ANT-16": {
    "id": "ANT-16",
@@ -2614,7 +2769,8 @@
    "check": "",
    "text": "Chaque joueur mise 50 💰 et lance 🎲 1d6 : le plus haut gagne toutes les mises (en cas d'égalité, on relance).",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "GRE-01": {
    "id": "GRE-01",
@@ -2632,7 +2788,8 @@
    "check": "",
    "text": "Piochez une carte et posez-la à la fin de votre terrain : elle s'active.",
    "rules": "La carte piochée est posée en dernière position, puis son effet s'active immédiatement.",
-   "image": "GRE-01.jpg"
+   "image": "GRE-01.jpg",
+   "claude": ""
   },
   "GRE-02": {
    "id": "GRE-02",
@@ -2650,7 +2807,8 @@
    "check": "",
    "text": "Ciblez un joueur au hasard (vous compris) : défaussez la dernière carte de son terrain.\nPuis défaussez cette carte.",
    "rules": "Si la cible est le lanceur et que Date de grenouille est la dernière carte, c'est elle qui est défaussée.",
-   "image": "GRE-02.jpg"
+   "image": "GRE-02.jpg",
+   "claude": ""
   },
   "GRE-03": {
    "id": "GRE-03",
@@ -2668,7 +2826,8 @@
    "check": "",
    "text": "Ciblez un joueur au hasard (vous compris) : il gagne 🎲 1d100 💰.",
    "rules": "",
-   "image": "GRE-03.jpg"
+   "image": "GRE-03.jpg",
+   "claude": ""
   },
   "GRE-04": {
    "id": "GRE-04",
@@ -2686,7 +2845,8 @@
    "check": "",
    "text": "Lancez le dé trou noir : votre 🌀 prend le résultat.",
    "rules": "",
-   "image": "GRE-04.jpg"
+   "image": "GRE-04.jpg",
+   "claude": ""
   },
   "GRE-05": {
    "id": "GRE-05",
@@ -2704,7 +2864,8 @@
    "check": "",
    "text": "Lancez le dé de sentience : votre 🧠 prend le résultat.",
    "rules": "",
-   "image": "GRE-05.jpg"
+   "image": "GRE-05.jpg",
+   "claude": ""
   },
   "GRE-06": {
    "id": "GRE-06",
@@ -2722,7 +2883,8 @@
    "check": "",
    "text": "Ciblez un joueur au hasard (vous compris) : il perd 🎲 1d20 💰.",
    "rules": "",
-   "image": "GRE-06.jpg"
+   "image": "GRE-06.jpg",
+   "claude": ""
   },
   "GRE-07": {
    "id": "GRE-07",
@@ -2740,7 +2902,8 @@
    "check": "",
    "text": "Ciblez un autre joueur au hasard : volez la première carte de son terrain et mettez-la au fond de votre pioche.",
    "rules": "La carte volée va au fond de la pioche du lanceur, sans mélanger. Elle change de propriétaire.",
-   "image": "GRE-07.jpg"
+   "image": "GRE-07.jpg",
+   "claude": ""
   },
   "GRE-08": {
    "id": "GRE-08",
@@ -2758,7 +2921,8 @@
    "check": "",
    "text": "Au hasard, l'un des trois : gagnez 10 💰, 🌀 → Blazard, ou 🧠 → vraie.",
    "rules": "",
-   "image": "GRE-08.jpg"
+   "image": "GRE-08.jpg",
+   "claude": ""
   },
   "GRE-09": {
    "id": "GRE-09",
@@ -2776,7 +2940,8 @@
    "check": "",
    "text": "Jouez une autre carte de votre terrain, tirée au hasard (rien si elle est désactivée ou sans effet).",
    "rules": "Toutes les autres cartes du terrain du lanceur peuvent être tirées. Si la carte tirée est désactivée ou passive, l'effet échoue.",
-   "image": "GRE-09.jpg"
+   "image": "GRE-09.jpg",
+   "claude": ""
   },
   "GRE-10": {
    "id": "GRE-10",
@@ -2794,7 +2959,8 @@
    "check": "",
    "text": "Ciblez un joueur au hasard (vous compris) : échangez sa première carte Trou noir avec la vôtre.",
    "rules": "Si la cible tirée est le lanceur, il ne se passe rien.",
-   "image": "GRE-10.jpg"
+   "image": "GRE-10.jpg",
+   "claude": ""
   },
   "GRE-11": {
    "id": "GRE-11",
@@ -2812,7 +2978,8 @@
    "check": "",
    "text": "Défaussez la carte du dessus de votre pioche, puis piochez la carte du fond de votre défausse.",
    "rules": "« Fond de la défausse » = la carte la plus ancienne.",
-   "image": "GRE-11.jpg"
+   "image": "GRE-11.jpg",
+   "claude": ""
   },
   "GRE-12": {
    "id": "GRE-12",
@@ -2830,7 +2997,8 @@
    "check": "",
    "text": "Pour chaque autre joueur : 🧠 vraie, gagnez 20 💰 ; 🧠 fausse, perdez 20 💰.",
    "rules": "",
-   "image": "GRE-12.jpg"
+   "image": "GRE-12.jpg",
+   "claude": ""
   },
   "GRE-13": {
    "id": "GRE-13",
@@ -2848,7 +3016,8 @@
    "check": "",
    "text": "🎲 1d100 :\n1-10 perdez 10 💰 · 11-20 gagnez 10 💰 · 21-30 Quasar · 31-40 Blazard · 41-50 Primordial · 51-60 Trou de ver · 61-70 🧠 vraie · 71-80 🧠 fausse · 81-100 défaussez cette carte.",
    "rules": "",
-   "image": "GRE-13.jpg"
+   "image": "GRE-13.jpg",
+   "claude": ""
   },
   "GRE-14": {
    "id": "GRE-14",
@@ -2866,7 +3035,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Trou de ver. 🧠 → fausse.\n🎲 1d4, sur un 4 : défaussez cette carte.",
    "rules": "",
-   "image": "GRE-14.jpg"
+   "image": "GRE-14.jpg",
+   "claude": ""
   },
   "GRE-15": {
    "id": "GRE-15",
@@ -2884,7 +3054,8 @@
    "check": "",
    "text": "Si aucun autre joueur n'a le même 🌀 que vous : gagnez 50 💰.",
    "rules": "",
-   "image": "GRE-15.jpg"
+   "image": "GRE-15.jpg",
+   "claude": ""
   },
   "GRE-16": {
    "id": "GRE-16",
@@ -2902,7 +3073,8 @@
    "check": "",
    "text": "Ciblez un joueur au hasard (vous compris) : la carte du dessus de sa pioche va dans sa défausse.",
    "rules": "",
-   "image": "GRE-16.jpg"
+   "image": "GRE-16.jpg",
+   "claude": ""
   },
   "GRE-17": {
    "id": "GRE-17",
@@ -2920,7 +3092,8 @@
    "check": "",
    "text": "Si 🧠 vraie : les autres perdent 10 💰 et vous gagnez 10 💰.",
    "rules": "",
-   "image": "GRE-17.jpg"
+   "image": "GRE-17.jpg",
+   "claude": ""
   },
   "GRE-18": {
    "id": "GRE-18",
@@ -2938,7 +3111,8 @@
    "check": "",
    "text": "Ciblez un joueur : défaussez une carte de sa main, face cachée.\nPuis cette carte échange sa place avec la carte du fond de votre défausse.",
    "rules": "La cible est choisie parmi les autres joueurs qui ont des cartes en main. La carte qui prend la place de Lemon Juice n'active pas son effet.",
-   "image": "GRE-18.jpg"
+   "image": "GRE-18.jpg",
+   "claude": ""
   },
   "GRE-19": {
    "id": "GRE-19",
@@ -2956,7 +3130,8 @@
    "check": "",
    "text": "Passif — Quand une autre de vos cartes doit quitter le terrain, cette carte est défaussée à sa place.",
    "rules": "Vaut pour les déplacements causés par un effet (défausse, vol, retour en main ou dans une pioche, changement de terrain). Un échange de places sur le même terrain n'est pas concerné.",
-   "image": "GRE-19.jpg"
+   "image": "GRE-19.jpg",
+   "claude": ""
   },
   "GRE-20": {
    "id": "GRE-20",
@@ -2974,7 +3149,8 @@
    "check": "",
    "text": "Si 🧠 fausse : les autres gagnent 10 💰 et 🧠 → vraie.",
    "rules": "",
-   "image": "GRE-20.jpg"
+   "image": "GRE-20.jpg",
+   "claude": ""
   },
   "GRE-21": {
    "id": "GRE-21",
@@ -2992,7 +3168,8 @@
    "check": "",
    "text": "Placez cette carte sous une carte de n'importe quel terrain : ses choix se font désormais au hasard.\nElle suit la carte, sauf d'un terrain à un autre.",
    "rules": "La carte « hôte » joue ses choix au hasard tant que le Crapaud stratège est dessous. Si l'hôte va dans une pioche, une main ou une défausse, le crapaud y va aussi et s'en détache. S'il passe sur un autre terrain, le crapaud reste dessous.",
-   "image": "GRE-21.jpg"
+   "image": "GRE-21.jpg",
+   "claude": ""
   },
   "GRE-22": {
    "id": "GRE-22",
@@ -3010,7 +3187,8 @@
    "check": "",
    "text": "Si 🧠 vraie : lancez le dé trou noir, votre 🌀 prend le résultat.\nSinon : lancez le dé de sentience, votre 🧠 prend le résultat.",
    "rules": "",
-   "image": "GRE-22.jpg"
+   "image": "GRE-22.jpg",
+   "claude": ""
   },
   "GRE-23": {
    "id": "GRE-23",
@@ -3028,7 +3206,8 @@
    "check": "",
    "text": "Passif — Quand elle est posée ou déplacée : les joueurs concernés lancent le dé trou noir, leur 🌀 prend le résultat.",
    "rules": "Concernés = le joueur d'où vient la carte et celui où elle arrive (une seule fois si c'est le même).",
-   "image": "GRE-23.jpg"
+   "image": "GRE-23.jpg",
+   "claude": ""
   },
   "GRE-24": {
    "id": "GRE-24",
@@ -3046,7 +3225,8 @@
    "check": "",
    "text": "Passif — Quand on vous vole des 💰, le montant devient 🎲 1d100.",
    "rules": "Le d100 remplace le montant même s'il est plus grand. Un vol = un effet d'un autre joueur qui lui fait prendre vos gold.",
-   "image": "GRE-24.jpg"
+   "image": "GRE-24.jpg",
+   "claude": ""
   },
   "POP-01": {
    "id": "POP-01",
@@ -3064,7 +3244,8 @@
    "check": "",
    "text": "Si 🧠 vraie : piochez 1 carte ; sinon piochez 2 cartes.",
    "rules": "Sentience du lanceur : vraie → pioche 1, fausse → pioche 2.",
-   "image": "POP-01.jpg"
+   "image": "POP-01.jpg",
+   "claude": ""
   },
   "POP-02": {
    "id": "POP-02",
@@ -3080,9 +3261,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagnez 10 💰 par carte Gold de votre terrain.",
-   "rules": "+10 gold par carte 💰 sur le terrain du lanceur, celle-ci comprise.",
-   "image": "POP-02.jpg"
+   "text": "Gagnez 5 💰 par carte Gold de votre terrain.",
+   "rules": "+5 gold par carte 💰 sur le terrain du lanceur, celle-ci comprise.",
+   "image": "POP-02.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "POP-03": {
    "id": "POP-03",
@@ -3100,7 +3282,8 @@
    "check": "",
    "text": "S'il y a au moins 3 🌀 différents parmi les joueurs : le 🌀 d'un joueur au hasard (pas déjà Blazard) → Blazard.",
    "rules": "S'il y a au moins 3 trous noirs différents parmi les joueurs, un joueur au hasard (pas déjà Blazard) passe en Blazard.",
-   "image": "POP-03.jpg"
+   "image": "POP-03.jpg",
+   "claude": ""
   },
   "POP-04": {
    "id": "POP-04",
@@ -3118,7 +3301,8 @@
    "check": "",
    "text": "Les deux voisins du joueur le plus riche : 🌀 → Blazard.",
    "rules": "Les voisins du plus riche dans l'ordre du tour (avant et après lui) passent en Blazard. Égalité : tirage au hasard.",
-   "image": "POP-04.jpg"
+   "image": "POP-04.jpg",
+   "claude": ""
   },
   "POP-05": {
    "id": "POP-05",
@@ -3136,7 +3320,8 @@
    "check": "",
    "text": "Passif — À chaque interaction : gagnez 10 💰 ; si 🧠 vraie, 🌀 → Blazard.",
    "rules": "Passif. Interaction = un effet de carte, lancé par n'importe quel joueur, qui touche les gold, la sentience, le trou noir, les cartes (main, terrain, pioche, défausse) d'un joueur, lanceur compris. Chaque interaction : +10 gold au porteur, puis s'il a la sentience vraie son trou noir passe en Blazard. Les poses, défausses et pioches normales du tour ne comptent pas.",
-   "image": "POP-05.jpg"
+   "image": "POP-05.jpg",
+   "claude": ""
   },
   "POP-06": {
    "id": "POP-06",
@@ -3154,7 +3339,8 @@
    "check": "",
    "text": "Si 🌀 Blazard : rejouez la première carte Gold de votre terrain.",
    "rules": "Si le lanceur est en Blazard, la première carte 💰 de son terrain (sens de lecture) active son effet une deuxième fois.",
-   "image": "POP-06.jpg"
+   "image": "POP-06.jpg",
+   "claude": ""
   },
   "POP-07": {
    "id": "POP-07",
@@ -3172,7 +3358,8 @@
    "check": "",
    "text": "Deux autres joueurs de votre choix échangent leurs 💰.\nSi 🧠 fausse : volez ensuite 10 % des 💰 de chacun.",
    "rules": "Le lanceur choisit deux autres joueurs qui échangent leurs gold. Si sa sentience est fausse, il prend ensuite 10 % (arrondi inférieur) à chacun des deux.",
-   "image": "POP-07.jpg"
+   "image": "POP-07.jpg",
+   "claude": ""
   },
   "POP-08": {
    "id": "POP-08",
@@ -3190,7 +3377,8 @@
    "check": "",
    "text": "Inversez votre 🧠. Gagnez 5 💰.",
    "rules": "",
-   "image": "POP-08.jpg"
+   "image": "POP-08.jpg",
+   "claude": ""
   },
   "POP-09": {
    "id": "POP-09",
@@ -3208,7 +3396,8 @@
    "check": "",
    "text": "Si 🧠 vraie : gagnez 20 💰 ; sinon ciblez un joueur et volez-lui 10 💰.",
    "rules": "Sentience fausse : le lanceur choisit qui voler (10 gold, limité à ce qu'il possède).",
-   "image": "POP-09.jpg"
+   "image": "POP-09.jpg",
+   "claude": ""
   },
   "POP-10": {
    "id": "POP-10",
@@ -3226,7 +3415,8 @@
    "check": "",
    "text": "Un autre joueur en Blazard, au hasard, vous donne 10 % de ses 💰.",
    "rules": "Un autre joueur Blazard au hasard donne 10 % de ses gold (arrondi inférieur) au lanceur.",
-   "image": "POP-10.jpg"
+   "image": "POP-10.jpg",
+   "claude": ""
   },
   "POP-11": {
    "id": "POP-11",
@@ -3244,7 +3434,8 @@
    "check": "",
    "text": "Chaque autre joueur en Blazard vous donne 10 % de ses 💰.",
    "rules": "Chaque autre joueur Blazard donne 10 % de ses gold (arrondi inférieur) au lanceur.",
-   "image": "POP-11.jpg"
+   "image": "POP-11.jpg",
+   "claude": ""
   },
   "POP-12": {
    "id": "POP-12",
@@ -3262,7 +3453,8 @@
    "check": "",
    "text": "Coût facultatif : 200 💰.\nDeux joueurs de votre choix défaussent tout leur terrain, puis chacun pose autant de cartes piochées chez l'autre, sans leur effet.",
    "rules": "Paiement optionnel de 200. Deux joueurs au choix (lanceur possible) défaussent tout leur terrain, puis chacun pose sur son terrain autant de cartes qu'il en avait, piochées dans la pioche de l'autre. Les cartes posées ne s'activent pas.",
-   "image": "POP-12.jpg"
+   "image": "POP-12.jpg",
+   "claude": ""
   },
   "POP-13": {
    "id": "POP-13",
@@ -3280,7 +3472,8 @@
    "check": "",
    "text": "Coût facultatif : 25 💰.\nUn autre joueur au hasard est bloqué (⏱ son prochain tour) et la première carte de son terrain est défaussée.",
    "rules": "Paiement optionnel de 25. Un autre joueur au hasard est bloqué (sentience et trou noir figés) jusqu'au début de son prochain tour, et la première carte de son terrain est défaussée.",
-   "image": "POP-13.jpg"
+   "image": "POP-13.jpg",
+   "claude": ""
   },
   "POP-14": {
    "id": "POP-14",
@@ -3298,7 +3491,8 @@
    "check": "",
    "text": "Si 🧠 vraie : piochez une carte ; sinon ciblez un joueur et défaussez la dernière carte de son terrain.",
    "rules": "Sentience fausse : le lanceur choisit un joueur (lui compris) dont la dernière carte du terrain est défaussée.",
-   "image": "POP-14.jpg"
+   "image": "POP-14.jpg",
+   "claude": ""
   },
   "POP-15": {
    "id": "POP-15",
@@ -3316,7 +3510,8 @@
    "check": "",
    "text": "Coût facultatif : 35 💰.\nCiblez un joueur : il mélange sa main dans sa pioche et pioche autant de cartes.",
    "rules": "Paiement optionnel de 35. Joueur ciblé au choix (lanceur compris) : sa main retourne dans sa pioche, la pioche est mélangée, puis il pioche autant de cartes.",
-   "image": "POP-15.jpg"
+   "image": "POP-15.jpg",
+   "claude": ""
   },
   "POP-16": {
    "id": "POP-16",
@@ -3334,7 +3529,8 @@
    "check": "",
    "text": "💰 pairs : 🧠 → vraie et 🌀 → Blazard.\n💰 impairs : 🧠 → fausse.\n(Pour chaque joueur.)",
    "rules": "Tous les joueurs, lanceur compris. 0 est pair.",
-   "image": "POP-16.jpg"
+   "image": "POP-16.jpg",
+   "claude": ""
   },
   "POP-17": {
    "id": "POP-17",
@@ -3352,7 +3548,8 @@
    "check": "",
    "text": "Coût facultatif : 45 💰.\nLes autres joueurs en Blazard se passent leur main dans l'ordre du tour.",
    "rules": "Paiement optionnel de 45. Les mains des joueurs Blazard (sauf le lanceur) tournent dans l'ordre du tour (à 2 : elles s'échangent). Il faut au moins 2 joueurs concernés.",
-   "image": "POP-17.jpg"
+   "image": "POP-17.jpg",
+   "claude": ""
   },
   "POP-18": {
    "id": "POP-18",
@@ -3370,7 +3567,8 @@
    "check": "",
    "text": "Si 🧠 vraie : le 🌀 d'un autre joueur de votre choix → Blazard ; sinon le vôtre.",
    "rules": "",
-   "image": "POP-18.jpg"
+   "image": "POP-18.jpg",
+   "claude": ""
   },
   "POP-19": {
    "id": "POP-19",
@@ -3388,7 +3586,8 @@
    "check": "",
    "text": "Coût facultatif : 15 💰.\nDeux joueurs au hasard (vous compris) : 🌀 → Blazard.",
    "rules": "Paiement optionnel de 15. Deux joueurs différents au hasard, lanceur compris, passent en Blazard.",
-   "image": "POP-19.jpg"
+   "image": "POP-19.jpg",
+   "claude": ""
   },
   "POP-20": {
    "id": "POP-20",
@@ -3406,7 +3605,8 @@
    "check": "",
    "text": "Si le joueur le plus pauvre a 🧠 vraie : son 🌀 → Blazard.",
    "rules": "Le plus pauvre (égalité : au hasard), lanceur compris.",
-   "image": "POP-20.jpg"
+   "image": "POP-20.jpg",
+   "claude": ""
   },
   "POP-21": {
    "id": "POP-21",
@@ -3424,7 +3624,8 @@
    "check": "",
    "text": "Chaque autre joueur en Blazard vous donne 10 % de ses 💰. Puis 🌀 → Blazard.",
    "rules": "Chaque autre joueur Blazard donne 10 % (arrondi inférieur) au lanceur, puis le lanceur passe en Blazard.",
-   "image": "POP-21.jpg"
+   "image": "POP-21.jpg",
+   "claude": ""
   },
   "POP-22": {
    "id": "POP-22",
@@ -3442,7 +3643,8 @@
    "check": "",
    "text": "Si tous les joueurs sont en Blazard : chaque autre joueur défausse une carte au hasard de son terrain, puis pioche une carte.",
    "rules": "Si tous les joueurs (lanceur compris) sont en Blazard : chaque autre joueur défausse une carte au hasard de son terrain puis pioche 1 carte.",
-   "image": "POP-22.jpg"
+   "image": "POP-22.jpg",
+   "claude": ""
   },
   "POP-23": {
    "id": "POP-23",
@@ -3460,7 +3662,8 @@
    "check": "",
    "text": "Sans vous compter : le plus pauvre vole 10 % des 💰 du plus riche, puis le 🌀 du plus riche → Blazard.",
    "rules": "Hors lanceur : le plus pauvre prend 10 % (arrondi inférieur) des gold du plus riche, puis le plus riche passe en Blazard.",
-   "image": "POP-23.jpg"
+   "image": "POP-23.jpg",
+   "claude": ""
   },
   "POP-24": {
    "id": "POP-24",
@@ -3478,7 +3681,8 @@
    "check": "",
    "text": "Coût facultatif : 25 💰.\nDéfaussez une carte du terrain du joueur le plus pauvre (sauf vous).",
    "rules": "Paiement optionnel de 25. Le plus pauvre hors lanceur ; le lanceur choisit la carte défaussée. Sans payer, rien ne se passe.",
-   "image": "POP-24.jpg"
+   "image": "POP-24.jpg",
+   "claude": ""
   },
   "POP-25": {
    "id": "POP-25",
@@ -3496,7 +3700,8 @@
    "check": "",
    "text": "Comptez les 🧠 vraies et fausses de tous les joueurs.\nPlus de vraies : chaque autre joueur en Blazard défausse sa première carte Trou noir.\nPlus de fausses : chaque joueur en Blazard vole 10 💰 à chaque joueur qui ne l'est pas.\nÉgalité : les deux.",
    "rules": "On compte les sentiences de tous les joueurs. Plus de vraies (ou égalité) : chaque autre joueur Blazard défausse la première carte 🌀 de son terrain. Plus de fausses (ou égalité) : chaque joueur Blazard vole 10 gold à chaque joueur non Blazard.",
-   "image": "POP-25.jpg"
+   "image": "POP-25.jpg",
+   "claude": ""
   },
   "POP-26": {
    "id": "POP-26",
@@ -3512,9 +3717,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si au moins (joueurs − 1) joueurs qui se suivent sont en Blazard : chaque joueur en Blazard gagne 200 💰.",
-   "rules": "Si au moins (nombre de joueurs − 1) joueurs consécutifs dans l'ordre du tour (en boucle) sont en Blazard, chaque joueur Blazard gagne 200 gold.",
-   "image": "POP-26.jpg"
+   "text": "Si au moins (joueurs − 1) joueurs qui se suivent sont en Blazard : chaque joueur en Blazard gagne 100 💰.",
+   "rules": "Si au moins (nombre de joueurs − 1) joueurs consécutifs dans l'ordre du tour (en boucle) sont en Blazard, chaque joueur Blazard gagne 100 gold.",
+   "image": "POP-26.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "POP-27": {
    "id": "POP-27",
@@ -3532,7 +3738,8 @@
    "check": "",
    "text": "Coût facultatif : 10 💰.\nChaque joueur inverse sa 🧠 et son 🌀 change au hasard.",
    "rules": "Paiement optionnel de 10. Pour chaque joueur : sentience inversée et trou noir tiré au hasard (peut rester le même).",
-   "image": "POP-27.jpg"
+   "image": "POP-27.jpg",
+   "claude": ""
   },
   "POP-28": {
    "id": "POP-28",
@@ -3550,7 +3757,8 @@
    "check": "",
    "text": "Chaque joueur qui n'est pas en Blazard inverse sa 🧠.",
    "rules": "Tous les joueurs, lanceur compris.",
-   "image": "POP-28.jpg"
+   "image": "POP-28.jpg",
+   "claude": ""
   },
   "POP-29": {
    "id": "POP-29",
@@ -3568,7 +3776,8 @@
    "check": "",
    "text": "Si 🌀 Blazard : piochez une carte dans la pioche du joueur le plus riche ; sinon 🌀 → Blazard.",
    "rules": "En Blazard : le lanceur pioche une carte dans la pioche du joueur le plus riche (hors lui).",
-   "image": "POP-29.jpg"
+   "image": "POP-29.jpg",
+   "claude": ""
   },
   "POP-30": {
    "id": "POP-30",
@@ -3586,7 +3795,8 @@
    "check": "",
    "text": "Sans vous compter : si le plus riche est en Blazard, il donne 10 % de ses 💰 au plus pauvre.",
    "rules": "Hors lanceur : si le plus riche est en Blazard, il donne 10 % (arrondi inférieur) au plus pauvre.",
-   "image": "POP-30.jpg"
+   "image": "POP-30.jpg",
+   "claude": ""
   },
   "POP-31": {
    "id": "POP-31",
@@ -3604,7 +3814,8 @@
    "check": "",
    "text": "Si 🧠 vraie : chaque joueur qui n'est pas en Blazard perd 10 % de ses 💰 ; sinon chaque joueur en Blazard.\nLes 💰 perdus sont partagés entre tous les joueurs.",
    "rules": "Chaque joueur concerné perd 10 % (arrondi inférieur) ; la cagnotte est partagée à parts égales entre tous les joueurs, le reste de la division est perdu.",
-   "image": "POP-31.jpg"
+   "image": "POP-31.jpg",
+   "claude": ""
   },
   "POP-32": {
    "id": "POP-32",
@@ -3622,7 +3833,8 @@
    "check": "",
    "text": "Coût facultatif : 25 💰.\nDeux joueurs de votre choix (vous compris) échangent leurs mains.",
    "rules": "Paiement optionnel de 25. Le lanceur choisit deux joueurs (lui compris) qui échangent leurs mains.",
-   "image": "POP-32.jpg"
+   "image": "POP-32.jpg",
+   "claude": ""
   },
   "YOH-01": {
    "id": "YOH-01",
@@ -3640,7 +3852,8 @@
    "check": "",
    "text": "Ciblez un joueur : son tour précédent est annulé.\nS'il ne s'en souvient pas, il perd la moitié de ses 💰.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "YOH-02": {
    "id": "YOH-02",
@@ -3658,7 +3871,8 @@
    "check": "",
    "text": "Ciblez un joueur : à chaque tour, il vous donne X 💰 (X augmente à chaque tour).",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "REV-01": {
    "id": "REV-01",
@@ -3676,7 +3890,8 @@
    "check": "",
    "text": "Passif — Tous les 3 tours : 🧠 → vraie, puis 🧠 → fausse à la fin de ce tour.\nQuand votre 🧠 est fausse, elle recule d'une place. Les changements de 🧠 venant des autres ne vous touchent pas.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Sleeping_boy_%28Nikifor_Krylov%29.jpg/500px-Sleeping_boy_%28Nikifor_Krylov%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Sleeping_boy_%28Nikifor_Krylov%29.jpg/500px-Sleeping_boy_%28Nikifor_Krylov%29.jpg",
+   "claude": ""
   },
   "REV-02": {
    "id": "REV-02",
@@ -3694,7 +3909,8 @@
    "check": "",
    "text": "Si le Rêveur n'est pas sur votre terrain : cherchez-le et posez-le en première place.\nSinon : prenez une carte Trou noir de votre pioche ou de votre défausse dans votre main.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Bed%2C_Settler%27s_bedroom%2C_McNicol_Homestead.jpg/500px-Bed%2C_Settler%27s_bedroom%2C_McNicol_Homestead.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Bed%2C_Settler%27s_bedroom%2C_McNicol_Homestead.jpg/500px-Bed%2C_Settler%27s_bedroom%2C_McNicol_Homestead.jpg",
+   "claude": ""
   },
   "REV-03": {
    "id": "REV-03",
@@ -3712,7 +3928,8 @@
    "check": "",
    "text": "Vous pouvez révéler les 3 premières cartes de votre pioche : s'il y a un Rêve, activez-le puis défaussez-le.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Blue_dream_catcher_%28Unsplash%29.jpg/500px-Blue_dream_catcher_%28Unsplash%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Blue_dream_catcher_%28Unsplash%29.jpg/500px-Blue_dream_catcher_%28Unsplash%29.jpg",
+   "claude": ""
   },
   "REV-04": {
    "id": "REV-04",
@@ -3730,7 +3947,8 @@
    "check": "",
    "text": "Ciblez un autre joueur.\nSi 🧠 fausse : désactivez une carte d'un terrain (⏱ 1 tour).\nPuis sa 🧠 → vraie.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Sleeping_cat_on_her_back.jpg/500px-Sleeping_cat_on_her_back.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Sleeping_cat_on_her_back.jpg/500px-Sleeping_cat_on_her_back.jpg",
+   "claude": ""
   },
   "REV-05": {
    "id": "REV-05",
@@ -3748,7 +3966,8 @@
    "check": "",
    "text": "Ciblez un joueur : sa 🧠 → fausse.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Single-Bell_Alarm_Clock.png/500px-Single-Bell_Alarm_Clock.png"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Single-Bell_Alarm_Clock.png/500px-Single-Bell_Alarm_Clock.png",
+   "claude": ""
   },
   "REV-06": {
    "id": "REV-06",
@@ -3766,7 +3985,8 @@
    "check": "",
    "text": "Révélez les 3 cartes du dessus de la défausse. S'il y a au moins un Rêve et un Cauchemar : posez-en une, mélangez-en une dans la pioche et prenez la dernière en main.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Old_Memories%29.jpg/500px-Old_Memories%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Old_Memories%29.jpg/500px-Old_Memories%29.jpg",
+   "claude": ""
   },
   "REV-07": {
    "id": "REV-07",
@@ -3784,7 +4004,8 @@
    "check": "",
    "text": "Passif — Si 🧠 vraie : échangez 2 cartes sur les terrains.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Hot_air_balloon_and_moon.jpg/500px-Hot_air_balloon_and_moon.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Hot_air_balloon_and_moon.jpg/500px-Hot_air_balloon_and_moon.jpg",
+   "claude": ""
   },
   "REV-08": {
    "id": "REV-08",
@@ -3802,7 +4023,8 @@
    "check": "",
    "text": "Passif — Si 🧠 vraie : gagnez 50 💰 ; sinon 2 💰.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/DFC_4172_A_handheld_magnifying_glass_resting_on_a_scattered_pile_of_coins_and_medallions_highlighting_intricate_details.jpg/500px-DFC_4172_A_handheld_magnifying_glass_resting_on_a_scattered_pile_of_coins_and_medallions_highlighting_intricate_details.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/DFC_4172_A_handheld_magnifying_glass_resting_on_a_scattered_pile_of_coins_and_medallions_highlighting_intricate_details.jpg/500px-DFC_4172_A_handheld_magnifying_glass_resting_on_a_scattered_pile_of_coins_and_medallions_highlighting_intricate_details.jpg",
+   "claude": ""
   },
   "REV-09": {
    "id": "REV-09",
@@ -3820,7 +4042,8 @@
    "check": "",
    "text": "Passif — Si 🧠 vraie : posez 1 carte de plus ce tour ; sinon piochez 1 carte.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/International_books_at_Kent_Library.jpg/500px-International_books_at_Kent_Library.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/International_books_at_Kent_Library.jpg/500px-International_books_at_Kent_Library.jpg",
+   "claude": ""
   },
   "REV-10": {
    "id": "REV-10",
@@ -3838,7 +4061,8 @@
    "check": "",
    "text": "Si 🧠 vraie : ciblez un joueur, à son prochain tour il ne peut pas vous nuire.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Cat_friends_hugging.jpg/500px-Cat_friends_hugging.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Cat_friends_hugging.jpg/500px-Cat_friends_hugging.jpg",
+   "claude": ""
   },
   "REV-11": {
    "id": "REV-11",
@@ -3856,7 +4080,8 @@
    "check": "",
    "text": "Si 🧠 vraie : mélangez votre défausse et votre main dans votre pioche, puis piochez 4 cartes.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Monarch_butterfly_after_emerging_from_chrysalis_%2827850956870%29.jpg/500px-Monarch_butterfly_after_emerging_from_chrysalis_%2827850956870%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Monarch_butterfly_after_emerging_from_chrysalis_%2827850956870%29.jpg/500px-Monarch_butterfly_after_emerging_from_chrysalis_%2827850956870%29.jpg",
+   "claude": ""
   },
   "REV-12": {
    "id": "REV-12",
@@ -3874,7 +4099,8 @@
    "check": "",
    "text": "Ciblez un joueur. Si 🧠 vraie : regardez sa main ; sinon regardez une carte de sa main.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Ferdinand_Bol_-_Jacob%27s_Dream_-_WGA02362.jpg/500px-Ferdinand_Bol_-_Jacob%27s_Dream_-_WGA02362.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Ferdinand_Bol_-_Jacob%27s_Dream_-_WGA02362.jpg/500px-Ferdinand_Bol_-_Jacob%27s_Dream_-_WGA02362.jpg",
+   "claude": ""
   },
   "REV-13": {
    "id": "REV-13",
@@ -3892,7 +4118,8 @@
    "check": "",
    "text": "Si 🧠 vraie : posez une carte de votre défausse.\nVous pouvez défausser cette carte pour poser un Rêveur.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Phoenix-Fabelwesen.jpg/500px-Phoenix-Fabelwesen.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Phoenix-Fabelwesen.jpg/500px-Phoenix-Fabelwesen.jpg",
+   "claude": ""
   },
   "REV-14": {
    "id": "REV-14",
@@ -3910,7 +4137,8 @@
    "check": "",
    "text": "Si 🧠 vraie, choisissez un état de 🌀 et son effet :\nPrimordial : la 🧠 d'un joueur → vraie.\nBlazard : changez le 🌀 d'un joueur.\nQuasar : échangez la place de 2 de vos cartes.\nTrou de ver : gagnez 10 💰.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Spanish_Royal_Crown_1crop.jpg/500px-Spanish_Royal_Crown_1crop.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Spanish_Royal_Crown_1crop.jpg/500px-Spanish_Royal_Crown_1crop.jpg",
+   "claude": ""
   },
   "REV-15": {
    "id": "REV-15",
@@ -3928,7 +4156,8 @@
    "check": "",
    "text": "Ciblez un joueur à 🧠 vraie : défaussez une carte de son terrain.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Nagasaki_temple_destroyed.jpg/500px-Nagasaki_temple_destroyed.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Nagasaki_temple_destroyed.jpg/500px-Nagasaki_temple_destroyed.jpg",
+   "claude": ""
   },
   "REV-16": {
    "id": "REV-16",
@@ -3946,7 +4175,8 @@
    "check": "",
    "text": "Ciblez un joueur à 🧠 vraie. Selon votre 🌀 :\nPrimordial : il perd 5 💰.\nBlazard : défaussez la première carte de sa pioche.\nQuasar : défaussez une carte de sa main.\nTrou de ver : défaussez cette carte.\nSi votre 🧠 est fausse : cyclez votre 🌀.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Foggy_forest_-_Rinderschinken%2C_St._Jakob_in_Defereggen%2C_Tyrol.jpg/500px-Foggy_forest_-_Rinderschinken%2C_St._Jakob_in_Defereggen%2C_Tyrol.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Foggy_forest_-_Rinderschinken%2C_St._Jakob_in_Defereggen%2C_Tyrol.jpg/500px-Foggy_forest_-_Rinderschinken%2C_St._Jakob_in_Defereggen%2C_Tyrol.jpg",
+   "claude": ""
   },
   "REV-17": {
    "id": "REV-17",
@@ -3964,7 +4194,8 @@
    "check": "",
    "text": "Ciblez un joueur à 🧠 vraie : à son prochain tour, il ne peut pas interagir avec les autres.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Prison_Bars_Jail_Cell.jpg/500px-Prison_Bars_Jail_Cell.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Prison_Bars_Jail_Cell.jpg/500px-Prison_Bars_Jail_Cell.jpg",
+   "claude": ""
   },
   "REV-18": {
    "id": "REV-18",
@@ -3982,7 +4213,8 @@
    "check": "",
    "text": "Une seule fois — Ciblez un joueur à 🧠 vraie : posez cette carte à la fin de son terrain.\nÀ chaque tour, elle recule d'une place et il perd 2 💰. En première place, tout son terrain est défaussé.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Nightmare_%281790-1791%29_-_Johann_Heinrich_F%C3%BCssli.jpg/500px-The_Nightmare_%281790-1791%29_-_Johann_Heinrich_F%C3%BCssli.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Nightmare_%281790-1791%29_-_Johann_Heinrich_F%C3%BCssli.jpg/500px-The_Nightmare_%281790-1791%29_-_Johann_Heinrich_F%C3%BCssli.jpg",
+   "claude": ""
   },
   "REV-19": {
    "id": "REV-19",
@@ -4000,7 +4232,65 @@
    "check": "",
    "text": "Ciblez un joueur à 🧠 vraie : il perd 10 💰.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Lost_wallet_%2810623155873%29.jpg/500px-Lost_wallet_%2810623155873%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Lost_wallet_%2810623155873%29.jpg/500px-Lost_wallet_%2810623155873%29.jpg",
+   "claude": ""
+  },
+  "REV-21": {
+   "id": "REV-21",
+   "kind": "card",
+   "deck": "Rêverie",
+   "name": "Insomnie",
+   "tags": {
+    "sentience": false,
+    "gold": true,
+    "blackHole": false
+   },
+   "trigger": "Activation",
+   "event": "",
+   "target": "",
+   "check": "",
+   "text": "Si 🧠 fausse : vous pouvez échanger vos 💰 avec un joueur à 🧠 vraie.",
+   "rules": "Facultatif (la carte se rejoue à chaque tour). Les gold échangés comptent pour « Popo communisme ».",
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Depiction_of_a_person_suffering_from_Insomnia_%28sleeplessness%29_%28cropped%29.png/500px-Depiction_of_a_person_suffering_from_Insomnia_%28sleeplessness%29_%28cropped%29.png",
+   "claude": "🆕 Ajoutée v0.23"
+  },
+  "REV-20": {
+   "id": "REV-20",
+   "kind": "card",
+   "deck": "Rêverie",
+   "name": "Marchand de sable",
+   "tags": {
+    "sentience": true,
+    "gold": true,
+    "blackHole": false
+   },
+   "trigger": "Activation",
+   "event": "",
+   "target": "",
+   "check": "",
+   "text": "Coût facultatif : 20 💰.\nCiblez un joueur à 🧠 fausse : sa 🧠 → vraie.",
+   "rules": "Vous compris. Payé seulement si un joueur est choisi. Prépare les cibles des Cauchemars.",
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Vilhelm_Pedersen%2C_0k-06%2C_ubt.jpeg/500px-Vilhelm_Pedersen%2C_0k-06%2C_ubt.jpeg",
+   "claude": "🆕 Ajoutée v0.23"
+  },
+  "REV-22": {
+   "id": "REV-22",
+   "kind": "card",
+   "deck": "Rêverie",
+   "name": "Somnambule",
+   "tags": {
+    "sentience": false,
+    "gold": false,
+    "blackHole": true
+   },
+   "trigger": "Activation",
+   "event": "",
+   "target": "",
+   "check": "",
+   "text": "Choisissez votre 🌀.",
+   "rules": "Un état différent de l'actuel.",
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Bohumil_Kafka%2C_Sleepwalker%2C_1906.jpg/500px-Bohumil_Kafka%2C_Sleepwalker%2C_1906.jpg",
+   "claude": "🆕 Ajoutée v0.23"
   },
   "MET-01": {
    "id": "MET-01",
@@ -4018,7 +4308,8 @@
    "check": "",
    "text": "La météo de tous change selon votre 🌀 :\nBlazard : Pluie · Quasar : Vent violent · Trou de ver : Canicule · Primordial : Neige.",
    "rules": "Chaque joueur a sa propre météo, à part de son trou noir. Au début de la partie : Beau temps.",
-   "image": "MET-01.png"
+   "image": "MET-01.png",
+   "claude": ""
   },
   "MET-02": {
    "id": "MET-02",
@@ -4036,7 +4327,8 @@
    "check": "",
    "text": "Si la carte Météo est sur un terrain : changez votre 🌀 pour 10 💰 (facultatif).\nSinon, si 🌀 n'est pas Trou de ver : vous pouvez faire venir la carte Météo et la jouer.",
    "rules": "La carte Météo est jouée sur votre terrain (son effet s'active) et devient la vôtre.",
-   "image": "MET-02.jpg"
+   "image": "MET-02.jpg",
+   "claude": ""
   },
   "MET-03": {
    "id": "MET-03",
@@ -4054,7 +4346,8 @@
    "check": "",
    "text": "Chaque joueur à 🧠 vraie sous la Pluie : chacune de ses cartes Sentience a 5 % de chances de retourner dans sa pioche (sauf cette carte).",
    "rules": "",
-   "image": "MET-03.jpg"
+   "image": "MET-03.jpg",
+   "claude": ""
   },
   "MET-04": {
    "id": "MET-04",
@@ -4072,7 +4365,8 @@
    "check": "",
    "text": "Chaque joueur à 🧠 vraie sous le Vent violent : 80 % de chances que l'ordre de son terrain s'inverse (cette carte garde sa place).",
    "rules": "",
-   "image": "MET-04.jpg"
+   "image": "MET-04.jpg",
+   "claude": ""
   },
   "MET-05": {
    "id": "MET-05",
@@ -4090,7 +4384,8 @@
    "check": "",
    "text": "Chaque joueur à 🧠 vraie sous la Canicule : ses cartes Sentience lancent 🎲 1d2 avant de se jouer ; sur un 2, elles ne se jouent pas (sauf cette carte).",
    "rules": "Le d2 est lancé au moment où la carte devrait se jouer (1 = elle se joue, 2 = non), une seule fois.",
-   "image": "MET-05.jpg"
+   "image": "MET-05.jpg",
+   "claude": ""
   },
   "MET-06": {
    "id": "MET-06",
@@ -4108,7 +4403,8 @@
    "check": "",
    "text": "Chaque joueur à 🧠 vraie sous la Neige : 10 % de chances qu'une de ses cartes au hasard soit ensevelie (elle quitte le terrain).\nQuand plus personne n'a la Neige, les cartes ensevelies sont mélangées et redistribuées.",
    "rules": "Les cartes ensevelies ne sont dans aucune zone. Elles reviennent sur les terrains d'où elles sont parties, mais mélangées.",
-   "image": "MET-06.jpg"
+   "image": "MET-06.jpg",
+   "claude": ""
   },
   "MET-07": {
    "id": "MET-07",
@@ -4126,7 +4422,8 @@
    "check": "",
    "text": "Chaque joueur à 🧠 vraie sous la Grêle : 1 chance sur 2 de gagner 50 💰, sinon il donne 25 💰 à chaque autre joueur.",
    "rules": "",
-   "image": "MET-07.jpg"
+   "image": "MET-07.jpg",
+   "claude": ""
   },
   "MET-08": {
    "id": "MET-08",
@@ -4144,7 +4441,8 @@
    "check": "",
    "text": "Si votre météo est Neige : gagnez 1 💰 par carte jouée (par tous) sous la Neige depuis sa pose.\nLe compteur se fige hors Neige et repart à zéro après chaque gain.",
    "rules": "« Carte jouée » = un effet de carte activé, par n'importe quel joueur, pendant que votre météo est Neige.",
-   "image": "MET-08.jpg"
+   "image": "MET-08.jpg",
+   "claude": ""
   },
   "MET-09": {
    "id": "MET-09",
@@ -4162,7 +4460,8 @@
    "check": "",
    "text": "Si votre météo est Canicule, vous pouvez tenter 🎲 1d100 :\n1-20 gagnez 50 💰 · 21-40 perdez 50 💰 · 41-100 tout le monde gagne 20 💰.",
    "rules": "",
-   "image": "MET-09.jpg"
+   "image": "MET-09.jpg",
+   "claude": ""
   },
   "MET-10": {
    "id": "MET-10",
@@ -4180,7 +4479,8 @@
    "check": "",
    "text": "Si votre météo est Pluie : les autres peuvent rejoindre le pari.\nChaque participant (vous compris) : 1 chance sur 2 de gagner 🎲 1d100/2 💰, sinon il les perd.",
    "rules": "",
-   "image": "MET-10.jpg"
+   "image": "MET-10.jpg",
+   "claude": ""
   },
   "MET-11": {
    "id": "MET-11",
@@ -4198,7 +4498,8 @@
    "check": "",
    "text": "Selon votre météo :\nPluie : passe à Grêle.\nVent violent : rejouez une carte de votre terrain.\nCanicule : pour 10 💰, choisissez votre 🌀 et 🧠 → fausse.\nNeige ou Grêle : passe à Pluie et 🌀 → Blazard.",
    "rules": "",
-   "image": "MET-11.jpg"
+   "image": "MET-11.jpg",
+   "claude": ""
   },
   "MET-12": {
    "id": "MET-12",
@@ -4216,7 +4517,8 @@
    "check": "",
    "text": "Inversez votre 🧠 (gratuit) et, pour 10 💰 chacun, celle d'autres joueurs de votre choix.",
    "rules": "Chaque autre joueur au plus une fois. Tout est facultatif.",
-   "image": "MET-12.jpg"
+   "image": "MET-12.jpg",
+   "claude": ""
   },
   "MET-13": {
    "id": "MET-13",
@@ -4234,7 +4536,8 @@
    "check": "",
    "text": "Passif — Quand la météo d'un joueur change, gagnez :\nPluie 5 💰 · Vent violent 15 💰 · Canicule −5 💰 · Neige 10 💰 · Grêle 50 💰.",
    "rules": "Passif : compte les changements de météo de tous les joueurs (un par joueur).",
-   "image": "MET-13.jpg"
+   "image": "MET-13.jpg",
+   "claude": ""
   },
   "MET-14": {
    "id": "MET-14",
@@ -4252,7 +4555,8 @@
    "check": "",
    "text": "Canicule : donnez 10 💰 à un joueur. Vent violent : gagnez 🎲 1d20 💰.\nPuis repositionnez jusqu'à 3 cartes de votre terrain et de ceux de vos alliés (elles peuvent changer de terrain allié).\nGrêle : chaque joueur repositionne ses cartes de la même façon.",
    "rules": "En Grêle, chaque joueur joue la partie « repositionnez » pour lui-même (ses cartes et celles de ses alliés).",
-   "image": "MET-14.jpg"
+   "image": "MET-14.jpg",
+   "claude": ""
   },
   "MET-15": {
    "id": "MET-15",
@@ -4270,7 +4574,8 @@
    "check": "",
    "text": "Selon votre météo :\nPluie : chacun mélange sa main dans sa pioche et pioche 4 cartes.\nVent violent : chaque terrain a 10 % de chances d'être mélangé.\nCanicule : choisissez un 🌀 provisoire (⏱ fin de votre tour).\nGrêle : chacun défausse sa main et pioche 1 carte.",
    "rules": "",
-   "image": "MET-15.jpg"
+   "image": "MET-15.jpg",
+   "claude": ""
   },
   "MET-16": {
    "id": "MET-16",
@@ -4288,7 +4593,8 @@
    "check": "",
    "text": "Passif — Sous la Pluie ou le Vent violent : les 💰 que vous perdez sont stockés ici.\nCanicule : récupérez-les. Grêle ou Orage : ils sont perdus.",
    "rules": "Toute perte de gold compte (dépenses comprises).",
-   "image": "MET-16.jpg"
+   "image": "MET-16.jpg",
+   "claude": ""
   },
   "MET-17": {
    "id": "MET-17",
@@ -4306,7 +4612,8 @@
    "check": "",
    "text": "Vous pouvez désactiver la carte Météo.\nPuis au choix : votre météo change au hasard, ou lancez le dé de sentience.",
    "rules": "Bloquer = désactiver la carte Météo jusqu'à nouvel ordre. Météo au hasard : Pluie, Vent violent, Canicule, Neige ou Grêle.",
-   "image": "MET-17.jpg"
+   "image": "MET-17.jpg",
+   "claude": ""
   },
   "MET-18": {
    "id": "MET-18",
@@ -4324,7 +4631,8 @@
    "check": "",
    "text": "🧠 vraie : jouez une carte de votre main en la montrant (elle reste en main) ; vous pouvez déplacer une carte de votre terrain.\n🧠 fausse : chaque autre joueur montre une carte de sa main et la joue (elle reste en main).",
    "rules": "Une carte jouée depuis la main active son effet sans être posée et reste dans la main.",
-   "image": "MET-18.jpg"
+   "image": "MET-18.jpg",
+   "claude": ""
   },
   "MET-19": {
    "id": "MET-19",
@@ -4342,7 +4650,8 @@
    "check": "",
    "text": "Gagnez X 💰 maintenant, puis à chaque changement de météo de n'importe qui.\nX : Canicule 1 · Grêle 20 · Orage 50 · autres 5.\nAprès 4 météos différentes dans votre tour, chaque changement rapporte 50 💰.",
    "rules": "Les changements de météo de tous les joueurs comptent.",
-   "image": "MET-19.jpg"
+   "image": "MET-19.jpg",
+   "claude": ""
   },
   "MET-20": {
    "id": "MET-20",
@@ -4360,7 +4669,8 @@
    "check": "",
    "text": "Si votre météo est Pluie : un orage se prépare. À sa prochaine activation, cette carte est défaussée et l'Orage prend sa place.",
    "rules": "L'orage éclate à la prochaine activation de la carte (en général à votre prochain tour).",
-   "image": "MET-20.jpg"
+   "image": "MET-20.jpg",
+   "claude": ""
   },
   "MET-21": {
    "id": "MET-21",
@@ -4378,7 +4688,8 @@
    "check": "",
    "text": "Passif — 🔒 Posée seulement par Temps de merde ou Temps pour prier. Ni défaussée, ni volée, ni déplacée (sauf par Éclaircissement).\nSon terrain a la météo Orage : ses cartes Sentience et Gold ne se jouent plus (sauf Éclair).\nÀ la fin de ce tour, elle part chez un autre joueur au hasard ; elle se dissipe après 5 tours.",
    "rules": "La carte Orage reste à sa place sur le terrain. Les 5 tours comptent tous les tours joués depuis son arrivée. En se dissipant, elle va dans la défausse de son propriétaire.",
-   "image": "MET-21.jpg"
+   "image": "MET-21.jpg",
+   "claude": ""
   },
   "MET-22": {
    "id": "MET-22",
@@ -4396,7 +4707,8 @@
    "check": "",
    "text": "1 chance sur 4 : choisissez votre météo.\nPuis 🎲 1d100 : 1 l'Orage arrive chez vous (s'il y est déjà, gagnez 500 💰) · 50 donnez 50 💰 à chaque joueur · 100 gagnez 250 💰.",
    "rules": "Le d4 est lancé d'abord (1 = vous choisissez votre météo), puis le d100 dans tous les cas.",
-   "image": "MET-22.jpg"
+   "image": "MET-22.jpg",
+   "claude": ""
   },
   "MET-23": {
    "id": "MET-23",
@@ -4414,7 +4726,8 @@
    "check": "",
    "text": "Si 🧠 vraie, vous pouvez payer selon votre météo :\nPluie, 20 💰 : déplacez une carte.\nVent violent, 200 💰 : échangez les terrains de deux joueurs.\nCanicule, 100 💰 : changez le 🌀 d'un joueur.\nNeige, 50 💰 : défaussez une carte de n'importe qui.\nGrêle, 20 💰 : une carte ne se joue pas à son prochain passage.",
    "rules": "Se joue à son tour en phase 1, comme les autres cartes.",
-   "image": "MET-23.jpg"
+   "image": "MET-23.jpg",
+   "claude": ""
   },
   "MET-24": {
    "id": "MET-24",
@@ -4432,7 +4745,8 @@
    "check": "",
    "text": "Un joueur avec une météo est tiré au hasard. Selon sa météo, changez le 🌀 d'un joueur de votre choix :\nPluie Quasar · Vent violent Primordial · Canicule Trou de ver · Neige Blazard · Grêle il choisit.\nOrage : le 🌀 de tous est tiré au hasard.",
    "rules": "",
-   "image": "MET-24.jpg"
+   "image": "MET-24.jpg",
+   "claude": ""
   },
   "MET-25": {
    "id": "MET-25",
@@ -4450,7 +4764,8 @@
    "check": "",
    "text": "À la fin de votre tour, les 💰 gagnés pendant ce tour sont multipliés selon votre météo :\nPluie ×1,5 · Vent violent ×1 · Canicule ×0,5 · Neige ×2.",
    "rules": "La différence (en plus ou en moins) est gagnée ou perdue à la fin de votre tour.",
-   "image": "MET-25.jpg"
+   "image": "MET-25.jpg",
+   "claude": ""
   },
   "MET-26": {
    "id": "MET-26",
@@ -4468,7 +4783,8 @@
    "check": "",
    "text": "🎲 1d100 × météo : Pluie ×1,5 · Vent violent ×2 · Canicule ×0 · Neige ×0,5 · Grêle ×−1 · Orage ×−2.\n1 chance sur 2 que le résultat (gain ou perte) soit partagé entre tous ; sinon il est pour vous.",
    "rules": "",
-   "image": "MET-26.jpg"
+   "image": "MET-26.jpg",
+   "claude": ""
   },
   "MET-27": {
    "id": "MET-27",
@@ -4486,7 +4802,8 @@
    "check": "",
    "text": "Tant qu'elle est sur un terrain : au début de son tour, un joueur qui a la même météo qu'un autre peut jouer pour lui une carte du terrain de cet autre.\nVous pouvez le faire dès l'activation.",
    "rules": "La carte jouée s'active pour le joueur qui la joue.",
-   "image": "MET-27.jpg"
+   "image": "MET-27.jpg",
+   "claude": ""
   },
   "MET-28": {
    "id": "MET-28",
@@ -4504,7 +4821,8 @@
    "check": "",
    "text": "Selon votre météo :\nPluie : inversez la 🧠 de tous ceux qui ont la Pluie.\nVent violent : jusqu'à 2 fois, un joueur de votre choix lance le dé trou noir.\nCanicule : rien.\nNeige : retirez jusqu'à 20 💰 à un joueur.\nGrêle : le joueur à votre droite choisit votre 🌀 et change le sien.\nOrage : tout le monde vous donne 25 💰.",
    "rules": "Grêle : c'est le joueur à votre droite (le suivant) qui choisit les deux trous noirs.",
-   "image": "MET-28.jpg"
+   "image": "MET-28.jpg",
+   "claude": ""
   },
   "MET-29": {
    "id": "MET-29",
@@ -4522,7 +4840,8 @@
    "check": "",
    "text": "Si votre météo est Orage ou Grêle : choisissez votre 🌀, votre météo suit.\nSi l'Orage est sur votre terrain, il est défaussé.",
    "rules": "",
-   "image": "MET-29.jpg"
+   "image": "MET-29.jpg",
+   "claude": ""
   },
   "MET-30": {
    "id": "MET-30",
@@ -4540,7 +4859,8 @@
    "check": "",
    "text": "Seulement s'il y a un Orage : cette carte va sur son terrain. Chaque carte (sauf Orage et Éclair) a 50 % de chances d'être défaussée ; une carte défaussée a 5 % de chances de se jouer à la place.",
    "rules": "Le 50 % est un dé à 2 faces, le 5 % un 1 sur 1d20. Para-Tonnerre doit être sur le terrain frappé.",
-   "image": "MET-30.jpg"
+   "image": "MET-30.jpg",
+   "claude": ""
   },
   "MET-31": {
    "id": "MET-31",
@@ -4558,7 +4878,8 @@
    "check": "",
    "text": "Passif — Si un éclair tombe sur votre terrain : gagnez 🎲 1d100 × 10 💰 et aucune carte n'est défaussée.",
    "rules": "",
-   "image": "MET-31.jpg"
+   "image": "MET-31.jpg",
+   "claude": ""
   },
   "MET-32": {
    "id": "MET-32",
@@ -4576,7 +4897,8 @@
    "check": "",
    "text": "🧠 vraie : posez sur votre terrain, sans son effet, une carte Météo visible (terrain, défausse ou montrée en main ; pas l'Orage).\n🧠 fausse : 🧠 → vraie.",
    "rules": "Votre propre terrain compte aussi (la carte est déplacée en dernière position). L'Orage ne peut pas être récupéré.",
-   "image": "MET-32.jpg"
+   "image": "MET-32.jpg",
+   "claude": ""
   },
   "PIR-01": {
    "id": "PIR-01",
@@ -4594,7 +4916,8 @@
    "check": "",
    "text": "Si 🧠 vraie : ciblez un joueur, volez une carte de sa main (face cachée).",
    "rules": "La carte volée change de propriétaire.",
-   "image": "PIR-01.jpg"
+   "image": "PIR-01.jpg",
+   "claude": ""
   },
   "PIR-02": {
    "id": "PIR-02",
@@ -4612,7 +4935,8 @@
    "check": "",
    "text": "Passif — Chaque carte défaussée de votre main : +20 💰 ; de votre terrain : +10 💰 ; tout autre déplacement d'une de vos cartes : +5 💰.",
    "rules": "« Autre déplacement » = une de vos cartes bouge à cause d'un effet (changement de place, de terrain, retour en main…). Les pioches et les poses normales ne comptent pas.",
-   "image": "PIR-02.jpg"
+   "image": "PIR-02.jpg",
+   "claude": ""
   },
   "PIR-03": {
    "id": "PIR-03",
@@ -4630,7 +4954,8 @@
    "check": "",
    "text": "Si 🌀 n'est pas Trou de ver : envoyez une carte de votre terrain, main ou défausse où vous voulez sur le terrain d'un joueur à 🧠 vraie.",
    "rules": "Le lanceur choisit la place sur le terrain de la cible. La carte envoyée active son effet pour ce joueur. L'envoi est facultatif.",
-   "image": "PIR-03.jpg"
+   "image": "PIR-03.jpg",
+   "claude": ""
   },
   "PIR-04": {
    "id": "PIR-04",
@@ -4648,7 +4973,8 @@
    "check": "",
    "text": "🧠 vraie : prenez les 2 cartes du dessus de votre pioche, une au hasard est montrée à tous. Gardez-en une en main, l'autre va au fond de la pioche.\n🧠 fausse : retournez face cachée une carte de votre terrain (désactivée) et 🧠 → vraie. À son prochain passage, elle se retourne et se réactive, sans son effet.",
    "rules": "Se joue à son tour en phase 1, comme les autres cartes. La carte choisie à l'aveugle est montrée à tous ; si elle va en main, elle y reste visible.",
-   "image": "PIR-04.jpg"
+   "image": "PIR-04.jpg",
+   "claude": ""
   },
   "PIR-05": {
    "id": "PIR-05",
@@ -4666,7 +4992,8 @@
    "check": "",
    "text": "Blazard : jouez une carte de votre main, puis défaussez-la.\nTrou de ver : choisissez face cachée une carte de la main d'un autre joueur ; elle se joue pour lui, puis va dans sa défausse.\n🧠 vraie : piochez une carte.",
    "rules": "Jouer une carte = la poser à la place de votre choix sur votre terrain et activer son effet. Les effets de trou noir et de sentience s'additionnent.",
-   "image": "PIR-05.png"
+   "image": "PIR-05.png",
+   "claude": ""
   },
   "PIR-06": {
    "id": "PIR-06",
@@ -4684,7 +5011,8 @@
    "check": "",
    "text": "Ciblez un joueur qui a le même 🌀 : il vous paie 100 💰 ou vous donne toute sa main (vous lui rendez alors autant de cartes).",
    "rules": "Les 100 gold vont au lanceur. Sans 100 gold, le joueur doit donner sa main. Les cartes rendues sont choisies par le lanceur.",
-   "image": "PIR-06.png"
+   "image": "PIR-06.png",
+   "claude": ""
   },
   "PIR-07": {
    "id": "PIR-07",
@@ -4702,7 +5030,8 @@
    "check": "",
    "text": "Posé : le rat saute sur le terrain d'un autre joueur au hasard.\nQuand il se joue : ce joueur passe 🧠 → fausse et perd 5 💰 par carte Sentience de son terrain, puis le rat saute ailleurs au hasard.",
    "rules": "« Payer » = perdre les gold (ils ne vont à personne). Le rat ne fait rien le tour où il arrive sur un terrain. Les cartes Sentience comptées sont celles du terrain où se trouve le rat.",
-   "image": "PIR-07.jpg"
+   "image": "PIR-07.jpg",
+   "claude": ""
   },
   "PIR-08": {
    "id": "PIR-08",
@@ -4720,7 +5049,8 @@
    "check": "",
    "text": "Facultatif, selon votre 🌀 :\nBlazard : piochez 2 cartes et posez-en jusqu'à 2, sans leur effet.\nTrou de ver : mélangez une carte de votre main dans votre pioche et piochez une carte.\nQuasar : piochez 2 cartes et défaussez jusqu'à 2 cartes de votre terrain.\nPrimordial : au prochain tour de chacun, ses cartes se jouent deux fois. La Voile ne se joue plus jamais.",
    "rules": "Primordial : chaque joueur, à son prochain tour, joue deux fois de suite chaque carte de son terrain pendant la phase d'activation. La Voile reste où elle est, désactivée pour toujours.",
-   "image": "PIR-08.jpg"
+   "image": "PIR-08.jpg",
+   "claude": ""
   },
   "PIR-09": {
    "id": "PIR-09",
@@ -4738,7 +5068,8 @@
    "check": "",
    "text": "Défaussez 2 cartes de votre main par cran : votre 🌀 avance d'autant (Blazard → Quasar → Trou de ver → Primordial).",
    "rules": "Ordre en boucle : après Primordial, on revient à Blazard. Pas de maximum de crans.",
-   "image": "PIR-09.png"
+   "image": "PIR-09.png",
+   "claude": ""
   },
   "PIR-10": {
    "id": "PIR-10",
@@ -4756,7 +5087,8 @@
    "check": "",
    "text": "Défaussez X cartes de votre main :\n1 : gagnez ou donnez 1 à 10 💰 ;\n2 : changez la 🧠 d'un joueur ;\n3 : volez une carte (terrain, main ou pioche) d'un autre joueur ;\n5 : changez la 🧠 de tous ;\n10 : validez la condition personnelle d'un autre joueur, ou la condition commune d'une équipe.",
    "rules": "3 : la carte volée change de propriétaire ; dans la main ou la pioche, elle est choisie à l'aveugle. 10 : n'importe quelle équipe, la vôtre comprise, pour la condition commune.",
-   "image": "PIR-10.png"
+   "image": "PIR-10.png",
+   "claude": ""
   },
   "PIR-11": {
    "id": "PIR-11",
@@ -4774,7 +5106,8 @@
    "check": "",
    "text": "Posez une carte de votre main ou d'un allié où vous voulez : elle s'active. Le Pistolet revient dans votre main.\n🧠 fausse : 1 chance sur 2 d'exploser, la carte et le Pistolet sont défaussés.",
    "rules": "Allié = joueur de votre équipe. La carte s'active pour le lanceur, même posée sur un autre terrain.",
-   "image": "PIR-11.jpg"
+   "image": "PIR-11.jpg",
+   "claude": ""
   },
   "PIR-12": {
    "id": "PIR-12",
@@ -4792,7 +5125,8 @@
    "check": "",
    "text": "10 % de chances de réussir, selon votre 🌀 :\nBlazard : jusqu'à 3 cartes d'un terrain, chacune 25 % de chances d'être volée. Puis défaussez cette carte.\nPrimordial : prenez jusqu'à 3 cartes d'un terrain ; chacun gagne 25 💰 par carte. Puis défaussez cette carte.\nTrou de ver : mélangez votre pioche et piochez 3 cartes. Puis défaussez cette carte.\nQuasar : sacrifiez jusqu'à 3 cartes ; pour chacune, piochez cette carte et reposez-la où vous voulez.",
    "rules": "Le 10 % est un 1 sur 1d10. Raté : Black pearl reste en place. Quasar : chaque fois que Black pearl est reposée, son effet peut s'activer à nouveau.",
-   "image": "PIR-12.jpg"
+   "image": "PIR-12.jpg",
+   "claude": ""
   },
   "PIR-13": {
    "id": "PIR-13",
@@ -4810,7 +5144,8 @@
    "check": "",
    "text": "Si 🧠 vraie : regardez la main d'un joueur. Puis le Perroquet revient dans votre main.",
    "rules": "Seul le lanceur voit la main.",
-   "image": "PIR-13.png"
+   "image": "PIR-13.png",
+   "claude": ""
   },
   "PIR-14": {
    "id": "PIR-14",
@@ -4828,7 +5163,8 @@
    "check": "",
    "text": "Coût : 25 💰.\nJusqu'à 4 cartes Sentience de votre terrain ou de votre main se jouent.",
    "rules": "25 gold au total, pas par carte. Les cartes de la main sont posées à la place de votre choix puis s'activent.",
-   "image": "PIR-14.jpg"
+   "image": "PIR-14.jpg",
+   "claude": ""
   },
   "PIR-15": {
    "id": "PIR-15",
@@ -4846,7 +5182,8 @@
    "check": "",
    "text": "Obligatoire si 🌀 n'est pas Trou de ver : choisissez 8 autres cartes de votre terrain, chacune a 25 % de chances d'être défaussée.",
    "rules": "Le Kraken ne se choisit jamais lui-même. S'il y a moins de 8 autres cartes, toutes sont choisies. En Trou de ver, le lâcher est facultatif.",
-   "image": "PIR-15.jpg"
+   "image": "PIR-15.jpg",
+   "claude": ""
   },
   "PIR-16": {
    "id": "PIR-16",
@@ -4864,7 +5201,8 @@
    "check": "",
    "text": "Pendant votre prochain tour, si 🌀 → Blazard : votre main est montrée à tous et chaque carte joue son effet en restant en main.",
    "rules": "Seulement pendant votre prochain tour, et une seule fois. Les cartes restent dans votre main, visibles de tous.",
-   "image": "PIR-16.jpg"
+   "image": "PIR-16.jpg",
+   "claude": ""
   },
   "PIR-17": {
    "id": "PIR-17",
@@ -4882,7 +5220,8 @@
    "check": "",
    "text": "Si 🧠 vraie, pour chaque carte avant la Mer : 25 % dans votre main · 25 % défaussée · 50 % +10 💰.",
    "rules": "Les cartes reviennent dans la main du lanceur de la Mer.",
-   "image": "PIR-17.png"
+   "image": "PIR-17.png",
+   "claude": ""
   },
   "PIR-18": {
    "id": "PIR-18",
@@ -4900,7 +5239,8 @@
    "check": "",
    "text": "Donnez 25 💰 à un joueur (sinon rien). La carte se met de côté.\nÀ son prochain passage : 1 chance sur 2 de gagner 100 💰, puis elle est défaussée.",
    "rules": "Tant qu'il est sur le côté, Le Fatigué ne refait pas son effet ; le tirage a lieu la prochaine fois qu'il se joue.",
-   "image": "PIR-18.jpg"
+   "image": "PIR-18.jpg",
+   "claude": ""
   },
   "PIR-19": {
    "id": "PIR-19",
@@ -4918,7 +5258,8 @@
    "check": "",
    "text": "Lancez le dé trou noir : si c'est votre 🌀, gagnez 🎲 1d100 💰, puis relancez : votre 🌀 prend le résultat.",
    "rules": "",
-   "image": "PIR-19.jpg"
+   "image": "PIR-19.jpg",
+   "claude": ""
   },
   "PIR-20": {
    "id": "PIR-20",
@@ -4936,7 +5277,8 @@
    "check": "",
    "text": "🧠 vraie : la carte suivante se joue une fois de plus.\n🧠 fausse : 🧠 → vraie, mais la carte suivante ne se joue pas ce tour.",
    "rules": "Avec la sentience vraie, la carte suivante se joue maintenant, puis encore une fois à son tour normal.",
-   "image": "PIR-20.png"
+   "image": "PIR-20.png",
+   "claude": ""
   },
   "FLE-01": {
    "id": "FLE-01",
@@ -4954,7 +5296,8 @@
    "check": "",
    "text": "Passif — 🔒 Ne peut pas être défaussée.\nQuand votre 🌀 change :\nBlazard : perdez 20 💰 et 🌀 → Quasar.\nQuasar : perdez 30 💰 et 🧠 → vraie.\nPrimordial : perdez 50 💰 et changez le 🌀 d'un joueur.\nTrou de ver : gagnez 50 💰 et 🧠 → fausse.",
    "rules": "Ne peut pas être défaussée par un effet. Réagit à chaque changement de son trou noir ; Blazard le fait passer en Quasar, ce qui déclenche aussi l'effet Quasar. Primordial : le porteur choisit un joueur (lui compris) et son nouveau trou noir.",
-   "image": "FLE-01.png"
+   "image": "FLE-01.png",
+   "claude": ""
   },
   "FLE-02": {
    "id": "FLE-02",
@@ -4972,7 +5315,8 @@
    "check": "",
    "text": "Passif — 🧠 → vraie : perdez 10 💰.\n🧠 → fausse : gagnez 20 💰.",
    "rules": "Chaque changement de la sentience du porteur.",
-   "image": "FLE-02.jpg"
+   "image": "FLE-02.jpg",
+   "claude": ""
   },
   "FLE-03": {
    "id": "FLE-03",
@@ -4990,7 +5334,8 @@
    "check": "",
    "text": "Passif — Si 🧠 vraie : quand vous perdez des 💰, chaque autre joueur perd autant.",
    "rules": "Avec la sentience vraie du porteur : quand il perd des gold, chaque autre joueur perd la même quantité.",
-   "image": "FLE-03.png"
+   "image": "FLE-03.png",
+   "claude": ""
   },
   "FLE-04": {
    "id": "FLE-04",
@@ -5008,7 +5353,8 @@
    "check": "",
    "text": "Passif — Quand un autre joueur interagit avec vous : son 🌀 prend l'état du vôtre et cette carte va à la fin de son terrain.",
    "rules": "Quand un autre joueur fait une interaction avec le porteur : ce joueur prend le trou noir du porteur, puis la carte va à la fin de son terrain et lui appartient.",
-   "image": "FLE-04.png"
+   "image": "FLE-04.png",
+   "claude": ""
   },
   "FLE-05": {
    "id": "FLE-05",
@@ -5026,7 +5372,8 @@
    "check": "",
    "text": "Passif — Quand vous gagnez des 💰 : 🧠 → vraie.",
    "rules": "",
-   "image": "FLE-05.jpg"
+   "image": "FLE-05.jpg",
+   "claude": ""
   },
   "FLE-06": {
    "id": "FLE-06",
@@ -5044,7 +5391,8 @@
    "check": "",
    "text": "Passif — Quand un effet défausse une carte d'un terrain : vous pouvez activer une carte de n'importe quel terrain comme si vous la lanciez.",
    "rules": "Déclenché par toute défausse d'une carte d'un terrain causée par l'effet d'une carte (quelle que soit sa zone). Le porteur peut choisir une carte de n'importe quel terrain et l'active comme s'il en était le lanceur (ex. « gagnez 10 gold » lui fait gagner les 10 gold).",
-   "image": "FLE-06.png"
+   "image": "FLE-06.png",
+   "claude": ""
   },
   "FLE-07": {
    "id": "FLE-07",
@@ -5062,7 +5410,8 @@
    "check": "",
    "text": "Passif — 🌀 → Quasar : perdez 20 💰 et la 🧠 des autres → fausse.",
    "rules": "Les autres joueurs passent leur sentience à fausse.",
-   "image": "FLE-07.jpg"
+   "image": "FLE-07.jpg",
+   "claude": ""
   },
   "FLE-08": {
    "id": "FLE-08",
@@ -5080,7 +5429,8 @@
    "check": "",
    "text": "Passif — Quand le 🌀 d'un autre joueur change, le vôtre prend le même état.\nVous pouvez ensuite défausser cette carte.",
    "rules": "Quand un autre joueur change de trou noir, le porteur prend le même. Il peut ensuite choisir de défausser la carte.",
-   "image": "FLE-08.png"
+   "image": "FLE-08.png",
+   "claude": ""
   },
   "FLE-09": {
    "id": "FLE-09",
@@ -5088,9 +5438,9 @@
    "deck": "Fléaux",
    "name": "Tardigrade",
    "tags": {
-    "sentience": true,
+    "sentience": false,
     "gold": true,
-    "blackHole": true
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5098,7 +5448,8 @@
    "check": "",
    "text": "Passif — 🔒 Ne peut pas être défaussée.\nQuand vous perdez des 💰 : posez la première carte de votre défausse en première place et activez-la.",
    "rules": "Ne peut pas être défaussée par un effet. À chaque perte de gold : la première carte de sa défausse va en première position de son terrain et s'active.",
-   "image": "FLE-09.jpg"
+   "image": "FLE-09.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-10": {
    "id": "FLE-10",
@@ -5116,7 +5467,8 @@
    "check": "",
    "text": "Passif — Quand un autre joueur change vos 💰, 🧠 ou 🌀 : cette carte va à la fin de son terrain.\nS'il l'a encore à la fin de son prochain tour : il défausse sa main et ne pose rien au tour suivant.",
    "rules": "Déclenché quand un autre joueur change les gold, la sentience ou le trou noir du porteur. La carte va à la fin du terrain de ce joueur. À la fin de son prochain tour, s'il l'a encore : il défausse sa main avant de piocher, et au tour suivant il ne peut que défausser en phase 2.",
-   "image": "FLE-10.jpg"
+   "image": "FLE-10.jpg",
+   "claude": ""
   },
   "FLE-11": {
    "id": "FLE-11",
@@ -5124,9 +5476,9 @@
    "deck": "Fléaux",
    "name": "Fléaux parallèles",
    "tags": {
-    "sentience": true,
+    "sentience": false,
     "gold": true,
-    "blackHole": true
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5134,7 +5486,8 @@
    "check": "",
    "text": "Passif — À 0 💰 : les passifs des cartes de votre main fonctionnent.",
    "rules": "",
-   "image": "FLE-11.jpg"
+   "image": "FLE-11.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-12": {
    "id": "FLE-12",
@@ -5152,7 +5505,8 @@
    "check": "",
    "text": "Posée : perdez 10 💰 et votre 🌀 change au hasard.\nSi elle était déjà sur votre terrain : défaussez-la et gagnez 50 💰.",
    "rules": "Quand on la pose : −10 gold et trou noir au hasard. Quand elle s'active plus tard (phase 1) : défaussée, +50 gold.",
-   "image": "FLE-12.png"
+   "image": "FLE-12.png",
+   "claude": ""
   },
   "FLE-13": {
    "id": "FLE-13",
@@ -5170,7 +5524,8 @@
    "check": "",
    "text": "Passif — Quand une carte est posée sur un terrain : donnez X 💰 à chaque autre joueur (X = cartes de votre terrain).",
    "rules": "Le porteur paie : à chaque carte posée sur n'importe quel terrain (depuis la main ou par un effet), chaque autre joueur reçoit X gold du porteur (dans la limite de ses gold).",
-   "image": "FLE-13.png"
+   "image": "FLE-13.png",
+   "claude": ""
   },
   "FLE-14": {
    "id": "FLE-14",
@@ -5178,8 +5533,8 @@
    "deck": "Fléaux",
    "name": "Singularité radioactive",
    "tags": {
-    "sentience": true,
-    "gold": true,
+    "sentience": false,
+    "gold": false,
     "blackHole": true
    },
    "trigger": "Passif",
@@ -5188,7 +5543,8 @@
    "check": "",
    "text": "Passif — 🌀 → Primordial : défaussez la première carte de votre terrain.\nLes passifs de la première carte de votre défausse fonctionnent pour le joueur dont c'est le tour.",
    "rules": "Le dessus de la défausse du porteur garde ses passifs, avec le joueur actif comme possesseur.",
-   "image": "FLE-14.jpg"
+   "image": "FLE-14.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-15": {
    "id": "FLE-15",
@@ -5206,7 +5562,8 @@
    "check": "",
    "text": "Passif — Si 🧠 vraie : les 💰 que vous perdez sont stockés ici.\nÀ 0 💰 : récupérez tout le stock.",
    "rules": "Le stock est affiché sur la carte. Il est récupéré quand le porteur tombe à 0 gold avec cette carte sur son terrain.",
-   "image": "FLE-15.png"
+   "image": "FLE-15.png",
+   "claude": ""
   },
   "FLE-16": {
    "id": "FLE-16",
@@ -5224,7 +5581,8 @@
    "check": "",
    "text": "Vos 💰 peuvent être négatifs.\nSi 🧠 → fausse pendant que 🌀 Trou de ver : vos 💰 redeviennent positifs (valeur absolue).",
    "rules": "Le porteur peut avoir des gold négatifs. Si sa sentience passe à fausse pendant qu'il est en Trou de ver, ses gold deviennent positifs (valeur absolue).",
-   "image": "FLE-16.png"
+   "image": "FLE-16.png",
+   "claude": ""
   },
   "FLE-17": {
    "id": "FLE-17",
@@ -5233,8 +5591,8 @@
    "name": "Contagion Biochimique",
    "tags": {
     "sentience": true,
-    "gold": true,
-    "blackHole": true
+    "gold": false,
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5242,7 +5600,8 @@
    "check": "",
    "text": "Passif — Quand un joueur pioche, il pioche une carte de plus dans votre pioche.",
    "rules": "Chaque pioche (de fin de tour ou d'un effet), par n'importe quel joueur : il pioche une carte de plus dans la pioche du porteur.",
-   "image": "FLE-17.jpg"
+   "image": "FLE-17.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-18": {
    "id": "FLE-18",
@@ -5260,7 +5619,8 @@
    "check": "",
    "text": "Passif — Quand vous piochez : lancez le dé trou noir, votre 🌀 prend le résultat.",
    "rules": "",
-   "image": "FLE-18.png"
+   "image": "FLE-18.png",
+   "claude": ""
   },
   "FLE-19": {
    "id": "FLE-19",
@@ -5278,7 +5638,8 @@
    "check": "",
    "text": "Passif — Quand un autre joueur vous vole une carte : il vole aussi cette carte et 50 💰, et votre 🌀 → Quasar.",
    "rules": "Voler = prendre une carte du porteur sans rien lui donner en retour. Le voleur prend aussi cette carte (dans la même zone que la carte volée) et 50 gold au porteur ; le trou noir du porteur passe en Quasar.",
-   "image": "FLE-19.png"
+   "image": "FLE-19.png",
+   "claude": ""
   },
   "FLE-20": {
    "id": "FLE-20",
@@ -5286,7 +5647,7 @@
    "deck": "Fléaux",
    "name": "Antidote Biomécanique",
    "tags": {
-    "sentience": true,
+    "sentience": false,
     "gold": true,
     "blackHole": true
    },
@@ -5296,7 +5657,8 @@
    "check": "",
    "text": "Défaussez toutes les cartes à passif des terrains, puis cette carte.\n🌀 → Trou de ver. Gagnez 20 💰.",
    "rules": "Les cartes non défaussables restent.",
-   "image": "FLE-20.jpg"
+   "image": "FLE-20.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-21": {
    "id": "FLE-21",
@@ -5314,7 +5676,8 @@
    "check": "",
    "text": "Tant que 🧠 vraie : seules les cartes en place impaire (1, 3, 5…) de votre terrain s'activent.",
    "rules": "Tant qu'elle est sur le terrain et que la sentience est vraie, les cartes en position paire ne s'activent pas pendant la phase 1.",
-   "image": "FLE-21.jpg"
+   "image": "FLE-21.jpg",
+   "claude": ""
   },
   "FLE-22": {
    "id": "FLE-22",
@@ -5332,7 +5695,8 @@
    "check": "",
    "text": "Donnez une de vos cartes Fléaux (pioche, main, terrain ou défausse) à un autre joueur, dans la même zone chez lui.\nDéfaussez cette carte. 🌀 → Trou de ver.",
    "rules": "Le lanceur choisit une de ses cartes Fléaux (pioche, main, terrain ou défausse), puis le joueur qui la reçoit dans la même zone (dessus de la pioche pour la pioche). La carte lui appartient ensuite.",
-   "image": "FLE-22.jpg"
+   "image": "FLE-22.jpg",
+   "claude": ""
   },
   "FLE-23": {
    "id": "FLE-23",
@@ -5341,8 +5705,8 @@
    "name": "Peste Epidermique",
    "tags": {
     "sentience": true,
-    "gold": true,
-    "blackHole": true
+    "gold": false,
+    "blackHole": false
    },
    "trigger": "Activation",
    "event": "",
@@ -5350,7 +5714,8 @@
    "check": "",
    "text": "Si chaque joueur a au moins 3 cartes sur son terrain : tous les terrains et toutes les mains retournent dans la pioche de leur propriétaire, mélangée.\nPuis cette carte est retirée de la partie.",
    "rules": "Chaque carte retourne dans la pioche de son propriétaire. « Disparaît » = retirée de la partie.",
-   "image": "FLE-23.png"
+   "image": "FLE-23.png",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-24": {
    "id": "FLE-24",
@@ -5368,7 +5733,8 @@
    "check": "",
    "text": "Passif — Quand un joueur défausse une carte de sa main : défaussez une carte de votre main.",
    "rules": "Quand n'importe quel joueur (porteur compris) défausse une carte de sa main, le porteur choisit une carte de sa main à défausser.",
-   "image": "FLE-24.png"
+   "image": "FLE-24.png",
+   "claude": ""
   },
   "FLE-25": {
    "id": "FLE-25",
@@ -5377,8 +5743,8 @@
    "name": "Agaric",
    "tags": {
     "sentience": true,
-    "gold": true,
-    "blackHole": true
+    "gold": false,
+    "blackHole": false
    },
    "trigger": "Activation",
    "event": "",
@@ -5386,7 +5752,8 @@
    "check": "",
    "text": "Au tour suivant, posez Amanite juste après cette carte.",
    "rules": "« Au tour suivant » = au tour suivant du porteur, pendant sa phase 1. Le champignon suivant est récupéré où qu'il soit, même chez un autre joueur, et posé juste après.",
-   "image": "FLE-25.jpg"
+   "image": "FLE-25.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-26": {
    "id": "FLE-26",
@@ -5395,8 +5762,8 @@
    "name": "Amanite",
    "tags": {
     "sentience": true,
-    "gold": true,
-    "blackHole": true
+    "gold": false,
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5404,7 +5771,8 @@
    "check": "",
    "text": "🔒 Posée seulement par Agaric.\nAu tour suivant, posez Ascomycète juste après cette carte.",
    "rules": "Ne peut arriver sur un terrain que par Agaric : aucun autre effet (pose, Tardigrade, Docteur malade…) ne passe outre. Récupère le champignon suivant où qu'il soit.",
-   "image": "FLE-26.jpg"
+   "image": "FLE-26.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-27": {
    "id": "FLE-27",
@@ -5413,8 +5781,8 @@
    "name": "Ascomycète",
    "tags": {
     "sentience": true,
-    "gold": true,
-    "blackHole": true
+    "gold": false,
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5422,7 +5790,8 @@
    "check": "",
    "text": "🔒 Posée seulement par Amanite.\nAu tour suivant, posez Collybie juste après cette carte.",
    "rules": "Ne peut arriver sur un terrain que par Amanite : aucun autre effet ne passe outre. Récupère le champignon suivant où qu'il soit.",
-   "image": "FLE-27.jpg"
+   "image": "FLE-27.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-28": {
    "id": "FLE-28",
@@ -5431,8 +5800,8 @@
    "name": "Collybie",
    "tags": {
     "sentience": true,
-    "gold": true,
-    "blackHole": true
+    "gold": false,
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5440,7 +5809,8 @@
    "check": "",
    "text": "🔒 Posée seulement par Ascomycète.\nAu tour suivant, posez Polypore juste après cette carte.",
    "rules": "Ne peut arriver sur un terrain que par Ascomycète : aucun autre effet ne passe outre. Récupère le champignon suivant où qu'il soit.",
-   "image": "FLE-28.jpg"
+   "image": "FLE-28.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-29": {
    "id": "FLE-29",
@@ -5449,8 +5819,8 @@
    "name": "Polypore",
    "tags": {
     "sentience": true,
-    "gold": true,
-    "blackHole": true
+    "gold": false,
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5458,7 +5828,8 @@
    "check": "",
    "text": "🔒 Posée seulement par Collybie. Aucun effet.",
    "rules": "Ne peut arriver sur un terrain que par Collybie : aucun autre effet ne passe outre.",
-   "image": "FLE-29.jpg"
+   "image": "FLE-29.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-30": {
    "id": "FLE-30",
@@ -5476,7 +5847,8 @@
    "check": "",
    "text": "Si les 5 champignons sont sur votre terrain : défaussez-les (sauf Agaric).\n🌀 de tous → Trou de ver ; leur 🧠 prend l'état de votre choix.\nGagnez 100 💰 ; vous pouvez défausser une carte de votre main ou de votre terrain.",
    "rules": "Sans les 5 champignons, l'effet ne fait rien. Le lanceur choisit la sentience commune. La carte défaussée (facultative) vient de sa main ou de son terrain.",
-   "image": "FLE-30.jpg"
+   "image": "FLE-30.jpg",
+   "claude": ""
   },
   "FLE-31": {
    "id": "FLE-31",
@@ -5484,9 +5856,9 @@
    "deck": "Fléaux",
    "name": "Docteur malade",
    "tags": {
-    "sentience": true,
+    "sentience": false,
     "gold": true,
-    "blackHole": true
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5494,7 +5866,8 @@
    "check": "",
    "text": "Passif — Quand un joueur tombe à 0 💰 : posez la première carte de votre pioche à la fin de son terrain et activez-la pour lui.",
    "rules": "Quand un joueur tombe à 0 gold (lanceur compris) : la première carte de la pioche du porteur va en dernière position sur le terrain de ce joueur et s'active pour lui.",
-   "image": "FLE-31.jpg"
+   "image": "FLE-31.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "FLE-32": {
    "id": "FLE-32",
@@ -5503,8 +5876,8 @@
    "name": "Défaite Victorieuse",
    "tags": {
     "sentience": true,
-    "gold": true,
-    "blackHole": true
+    "gold": false,
+    "blackHole": false
    },
    "trigger": "Passif",
    "event": "",
@@ -5512,7 +5885,8 @@
    "check": "",
    "text": "Passif — Quand un autre joueur remplit sa condition de victoire : vous devez remplir la sienne à la place de la vôtre.",
    "rules": "Quand un autre joueur remplit sa condition personnelle, la condition du porteur (s'il n'a pas rempli la sienne) est mise de côté et remplacée par celle-ci. L'autre joueur garde sa condition remplie.",
-   "image": "FLE-32.jpg"
+   "image": "FLE-32.jpg",
+   "claude": "✏️ Modifiée v0.23 (tags)"
   },
   "POL-01": {
    "id": "POL-01",
@@ -5530,7 +5904,8 @@
    "check": "",
    "text": "Coût : 10 💰.\nCiblez un terrain : désactivez sa première carte et cette carte (⏱ fin de votre prochain tour).",
    "rules": "Le coût est payé même s'il n'y a pas de carte à cibler.",
-   "image": "POL-01.jpg"
+   "image": "POL-01.jpg",
+   "claude": ""
   },
   "POL-02": {
    "id": "POL-02",
@@ -5548,7 +5923,8 @@
    "check": "",
    "text": "Coût : 10 💰.\nLe prochain vol contre vous est annulé : défaussez la carte qui vole et cette carte, puis gagnez 🎲 1d100 💰.",
    "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour. Ne protège que contre le premier vol (carte ou gold), puis la carte est défaussée.",
-   "image": "POL-02.jpg"
+   "image": "POL-02.jpg",
+   "claude": ""
   },
   "POL-03": {
    "id": "POL-03",
@@ -5566,7 +5942,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Quasar.\nCiblez une carte d'un terrain : 1 chance sur 2 de la défausser, sinon défaussez sa voisine de droite.\nPuis mélangez cette carte dans votre pioche.",
    "rules": "« Celle d'après » = la carte juste à droite de la carte visée. S'il n'y en a pas, le tir rate.",
-   "image": "POL-03.jpg"
+   "image": "POL-03.jpg",
+   "claude": ""
   },
   "POL-04": {
    "id": "POL-04",
@@ -5584,7 +5961,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Blazard.\nPosez cette carte où vous voulez, sur n'importe quel terrain : désactivez ses voisines.\nÀ la fin du tour de ce joueur : les voisines sont réactivées et cette carte est mélangée dans votre pioche.",
    "rules": "Les voisines sont réactivées et le gaz revient à la fin du tour du joueur ciblé (le tour en cours si c'est vous). Le coût est payé même si l'effet ne peut pas aller au bout.",
-   "image": "POL-04.jpg"
+   "image": "POL-04.jpg",
+   "claude": ""
   },
   "POL-05": {
    "id": "POL-05",
@@ -5602,7 +5980,8 @@
    "check": "",
    "text": "Passif — À l'arrivée : gagnez 50 💰.\nÀ 0 💰 : défaussez tout votre terrain.\nChaque carte défaussée par vous ou vos cartes : dépensez 10 💰.",
    "rules": "Les 50 gold sont gagnés quand la carte arrive sur un terrain. « Défausser une carte » = vous défaussez une carte (main, terrain…) ou une de vos cartes en défausse une. Sans les 10 gold, vous les perdez quand même (jusqu'à 0). La défausse du Ministre lui-même ne coûte rien.",
-   "image": "POL-05.jpg"
+   "image": "POL-05.jpg",
+   "claude": ""
   },
   "POL-06": {
    "id": "POL-06",
@@ -5620,7 +5999,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Trou de ver.\nCiblez un terrain : défaussez ses cartes désactivées, puis désactivez tout le terrain (⏱ début du prochain tour de ce joueur).\nPuis défaussez cette carte.",
    "rules": "",
-   "image": "POL-06.jpg"
+   "image": "POL-06.jpg",
+   "claude": ""
   },
   "POL-07": {
    "id": "POL-07",
@@ -5638,7 +6018,8 @@
    "check": "",
    "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : désactivez-la (⏱ début du prochain tour de ce joueur).\nÀ chaque fin de tour : 🎲 1d6, sur un 6 défaussez-la.",
    "rules": "Le dé est lancé à la fin de chaque tour (de n'importe quel joueur) tant que la carte ciblée est sur un terrain.",
-   "image": "POL-07.jpg"
+   "image": "POL-07.jpg",
+   "claude": ""
   },
   "POL-08": {
    "id": "POL-08",
@@ -5656,7 +6037,8 @@
    "check": "",
    "text": "Coût : 10 💰.\nJusqu'à la fin de votre prochain tour, les cartes désactivées vont sous cette carte ; ensuite, défaussez-la avec les cartes dessous.\nSi elle est défaussée avant, ou dès qu'il y a plus de 4 cartes dessous : elles reprennent leur place, réactivées, et cette carte est désactivée (⏱ début de votre prochain tour).",
    "rules": "Les cartes désactivées par n'importe quel effet vont dessous tant que la garde à vue dure. Quand la garde à vue est défaussée, les cartes d'autres joueurs défaussées avec elle comptent comme défaussées par son lanceur.",
-   "image": "POL-08.jpg"
+   "image": "POL-08.jpg",
+   "claude": ""
   },
   "POL-09": {
    "id": "POL-09",
@@ -5674,7 +6056,8 @@
    "check": "",
    "text": "Passif — À l'arrivée : piochez une carte.\nChaque fois qu'une de vos cartes défausse une carte d'un autre terrain : gagnez 20 💰.",
    "rules": "La pioche se fait quand la carte arrive sur un terrain.",
-   "image": "POL-09.jpg"
+   "image": "POL-09.jpg",
+   "claude": ""
   },
   "POL-10": {
    "id": "POL-10",
@@ -5692,7 +6075,8 @@
    "check": "",
    "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : 1 chance sur 2 de la désactiver (⏱ toujours), sinon défaussez-la.",
    "rules": "Désactivée sans durée = jusqu'à nouvel ordre.",
-   "image": "POL-10.jpg"
+   "image": "POL-10.jpg",
+   "claude": ""
   },
   "POL-11": {
    "id": "POL-11",
@@ -5710,7 +6094,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Trou de ver.\nDésactivez une carte de votre terrain (⏱ fin de votre prochain tour).",
    "rules": "",
-   "image": "POL-11.jpg"
+   "image": "POL-11.jpg",
+   "claude": ""
   },
   "POL-12": {
    "id": "POL-12",
@@ -5728,7 +6113,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Quasar.\nLe prochain joueur qui modifie vos 💰, 🧠 ou 🌀 défausse toute sa main, puis cette carte est défaussée.",
    "rules": "Seul un vrai changement compte : passer en Blazard quand on y est déjà n'est pas une modification.",
-   "image": "POL-12.jpg"
+   "image": "POL-12.jpg",
+   "claude": ""
   },
   "POL-13": {
    "id": "POL-13",
@@ -5746,7 +6132,8 @@
    "check": "",
    "text": "Coût : 10 💰.\nChoisissez la 🧠 d'un joueur (vraie ou fausse).",
    "rules": "",
-   "image": "POL-13.jpg"
+   "image": "POL-13.jpg",
+   "claude": ""
   },
   "POL-14": {
    "id": "POL-14",
@@ -5764,7 +6151,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Primordial. 🧠 → vraie.",
    "rules": "",
-   "image": "POL-14.jpg"
+   "image": "POL-14.jpg",
+   "claude": ""
   },
   "POL-15": {
    "id": "POL-15",
@@ -5782,7 +6170,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🧠 → fausse.\nDésactivez la première carte du terrain à votre droite et la dernière du terrain à votre gauche (⏱ début de votre prochain tour).",
    "rules": "Droite = joueur suivant dans l'ordre du tour, gauche = joueur précédent.",
-   "image": "POL-15.jpg"
+   "image": "POL-15.jpg",
+   "claude": ""
   },
   "POL-16": {
    "id": "POL-16",
@@ -5800,7 +6189,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Blazard.\nQuand une carte arrive sur votre terrain sans venir de votre main, pioche ou défausse : choisissez sa place et désactivez-la (⏱ fin de votre prochain tour).",
    "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour.",
-   "image": "POL-16.jpg"
+   "image": "POL-16.jpg",
+   "claude": ""
   },
   "POL-17": {
    "id": "POL-17",
@@ -5818,7 +6208,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🧠 → vraie.\nCiblez une carte du terrain à votre droite : désactivez-la, et cette carte aussi (⏱ début du prochain tour de ce joueur).",
    "rules": "",
-   "image": "POL-17.jpg"
+   "image": "POL-17.jpg",
+   "claude": ""
   },
   "POL-18": {
    "id": "POL-18",
@@ -5836,7 +6227,8 @@
    "check": "",
    "text": "Gagnez 20 💰. Lancez le dé trou noir. Inversez votre 🧠.",
    "rules": "",
-   "image": "POL-18.jpg"
+   "image": "POL-18.jpg",
+   "claude": ""
   },
   "POL-19": {
    "id": "POL-19",
@@ -5854,7 +6246,8 @@
    "check": "",
    "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : désactivez-la (⏱ fin de votre prochain tour).",
    "rules": "",
-   "image": "POL-19.jpg"
+   "image": "POL-19.jpg",
+   "claude": ""
   },
   "POL-20": {
    "id": "POL-20",
@@ -5872,7 +6265,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🧠 → fausse.\nCiblez un joueur : défaussez la première carte désactivée de son terrain.\nPuis désactivez cette carte (⏱ fin de votre prochain tour).",
    "rules": "",
-   "image": "POL-20.jpg"
+   "image": "POL-20.jpg",
+   "claude": ""
   },
   "POL-21": {
    "id": "POL-21",
@@ -5890,7 +6284,8 @@
    "check": "",
    "text": "🔒 Déplacée seulement avec l'accord de son possesseur.\nCoût : 10 💰.\nCiblez une carte du terrain d'un voisin : reculez-la de 3 places et désactivez-la (⏱ début du prochain tour de ce joueur).",
    "rules": "Voisins = joueurs juste avant et juste après vous dans l'ordre du tour. Reculer = vers la fin du terrain.",
-   "image": "POL-21.jpg"
+   "image": "POL-21.jpg",
+   "claude": ""
   },
   "POL-22": {
    "id": "POL-22",
@@ -5908,7 +6303,8 @@
    "check": "",
    "text": "🔒 Déplacée seulement avec l'accord de son possesseur (celui qui l'a posée).\nCoût : 10 💰. Au choix :\n- rien ;\n- déplacez-la de 3 places au plus (au bout, elle passe chez le voisin) ;\n- désactivez ses voisines (⏱ toujours), puis mélangez-la dans votre pioche.",
    "rules": "Les 10 gold sont payés dans tous les cas, même pour « ne rien faire ». Les cartes voisines sont désactivées jusqu'à nouvel ordre.",
-   "image": "POL-22.jpg"
+   "image": "POL-22.jpg",
+   "claude": ""
   },
   "POL-23": {
    "id": "POL-23",
@@ -5926,7 +6322,8 @@
    "check": "",
    "text": "Coût : 10 💰. 🌀 → Primordial.\nTant qu'elle est en jeu, les cartes à la même place chez vos voisins sont désactivées.",
    "rules": "Sans les 10 gold, la carte est désactivée jusqu'au début de votre prochain tour et ne désactive plus rien.",
-   "image": "POL-23.jpg"
+   "image": "POL-23.jpg",
+   "claude": ""
   },
   "POL-24": {
    "id": "POL-24",
@@ -5944,7 +6341,8 @@
    "check": "",
    "text": "🔒 Déplacée seulement avec l'accord de son possesseur.\nCoût : 10 💰. Au choix :\n- rien ;\n- réorganisez votre terrain ;\n- posez une carte de votre main, sans son effet.",
    "rules": "Les 10 gold sont payés dans tous les cas, même pour « ne rien faire ».",
-   "image": "POL-24.jpg"
+   "image": "POL-24.jpg",
+   "claude": ""
   },
   "POL-25": {
    "id": "POL-25",
@@ -5962,7 +6360,8 @@
    "check": "",
    "text": "Passif — À l'arrivée : vous pouvez défausser une carte de votre terrain pour gagner 50 💰.\nChaque carte défaussée de votre main : gagnez 10 💰.",
    "rules": "Le choix de défausser se fait quand la carte arrive sur un terrain.",
-   "image": "POL-25.jpg"
+   "image": "POL-25.jpg",
+   "claude": ""
   },
   "VC-BASE-1": {
    "id": "VC-BASE-1",
@@ -5980,7 +6379,8 @@
    "check": "",
    "text": "Être le seul joueur avec la sentience vraie à la fin de votre tour.",
    "rules": "Vérifiée à la fin de son tour : il est le seul joueur avec la sentience vraie.",
-   "image": "VC-BASE-1.jpg"
+   "image": "VC-BASE-1.jpg",
+   "claude": ""
   },
   "VC-BASE-2": {
    "id": "VC-BASE-2",
@@ -5998,7 +6398,8 @@
    "check": "",
    "text": "Être le joueur le plus riche pendant un tour de table complet.",
    "rules": "Capitaliste : être strictement le plus riche (pas d'égalité) pendant un tour de table complet.",
-   "image": "VC-BASE-2.jpg"
+   "image": "VC-BASE-2.jpg",
+   "claude": ""
   },
   "VC-BASE-3": {
    "id": "VC-BASE-3",
@@ -6014,9 +6415,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir eu les 4 états de trou noir pendant un même tour de table.",
-   "rules": "Avoir eu les 4 trous noirs sur une période d'un tour de table.",
-   "image": "VC-BASE-3.jpg"
+   "text": "Avoir eu 3 états de trou noir différents pendant un même tour de table.",
+   "rules": "3 trous noirs différents sur une période d'un tour de table.",
+   "image": "VC-BASE-3.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-BASE-4": {
    "id": "VC-BASE-4",
@@ -6032,9 +6434,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir eu une interaction avec chaque autre joueur.",
-   "rules": "Avoir eu au moins une interaction avec chaque autre joueur.",
-   "image": "VC-BASE-4.png"
+   "text": "Avoir eu au moins 2 interactions avec chaque autre joueur.",
+   "rules": "Au moins 2 interactions avec chacun des autres joueurs.",
+   "image": "VC-BASE-4.png",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-GOB-1": {
    "id": "VC-GOB-1",
@@ -6050,9 +6453,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir en même temps 3 cartes Trou noir et 3 cartes Sentience sur votre terrain à la fin de votre tour.",
-   "rules": "Vérifiée à la fin de son tour : au moins 3 cartes 🌀 et 3 cartes 🧠 sur son terrain. Une carte 🧠🌀 compte des deux côtés.",
-   "image": "VC-GOB-1.jpg"
+   "text": "Avoir en même temps 4 cartes Trou noir et 4 cartes Sentience sur votre terrain à la fin de votre tour.",
+   "rules": "Vérifiée à la fin de son tour : au moins 4 cartes 🌀 et 4 cartes 🧠 sur son terrain. Une carte 🧠🌀 compte des deux côtés.",
+   "image": "VC-GOB-1.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-GOB-2": {
    "id": "VC-GOB-2",
@@ -6068,9 +6472,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir dépensé 250 gold au total.",
-   "rules": "Total des gold dépensés (paiements) depuis le début de la partie.",
-   "image": "VC-GOB-2.jpg"
+   "text": "Avoir dépensé ou donné 150 gold au total.",
+   "rules": "Gold dépensés (paiements) + gold donnés à d'autres joueurs (pas ceux qu'on vous vole), depuis le début de la partie.",
+   "image": "VC-GOB-2.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-GOB-3": {
    "id": "VC-GOB-3",
@@ -6086,9 +6491,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pendant votre tour, gagner au moins 50 gold entre deux changements de votre trou noir.",
-   "rules": "Pendant son tour : gagner 50 gold entre deux changements de son trou noir.",
-   "image": "VC-GOB-3.jpg"
+   "text": "Gagner au moins 30 gold entre deux changements de votre trou noir.",
+   "rules": "Compté à partir d'un changement de son trou noir jusqu'au suivant, même sur plusieurs tours.",
+   "image": "VC-GOB-3.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-ANT-1": {
    "id": "VC-ANT-1",
@@ -6106,7 +6512,8 @@
    "check": "",
    "text": "Disposer de 1000+ gold à la fin du tour",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-ANT-2": {
    "id": "VC-ANT-2",
@@ -6124,7 +6531,8 @@
    "check": "",
    "text": "Disposer de plus de gold que les autres joueurs cumulés.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-ANT-3": {
    "id": "VC-ANT-3",
@@ -6142,7 +6550,8 @@
    "check": "",
    "text": "La Sentience du joueur doit être \"Fausse\" et disposer de 3 cartes actives sur le terrain allié.",
    "rules": "",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-EMI-1": {
    "id": "VC-EMI-1",
@@ -6160,7 +6569,8 @@
    "check": "",
    "text": "Chaque première lettre de vos cartes est considérée comme des lettres, si vous pouvez former un mot avec qui a plus de 3 lettres alors vous avez rempli les conditions de victoire (Ex : Scrabble).",
    "rules": "Le joueur propose un mot (plus de 3 lettres) écrit avec les premières lettres des cartes de son terrain, chaque lettre une fois. Le jeu vérifie les lettres, puis les autres joueurs votent (majorité stricte pour valider).",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-EMI-2": {
    "id": "VC-EMI-2",
@@ -6178,7 +6588,8 @@
    "check": "",
    "text": "Il est dit qu'une pierre roule quand Trou Noir est sous l'état de Primordial, que sa Sentience est à faux et que sa mousse gold est supérieure à 100 et que sur le plateau il y est une carte qui ce soit déplacé.",
    "rules": "Toutes les conditions en même temps : Primordial, sentience fausse, plus de 100 gold, et une carte déplacée par un effet se trouve sur un terrain.",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-EMI-3": {
    "id": "VC-EMI-3",
@@ -6196,7 +6607,8 @@
    "check": "",
    "text": "Intéragisser avec 3 cartes de chaque type de ressources d'un autre joueur. Si une carte a plusieurs tags, choisissez 1 tag. (Si une de vos cartes se déplace sur le terrain d'un autre joueur, ça compte)",
    "rules": "3 cartes différentes de chaque tag (🧠, 💰, 🌀) appartenant à d'autres joueurs touchées par ses effets.",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-POP-1": {
    "id": "VC-POP-1",
@@ -6212,9 +6624,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir eu 66 interactions avec d'autres joueurs.",
-   "rules": "66 interactions avec d'autres joueurs (voir « Interaction » dans le glossaire).",
-   "image": ""
+   "text": "Avoir eu 30 interactions avec d'autres joueurs.",
+   "rules": "30 interactions avec d'autres joueurs (voir « Interaction » dans le glossaire).",
+   "image": "",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-POP-2": {
    "id": "VC-POP-2",
@@ -6232,7 +6645,8 @@
    "check": "",
    "text": "Tous les joueurs ont le trou noir Blazard en même temps.",
    "rules": "Tous les joueurs en Blazard en même temps.",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-POP-3": {
    "id": "VC-POP-3",
@@ -6248,9 +6662,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir fait passer 500 gold d'un joueur à un autre au total.",
-   "rules": "500 gold échangés entre joueurs au total (gold passés d'un joueur à un autre).",
-   "image": ""
+   "text": "Avoir fait passer 200 gold d'un joueur à un autre au total.",
+   "rules": "200 gold échangés entre joueurs au total (gold passés d'un joueur à un autre).",
+   "image": "",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-GRE-1": {
    "id": "VC-GRE-1",
@@ -6266,9 +6681,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Pendant un même tour : perdez 50 💰 (dépensés, perdus ou volés) et gagnez 50 💰.",
+   "text": "Pendant un même tour : perdez 30 💰 (dépensés, perdus ou volés) et gagnez 30 💰.",
    "rules": "Compté pendant votre tour : tous les gold qui vous quittent (dépense, perte, vol, échange) et tous ceux que vous gagnez, remis à zéro à chaque début de tour.",
-   "image": "VC-GRE-1.png"
+   "image": "VC-GRE-1.png",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-GRE-2": {
    "id": "VC-GRE-2",
@@ -6286,7 +6702,8 @@
    "check": "",
    "text": "À la fin de votre tour, votre sentience doit être fausse et votre nombre de gold impair.",
    "rules": "",
-   "image": "VC-GRE-2.png"
+   "image": "VC-GRE-2.png",
+   "claude": ""
   },
   "VC-REV-1": {
    "id": "VC-REV-1",
@@ -6304,7 +6721,8 @@
    "check": "",
    "text": "Avoir 5 cartes sentience sur le terrain et sa sentience à vraie.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Milky_Way_and_starry_night_sky_%2826972689115%29.jpg/500px-Milky_Way_and_starry_night_sky_%2826972689115%29.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Milky_Way_and_starry_night_sky_%2826972689115%29.jpg/500px-Milky_Way_and_starry_night_sky_%2826972689115%29.jpg",
+   "claude": ""
   },
   "VC-REV-2": {
    "id": "VC-REV-2",
@@ -6322,7 +6740,8 @@
    "check": "",
    "text": "Changer votre sentience d'état 10 fois.",
    "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Lightning_NOAA.jpg/500px-Lightning_NOAA.jpg"
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Lightning_NOAA.jpg/500px-Lightning_NOAA.jpg",
+   "claude": ""
   },
   "VC-VIC-1": {
    "id": "VC-VIC-1",
@@ -6338,9 +6757,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne plus avoir de cartes ni dans votre pioche, ni dans votre défausse",
-   "rules": "",
-   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Box.agr.jpg/500px-Box.agr.jpg"
+   "text": "Ne plus avoir de cartes dans votre pioche.",
+   "rules": "La défausse ne compte pas.",
+   "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Box.agr.jpg/500px-Box.agr.jpg",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-MET-1": {
    "id": "VC-MET-1",
@@ -6356,9 +6776,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Changer de trou noir 4 fois pendant votre tour",
-   "rules": "4 changements de son trou noir pendant un même tour à lui.",
-   "image": ""
+   "text": "Changer de trou noir 3 fois pendant votre tour",
+   "rules": "3 changements de son trou noir pendant un même tour à lui.",
+   "image": "",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-MET-2": {
    "id": "VC-MET-2",
@@ -6374,9 +6795,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir 250 gold avec un trou noir Trou de ver",
-   "rules": "Au moins 250 gold et trou noir Trou de ver en même temps.",
-   "image": ""
+   "text": "Avoir 150 gold avec un trou noir Trou de ver",
+   "rules": "Au moins 150 gold et trou noir Trou de ver en même temps.",
+   "image": "",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-MET-3": {
    "id": "VC-MET-3",
@@ -6394,7 +6816,8 @@
    "check": "",
    "text": "Il s'est écoulé 20 tours (ton tours) pouvant être réduits de 1 pour 50 gold.",
    "rules": "Avoir joué 20 de ses tours ; il en faut 1 de moins par tranche de 50 gold possédés.",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-PIR-1": {
    "id": "VC-PIR-1",
@@ -6410,9 +6833,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez 10 cartes de votre main au cours de la partie.",
+   "text": "Défaussez 7 cartes de votre main au cours de la partie.",
    "rules": "Compte toutes les cartes de votre main parties dans la défausse (action du tour ou effets).",
-   "image": ""
+   "image": "",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-PIR-2": {
    "id": "VC-PIR-2",
@@ -6430,7 +6854,8 @@
    "check": "",
    "text": "Ayez plus de 100 gold et au moins une carte de votre terrain défaussée au cours de la partie.",
    "rules": "Compte toute carte de votre terrain partie dans la défausse, quelle qu'en soit la raison.",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-PIR-3": {
    "id": "VC-PIR-3",
@@ -6446,9 +6871,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ayez 4 cartes Sentience sur votre terrain, une sur le dessus de votre défausse et une dans votre main.",
+   "text": "Ayez 3 cartes Sentience sur votre terrain, une sur le dessus de votre défausse et une dans votre main.",
    "rules": "« Visible dans la défausse » = la carte du dessus de la défausse.",
-   "image": ""
+   "image": "",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-FLE-1": {
    "id": "VC-FLE-1",
@@ -6466,7 +6892,8 @@
    "check": "",
    "text": "Avoir perdu 200 gold au total.",
    "rules": "200 gold perdus au total depuis le début de la partie.",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-FLE-2": {
    "id": "VC-FLE-2",
@@ -6484,7 +6911,8 @@
    "check": "",
    "text": "Vos cartes se sont activées 5 fois pendant le tour d'autres joueurs.",
    "rules": "5 activations de ses cartes pendant le tour d'un autre joueur.",
-   "image": ""
+   "image": "",
+   "claude": ""
   },
   "VC-FLE-3": {
    "id": "VC-FLE-3",
@@ -6501,8 +6929,9 @@
    "target": "",
    "check": "",
    "text": "Pendant un même tour, 5 de vos cartes n'ont pas pu s'activer.",
-   "rules": "Compté pendant un seul tour du joueur (remis à zéro au début de chacun de ses tours) : 5 de ses cartes n'ont pas pu s'activer pendant sa phase 1.",
-   "image": ""
+   "rules": "Compté pendant un seul tour du joueur (remis à zéro au début de chacun de ses tours) : 5 de ses cartes ne se sont pas activées pendant sa phase 1 — cartes passives, désactivées, ou dont l'effet a échoué.",
+   "image": "",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-POL-1": {
    "id": "VC-POL-1",
@@ -6520,7 +6949,8 @@
    "check": "",
    "text": "Défaussez au moins 5 cartes des autres joueurs.",
    "rules": "Compte chaque carte d'un autre joueur (terrain ou main) défaussée par vos effets.",
-   "image": "VC-POL-1.webp"
+   "image": "VC-POL-1.webp",
+   "claude": ""
   },
   "VC-POL-2": {
    "id": "VC-POL-2",
@@ -6536,9 +6966,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Un autre joueur n'a plus aucune carte sur son terrain (pas pendant le premier tour de table).",
-   "rules": "",
-   "image": "VC-POL-2.png"
+   "text": "Le terrain d'un autre joueur reste vide pendant un tour de table complet (pas pendant le premier tour de table).",
+   "rules": "Compté à partir du 2e tour de table : un autre joueur garde un terrain vide pendant un tour de table complet.",
+   "image": "VC-POL-2.png",
+   "claude": "✏️ Modifiée v0.23 (équilibrage)"
   }
  },
  "glossary": [

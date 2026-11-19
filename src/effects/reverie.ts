@@ -423,4 +423,45 @@ export const REVERIE: Record<string, CardScript> = {
       x.lose(u, 10);
     },
   },
+
+  // ✨ Ajoutée par Claude (v0.23) — Marchand de sable : pour 20 gold (facultatif), la sentience d'un joueur → vraie
+  "REV-20": {
+    activate: (x, { id, me }) => {
+      if (!x.canPay(me, 20)) return false;
+      const pool = x.turnOrder().filter((u) => !x.p(u).sentience);
+      if (!pool.length) {
+        x.reason = "Tout le monde a déjà la sentience vraie.";
+        return false;
+      }
+      const [u] = x.chooseCards(me, "Marchand de sable : endormir quel joueur pour 20 gold ? (sa 🧠 → vraie, facultatif)", pool, 0, 1, id);
+      if (!u) return x.log("Marchand de sable : personne n'est endormi.");
+      if (!x.spend(me, 20)) return false;
+      x.setSentience(u, true);
+    },
+  },
+
+  // ✨ Ajoutée par Claude (v0.23) — Insomnie : sentience fausse → tu peux échanger tes gold avec un joueur à sentience vraie
+  "REV-21": {
+    activate: (x, { id, me }) => {
+      if (x.p(me).sentience) {
+        x.reason = "Ta sentience est vraie : tu dors, pas d'insomnie.";
+        return false;
+      }
+      const pool = x.others(me).filter((u) => x.p(u).sentience);
+      if (!pool.length) {
+        x.reason = "Aucun autre joueur n'a la sentience vraie.";
+        return false;
+      }
+      const [u] = x.chooseCards(me, "Insomnie : échanger tes gold avec quel joueur ? (facultatif)", pool, 0, 1, id);
+      if (!u) return x.log("Insomnie : pas d'échange.");
+      x.swapGold(me, u);
+    },
+  },
+
+  // ✨ Ajoutée par Claude (v0.23) — Somnambule : choisis ton trou noir
+  "REV-22": {
+    activate: (x, { id, me }) => {
+      x.setBlackHole(me, x.chooseBlackHole(me, "Somnambule : ton nouveau trou noir ?", x.p(me).blackHole, id));
+    },
+  },
 };

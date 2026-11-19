@@ -290,7 +290,7 @@ export const GOBLIN: Record<string, CardScript> = {
       if (!t) return false;
       const c = x.chooseCard(t, `${x.name(me)} te donne une carte de sa main : choisis-la`, x.p(me).hand, id);
       if (c) x.move(c, { uid: t, zone: "hand" });
-      x.gain(me, 40);
+      x.gain(me, 25);
       x.discard(id);
     },
   },

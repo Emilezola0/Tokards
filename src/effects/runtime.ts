@@ -378,6 +378,7 @@ export class Ctx {
     if (target !== actor && this.p(target)) {
       s.interOthers = (s.interOthers ?? 0) + 1;
       if (!(s.met ?? []).includes(target)) s.met = [...(s.met ?? []), target];
+      s.metN = { ...(s.metN ?? {}), [target]: (s.metN?.[target] ?? 0) + 1 };
     }
     this.emit({ type: "interaction", actor, target, what });
   }
@@ -477,7 +478,8 @@ export class Ctx {
     p.gold += n;
     p.goldGainedSince = (p.goldGainedSince ?? 0) + n;
     const s = E.st(p);
-    if (uid === this.current && s.gainSinceBH != null) s.gainSinceBH += n;
+    // Astrophysicienne : compté entre deux changements de trou noir, même sur plusieurs tours.
+    if (s.gainSinceBH != null) s.gainSinceBH += n;
     this.fx({ k: "gold", uid, delta: n });
     this.log(`${this.name(uid)} gagne ${n} gold (${p.gold}).`, { to: uid });
     this.interact(uid, "gold");
@@ -542,6 +544,11 @@ export class Ctx {
     const real = this.lose(from, n);
     if (real) this.gain(to, real);
     if (from !== to) this.moved(real);
+    // Dette public : les gold donnés à un autre joueur comptent (pas ceux qu'on vous vole).
+    if (from !== to && !stolen && real > 0) {
+      const sf = E.st(this.p(from));
+      sf.given = (sf.given ?? 0) + real;
+    }
     if (stolen && real > 0) this.emit({ type: "goldStolen", thief: to, victim: from, amount: real, src: this.source });
     return real;
   }
@@ -655,10 +662,11 @@ export class Ctx {
   private trackBlackHole(uid: string, to: BlackHole) {
     const s = E.st(this.p(uid));
     s.bhHist = [...(s.bhHist ?? []), { pos: E.pos(this.g), bh: to }].slice(-40);
+    // Astrophysicienne : 30 gold gagnés entre deux changements de son trou noir (à n'importe quel moment).
+    if (s.gainSinceBH != null && s.gainSinceBH >= 30) s.bhGainHit = true;
+    s.gainSinceBH = 0;
     if (uid !== this.current) return;
     s.bhTurn = (s.bhTurn ?? 0) + 1;
-    if (s.gainSinceBH != null && s.gainSinceBH >= 50) s.bhGainHit = true;
-    s.gainSinceBH = 0;
   }
   /** Fait avancer le trou noir d'un cran dans le cycle donné (chaque carte a le sien). */
   cycleBlackHole(uid: string, cycle: BlackHole[]) {
@@ -1016,10 +1024,12 @@ export class Ctx {
     const c = card(id);
     if (!s) return;
     if (!s.activate) {
+      this.countFail(me);
       this.log(`« ${c.name} » n'a pas d'effet à activer (passif).`);
       return;
     }
     if (E.isDisabled(this.g, id)) {
+      this.countFail(me);
       this.fx({ k: "fail", card: id, uid: me, reason: "Désactivée" });
       this.log(`⛔ « ${c.name} » est désactivée : son effet ne se joue pas.`, { dst: id });
       return;
@@ -1027,6 +1037,7 @@ export class Ctx {
     if (this.g.hot?.includes(id)) {
       this.g.hot = this.g.hot.filter((c) => c !== id);
       if (this.dice(me, 2) === 2) {
+        this.countFail(me);
         this.fx({ k: "fail", card: id, uid: me, reason: "Hot" });
         this.log(`☀️ Hot : « ${c.name} » ne se joue pas (2 au d2).`, { dst: id, src: "MET-05" });
         return;
@@ -1037,6 +1048,7 @@ export class Ctx {
     if (at0?.zone === "terrain" && id !== E.ORAGE && id !== "MET-30" && this.p(at0.uid).terrain.includes(E.ORAGE) && !E.isDisabled(this.g, E.ORAGE)) {
       const t = E.tagsOf(this.g, id);
       if (t.sentience || t.gold) {
+        this.countFail(me);
         this.fx({ k: "fail", card: id, uid: me, reason: "Orage" });
         this.log(`⛈️ Orage : « ${c.name} » (Sentience ou Gold) ne peut pas être jouée.`, { dst: id, src: E.ORAGE });
         return;
@@ -1076,7 +1088,7 @@ export class Ctx {
       if (res === false) {
         const why = this.reason ?? REASONS[id] ?? DEFAULT_REASON;
         this.fx({ k: "fail", card: id, uid: me, reason: why });
-        if (me === this.current && this.g.phase === "activation") E.st(this.p(me)).failed = (E.st(this.p(me)).failed ?? 0) + 1;
+        this.countFail(me);
         this.log(`« ${c.name} » : effet impossible. ${why}`);
       }
     } finally {
@@ -1100,6 +1112,13 @@ export class Ctx {
     E.st(this.p(owner)).offTurn = (E.st(this.p(owner)).offTurn ?? 0) + 1;
   }
 
+  /** « Inhibition toxique » : une carte du joueur actif ne s'est pas activée pendant sa phase 1 (passif, désactivée, effet raté…). */
+  countFail(me: string) {
+    if (me !== this.current || this.g.phase !== "activation") return;
+    const s = E.st(this.p(me));
+    s.failed = (s.failed ?? 0) + 1;
+  }
+
   /** Active les cartes du terrain du joueur actif dans le sens de lecture. S'arrête sur une carte non automatisée. */
   runActivation() {
     const g = this.g;
@@ -1113,6 +1132,7 @@ export class Ctx {
       const t = g.players[this.current].terrain;
       if (t.includes("FLE-21") && g.players[this.current].sentience && t.indexOf(id) % 2 === 1) {
         g.activated = [...(g.activated ?? []), id];
+        this.countFail(this.current);
         const why = "Varicelle cosmique : seules les cartes en position impaire se jouent.";
         this.fx({ k: "fail", card: id, uid: this.current, reason: why });
         this.log(`« ${card(id).name} » ne se joue pas. ${why}`, { src: "FLE-21", dst: id });
@@ -1122,6 +1142,7 @@ export class Ctx {
         g.facedown = g.facedown.filter((c) => c !== id);
         E.enableCard(g, id);
         g.activated = [...(g.activated ?? []), id];
+        this.countFail(this.current);
         this.fx({ k: "move", card: id });
         this.log(`👁 « ${card(id).name} » se retourne face visible et se réactive, sans jouer son effet ce tour.`, { dst: id });
         continue;
@@ -1133,6 +1154,7 @@ export class Ctx {
           : null;
       if (skip) {
         g.activated = [...(g.activated ?? []), id];
+        this.countFail(this.current);
         this.fx({ k: "fail", card: id, uid: this.current, reason: skip });
         this.log(`« ${card(id).name} » ne se joue pas. ${skip}`, { dst: id });
         continue;

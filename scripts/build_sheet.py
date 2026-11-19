@@ -213,8 +213,8 @@ def rich(text):
 # ---------- Cartes ----------
 ch = ["ID", "Deck", "Nom", "🧠 Sentience", "💰 Gold", "🌀 Trou noir", "Déclenchement", "Événement passif", "Cible",
       "Description", "Précisions (règles)", "Image", "Statut", "Automatisation", "À mettre à jour", "Notes / changements",
-      "Texte simplifié", "Validation texte", "Remarque sur le texte", "Texte d'origine"]
-ca = sheet("Cartes", ch, [10, 18, 26, 10, 9, 10, 13, 20, 18, 60, 55, 14, 12, 15, 11, 36, 60, 14, 36, 60], "FFB300")
+      "Texte simplifié", "Validation texte", "Remarque sur le texte", "Texte d'origine", "Changé par Claude", "Avant le changement"]
+ca = sheet("Cartes", ch, [10, 18, 26, 10, 9, 10, 13, 20, 18, 60, 55, 14, 12, 15, 11, 36, 60, 14, 36, 60, 22, 50], "FFB300")
 for c in cards:
     # Texte simplifié validé : il remplace la description (et la proposition est vidée).
     # L'ancien texte est gardé dans « Texte d'origine » (le premier remplacé, pour pouvoir revenir en arrière).
@@ -227,7 +227,7 @@ for c in cards:
                get(c, "Déclenchement"), get(c, "Événement passif"), get(c, "Cible"), desc,
                clean_rules(get(c, "Précisions")), get(c, "Image"), get(c, "Statut") or "À vérifier",
                AUTO_YES if c["ID"] in AUTO else AUTO_NO, "Non", "", simple, valid or ("À valider" if simple else ""),
-               get(c, "Remarque sur le texte"), orig])
+               get(c, "Remarque sur le texte"), orig, get(c, "Changé par Claude"), get(c, "Avant le changement")])
 nc = len(cards)
 body(ca, nc, len(ch), center=(1, 4, 5, 6, 7, 12, 13, 14, 15))
 for r in range(2, nc + 2):
@@ -267,15 +267,18 @@ def common_rules(ws, n, id_col, status_col, auto_col, upd_col, last_col):
 
 common_rules(ca, nc, "A", "M", "N", "O", "P")
 fill_rule(ca, f"G2:G{MAX}", '$G2="Passif"', "E0F7FA", Font(name=FONT, color="0F6E7A", bold=True))
+# Cartes changées ou ajoutées par Claude : repérables (et réversibles grâce à « Avant le changement »).
+fill_rule(ca, f"U2:U{MAX}", '$U2<>""', "EDE4FF", Font(name=FONT, color="5B2FB0", bold=True))
 
 # ---------- Conditions ----------
 vh = ["ID", "Deck", "Nom", "🧠 Sentience", "💰 Gold", "🌀 Trou noir", "Vérification", "Description", "Précisions (règles)",
-      "Image", "Statut", "Automatisation", "À mettre à jour", "Notes / changements"]
-vc = sheet("Conditions", vh, [11, 18, 26, 10, 9, 10, 18, 55, 55, 14, 12, 15, 11, 36], "FF7043")
+      "Image", "Statut", "Automatisation", "À mettre à jour", "Notes / changements", "Changé par Claude", "Avant le changement"]
+vc = sheet("Conditions", vh, [11, 18, 26, 10, 9, 10, 18, 55, 55, 14, 12, 15, 11, 36, 22, 50], "FF7043")
 for c in vcs:
     vc.append([c["ID"], c["Deck"], c["Nom"], get(c, "Sentience") or "Non", get(c, "Gold") or "Non", get(c, "Trou noir") or "Non",
                get(c, "Vérification"), get(c, "Description"), clean_rules(get(c, "Précisions")), get(c, "Image"),
-               get(c, "Statut") or "À vérifier", AUTO_YES if c["ID"] in AUTO else AUTO_NO, "Non", ""])
+               get(c, "Statut") or "À vérifier", AUTO_YES if c["ID"] in AUTO else AUTO_NO, "Non", "",
+               get(c, "Changé par Claude"), get(c, "Avant le changement")])
 nv = len(vcs)
 body(vc, nv, len(vh), center=(1, 4, 5, 6, 10, 11, 12, 13))
 for r in range(2, nv + 2):
@@ -291,6 +294,7 @@ dv_list(vc, f"L2:L{MAX}", REF["Automatisation"])
 dv_list(vc, f"M2:M{MAX}", REF["OuiNon"], "Mets Oui quand tu modifies la condition.")
 # Mêmes règles, colonnes décalées (Statut K, Automatisation L, À mettre à jour M)
 common_rules(vc, nv, "A", "K", "L", "M", "N")
+fill_rule(vc, f"O2:O{MAX}", '$O2<>""', "EDE4FF", Font(name=FONT, color="5B2FB0", bold=True))
 
 # ---------- Glossaire ----------
 KNOWN = {
@@ -354,7 +358,7 @@ fill_rule(it, "F2:F500", '$F2="À valider"', "FFF1D6")
 
 # ---------- Équilibrage ----------
 # Propositions de changement tirées des stats (parties simulées) : à accepter, refuser ou corriger.
-EQ_STATUS = ["À valider", "Validée", "À changer", "Refusée"]
+EQ_STATUS = ["À valider", "Validée", "À changer", "Refusée", "Appliquée", "Info"]
 eh = ["ID", "Deck", "Carte / condition", "Type", "Constat (stats)", "Proposition", "Statut", "Ta réponse / changement voulu"]
 eq = sheet("Équilibrage", eh, [11, 18, 24, 16, 60, 60, 13, 44], "C0392B")
 for r in equil:
@@ -370,6 +374,7 @@ fill_rule(eq, "G2:G500", '$G2="Validée"', "D7F5E3")
 fill_rule(eq, "G2:G500", '$G2="À changer"', "FDE2E7")
 fill_rule(eq, "G2:G500", '$G2="Refusée"', "EEEEEE")
 fill_rule(eq, "G2:G500", '$G2="À valider"', "FFF1D6")
+fill_rule(eq, "G2:G500", '$G2="Appliquée"', "DDF3F7")
 
 # ---------- Lisez-moi ----------
 rd = wb.create_sheet("Lisez-moi", 0)
@@ -428,6 +433,7 @@ line("Déclenchement", "Activation : s'applique pendant la phase 1 et quand on p
 line("Précisions (règles)", "Comment la carte est interprétée dans le jeu. Claude y note ses choix quand le texte peut se lire de plusieurs façons.", "k")
 line("Texte simplifié", "Onglet Cartes, colonnes Q à S : proposition de texte plus clair. Mets « Validé » pour qu'il remplace la description, ou « À changer » avec une remarque. L'ancien texte est gardé en colonne T (« Texte d'origine »). Les règles d'écriture sont dans l'onglet « Guide de style ».", "k")
 line("Interprétations", "Chaque choix d'interprétation de Claude, à relire. Mets « Validée » si c'est bon, ou « À changer » avec ta réponse dans la dernière colonne, puis envoie le classeur à Claude.", "k")
+line("Changé par Claude", "Onglets Cartes et Conditions : les cartes modifiées (✏️) ou ajoutées (🆕) par Claude, avec l'ancienne version dans « Avant le changement » pour revenir en arrière. Dans le jeu, ces cartes portent le même petit logo.", "k")
 line("Équilibrage", "Propositions de Claude tirées de parties simulées (cartes trop fortes / trop faibles, conditions impossibles pour certains decks). Mets « Validée » pour que Claude l'applique, « Refusée » pour garder la carte, ou « À changer » avec ta version.", "k")
 line("Image", "Nom du fichier image de la carte (ex. GOB-01.png), à envoyer avec le classeur ; ou un lien https://… vers une image en ligne (rien à envoyer, le jeu la charge directement). Le crédit de l'image va dans « Notes / changements ».", "k")
 row += 1

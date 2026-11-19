@@ -111,6 +111,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const arena = useRef<HTMLDivElement>(null);
   const size = useSize(arena);
   const fx = useFx();
+  // Fin de partie / vote : affichés seulement quand les animations (dont celle de la victoire) sont finies.
+  const settled = useSettled(!fx.busy);
 
   const me = g.players[uid];
   // Un joueur qui a abandonné regarde la suite comme un spectateur.
@@ -457,8 +459,8 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
         <TerrainModal name={E.nameOf(room, viewTerrain)} terrain={g.players[viewTerrain].terrain} onCard={setOpenCard} onClose={() => setViewTerrain(null)} />
       )}
       {g.wordClaim && <WordVote room={room} uid={uid} />}
-      {g.vote && <VoteModal room={room} uid={uid} isHost={isHost} />}
-      {room.status === "ended" && <EndModal room={room} isHost={isHost} />}
+      {g.vote && settled && <VoteModal room={room} uid={uid} isHost={isHost} />}
+      {room.status === "ended" && settled && <EndModal room={room} isHost={isHost} />}
     </div>
   );
 }
@@ -495,6 +497,17 @@ function OrderBar({ g, room, uid, colorOf }: { g: GameState; room: Room; uid: st
       <span className="ob-stat" title="Durée de la partie">⏱ {hh ? `${hh}:` : ""}{mm}:{ss}</span>
     </div>
   );
+}
+
+/** Vrai quand `ok` est resté vrai un court instant (les animations qui arrivent avec le même état ont le temps de démarrer). */
+function useSettled(ok: boolean, delay = 500) {
+  const [v, setV] = useState(ok);
+  useEffect(() => {
+    if (!ok) return setV(false);
+    const t = setTimeout(() => setV(true), delay);
+    return () => clearTimeout(t);
+  }, [ok, delay]);
+  return v && ok;
 }
 
 function TurnControls({ g, room, uid, myTurn, auto, autoEnd, busy, run, runAuto }: {

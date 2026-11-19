@@ -107,6 +107,12 @@ export interface Stats {
   terrDisc?: number;
   /** changements de sa sentience (Rêverie) */
   sentFlips?: number;
+  /** gold donnés à d'autres joueurs (hors vols) — Dette public */
+  given?: number;
+  /** interactions avec chaque autre joueur (Racoon) */
+  metN?: Record<string, number>;
+  /** début de la série « terrain vide » (Coup d'état, compté à partir du 2e tour de table) */
+  emptySince?: number | null;
 }
 
 export type Prompt = { chooser: string; text: string; cardId?: string } & (

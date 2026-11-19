@@ -48,6 +48,8 @@ def card(r, kind):
         "trigger": r.get("Déclenchement", ""), "event": r.get("Événement passif", ""),
         "target": r.get("Cible", ""), "check": r.get("Vérification", ""),
         "text": r["Description"], "rules": r.get("Précisions (règles)", ""), "image": r.get("Image", ""),
+        # ✏️ modifiée / 🆕 ajoutée par Claude (logo affiché sur la carte)
+        "claude": r.get("Changé par Claude", "") or "",
     }
 
 

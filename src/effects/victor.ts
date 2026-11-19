@@ -17,7 +17,8 @@ export const VICTOR: Record<string, CardScript> = {
   "VIC-01": {
     activate: (x, { id, me }) => {
       const top = Math.max(...x.order.map((u) => x.p(u).gold));
-      const diff = top - x.p(me).gold;
+      // v0.23 : la moitié de l'écart (arrondie à l'inférieur).
+      const diff = Math.floor((top - x.p(me).gold) / 2);
       if (diff > 0) x.gain(me, diff);
       else x.log("🏃 Tu es déjà le plus riche.");
       const poor = x.poorest(x.order)!;
@@ -385,4 +386,22 @@ export const VICTOR: Record<string, CardScript> = {
 
   // Piège à Gobelin (passif) : géré dans runtime (un autre joueur qui modifie ton terrain est arrêté et paie 50 gold)
   "VIC-19": {},
+
+  // ✨ Ajoutée par Claude (v0.23) — Girouette : choisis ton trou noir, puis la carte va à la fin du terrain d'un autre joueur
+  "VIC-20": {
+    activate: (x, { id, me }) => {
+      x.setBlackHole(me, x.chooseBlackHole(me, "Girouette : ton nouveau trou noir ?", x.p(me).blackHole, id));
+      const u = x.choosePlayer(me, "Girouette : sur le terrain de quel joueur la poser ?", x.others(me), id);
+      if (u) x.move(id, { uid: u, zone: "terrain" }, { activate: false });
+    },
+  },
+
+  // ✨ Ajoutée par Claude (v0.23) — Miroir : inverse ta sentience, puis la carte va dans la défausse d'un autre joueur
+  "VIC-21": {
+    activate: (x, { id, me }) => {
+      x.invertSentience(me);
+      const u = x.choosePlayer(me, "Miroir : dans la défausse de quel joueur l'envoyer ?", x.others(me), id);
+      if (u && x.move(id, { uid: u, zone: "discard" })) x.take(id, u);
+    },
+  },
 };

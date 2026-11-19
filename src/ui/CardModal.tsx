@@ -1,6 +1,6 @@
 import { useState } from "react";
 import KwText from "./KwText";
-import { PLACEHOLDER, card, cardImage, tagIcons } from "../data/cards";
+import { PLACEHOLDER, card, cardImage, claudeMark, tagIcons } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room, Until } from "../game/types";
 import { ZONE_LABEL } from "../game/types";
@@ -146,6 +146,7 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose, onClai
               ? <span className="badge auto-badge">⚙ Effet automatique</span>
               : <span className="badge">✋ Effet manuel</span>)}
           </p>
+          {claudeMark(c) && <p className="small claude-note">{claudeMark(c)!.icon} {claudeMark(c)!.label}</p>}
           <p className="card-text"><KwText text={c.text} /></p>
           {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
           <Modifiers id={id} room={room} />
