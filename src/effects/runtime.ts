@@ -1306,8 +1306,10 @@ export type Preview = {
   players: string[];
   /** Bilan chiffré par joueur (gold gagnés ou perdus, 🧠 et 🌀 qui changent). */
   summary?: { uid: string; gold: number; sent?: boolean; bh?: string }[];
-  /** Le résultat dépend d'un choix ou d'un dé : le bilan n'est qu'un exemple. */
+  /** Le résultat dépend d'un choix : le bilan n'est qu'un exemple. */
   uncertain?: boolean;
+  /** Le résultat dépend du hasard (dé, tirage) ou de cartes cachées : rien n'est annoncé avant de jouer la carte. */
+  random?: boolean;
 };
 
 /**
@@ -1315,16 +1317,60 @@ export type Preview = {
  * si elle est en main) et renvoie ce qu'il toucherait, ou pourquoi il est impossible.
  */
 export function previewEffect(room: Room, id: string, me: string): Preview | null {
+  // L'aperçu ne doit rien dévoiler qu'on ne saurait pas avant de jouer la carte : ni le résultat d'un dé ou d'un
+  // tirage au hasard, ni l'ordre des pioches, ni les mains cachées des autres. On simule donc plusieurs fois,
+  // avec d'autres dés et les cartes cachées remélangées, et on ne garde que ce qui est vrai à chaque fois.
+  const runs: { p: Preview; rolled: boolean }[] = [];
+  for (let i = 0; i < 6; i++) {
+    const r = previewOnce(room, id, me, i > 0);
+    if (!r) return null;
+    runs.push(r);
+  }
+  const first = runs[0].p;
+  const key = (p: Preview) => JSON.stringify([p.ok, p.reason ?? "", p.summary ?? []]);
+  const random = runs.some((r) => r.rolled) || runs.some((r) => key(r.p) !== key(first));
+  if (!random) return first;
+  const common = (k: "cards" | "gold" | "sentience" | "bh" | "players") => first[k].filter((v) => runs.every((r) => r.p[k].includes(v)));
+  return { ok: true, random: true, cards: common("cards"), gold: common("gold"), sentience: common("sentience"), bh: common("bh"), players: common("players") };
+}
+
+/** Remélange ce que le joueur ne peut pas voir : l'ordre des pioches et le contenu des mains des autres. */
+function scrambleHidden(g: GameState, me: string) {
+  const shuffle = <T,>(a: T[]) => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  for (const [uid, p] of Object.entries(g.players)) {
+    if (uid === me) {
+      shuffle(p.deck);
+      continue;
+    }
+    // Les cartes révélées de sa main restent en main ; les autres se mélangent avec sa pioche.
+    const shown = p.hand.filter((c) => g.revealed?.includes(c));
+    const pool = shuffle([...p.hand.filter((c) => !g.revealed?.includes(c)), ...p.deck]);
+    const n = p.hand.length - shown.length;
+    p.hand = [...shown, ...pool.slice(0, n)];
+    p.deck = pool.slice(n);
+  }
+}
+
+function previewOnce(room: Room, id: string, me: string, scramble: boolean): { p: Preview; rolled: boolean } | null {
   const s = SCRIPTS[id];
   if (!room.game || !s?.activate) return null;
   const g = structuredClone(room.game);
   g.pending = null;
+  if (scramble) scrambleHidden(g, me);
   const at = E.locate(g, id);
   if (!at) return null;
   const x = new Ctx({ ...room, game: g }, g, [], []);
   x.preview = [];
   const prevLive = E.live.g;
   E.live.g = g;
+  const prevRng = E.RNG.next;
+  E.RNG.next = () => x.rand();
   const out: Preview = { ok: true, cards: [], gold: [], sentience: [], bh: [], players: [] };
   const fxStart = g.fxSeq ?? 0;
   try {
@@ -1336,6 +1382,7 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
     return null;
   } finally {
     E.live.g = prevLive;
+    E.RNG.next = prevRng;
   }
   if (!out.ok) out.reason = x.reason ?? REASONS[id] ?? DEFAULT_REASON;
   const add = (arr: string[], v: string) => !arr.includes(v) && arr.push(v);
@@ -1375,7 +1422,9 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
       if (p.blackHole !== b.blackHole) row.bh = p.blackHole;
       if (row.gold || row.sent !== undefined || row.bh) out.summary.push(row);
     }
-    out.uncertain = x.preview.length > 0 || (g.fx ?? []).some((f) => f.id > fxStart && f.k === "dice");
+    out.uncertain = x.preview.length > 0;
   }
-  return out;
+  // Un dé ou un tirage au hasard a été utilisé : le résultat n'est connu qu'en jouant la carte.
+  const rolled = x.rolls.length > 0 || (g.fx ?? []).some((f) => f.id > fxStart && f.k === "dice");
+  return { p: out, rolled };
 }

@@ -522,7 +522,7 @@ export function discardFromHand(room: Room, g: GameState, uid: string, id: strin
 export function takeRandomFromHand(room: Room, g: GameState, from: string, to: string) {
   const hand = g.players[from].hand;
   if (!hand.length) return;
-  const id = hand[Math.floor(Math.random() * hand.length)];
+  const id = hand[Math.floor(RNG.next() * hand.length)];
   moveCard(room, g, id, { uid: to, zone: "hand" }, true);
   log(g, `${nameOf(room, to)} prend une carte au hasard dans la main de ${nameOf(room, from)}.`);
 }

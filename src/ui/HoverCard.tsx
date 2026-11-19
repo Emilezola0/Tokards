@@ -24,10 +24,11 @@ export default function HoverCard({ id, x, y, preview, auto, nameOf, me, noPlay 
       </div>
       <p className={`hover-text ${impossible ? "dim" : ""}`} title={impossible ? preview!.reason : undefined}><KwText text={c.text} /></p>
       {noPlay && <p className="hover-reason">🚫 Tu ne peux pas la poser : {noPlay}</p>}
+      {preview?.random && <p className="small hover-hint">🎲 Le résultat dépend du hasard ou de cartes cachées : tu le découvriras en jouant la carte.</p>}
       {impossible && <p className="hover-reason">✖ Impossible maintenant : {preview!.reason}</p>}
       {preview?.ok && !!preview.summary?.length && nameOf && (
         <div className="hover-sum">
-          <span className="small muted">{preview.uncertain ? "Si tu l'actives (exemple, selon les choix et les dés) :" : "Si tu l'actives :"}</span>
+          <span className="small muted">{preview.uncertain ? "Si tu l'actives (exemple, selon tes choix) :" : "Si tu l'actives :"}</span>
           {preview.summary.map((r) => (
             <span key={r.uid} className="hover-sum-row">
               <b>{r.uid === me ? "Toi" : nameOf(r.uid)}</b>
