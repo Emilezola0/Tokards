@@ -21,6 +21,67 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.32.0",
+    date: "21 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "🎲 Le dé dit ce qu'il a décidé",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-big">🎲</span>
+            <Arrow />
+            <span className="pn-chip pn-glow">17 → tu gagnes 50 💰</span>
+          </div>
+        ),
+        text: <>Après un lancer de dé, un petit résumé sous le résultat montre l'effet qu'il a choisi.</>,
+      },
+      {
+        cat: "jeu",
+        title: "‹ › Naviguer entre les cartes",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">‹</span>
+            <Img id="MET-03" cls="hg-pop" />
+            <span className="pn-chip pn-glow">›</span>
+          </div>
+        ),
+        text: <>Dans le détail d'une carte d'un deck ou d'une condition de victoire, des flèches (ou ← → au clavier) passent à la carte précédente ou suivante.</>,
+      },
+      {
+        cat: "jeu",
+        title: "🗣 Volume par deck et par carte",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🗣 Deck ▬▬▬●▬</span>
+            <span className="pn-chip">🗣 Carte ▬▬●▬▬</span>
+          </div>
+        ),
+        text: <>Le détail d'un deck a un curseur pour le volume de ses voicelines, et le détail d'une carte un curseur pour la sienne. Le réglage reste sur ton appareil.</>,
+      },
+      {
+        cat: "visuel",
+        title: "🌧️ Météo permanente",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-big">🌧️</span><span className="pn-big">❄️</span><span className="pn-big">🌨️</span><span className="pn-big">⛈️</span>
+          </div>
+        ),
+        text: <>La météo de chaque joueur reste visible en permanence sur son plateau, de façon très légère : pluie, vent, chaleur, neige, grêle ou orage.</>,
+      },
+      {
+        cat: "visuel",
+        title: "🔊 Voicelines plus vivantes",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="GOB-13" cls="hg-pop" /><Img id="FLE-09" cls="hg-pop d1" /><Img id="GRE-24" cls="hg-pop" />
+          </div>
+        ),
+        text: <>Chaque voiceline varie un peu (volume et hauteur à ±10 %). Une carte qui subit un effet parle 30 % plus grave. Voix Météo −20 % et Popo emplois −10 %. Plusieurs voicelines Fléaux, Grenouilles et Goblin ont changé de carte.</>,
+      },
+    ],
+  },
+  {
     version: "0.31.0",
     date: "20 novembre 2026",
     notes: [

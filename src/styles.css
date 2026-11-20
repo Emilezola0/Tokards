@@ -1174,3 +1174,53 @@ button.danger:hover { border-color: var(--bad); }
 .stack-card .card { width: 64px; cursor: pointer; }
 .stack-card span { line-height: 1.15; }
 .stack-snow { padding: 4px 10px; border-radius: 8px; background: #cfe6ff22; border: 1px solid #cfe6ff55; font-size: 13px; }
+
+/* v0.32 : volume des voix par deck / par carte, navigation entre les détails */
+.voice-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.voice-vol { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.voice-vol input[type="range"] { width: 120px; }
+.detail-nav {
+  position: fixed; top: 50%; z-index: 31; transform: translateY(-50%); width: 46px; height: 64px; padding: 0; border-radius: 14px;
+  font-size: 34px; line-height: 1; background: #120c26cc; border: 1px solid var(--line); color: var(--text);
+}
+.detail-nav.prev { left: max(8px, calc(50% - 440px)); }
+.detail-nav.next { right: max(8px, calc(50% - 440px)); }
+.detail-nav:hover:not(:disabled) { border-color: var(--accent); background: #2d2254; }
+.detail-nav:disabled { opacity: 0.2; }
+.detail-count { margin: 8px 0 0; text-align: center; }
+.detail-over { animation: fade-in 0.2s; }
+@media (max-width: 640px) { .detail-nav { top: auto; bottom: 12px; transform: none; } }
+/* v0.32 : résumé de l'effet décidé par un dé */
+.die3d-outcome {
+  display: grid; gap: 3px; margin-top: 4px; padding: 6px 12px; width: max-content; max-width: min(420px, 86vw); white-space: normal; text-align: center;
+  font-size: 13px; color: var(--text); background: #0b0716e6; border: 1px solid var(--pc, var(--line)); border-radius: 10px;
+  box-shadow: 0 4px 16px #000a; animation: pn-in 0.4s 0.25s ease-out both;
+}
+/* v0.32 : météo permanente et légère sur chaque plateau (sous le contenu).
+   Motifs en tuiles : chaque animation décale d'un nombre entier de tuiles, donc la boucle ne saute pas. */
+.wx { position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; overflow: hidden; opacity: 0.35; }
+.wx::before, .wx::after { content: ""; position: absolute; inset: 0; }
+.wx-rain::before { background-image: radial-gradient(1px 8px at 50% 50%, #8cc4ffcc, transparent); background-size: 22px 38px; animation: wx-rain-a 0.9s linear infinite; }
+.wx-rain::after { background-image: radial-gradient(1px 6px at 50% 50%, #b5d8ff99, transparent); background-size: 31px 29px; background-position: 9px 13px; animation: wx-rain-b 1.3s linear infinite; }
+.wx-wind::before { background-image: radial-gradient(46px 1px at 50% 50%, #e2f0ffaa, transparent); background-size: 170px 34px; animation: wx-wind-a 2.2s linear infinite; }
+.wx-wind::after { background-image: radial-gradient(30px 1px at 50% 50%, #e2f0ff77, transparent); background-size: 120px 23px; background-position: 40px 11px; animation: wx-wind-b 3.1s linear infinite; }
+.wx-heat::before { background: radial-gradient(ellipse at 50% 115%, #ff9a3c99, transparent 62%); animation: wx-heat 3.6s ease-in-out infinite; }
+.wx-heat::after { background: radial-gradient(circle at 85% 8%, #ffd76a66, transparent 40%); animation: wx-heat 5s ease-in-out infinite reverse; }
+.wx-snow::before { background-image: radial-gradient(circle, #fff 1.4px, transparent 2px); background-size: 38px 38px; animation: wx-snow-a 7s linear infinite; }
+.wx-snow::after { background-image: radial-gradient(circle, #ffffffcc 1px, transparent 1.5px); background-size: 23px 23px; animation: wx-snow-b 9s linear infinite; }
+.wx-hail::before { background-image: radial-gradient(circle, #e8f4ff 2.2px, transparent 2.8px); background-size: 33px 33px; animation: wx-hail-a 1.6s linear infinite; }
+.wx-hail::after { background-image: radial-gradient(circle, #cfe6ff 1.6px, transparent 2.2px); background-size: 21px 21px; animation: wx-hail-b 2.2s linear infinite; }
+.wx-storm { opacity: 0.45; }
+.wx-storm::before { background: linear-gradient(180deg, #0d1230dd, transparent 75%); }
+.wx-storm::after { background: #e8eeff; opacity: 0; animation: wx-flash 7s steps(1) infinite; }
+@keyframes wx-rain-a { to { background-position: -22px 114px; } }
+@keyframes wx-rain-b { to { background-position: -22px 100px; } }
+@keyframes wx-wind-a { to { background-position: 170px 0; } }
+@keyframes wx-wind-b { to { background-position: 160px 11px; } }
+@keyframes wx-heat { 50% { opacity: 0.45; transform: scale(1.04); } }
+@keyframes wx-snow-a { to { background-position: 38px 152px; } }
+@keyframes wx-snow-b { to { background-position: -23px 92px; } }
+@keyframes wx-hail-a { to { background-position: 0 132px; } }
+@keyframes wx-hail-b { to { background-position: 0 84px; } }
+@keyframes wx-flash { 0%, 90%, 92%, 95%, 100% { opacity: 0; } 91%, 94% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .wx::before, .wx::after { animation: none; } }

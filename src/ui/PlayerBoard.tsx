@@ -2,7 +2,7 @@ import { useState, type DragEvent, type MouseEvent } from "react";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room } from "../game/types";
-import { showWeather, weatherIcon, weatherLabel } from "../game/types";
+import { WEATHERS, showWeather, weatherIcon, weatherLabel } from "../game/types";
 import { isAutomated, noPlayReason, type Preview, chainOf } from "../effects/runtime";
 import { vcProgress } from "../game/victory";
 import CardView, { CardBack } from "./CardView";
@@ -176,6 +176,8 @@ export default function PlayerBoard(p: Props) {
         ["--pc" as string]: color,
       }}
     >
+      {/* Météo permanente du joueur, très légère, sous le contenu du plateau. */}
+      {weather && <div className={`wx wx-${WEATHERS.find((w) => w.id === weather)?.fx ?? "clear"}`} aria-hidden="true" />}
       {pick?.kind === "player" && pick.players.includes(owner) && (
         <button className="pick-overlay" onClick={() => pick.onPlayer(owner)}>
           <span>Choisir {lobbyP?.name}{owner === uid && " (toi)"}</span>

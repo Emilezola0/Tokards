@@ -7,7 +7,7 @@ import { WEATHERS, weatherIcon, weatherLabel } from "../game/types";
 import { fxStore } from "./fxStore";
 import { css, nearRot, poseOf, poseTransform, q, type Pose } from "./pose";
 import { sfx } from "./sfx";
-import { playVoice } from "./voice";
+import { HURT_RATE, playVoice } from "./voice";
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Attend la fin d'une animation, sans jamais bloquer la file si le navigateur la gèle (fenêtre non affichée). */
@@ -443,7 +443,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         }
         sfx.fail();
         // L'effet échoue : la carte parle comme une carte qui subit (plus grave, moins fort).
-        playVoice(f.card, 0.7, 0.75);
+        playVoice(f.card, 0.7, HURT_RATE);
         setBanner({ text: `✖ ${card(f.card).name} ne peut pas s'activer${f.reason ? ` : ${f.reason}` : ""}`, key: f.id, kind: "fail" });
         await wait((f.reason ? 1900 : 1000) * Math.max(speed, 0.6));
         break;
@@ -513,13 +513,14 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         const to = { x: c.cx + (Math.random() - 0.5) * 120, y: c.cy + (Math.random() - 0.5) * 60 };
         const dur = 1200 * Math.max(speed, 0.5);
         sfx.dice();
-        const roll: DieRoll = { key: f.id, faces: f.faces, value: f.value, bh: f.bh, sent: f.sent, who: E.nameOf(room, f.uid), color: colorOf(f.uid), from, to, dur, landed: false };
+        const roll: DieRoll = { key: f.id, faces: f.faces, value: f.value, bh: f.bh, sent: f.sent, who: E.nameOf(room, f.uid), color: colorOf(f.uid), from, to, dur, landed: false, outcome: f.outcome };
         setDie(roll);
         try {
           await wait(dur);
           sfx.drop();
           setDie({ ...roll, landed: true });
-          await wait(1300 * Math.max(speed, 0.6));
+          // Un résumé de l'effet choisi par le dé reste un peu plus longtemps à l'écran.
+          await wait((f.outcome?.length ? 2400 : 1300) * Math.max(speed, 0.6));
         } finally {
           // Toujours retirer le dé, même si l'effet est interrompu : sinon il reste figé à l'écran.
           setDie(null);
@@ -637,7 +638,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       case "link": {
         // Une carte agit sur une autre : flèche de la carte source vers la carte touchée.
         // La carte qui subit parle une octave plus bas (hauteur divisée par deux).
-        playVoice(f.to, 0.7, 0.75);
+        playVoice(f.to, 0.7, HURT_RATE);
         const fromCenter = centerCard.current?.id === f.from;
         const from = fromCenter ? { x: center().cx, y: center().cy } : mid(q(`.arena [data-card="${css(f.from)}"]`));
         let dest = q(`.arena [data-card="${css(f.to)}"]`);

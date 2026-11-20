@@ -1,10 +1,11 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import KwText from "./KwText";
 import { BASE_VCS, DECKS, PLACEHOLDER, card, cardImage, deckBack, tagIcons } from "../data/cards";
 import { isAutomated } from "../effects/runtime";
 import CardView from "./CardView";
 import { sfx } from "./sfx";
-import VoiceButton from "./VoiceButton";
+import VoiceButton, { VoiceVolume } from "./VoiceButton";
+import { hasVoice, playDeckVoice } from "./voice";
 
 /** Détail d'une carte (image, tags, déclenchement, texte, précisions). */
 export function CardDetail({ id, onBack, backLabel = "← Retour au deck" }: { id: string; onBack: () => void; backLabel?: string }) {
@@ -29,12 +30,31 @@ export function CardDetail({ id, onBack, backLabel = "← Retour au deck" }: { i
 }
 
 /** Détail d'une carte par-dessus la fenêtre en cours (le deck reste derrière, on y revient en fermant). */
-function DetailOver({ id, onClose, backLabel }: { id: string; onClose: () => void; backLabel: string }) {
+function DetailOver({ id, list, onSelect, onClose, backLabel }: {
+  id: string; list: string[]; onSelect: (id: string) => void; onClose: () => void; backLabel: string;
+}) {
+  const i = list.indexOf(id);
+  const prev = i > 0 ? list[i - 1] : null;
+  const next = i >= 0 && i < list.length - 1 ? list[i + 1] : null;
+  const go = (c: string | null) => c && (sfx.click(), onSelect(c));
+  // Flèches du clavier : carte précédente / suivante ; Échap : retour.
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" && prev) (e.stopPropagation(), go(prev));
+      else if (e.key === "ArrowRight" && next) (e.stopPropagation(), go(next));
+      else if (e.key === "Escape") (e.stopPropagation(), onClose());
+    };
+    addEventListener("keydown", k, true);
+    return () => removeEventListener("keydown", k, true);
+  });
   return (
     <div className="modal-bg over" onClick={(e) => (e.stopPropagation(), onClose())}>
-      <div className="modal panel viewer detail-over" onClick={(e) => e.stopPropagation()}>
+      <button className="detail-nav prev" disabled={!prev} title={prev ? `← ${card(prev).name}` : undefined} aria-label="Carte précédente" onClick={(e) => (e.stopPropagation(), go(prev))}>‹</button>
+      <div key={id} className="modal panel viewer detail-over" onClick={(e) => e.stopPropagation()}>
         <CardDetail id={id} onBack={onClose} backLabel={backLabel} />
+        {i >= 0 && <p className="small muted detail-count">{i + 1} / {list.length} · flèches ← → pour naviguer</p>}
       </div>
+      <button className="detail-nav next" disabled={!next} title={next ? `${card(next).name} →` : undefined} aria-label="Carte suivante" onClick={(e) => (e.stopPropagation(), go(next))}>›</button>
     </div>
   );
 }
@@ -60,6 +80,7 @@ export function DeckModal({ deck, onClose }: { deck: string; onClose: () => void
               {d.summary && <p className="deck-summary">{d.summary}</p>}
               {d.description && <p className="small muted">{d.description}</p>}
               {d.difficulty && <p className="small">Difficulté : <b>{d.difficulty}</b></p>}
+              {d.cards.some(hasVoice) && <VoiceVolume k={`deck:${d.name}`} label="Volume des voicelines du deck" sample={() => playDeckVoice(d.name)} />}
             </div>
           </div>
         </section>
@@ -79,7 +100,7 @@ export function DeckModal({ deck, onClose }: { deck: string; onClose: () => void
           </section>
         )}
       </div>
-      {sel && <DetailOver id={sel} onClose={() => setSel(null)} backLabel="← Retour au deck" />}
+      {sel && <DetailOver id={sel} list={[...d.cards, ...d.vcs]} onSelect={setSel} onClose={() => setSel(null)} backLabel="← Retour au deck" />}
     </div>
   );
 }
@@ -118,7 +139,7 @@ export function VictoryModal({ decks, onClose }: { decks: string[]; onClose: () 
           </section>
         ))}
       </div>
-      {sel && <DetailOver id={sel} onClose={() => setSel(null)} backLabel="← Retour aux conditions" />}
+      {sel && <DetailOver id={sel} list={groups.flatMap((gr) => gr.ids)} onSelect={setSel} onClose={() => setSel(null)} backLabel="← Retour aux conditions" />}
     </div>
   );
 }

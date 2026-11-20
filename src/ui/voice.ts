@@ -12,6 +12,15 @@ for (const [path, url] of Object.entries(FILES)) {
 }
 
 const KEY = "tokards.voiceVolume";
+/** Volumes réglés par deck et par carte (0 à 1, 1 par défaut), gardés dans ce navigateur. */
+const KEY_EACH = "tokards.voiceVolumeEach";
+let each: Record<string, number> = (() => {
+  try {
+    return JSON.parse(localStorage.getItem(KEY_EACH) ?? "{}") ?? {};
+  } catch {
+    return {};
+  }
+})();
 const MAX = 2;
 let volume = (() => {
   try {
@@ -39,19 +48,43 @@ export function setVoiceVolume(v: number) {
 }
 export const useVoiceVolume = () => useSyncExternalStore((f) => (subs.add(f), () => void subs.delete(f)), () => volume);
 
+/** Volume propre à un deck (`deck:<nom>`) ou à une carte (`<ID>`). */
+export const eachVolume = (key: string) => each[key] ?? 1;
+export function setEachVolume(key: string, v: number) {
+  each = { ...each, [key]: Math.max(0, Math.min(1, v)) };
+  if (each[key] === 1) delete each[key];
+  try {
+    localStorage.setItem(KEY_EACH, JSON.stringify(each));
+  } catch {
+    /* stockage indisponible */
+  }
+  subs.forEach((f) => f());
+}
+export const useEachVolume = (key: string) => useSyncExternalStore((f) => (subs.add(f), () => void subs.delete(f)), () => eachVolume(key));
+/** Volume final d'une carte : celui de son deck × le sien. */
+const cardVolume = (id: string) => eachVolume(`deck:${CARDS[id]?.deck ?? ""}`) * eachVolume(id);
+/** Variation de ±10 % (volume et hauteur) à chaque lecture, pour que la même voix ne sonne jamais pareil. */
+const jitter = () => 0.9 + Math.random() * 0.2;
+
 function drop(p: (typeof playing)[number]) {
   p.el.pause();
   const i = playing.indexOf(p);
   if (i >= 0) playing.splice(i, 1);
 }
 
+/** Vitesse de lecture d'une carte qui subit un effet (voix 30 % plus grave). */
+export const HURT_RATE = 0.7;
+
 /**
  * Joue la voiceline de la carte `id` (rien si elle n'en a pas). `gain` : 0 à 1, relatif au curseur.
- * `rate` : vitesse de lecture ; 0.75 = voix plus grave (carte qui subit un effet).
+ * `rate` : vitesse de lecture ; HURT_RATE = voix plus grave (carte qui subit un effet).
  */
 export function playVoice(id: string, gain = 1, rate = 1) {
   const url = URLS[id];
   if (!url || isMuted() || !volume || document.hidden) return;
+  gain = Math.min(1, gain * cardVolume(id) * jitter());
+  rate *= jitter();
+  if (!gain) return;
   if (playing.length >= MAX) {
     // La plus faible en volume, puis la plus ancienne, laisse sa place.
     const victim = [...playing].sort((a, b) => a.gain - b.gain || a.at - b.at)[0];
@@ -60,11 +93,9 @@ export function playVoice(id: string, gain = 1, rate = 1) {
   const el = new Audio(url);
   const p = { el, at: performance.now(), gain };
   el.volume = gain * volume;
-  if (rate !== 1) {
-    // La hauteur suit la vitesse (sinon le navigateur garde la même hauteur).
-    el.preservesPitch = false;
-    el.playbackRate = rate;
-  }
+  // La hauteur suit la vitesse (sinon le navigateur garde la même hauteur).
+  el.preservesPitch = false;
+  el.playbackRate = rate;
   el.onended = () => drop(p);
   el.onerror = () => drop(p);
   playing.push(p);

@@ -103,6 +103,8 @@ const MAX_DEPTH = 12;
 
 export class Ctx {
   private ai = 0;
+  /** Dernier jet de dé : les lignes du journal qui suivent résument l'effet qu'il a décidé (affiché sous le dé). */
+  private diceFx: { outcome?: string[] } | null = null;
   private ri = 0;
   private depth = 0;
   /** passifs en cours de résolution : une carte ne se redéclenche pas pendant son propre effet (évite les cascades sans fin) */
@@ -170,10 +172,15 @@ export class Ctx {
   // ----- journal & effets visuels -----
   log(text: string, extra?: { src?: string; dst?: string; from?: string; to?: string }) {
     E.log(this.g, text, { src: this.source ?? undefined, from: this.actor ?? undefined, ...extra });
+    const d = this.diceFx;
+    if (d && !text.startsWith("🎲") && (d.outcome?.length ?? 0) < 2) d.outcome = [...(d.outcome ?? []), text.slice(0, 140)];
   }
   fx(f: FxInput) {
     if (f.k === "move") return; // les déplacements sont animés directement par la table
+    // Une nouvelle étape (autre dé, autre carte, autre tour) clôt le résumé du dé précédent.
+    if (f.k === "dice" || f.k === "roulette" || f.k === "activate" || f.k === "turn" || f.k === "phase") this.diceFx = null;
     E.pushFx(this.g, f);
+    if (f.k === "dice") this.diceFx = this.g.fx[this.g.fx.length - 1] as { outcome?: string[] };
   }
   banner(text: string) {
     this.fx({ k: "banner", text });
