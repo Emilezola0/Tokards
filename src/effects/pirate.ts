@@ -204,24 +204,48 @@ export const PIRATE: Record<string, CardScript> = {
     },
   },
 
-  // Rat (passif) : quand il est posé, il saute sur un autre terrain au hasard. Au début du tour du joueur qui l'a :
-  // sa sentience passe à fausse, il paie 5 gold par carte 🧠 de son terrain, puis le rat change de terrain au hasard.
+  // Rat : celui qui le pose en devient le propriétaire, puis il saute sur le terrain d'un adversaire au hasard.
+  // Quand il se joue chez un adversaire : sentience fausse, 5 gold par carte 🧠 de son terrain, que le rat garde sur lui.
+  // Ensuite, 1 chance sur 2 de rentrer chez son propriétaire et de lui rapporter tout son butin ; sinon il saute ailleurs.
+  // Chez son propriétaire, il ne lui fait rien et repart chez un adversaire. Défaussé, il ne revient plus et son butin est perdu.
   "PIR-07": {
     activate: (x, { id }) => {
       const at = E.locate(x.g, id);
       if (at?.zone !== "terrain") return false;
       if (x.g.born?.[id] === E.pos(x.g)) return x.log("🐀 Le rat vient d'arriver : il attend son prochain tour de jeu.");
+      const owner = x.g.owner[id] ?? at.uid;
       const u = at.uid;
+      if (u === owner) {
+        x.log(`🐀 Le rat est chez son propriétaire, ${x.name(owner)} : il repart en mer.`);
+        return ratJump(x, id, owner);
+      }
       const n = x.p(u).terrain.filter((c) => isSent(x, c)).length;
-      x.log(`🐀 Maladie : ${x.name(u)} passe en sentience fausse et paie ${5 * n} gold.`, { to: u });
+      x.log(`🐀 Maladie : ${x.name(u)} passe en sentience fausse et perd ${5 * n} gold, que le rat garde sur lui.`, { to: u });
       x.setSentience(u, false);
-      if (n) x.lose(u, 5 * n);
-      ratJump(x, id, u);
+      const got = n ? x.lose(u, 5 * n) : 0;
+      if (got) setRatLoot(x, id, ratLoot(x, id) + got);
+      if (x.p(owner) && !x.p(owner).out && x.chance(owner, RAT_RETURN)) {
+        const loot = ratLoot(x, id);
+        x.log(`🐀 Le rat rentre chez ${x.name(owner)}${loot ? ` avec ${loot} gold` : ""}.`, { to: owner });
+        x.move(id, { uid: owner, zone: "terrain" });
+        setRatLoot(x, id, 0);
+        if (loot) x.gain(owner, loot);
+      } else ratJump(x, id, owner);
     },
     on: {
       placed: (x, self, e) => {
         if (e.card !== self.id || e.src === self.id) return;
-        ratJump(x, self.id, E.locate(x.g, self.id)?.uid ?? self.me);
+        const poser = x.actor ?? e.fromUid ?? self.me;
+        x.take(self.id, poser);
+        setRatLoot(x, self.id, 0);
+        ratJump(x, self.id, poser);
+      },
+      cardMoved: (x, self, e) => {
+        // Sorti des terrains (défaussé, repris en main…) : il ne peut plus rentrer, son butin est perdu.
+        if (e.card !== self.id || e.to?.zone === "terrain") return;
+        const loot = ratLoot(x, self.id);
+        if (loot) x.log(`🐀 Le rat quitte le terrain : les ${loot} gold qu'il transportait sont perdus.`);
+        setRatLoot(x, self.id, 0);
       },
     },
   },
@@ -614,7 +638,19 @@ export const PIRATE: Record<string, CardScript> = {
 };
 
 /** Le rat saute sur le terrain d'un autre joueur tiré au hasard. */
-function ratJump(x: Ctx, id: string, from: string) {
-  const u = x.randomPlayer(x.others(from).filter((u) => !x.p(u).out));
-  if (u) x.move(id, { uid: u, zone: "terrain" });
+/** Chance (en %) que le rat rentre chez son propriétaire après avoir pillé un terrain. */
+const RAT_RETURN = 50;
+const ratLoot = (x: Ctx, id: string) => x.g.cardStore?.[id] ?? 0;
+function setRatLoot(x: Ctx, id: string, n: number) {
+  const s = { ...(x.g.cardStore ?? {}) };
+  if (n) s[id] = n;
+  else delete s[id];
+  x.g.cardStore = s;
+}
+/** Le rat saute sur le terrain d'un adversaire de son propriétaire, au hasard (pas celui où il est déjà). */
+function ratJump(x: Ctx, id: string, owner: string) {
+  const here = E.locate(x.g, id)?.uid;
+  const list = x.others(owner).filter((u) => !x.p(u).out);
+  const u = x.randomPlayer(list.length > 1 ? list.filter((v) => v !== here) : list);
+  if (u && u !== here) x.move(id, { uid: u, zone: "terrain" });
 }

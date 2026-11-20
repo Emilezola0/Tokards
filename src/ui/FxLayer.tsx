@@ -442,6 +442,8 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
           }
         }
         sfx.fail();
+        // L'effet échoue : la carte parle comme une carte qui subit (plus grave, moins fort).
+        playVoice(f.card, 0.7, 0.75);
         setBanner({ text: `✖ ${card(f.card).name} ne peut pas s'activer${f.reason ? ` : ${f.reason}` : ""}`, key: f.id, kind: "fail" });
         await wait((f.reason ? 1900 : 1000) * Math.max(speed, 0.6));
         break;

@@ -21,6 +21,138 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.30.0",
+    date: "20 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "🔊 Écouter une voiceline",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="POP-04" cls="hg-pop" />
+            <Arrow />
+            <span className="pn-chip pn-glow">🔊 Écouter la voiceline</span>
+          </div>
+        ),
+        text: <>Le détail d'une carte a un bouton pour réécouter sa voiceline.</>,
+      },
+      {
+        cat: "jeu",
+        title: "⬇️ Cartes empilées",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="POL-07" cls="hg-pop" />
+            <Arrow />
+            <Img id="GOB-03" cls="pn-off" />
+          </div>
+        ),
+        text: <>Le détail d'une carte montre les cartes posées dessous, ou la carte sous laquelle elle se trouve. Clique-les pour ouvrir leur détail.</>,
+      },
+      {
+        cat: "jeu",
+        title: "🂠 Le deck reste derrière",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🂠 Deck</span>
+            <Arrow />
+            <Img id="EMI-01" cls="hg-pop" />
+            <Arrow />
+            <span className="pn-chip pn-glow">🂠 Deck</span>
+          </div>
+        ),
+        text: <>Le détail d'une carte s'ouvre par-dessus la fenêtre du deck ou des conditions de victoire : en le fermant, on revient là où on était. Ces fenêtres sont aussi rangées en rubriques.</>,
+      },
+      {
+        cat: "jeu",
+        title: "👁 Spectateurs",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">👁 Spectateur</span>
+            <Arrow />
+            <Img id="MET-03" cls="hg-pop" /><Img id="PIR-02" cls="hg-pop d1" />
+          </div>
+        ),
+        text: <>Les spectateurs peuvent ouvrir le détail des cartes dans la main de tous les joueurs.</>,
+      },
+      {
+        cat: "jeu",
+        title: "⚖️ Demande de retrait",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">⚖️ Demande de retrait de contenu</span>
+          </div>
+        ),
+        text: <>Un lien en bas de l'accueil permet de demander le retrait d'un son ou d'une image : la demande arrive sous forme de ticket.</>,
+      },
+      {
+        cat: "cartes",
+        title: "🐀 Rat",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">Adversaire −5 💰</span>
+            <Arrow />
+            <Img id="PIR-07" cls="hg-pop" />
+            <Arrow />
+            <span className="pn-chip pn-glow">Propriétaire +💰</span>
+          </div>
+        ),
+        text: <>Celui qui pose le Rat en devient propriétaire : le rat ne lui fait jamais rien. Chez un adversaire, il garde les gold qu'il lui fait perdre, puis a 1 chance sur 2 de rentrer chez son propriétaire pour lui rapporter tout son butin. Le défausser est le seul moyen de l'empêcher de rentrer : son butin est alors perdu.</>,
+      },
+      {
+        cat: "visuel",
+        title: "🗣 Nouvelles voicelines",
+        scene: (
+          <div className="hg-scene hg-row pn-gallery">
+            <Img id="POP-01" /><Img id="PIR-01" /><Img id="MET-01" /><Img id="EMI-02" />
+          </div>
+        ),
+        text: <>Voicelines pour Popo emplois, Pirate, Météo et Emile (ces dernières moins fortes, sans saturation). Une carte dont l'effet est impossible parle aussi, plus grave.</>,
+      },
+      {
+        cat: "visuel",
+        title: "🎵 Prêt et arrivée en partie",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-btn">✔ Prêt</span>
+            <Arrow />
+            <span className="pn-chip pn-glow">🗣 voiceline du deck</span>
+          </div>
+        ),
+        text: <>Quand un joueur se met prêt, une voiceline de son deck est jouée pour tout le monde. Un son de transition accompagne l'arrivée dans la partie.</>,
+      },
+      {
+        cat: "visuel",
+        title: "🖼️ Nouvelles images",
+        scene: (
+          <div className="hg-scene hg-row pn-gallery">
+            <Img id="VC-FLE-1" /><Img id="VC-FLE-2" /><Img id="VC-FLE-3" /><Img id="VC-POP-1" /><Img id="VC-POP-2" /><Img id="VC-POP-3" />
+          </div>
+        ),
+        text: <>Images des conditions de victoire Fléaux et Popo emplois, et nouveau dos du deck Popo emplois.</>,
+      },
+      {
+        cat: "visuel",
+        title: "📖 Glossaire rangé",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">Ressource</span><span className="pn-chip">Carte</span><span className="pn-chip">Zone</span><span className="pn-chip">Action</span>
+          </div>
+        ),
+        text: <>Les mots du glossaire sont regroupés par catégorie et triés par ordre alphabétique. Les patch notes sont aussi plus aérées entre deux sujets.</>,
+      },
+      {
+        cat: "fix",
+        title: "🌀 Fond du joueur actif",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-big">🌀</span>
+          </div>
+        ),
+        text: <>Le dos du deck affiché en fond est bien fondu en cercle sur tous ses bords.</>,
+      },
+    ],
+  },
+  {
     version: "0.29.0",
     date: "20 novembre 2026",
     notes: [

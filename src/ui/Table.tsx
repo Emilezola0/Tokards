@@ -179,6 +179,8 @@ export default function Table({ room: realRoom, uid }: { room: Room; uid: string
   const tablePick = useTablePick(g, myPrompt, answerPrompt, `${g.pending?.answers.length ?? -1}:${g.pending?.prompt.text ?? ""}`);
 
   useCardFlip(arena, g, fresh);
+  // Transition sonore en arrivant dans la partie.
+  useEffect(() => sfx.enter(), []);
   usePreloadImages(decksInPlay);
 
   useEffect(() => {
@@ -347,7 +349,9 @@ export default function Table({ room: realRoom, uid }: { room: Room; uid: string
 
       <div className={`arena ${moving ? "is-moving" : ""} ${tablePick.pick ? "is-picking" : ""}`} ref={arena}>
         {turnBack && (
-          <div key={current} className="turn-backdrop" style={{ backgroundImage: `url("${turnBack}")`, ["--pc" as string]: colorOf(current) }} />
+          <div key={current} className="turn-backdrop" style={{ ["--pc" as string]: colorOf(current) }}>
+            <img src={turnBack} alt="" />
+          </div>
         )}
         <div className="table-felt" />
         {arrows.length > 0 && (
@@ -480,6 +484,8 @@ export default function Table({ room: realRoom, uid }: { room: Room; uid: string
             setOpenCard(null);
           }}
           onClose={() => setOpenCard(null)}
+          onOpen={setOpenCard}
+          seeAll={spectating}
         />
       )}
       {openPlayer && (

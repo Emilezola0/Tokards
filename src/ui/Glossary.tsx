@@ -211,13 +211,25 @@ export default function Glossary() {
             </div>
             <div className="gloss-body">
               <ul className="gloss-list">
-                {list.map((g) => (
-                  <li key={g.term}>
-                    <button className={`${e?.term === g.term ? "on" : ""}`} onClick={() => (sfx.click(), setSel(g.term))}>
-                      <span className={`gloss-dot kw-${catClass(g.cat)}`} />{g.term}
-                    </button>
-                  </li>
-                ))}
+                {CATS.map((c) => {
+                  // Rangé par catégorie, puis par ordre alphabétique.
+                  const items = list.filter((g) => g.cat === c).sort((a, b) => a.term.localeCompare(b.term, "fr"));
+                  if (!items.length) return null;
+                  return (
+                    <li key={c} className="gloss-group">
+                      <span className={`gloss-group-title kw-${catClass(c)}`}>{c} <i>{items.length}</i></span>
+                      <ul>
+                        {items.map((g) => (
+                          <li key={g.term}>
+                            <button className={`${e?.term === g.term ? "on" : ""}`} onClick={() => (sfx.click(), setSel(g.term))}>
+                              <span className={`gloss-dot kw-${catClass(g.cat)}`} />{g.term}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  );
+                })}
                 {!list.length && <li className="muted small">Aucun mot trouvé.</li>}
               </ul>
               {e && (

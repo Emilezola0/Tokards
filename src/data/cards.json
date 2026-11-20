@@ -284,7 +284,7 @@
     "Hasard"
    ],
    "summary": "Poussez tout le monde en Blazard puis ponctionnez 10 % des gold des joueurs Blazard.",
-   "back": "",
+   "back": "BACK-POP.jpg",
    "difficulty": "Facile",
    "cards": [
     "POP-01",
@@ -5028,8 +5028,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Posé : le rat saute sur le terrain d'un autre joueur au hasard.\nQuand il se joue : ce joueur passe 🧠 → fausse et perd 5 💰 par carte Sentience de son terrain, puis le rat saute ailleurs au hasard.",
-   "rules": "« Payer » = perdre les gold (ils ne vont à personne). Le rat ne fait rien le tour où il arrive sur un terrain. Les cartes Sentience comptées sont celles du terrain où se trouve le rat.",
+   "text": "Posé : tu deviens le propriétaire du rat, il saute sur le terrain d'un adversaire au hasard.\nQuand il se joue : ce joueur passe 🧠 → fausse et perd 5 💰 par carte Sentience de son terrain ; le rat garde ces gold. Puis 1 chance sur 2 qu'il rentre chez son propriétaire et lui donne tout son butin, sinon il saute chez un autre adversaire.",
+   "rules": "Le propriétaire est celui qui a posé le rat : le rat ne lui fait jamais rien (chez lui, il repart chez un adversaire au tour suivant). Le rat ne fait rien le tour où il arrive sur un terrain. Les cartes Sentience comptées sont celles du terrain où il se trouve. S'il quitte les terrains (défaussé…), il ne peut plus rentrer et les gold qu'il transportait sont perdus : c'est le seul moyen d'éviter de payer le propriétaire.",
    "image": "PIR-07.jpg",
    "claude": ""
   },
@@ -6626,7 +6626,7 @@
    "check": "",
    "text": "Avoir eu 30 interactions avec d'autres joueurs.",
    "rules": "30 interactions avec d'autres joueurs (voir « Interaction » dans le glossaire).",
-   "image": "",
+   "image": "VC-POP-1.jpg",
    "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-POP-2": {
@@ -6645,7 +6645,7 @@
    "check": "",
    "text": "Tous les joueurs ont le trou noir Blazard en même temps.",
    "rules": "Tous les joueurs en Blazard en même temps.",
-   "image": "",
+   "image": "VC-POP-2.jpg",
    "claude": ""
   },
   "VC-POP-3": {
@@ -6664,7 +6664,7 @@
    "check": "",
    "text": "Avoir fait passer 150 gold d'un joueur à un autre au total.",
    "rules": "150 gold échangés entre joueurs au total (gold passés d'un joueur à un autre).",
-   "image": "",
+   "image": "VC-POP-3.jpg",
    "claude": "✏️ Modifiée v0.27 (équilibrage)"
   },
   "VC-GRE-1": {
@@ -6892,7 +6892,7 @@
    "check": "",
    "text": "Avoir perdu 200 gold au total.",
    "rules": "200 gold perdus au total depuis le début de la partie.",
-   "image": "",
+   "image": "VC-FLE-1.jpg",
    "claude": ""
   },
   "VC-FLE-2": {
@@ -6911,7 +6911,7 @@
    "check": "",
    "text": "Vos cartes se sont activées 8 fois pendant le tour d'autres joueurs.",
    "rules": "8 activations de ses cartes pendant le tour d'un autre joueur.",
-   "image": "",
+   "image": "VC-FLE-2.jpg",
    "claude": "✏️ Modifiée v0.27 (équilibrage)"
   },
   "VC-FLE-3": {
@@ -6930,7 +6930,7 @@
    "check": "",
    "text": "Pendant un même tour, 5 de vos cartes n'ont pas pu s'activer.",
    "rules": "Compté pendant un seul tour du joueur (remis à zéro au début de chacun de ses tours) : 5 de ses cartes ne se sont pas activées pendant sa phase 1 — cartes passives, désactivées, ou dont l'effet a échoué.",
-   "image": "",
+   "image": "VC-FLE-3.jpg",
    "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-POL-1": {

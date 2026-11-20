@@ -7,13 +7,15 @@ import { ZONE_LABEL } from "../game/types";
 import { chainOf, isAutomated, noPlayReason } from "../effects/runtime";
 import { isAutoVC, lettersOf, teamProgress, vcProgress, wordFits } from "../game/victory";
 import { Gauge } from "./PlayerBoard";
+import CardView from "./CardView";
+import VoiceButton from "./VoiceButton";
 
 export type Placing = { id: string; from: "hand" | "terrain" | "discard" };
 type Run = (fn: (r: Room, g: GameState) => void) => void;
 
-export default function CardModal({ id, room, uid, run, onPlace, onClose, onClaimWord, onDiscard }: {
+export default function CardModal({ id, room, uid, run, onPlace, onClose, onClaimWord, onDiscard, onOpen, seeAll }: {
   id: string; room: Room; uid: string; run: Run; onPlace: (p: Placing) => void; onClose: () => void;
-  onClaimWord?: (word: string) => void; onDiscard?: (id: string) => void;
+  onClaimWord?: (word: string) => void; onDiscard?: (id: string) => void; onOpen?: (id: string) => void; seeAll?: boolean;
 }) {
   const g = room.game!;
   const c = card(id);
@@ -126,10 +128,10 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose, onClai
     }
   }
 
-  const hiddenCard = at && ((at.zone === "hand" && at.uid !== uid) || at.zone === "deck");
+  const hiddenCard = at && ((at.zone === "hand" && at.uid !== uid && !seeAll && !g.revealed?.includes(id)) || at.zone === "deck");
   if (hiddenCard) return null;
   return (
-    <div className="modal-bg" onClick={onClose}>
+    <div className="modal-bg over" onClick={onClose}>
       <div className="modal panel card-modal" onClick={(e) => e.stopPropagation()}>
         <img src={cardImage(id)} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
         <div className="card-detail">
@@ -149,12 +151,43 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose, onClai
           {claudeMark(c) && <p className="small claude-note">{claudeMark(c)!.icon} {claudeMark(c)!.label}</p>}
           <p className="card-text"><KwText text={c.text} /></p>
           {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
+          <VoiceButton id={id} />
+          <Stack id={id} g={g} onOpen={onOpen} />
           <Modifiers id={id} room={room} />
           <div className="card-actions">{actions}</div>
           {!myTurn && isPlayer && c.kind === "card" && <p className="small muted">Seul le joueur dont c'est le tour peut agir.</p>}
           <button className="ghost" onClick={onClose}>Fermer</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Cartes empilées : celles qui sont sous cette carte, ou la carte sous laquelle elle se trouve. */
+function Stack({ id, g, onOpen }: { id: string; g: GameState; onOpen?: (id: string) => void }) {
+  const under = g.under?.[id] ?? [];
+  const host = Object.entries(g.under ?? {}).find(([, l]) => l.includes(id))?.[0];
+  if (!under.length && !host) return null;
+  const mini = (c: string) => (
+    <div key={c} className="stack-card" title={card(c).name}>
+      <CardView id={c} size="s" ghost onClick={onOpen ? () => onOpen(c) : undefined} />
+      <span className="small">{card(c).name}</span>
+    </div>
+  );
+  return (
+    <div className="stack-info">
+      {host && (
+        <div>
+          <b className="small">⬆️ Cette carte est sous :</b>
+          <div className="stack-row">{host === E.SNOW ? <span className="stack-snow">❄️ La neige (elle ressort au dégel)</span> : mini(host)}</div>
+        </div>
+      )}
+      {under.length > 0 && (
+        <div>
+          <b className="small">⬇️ Cartes en dessous ({under.length}) :</b>
+          <div className="stack-row">{under.map(mini)}</div>
+        </div>
+      )}
     </div>
   );
 }

@@ -12,6 +12,21 @@ service cloud.firestore {
         && request.resource.data.hostUid == resource.data.hostUid;
       allow delete: if false;
     }
+    // Demandes de retrait de contenu : n'importe quel visiteur connecté peut en créer une,
+    // personne ne peut les lire ni les modifier depuis le site (on les lit dans la console Firebase).
+    match /tickets/{ticketId} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['uid', 'kind', 'target', 'message', 'contact', 'page', 'status', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.kind in ['son', 'image', 'autre']
+        && request.resource.data.target is string && request.resource.data.target.size() > 0 && request.resource.data.target.size() <= 200
+        && request.resource.data.message is string && request.resource.data.message.size() > 0 && request.resource.data.message.size() <= 2000
+        && request.resource.data.contact is string && request.resource.data.contact.size() <= 200
+        && request.resource.data.page is string && request.resource.data.page.size() <= 300
+        && request.resource.data.status == 'ouvert'
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if false;
+    }
     match /{document=**} {
       allow read, write: if false;
     }

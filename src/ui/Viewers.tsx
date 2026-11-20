@@ -4,6 +4,7 @@ import { BASE_VCS, DECKS, PLACEHOLDER, card, cardImage, deckBack, tagIcons } fro
 import { isAutomated } from "../effects/runtime";
 import CardView from "./CardView";
 import { sfx } from "./sfx";
+import VoiceButton from "./VoiceButton";
 
 /** Détail d'une carte (image, tags, déclenchement, texte, précisions). */
 export function CardDetail({ id, onBack, backLabel = "← Retour au deck" }: { id: string; onBack: () => void; backLabel?: string }) {
@@ -20,7 +21,19 @@ export function CardDetail({ id, onBack, backLabel = "← Retour au deck" }: { i
         </p>
         <p className="card-text"><KwText text={c.text} /></p>
         {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
+        <VoiceButton id={id} />
         <button className="ghost" onClick={onBack}>{backLabel}</button>
+      </div>
+    </div>
+  );
+}
+
+/** Détail d'une carte par-dessus la fenêtre en cours (le deck reste derrière, on y revient en fermant). */
+function DetailOver({ id, onClose, backLabel }: { id: string; onClose: () => void; backLabel: string }) {
+  return (
+    <div className="modal-bg over" onClick={(e) => (e.stopPropagation(), onClose())}>
+      <div className="modal panel viewer detail-over" onClick={(e) => e.stopPropagation()}>
+        <CardDetail id={id} onBack={onClose} backLabel={backLabel} />
       </div>
     </div>
   );
@@ -38,33 +51,35 @@ export function DeckModal({ deck, onClose }: { deck: string; onClose: () => void
           <h2 className="grow">🂠 {d.name} <span className="muted small">{d.cards.length} cartes</span></h2>
           <button className="ghost" onClick={onClose}>✕</button>
         </div>
-        {sel ? (
-          <CardDetail id={sel} onBack={() => setSel(null)} />
-        ) : (
-          <>
-            <div className="deck-head">
-              {deckBack(d.name) && <img className="deck-back-img" src={deckBack(d.name)!} alt="" />}
-              <div>
-                {!!d.keywords?.length && <div className="deck-kw big">{d.keywords.map((k) => <i key={k}>{k}</i>)}</div>}
-                {d.summary && <p className="deck-summary">{d.summary}</p>}
-                {d.description && <p className="small muted">{d.description}</p>}
-              </div>
+        <section className="vw-sec vw-sec-info">
+          <h3 className="vw-title">📖 Présentation</h3>
+          <div className="deck-head">
+            {deckBack(d.name) && <img className="deck-back-img" src={deckBack(d.name)!} alt="" />}
+            <div>
+              {!!d.keywords?.length && <div className="deck-kw big">{d.keywords.map((k) => <i key={k}>{k}</i>)}</div>}
+              {d.summary && <p className="deck-summary">{d.summary}</p>}
+              {d.description && <p className="small muted">{d.description}</p>}
+              {d.difficulty && <p className="small">Difficulté : <b>{d.difficulty}</b></p>}
             </div>
-            <p className="small muted">Clique une carte pour voir son effet en détail.</p>
+          </div>
+        </section>
+        <section className="vw-sec vw-sec-cards">
+          <h3 className="vw-title">🃏 Cartes <i>{d.cards.length}</i></h3>
+          <p className="small muted">Clique une carte pour voir son effet en détail.</p>
+          <div className="viewer-grid">
+            {d.cards.map((id) => <CardView key={id} id={id} size="m" ghost auto={isAutomated(id)} onClick={() => setSel(id)} />)}
+          </div>
+        </section>
+        {d.vcs.length > 0 && (
+          <section className="vw-sec vw-sec-vc">
+            <h3 className="vw-title">🏁 Conditions de victoire du deck <i>{d.vcs.length}</i></h3>
             <div className="viewer-grid">
-              {d.cards.map((id) => <CardView key={id} id={id} size="m" ghost auto={isAutomated(id)} onClick={() => setSel(id)} />)}
+              {d.vcs.map((id) => <CardView key={id} id={id} size="m" ghost onClick={() => setSel(id)} />)}
             </div>
-            {d.vcs.length > 0 && (
-              <>
-                <h3>Conditions de victoire du deck</h3>
-                <div className="viewer-grid">
-                  {d.vcs.map((id) => <CardView key={id} id={id} size="m" ghost onClick={() => setSel(id)} />)}
-                </div>
-              </>
-            )}
-          </>
+          </section>
         )}
       </div>
+      {sel && <DetailOver id={sel} onClose={() => setSel(null)} backLabel="← Retour au deck" />}
     </div>
   );
 }
@@ -83,31 +98,27 @@ export function VictoryModal({ decks, onClose }: { decks: string[]; onClose: () 
           <h2 className="grow">🏁 Conditions de victoire</h2>
           <button className="ghost" onClick={onClose}>✕</button>
         </div>
-        {sel ? (
-          <CardDetail id={sel} onBack={() => setSel(null)} backLabel="← Retour aux conditions" />
-        ) : (
-          <>
-            <p className="small muted">En début de partie, une condition commune est tirée pour toute la table, puis chaque joueur reçoit une condition personnelle. Elles sont tirées parmi les conditions de base et celles des decks en jeu. Clique une carte pour voir le détail.</p>
-            {groups.map((gr) => (
-              <div key={gr.name} className="vc-group">
-                <h3>{gr.name} <span className="muted small">{gr.sub}</span></h3>
-                <div className="vc-list">
-                  {gr.ids.map((id) => (
-                    <div key={id} className="vc-item" onClick={() => setSel(id)}>
-                      <CardView id={id} size="s" ghost />
-                      <div>
-                        <strong>{card(id).name}</strong>
-                        <p className="small"><KwText text={card(id).text} /></p>
-                        {card(id).rules && <p className="small muted">{card(id).rules}</p>}
-                      </div>
-                    </div>
-                  ))}
+        <p className="small muted">En début de partie, une condition commune est tirée pour toute la table, puis chaque joueur reçoit une condition personnelle. Elles sont tirées parmi les conditions de base et celles des decks en jeu. Clique une carte pour voir le détail.</p>
+        {groups.map((gr, i) => (
+          <section key={gr.name} className={`vw-sec vc-group ${i === 0 ? "vw-sec-base" : "vw-sec-vc"}`}>
+            <h3 className="vw-title">{i === 0 ? "⭐" : "🂠"} {gr.name} <i>{gr.ids.length}</i></h3>
+            <p className="small muted vw-sub">{gr.sub}</p>
+            <div className="vc-list">
+              {gr.ids.map((id) => (
+                <div key={id} className="vc-item" onClick={() => setSel(id)}>
+                  <CardView id={id} size="s" ghost />
+                  <div>
+                    <strong>{card(id).name}</strong>
+                    <p className="small"><KwText text={card(id).text} /></p>
+                    {card(id).rules && <p className="small muted">{card(id).rules}</p>}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </>
-        )}
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
+      {sel && <DetailOver id={sel} onClose={() => setSel(null)} backLabel="← Retour aux conditions" />}
     </div>
   );
 }

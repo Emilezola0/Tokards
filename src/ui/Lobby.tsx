@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PLACEHOLDER, cardImage, deckBack } from "../data/cards";
 import { kickPlayer, launch, update } from "../game/room";
 import type { Room } from "../game/types";
@@ -25,6 +25,13 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
   const [viewDeck, setViewDeck] = useState<string | null>(null);
   const [showVC, setShowVC] = useState(false);
   useEffect(() => setTeam(me.team), [me.team]);
+  // Un joueur passe « prêt » : une voiceline au hasard de son deck, chez tout le monde.
+  const wasReady = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const now = new Set(players.filter((p) => p.ready && p.deck).map((p) => p.uid));
+    if (wasReady.current) for (const p of players) if (now.has(p.uid) && !wasReady.current.has(p.uid)) playDeckVoice(p.deck!);
+    wasReady.current = now;
+  });
 
   const run = (p: Promise<unknown>) => p.catch((e) => setErr((e as Error).message));
   const pickDeck = (deck: string | null) =>

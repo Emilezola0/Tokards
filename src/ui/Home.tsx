@@ -2,6 +2,7 @@ import { useState } from "react";
 import { VersionTag } from "./UpdatePrompt";
 import { createRoom, joinRoom } from "../game/room";
 import { getName, saveName } from "./name";
+import Takedown from "./Takedown";
 
 export default function Home({ uid, roomCode, notFound }: { uid: string; roomCode: string; notFound: boolean }) {
   const [name, setName] = useState(getName());
@@ -47,6 +48,7 @@ export default function Home({ uid, roomCode, notFound }: { uid: string; roomCod
         {err && <p className="error">{err}</p>}
       </div>
       <p className="small"><VersionTag /></p>
+      <Takedown />
     </div>
   );
 }

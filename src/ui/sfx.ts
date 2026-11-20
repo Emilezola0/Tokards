@@ -139,5 +139,15 @@ export const sfx = {
   vc: () => tones([{ f: 523, d: 0.2, type: "triangle", v: 0.25 }, { f: 659, t: 0.15, d: 0.2, type: "triangle", v: 0.25 }, { f: 784, t: 0.3, d: 0.4, type: "triangle", v: 0.25 }]),
   victory: () => tones([523, 659, 784, 1047, 784, 1047].map((f, i) => ({ f, t: i * 0.13, d: 0.3, type: "triangle" as const, v: 0.3 }))),
   shuffle: () => { for (let i = 0; i < 9; i++) noise(0.05, 0.16, 2200 + (i % 3) * 400, i * 0.06); },
+  /** arrivée dans une partie : souffle montant puis accord */
+  enter: () => {
+    for (let i = 0; i < 6; i++) noise(0.09, 0.05 + i * 0.025, 600 + i * 500, i * 0.06);
+    tones([
+      { f: 196, to: 392, t: 0.05, d: 0.45, type: "sine", v: 0.18 },
+      { f: 523, t: 0.42, d: 0.6, type: "triangle", v: 0.2 },
+      { f: 659, t: 0.48, d: 0.6, type: "triangle", v: 0.16 },
+      { f: 784, t: 0.54, d: 0.7, type: "triangle", v: 0.14 },
+    ]);
+  },
   click: () => tones([{ f: 1200, d: 0.03, type: "square", v: 0.05 }]),
 };
