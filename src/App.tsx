@@ -11,6 +11,7 @@ import { getName } from "./ui/name";
 import UpdatePrompt from "./ui/UpdatePrompt";
 import HelpGuide from "./ui/HelpGuide";
 import Glossary from "./ui/Glossary";
+import PatchNotes from "./ui/PatchNotes";
 
 const codeFromHash = () => location.hash.replace(/^#\/?/, "").toUpperCase().slice(0, 5);
 
@@ -21,6 +22,7 @@ export default function App() {
       <UpdatePrompt />
       <HelpGuide />
       <Glossary />
+      <PatchNotes />
     </>
   );
 }

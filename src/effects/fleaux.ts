@@ -154,12 +154,14 @@ export const FLEAUX: Record<string, CardScript> = {
     },
   },
 
-  // Tardigrade : chaque perte de gold rejoue la première carte de sa défausse
+  // Tardigrade : chaque perte de gold rejoue la première carte de sa défausse.
+  // Il se relance si la carte rejouée fait encore perdre des gold ; à 0 gold, rien n'est perdu, donc la chaîne s'arrête.
   "FLE-09": {
     fixed: true,
+    reentrant: true,
     on: {
       goldLost: (x, self, e) => {
-        if (e.uid !== self.me) return;
+        if (e.uid !== self.me || e.amount <= 0) return;
         const c = x.p(self.me).discard[0];
         if (!c) return;
         x.triggered(self, `perte de gold → « ${card(c).name} » revient en première position et s'active.`);

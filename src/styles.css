@@ -224,7 +224,7 @@ fieldset { border: 0; padding: 0; margin: 0; }
 .floating-banner.hint { background: #1a1233e6; border-color: var(--line); color: var(--muted); font-size: 12px; top: auto; bottom: 8px; pointer-events: none; }
 .toast { position: fixed; z-index: 60; bottom: 16px; left: 50%; transform: translateX(-50%); background: #2a0f18f2; border: 1px solid var(--bad); padding: 8px 14px; border-radius: 10px; }
 
-.log-drawer { position: fixed; z-index: 30; top: 56px; right: 10px; bottom: 10px; width: min(360px, 92vw); display: flex; flex-direction: column; animation: drawer 0.25s ease-out; font-size: 12px; }
+.log-drawer { position: fixed; z-index: 30; top: 56px; right: 10px; bottom: 62px; width: min(360px, 92vw); display: flex; flex-direction: column; animation: drawer 0.25s ease-out; font-size: 12px; }
 .log-body { overflow-y: auto; flex: 1; }
 .log-body p { margin: 0 0 5px; line-height: 1.35; }
 @keyframes drawer { from { transform: translateX(30px); opacity: 0; } }
@@ -1065,3 +1065,42 @@ button.danger:hover { border-color: var(--bad); }
 .vc-chip.near { border-color: #ff9a3c; animation: vc-near 1.8s ease-in-out infinite; }
 @keyframes vc-near { 50% { box-shadow: 0 0 14px #ff9a3c88; } }
 .log-filters { display: flex; gap: 6px; margin: 4px 0 8px; flex-wrap: wrap; }
+
+/* v0.27 : patch notes (bouton en bas à droite) et résumé de victoire */
+.patch-fab {
+  position: fixed; z-index: 55; right: 14px; bottom: 14px; width: 40px; height: 40px; border-radius: 50%; padding: 0; font-size: 18px;
+  background: #7af7ff; color: #0b0716; border: none; box-shadow: 0 4px 18px #7af7ff66; transition: transform 0.15s;
+}
+.patch-fab:hover { transform: scale(1.08); }
+.patch-fab.fresh::after { content: ""; position: absolute; top: 1px; right: 1px; width: 11px; height: 11px; border-radius: 50%; background: var(--bad); box-shadow: 0 0 0 2px #0b0716; animation: pn-ping 1.6s ease-out infinite; }
+@keyframes pn-ping { 0% { box-shadow: 0 0 0 2px #0b0716, 0 0 0 0 #ff5a7aaa; } 100% { box-shadow: 0 0 0 2px #0b0716, 0 0 0 10px #ff5a7a00; } }
+.pn-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; }
+.pn-new { margin-left: 6px; padding: 0 6px; border-radius: 6px; background: var(--bad); color: #fff; font-size: 10px; font-weight: 700; vertical-align: middle; }
+.pn-list { display: grid; gap: 16px; }
+.pn-note { animation: pn-in 0.35s ease-out both; }
+@keyframes pn-in { from { opacity: 0; transform: translateY(12px); } }
+.pn-note .hg-scene { min-height: 150px; }
+.pn-big { font-size: 40px; }
+.pn-spin { animation: pn-spin 2.4s linear infinite; display: inline-block; }
+@keyframes pn-spin { to { transform: rotate(360deg); } }
+.pn-off { opacity: 0.25; filter: grayscale(1); text-decoration: line-through; }
+.pn-chip { padding: 5px 10px; border-radius: 10px; background: #00000066; border: 1px solid var(--line); font-size: 13px; }
+.pn-chip.bad { color: var(--bad); font-weight: 700; font-size: 18px; }
+.pn-bh { display: grid; gap: 6px; }
+.pn-bh .pn-chip { animation: pn-light 4s ease-in-out infinite both; }
+.pn-bh .d1 { animation-delay: 1s; } .pn-bh .d2 { animation-delay: 2s; } .pn-bh .d3 { animation-delay: 3s; }
+@keyframes pn-light { 0%, 30%, 100% { border-color: var(--line); box-shadow: none; } 5%, 20% { border-color: var(--accent); box-shadow: 0 0 14px var(--accent); color: #fff; } }
+.pn-log { display: grid; gap: 6px; font-size: 13px; }
+.pn-line { padding: 4px 10px; border-radius: 8px; background: #00000066; border-left: 3px solid var(--gold); animation: pn-line 3.6s ease-out infinite both; }
+.pn-line.l1 { animation-delay: 0.5s; } .pn-line.l2 { animation-delay: 1s; }
+@keyframes pn-line { 0% { opacity: 0; transform: translateX(-20px); } 15%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.pn-choice { display: grid; gap: 6px; }
+.pn-btn { padding: 5px 12px; border-radius: 8px; background: var(--accent); color: #0b0716; font-weight: 700; font-size: 13px; animation: pn-pick 2.6s ease-in-out infinite; }
+.pn-btn.alt { background: #ffffff18; color: var(--text, #fff); animation-delay: 1.3s; }
+@keyframes pn-pick { 0%, 40%, 100% { transform: none; } 15%, 25% { transform: scale(1.1); box-shadow: 0 0 14px var(--gold); } }
+.win-recap { display: grid; gap: 8px; margin: 4px 0 10px; padding: 10px; border-radius: 10px; background: #00000040; border: 1px solid var(--line); }
+.win-vcs { display: grid; gap: 4px; }
+.win-vc b { color: var(--gold); }
+.win-steps { margin: 0; padding-left: 20px; display: grid; gap: 3px; font-size: 13px; }
+.win-steps li { animation: pn-in 0.35s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .pn-note, .pn-line, .pn-btn, .pn-bh .pn-chip, .pn-spin, .win-steps li, .patch-fab.fresh::after { animation: none; } }

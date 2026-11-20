@@ -204,7 +204,8 @@ export interface GameState {
   vcPile: string[];
   /** équipes ayant rempli la condition commune */
   commonDone: string[];
-  ranking: { team: string; round: number }[];
+  /** `recap` : dernières actions de l'équipe avant sa victoire (résumé affiché aux joueurs) ; `vcs` : ses conditions remplies */
+  ranking: { team: string; round: number; recap?: string[]; vcs?: string[] }[];
   vote: Record<string, Vote> | null;
   log: LogEntry[];
   /** horodatage du lancement (pour jouer l'animation de mise en place) */

@@ -2008,7 +2008,7 @@
    "target": "",
    "check": "",
    "text": "Passif — Au début de votre tour : déplacez-la où vous voulez (elle reste à vous).\nAu début du tour de celui qui l'a, si sa 🧠 est vraie : elle chasse 🎲 1d6 💰, encaissés quand elle revient chez vous. Si quelqu'un la défausse, il encaisse.",
-   "rules": "Le déplacement est facultatif. Les gold chassés sont stockés sur la carte.",
+   "rules": "Le déplacement est facultatif. Les gold chassés sont stockés sur la carte. Agit au début du tour, avant la phase 1 (activation des cartes du terrain).",
    "image": "EMI-08.png",
    "claude": ""
   },
@@ -4801,7 +4801,7 @@
    "target": "",
    "check": "",
    "text": "Tant qu'elle est sur un terrain : au début de son tour, un joueur qui a la même météo qu'un autre peut jouer pour lui une carte du terrain de cet autre.\nVous pouvez le faire dès l'activation.",
-   "rules": "La carte jouée s'active pour le joueur qui la joue.",
+   "rules": "La carte jouée s'active pour le joueur qui la joue. Agit au début du tour, avant la phase 1 (activation des cartes du terrain).",
    "image": "MET-27.jpg",
    "claude": ""
   },
@@ -5447,7 +5447,7 @@
    "target": "",
    "check": "",
    "text": "Passif — 🔒 Ne peut pas être défaussée.\nQuand vous perdez des 💰 : posez la première carte de votre défausse en première place et activez-la.",
-   "rules": "Ne peut pas être défaussée par un effet. À chaque perte de gold : la première carte de sa défausse va en première position de son terrain et s'active.",
+   "rules": "Ne peut pas être défaussée par un effet. À chaque perte de gold : la première carte de sa défausse va en première position de son terrain et s'active. Si cette carte vous fait encore perdre des gold, Tardigrade se relance. À 0 gold, on ne perd plus rien : la chaîne s'arrête.",
    "image": "FLE-09.jpg",
    "claude": "✏️ Modifiée v0.23 (tags)"
   },
@@ -5974,12 +5974,12 @@
     "gold": true,
     "blackHole": false
    },
-   "trigger": "Passif",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — À l'arrivée : gagnez 50 💰.\nÀ 0 💰 : défaussez tout votre terrain.\nChaque carte défaussée par vous ou vos cartes : dépensez 10 💰.",
-   "rules": "Les 50 gold sont gagnés quand la carte arrive sur un terrain. « Défausser une carte » = vous défaussez une carte (main, terrain…) ou une de vos cartes en défausse une. Sans les 10 gold, vous les perdez quand même (jusqu'à 0). La défausse du Ministre lui-même ne coûte rien.",
+   "text": "Gagnez 50 💰.\nPassif — À 0 💰 : défaussez tout votre terrain.\nChaque carte défaussée par vous ou vos cartes : dépensez 10 💰.",
+   "rules": "Les 50 gold sont gagnés à chaque fois que la carte se joue (pose, phase 1, réactivation). « Défausser une carte » = vous défaussez une carte (main, terrain…) ou une de vos cartes en défausse une. Sans les 10 gold, vous les perdez quand même (jusqu'à 0). La défausse du Ministre lui-même ne coûte rien.",
    "image": "POL-05.jpg",
    "claude": ""
   },
@@ -6050,12 +6050,12 @@
     "gold": true,
     "blackHole": true
    },
-   "trigger": "Passif",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — À l'arrivée : piochez une carte.\nChaque fois qu'une de vos cartes défausse une carte d'un autre terrain : gagnez 20 💰.",
-   "rules": "La pioche se fait quand la carte arrive sur un terrain.",
+   "text": "Piochez une carte.\nPassif — Chaque fois qu'une de vos cartes défausse une carte d'un autre terrain : gagnez 20 💰.",
+   "rules": "La pioche se fait à chaque fois que la carte se joue (pose, phase 1, réactivation).",
    "image": "POL-09.jpg",
    "claude": ""
   },
@@ -6354,12 +6354,12 @@
     "gold": true,
     "blackHole": false
    },
-   "trigger": "Passif",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — À l'arrivée : vous pouvez défausser une carte de votre terrain pour gagner 50 💰.\nChaque carte défaussée de votre main : gagnez 10 💰.",
-   "rules": "Le choix de défausser se fait quand la carte arrive sur un terrain.",
+   "text": "Vous pouvez défausser une carte de votre terrain pour gagner 50 💰.\nPassif — Chaque carte défaussée de votre main : gagnez 10 💰.",
+   "rules": "Le choix de défausser se fait à chaque fois que la carte se joue (pose, phase 1, réactivation).",
    "image": "POL-25.jpg",
    "claude": ""
   },
@@ -6415,8 +6415,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir eu 3 états de trou noir différents pendant un même tour de table.",
-   "rules": "3 trous noirs différents sur une période d'un tour de table.",
+   "text": "Avoir eu les 4 états de trou noir en 4 tours de table.",
+   "rules": "Primordial, Quasar, Blazard et Trou de ver, tous sur une période de 4 tours de table.",
    "image": "VC-BASE-3.jpg",
    "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
@@ -6434,10 +6434,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir eu au moins 2 interactions avec chaque autre joueur.",
-   "rules": "Au moins 2 interactions avec chacun des autres joueurs.",
+   "text": "Avoir eu au moins 3 interactions avec chaque autre joueur.",
+   "rules": "Au moins 3 interactions avec chacun des autres joueurs.",
    "image": "VC-BASE-4.png",
-   "claude": "✏️ Modifiée v0.23 (équilibrage)"
+   "claude": "✏️ Modifiée v0.27 (équilibrage)"
   },
   "VC-GOB-1": {
    "id": "VC-GOB-1",
@@ -6491,10 +6491,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Gagner au moins 30 gold entre deux changements de votre trou noir.",
+   "text": "Gagner au moins 50 gold entre deux changements de votre trou noir.",
    "rules": "Compté à partir d'un changement de son trou noir jusqu'au suivant, même sur plusieurs tours.",
    "image": "VC-GOB-3.jpg",
-   "claude": "✏️ Modifiée v0.23 (équilibrage)"
+   "claude": "✏️ Modifiée v0.27 (équilibrage)"
   },
   "VC-ANT-1": {
    "id": "VC-ANT-1",
@@ -6662,10 +6662,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Avoir fait passer 200 gold d'un joueur à un autre au total.",
-   "rules": "200 gold échangés entre joueurs au total (gold passés d'un joueur à un autre).",
+   "text": "Avoir fait passer 150 gold d'un joueur à un autre au total.",
+   "rules": "150 gold échangés entre joueurs au total (gold passés d'un joueur à un autre).",
    "image": "",
-   "claude": "✏️ Modifiée v0.23 (équilibrage)"
+   "claude": "✏️ Modifiée v0.27 (équilibrage)"
   },
   "VC-GRE-1": {
    "id": "VC-GRE-1",
@@ -6757,10 +6757,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ne plus avoir de cartes dans votre pioche.",
+   "text": "Avoir moins de 5 cartes dans votre pioche.",
    "rules": "La défausse ne compte pas.",
    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Box.agr.jpg/500px-Box.agr.jpg",
-   "claude": "✏️ Modifiée v0.23 (équilibrage)"
+   "claude": "✏️ Modifiée v0.27 (équilibrage)"
   },
   "VC-MET-1": {
    "id": "VC-MET-1",
@@ -6909,10 +6909,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Vos cartes se sont activées 5 fois pendant le tour d'autres joueurs.",
-   "rules": "5 activations de ses cartes pendant le tour d'un autre joueur.",
+   "text": "Vos cartes se sont activées 8 fois pendant le tour d'autres joueurs.",
+   "rules": "8 activations de ses cartes pendant le tour d'un autre joueur.",
    "image": "",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.27 (équilibrage)"
   },
   "VC-FLE-3": {
    "id": "VC-FLE-3",

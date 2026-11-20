@@ -585,9 +585,37 @@ export function teamHasWon(room: Room, g: GameState, key: string): boolean {
   return teamMembers(room, key).every((u) => !g.players[u] || g.players[u].out || !g.players[u].personalVC || g.players[u].personalDone);
 }
 
+/** Conditions remplies par l'équipe : la commune puis les personnelles. */
+function winVCs(g: GameState, members: string[]): string[] {
+  const out = g.commonVC ? [g.commonVC] : [];
+  for (const u of members) {
+    const v = g.players[u]?.personalVC;
+    if (v && g.players[u].personalDone && !out.includes(v)) out.push(v);
+  }
+  return out;
+}
+
+/** Résumé de victoire : les dernières lignes du journal qui concernent l'équipe (au plus 6, dans l'ordre). */
+function winRecap(room: Room, g: GameState, key: string): string[] {
+  const members = teamMembers(room, key);
+  const names = members.map((u) => nameOf(room, u));
+  const mine = (e: LogEntry) =>
+    (e.from && members.includes(e.from)) ||
+    (e.to && members.includes(e.to)) ||
+    (e.src && members.includes(g.owner[e.src] ?? "")) ||
+    names.some((n) => n && e.text.includes(n));
+  const out: string[] = [];
+  for (let i = g.log.length - 1, seen = 0; i >= 0 && seen < 60 && out.length < 6; i--, seen++) {
+    const e = g.log[i];
+    if (e.text.startsWith("—") || e.text.startsWith("🎲") || !mine(e)) continue;
+    out.unshift(e.text);
+  }
+  return out;
+}
+
 function checkVictory(room: Room, g: GameState, key: string) {
   if (g.ranking.some((r) => r.team === key) || !teamHasWon(room, g, key)) return;
-  g.ranking.push({ team: key, round: g.round });
+  g.ranking.push({ team: key, round: g.round, recap: winRecap(room, g, key), vcs: winVCs(g, teamMembers(room, key)) });
   log(g, `🏆 ${teamLabel(room, key)} remplit toutes ses conditions et termine ${g.ranking.length}${g.ranking.length === 1 ? "er" : "e"} !`);
   g.vote = {};
 }

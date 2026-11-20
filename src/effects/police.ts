@@ -149,12 +149,11 @@ export const POLICE: Record<string, CardScript> = {
   // Ministre de l'intérieur (passif) : +50 gold en arrivant ; à 0 gold il défausse tout ton terrain ;
   // chaque carte que tu défausses te coûte 10 gold
   "POL-05": {
+    // Gagnez 50 💰 à chaque fois que la carte se joue (pose, phase 1, réactivation).
+    activate: (x, { me }) => {
+      x.gain(me, 50);
+    },
     on: {
-      placed: (x, self, e) => {
-        if (e.card !== self.id) return;
-        x.triggered(self, "+50 gold.");
-        x.gain(self.me, 50);
-      },
       zeroGold: (x, self, e) => {
         if (e.uid !== self.me) return;
         x.once(`zero:${self.id}`, () => {
@@ -256,12 +255,11 @@ export const POLICE: Record<string, CardScript> = {
 
   // Préfet de police (passif) : pioche 1 carte en arrivant ; +20 gold quand une de tes cartes défausse une carte d'un autre terrain
   "POL-09": {
+    // Piochez une carte à chaque fois que la carte se joue.
+    activate: (x, { me }) => {
+      x.draw(me, 1);
+    },
     on: {
-      placed: (x, self, e) => {
-        if (e.card !== self.id) return;
-        x.triggered(self, "pioche 1 carte.");
-        x.draw(self.me, 1);
-      },
       terrainDiscard: (x, self, e) => {
         if (e.uid === self.me || holderOf(x, e.src) !== self.me) return;
         x.triggered(self, "+20 gold.");
@@ -528,16 +526,17 @@ export const POLICE: Record<string, CardScript> = {
   // Fonctionnaire corrompu (passif) : en arrivant, tu peux défausser une carte de ton terrain pour +50 gold ;
   // +10 gold chaque fois que tu défausses une carte de ta main
   "POL-25": {
+    // À chaque fois que la carte se joue : défausser (facultatif) une carte de son terrain pour +50 💰.
+    activate: (x, { id, me }) => {
+      const pool = x.p(me).terrain.filter((c) => c !== id);
+      if (!pool.length) return;
+      const [c] = x.chooseCards(me, "Fonctionnaire corrompu : défausser une carte de ton terrain pour +50 gold ? (facultatif)", pool, 0, 1, id);
+      if (!c) return;
+      x.log("💼 Pot-de-vin : +50 gold.", { src: id });
+      x.discard(c);
+      x.gain(me, 50);
+    },
     on: {
-      placed: (x, self, e) => {
-        if (e.card !== self.id) return;
-        const pool = x.p(self.me).terrain.filter((c) => c !== self.id);
-        const [c] = x.chooseCards(self.me, "Fonctionnaire corrompu : défausser une carte de ton terrain pour +50 gold ? (facultatif)", pool, 0, 1, self.id);
-        if (!c) return;
-        x.triggered(self, "pot-de-vin : +50 gold.");
-        x.discard(c);
-        x.gain(self.me, 50);
-      },
       discard: (x, self, e) => {
         if (e.uid !== self.me) return;
         x.triggered(self, "+10 gold.");

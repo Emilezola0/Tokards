@@ -1,5 +1,5 @@
 // Voicelines des cartes : un fichier par carte dans src/assets/voices/<ID>.mp3 (ou .ogg / .wav / .m4a / .webm).
-// Une carte sans fichier ne joue rien. Au plus 10 voicelines en même temps : la plus ancienne et la plus faible s'arrête.
+// Une carte sans fichier ne joue rien. Au plus 2 voicelines en même temps : la plus ancienne et la plus faible s'arrête.
 import { useSyncExternalStore } from "react";
 import { CARDS } from "../data/cards";
 import { isMuted } from "./sfx";
@@ -12,7 +12,7 @@ for (const [path, url] of Object.entries(FILES)) {
 }
 
 const KEY = "tokards.voiceVolume";
-const MAX = 10;
+const MAX = 2;
 let volume = (() => {
   try {
     const v = localStorage.getItem(KEY);
@@ -47,7 +47,7 @@ function drop(p: (typeof playing)[number]) {
 
 /**
  * Joue la voiceline de la carte `id` (rien si elle n'en a pas). `gain` : 0 à 1, relatif au curseur.
- * `rate` : vitesse de lecture ; 0.5 = voix une octave plus grave (carte qui subit un effet).
+ * `rate` : vitesse de lecture ; 0.75 = voix plus grave (carte qui subit un effet).
  */
 export function playVoice(id: string, gain = 1, rate = 1) {
   const url = URLS[id];

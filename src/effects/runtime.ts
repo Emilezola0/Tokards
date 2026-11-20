@@ -53,6 +53,8 @@ export type CardScript = {
   on?: Partial<Handlers>;
   /** ne peut pas être défaussée par un effet */
   fixed?: boolean;
+  /** son passif peut se redéclencher pendant son propre effet (la profondeur reste limitée par MAX_DEPTH) */
+  reentrant?: boolean;
   /** ne peut pas être posée depuis la main (raison affichée) */
   noPlay?: string | ((g: GameState, id: string) => string | null | undefined);
   /** après chaque déplacement de la carte elle-même (pose, changement de place ou de terrain, départ) */
@@ -330,7 +332,8 @@ export class Ctx {
       for (const [uid, id, zone] of this.passiveCards()) {
         {
           const h = SCRIPTS[id]?.on?.[e.type] as ((x: Ctx, s: Self, e: GameEvent) => void) | undefined;
-          if (!h || this.resolving.has(id)) continue;
+          const again = this.resolving.has(id);
+          if (!h || (again && !SCRIPTS[id]?.reentrant)) continue;
           // La carte a pu bouger entre-temps (défaussée par un autre passif…).
           const still = zone === "discard" ? E.locate(this.g, id)?.zone === "discard" : this.p(uid)[zone].includes(id);
           if (!still) continue;
@@ -343,7 +346,7 @@ export class Ctx {
           try {
             h(this, { id, me: uid }, e);
           } finally {
-            this.resolving.delete(id);
+            if (!again) this.resolving.delete(id);
             this.actor = prevActor;
             this.source = prevSource;
             if (e.type === "interaction") this.muteInteractions--;
@@ -662,8 +665,8 @@ export class Ctx {
   private trackBlackHole(uid: string, to: BlackHole) {
     const s = E.st(this.p(uid));
     s.bhHist = [...(s.bhHist ?? []), { pos: E.pos(this.g), bh: to }].slice(-40);
-    // Astrophysicienne : 30 gold gagnés entre deux changements de son trou noir (à n'importe quel moment).
-    if (s.gainSinceBH != null && s.gainSinceBH >= 30) s.bhGainHit = true;
+    // Astrophysicienne : 50 gold gagnés entre deux changements de son trou noir (à n'importe quel moment).
+    if (s.gainSinceBH != null && s.gainSinceBH >= 50) s.bhGainHit = true;
     s.gainSinceBH = 0;
     if (uid !== this.current) return;
     s.bhTurn = (s.bhTurn ?? 0) + 1;

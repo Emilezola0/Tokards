@@ -63,11 +63,11 @@ const CHECKS: Record<string, (c: C) => Progress> = {
   },
   // Dette public : 150 gold dépensés ou donnés à d'autres joueurs
   "VC-GOB-2": ({ s }) => frac((s.spent ?? 0) + (s.given ?? 0), 150, "Gold dépensés ou donnés :"),
-  // Astrophysicienne : 30 gold gagnés entre deux changements de son trou noir (même sur plusieurs tours)
+  // Astrophysicienne : 50 gold gagnés entre deux changements de son trou noir (même sur plusieurs tours)
   "VC-GOB-3": ({ s }) => {
-    if (s.bhGainHit) return { ratio: 1, text: "30 gold gagnés entre deux changements", done: true };
+    if (s.bhGainHit) return { ratio: 1, text: "50 gold gagnés entre deux changements", done: true };
     if (s.gainSinceBH == null) return { ratio: 0, text: "Change ton trou noir pour lancer le compteur", done: false };
-    return { ...frac(s.gainSinceBH, 30, "Gold depuis le dernier changement :"), done: false };
+    return { ...frac(s.gainSinceBH, 50, "Gold depuis le dernier changement :"), done: false };
   },
   // The Word : validé par le vote des autres joueurs
   "VC-EMI-1": ({ p }) => {
@@ -92,7 +92,7 @@ const CHECKS: Record<string, (c: C) => Progress> = {
   },
   "VC-POP-1": ({ s }) => frac(s.interOthers ?? 0, 30, "Interactions avec d'autres joueurs :"),
   "VC-POP-2": ({ g, all }) => frac(count(all, (u) => g.players[u].blackHole === "Blazard"), all.length, "Joueurs en Blazard :"),
-  "VC-POP-3": ({ s }) => frac(s.goldMoved ?? 0, 200, "Gold échangés entre joueurs :"),
+  "VC-POP-3": ({ s }) => frac(s.goldMoved ?? 0, 150, "Gold échangés entre joueurs :"),
   "VC-MET-1": ({ s, g, uid }) => {
     const v = E.currentPlayer(g) === uid ? s.bhTurn ?? 0 : 0;
     return frac(v, 3, "Changements de trou noir ce tour :");
@@ -174,10 +174,11 @@ const CHECKS: Record<string, (c: C) => Progress> = {
   "VC-VIC-1": ({ p, g, uid }) => {
     const left = p.deck.length;
     const total = Math.max(1, Object.values(g.owner).filter((o) => o === uid).length);
-    return { ratio: clamp(1 - left / total), text: `Cartes dans ta pioche : ${left}`, done: left === 0 };
+    // Moins de 5 cartes dans sa pioche (équilibrage v0.27).
+    return { ratio: clamp(1 - Math.max(0, left - 4) / Math.max(1, total - 4)), text: `Cartes dans ta pioche : ${left} (moins de 5)`, done: left < 5 };
   },
   "VC-FLE-1": ({ s }) => frac(s.lost ?? 0, 200, "Gold perdus :"),
-  "VC-FLE-2": ({ s }) => frac(s.offTurn ?? 0, 5, "Activations pendant le tour d'un autre :"),
+  "VC-FLE-2": ({ s }) => frac(s.offTurn ?? 0, 8, "Activations pendant le tour d'un autre :"),
   // Inhibition toxique : 5 de ses cartes ne se sont pas activées pendant sa phase 1 (passifs, désactivées, effets ratés…)
   "VC-FLE-3": ({ s }) => frac(s.failed ?? 0, 5, "Cartes non activées en phase 1 ce tour :"),
   // Transcendance : seul joueur sentient à la fin de son tour
@@ -195,23 +196,24 @@ const CHECKS: Record<string, (c: C) => Progress> = {
     const v = pos - s.richSince;
     return { ratio: clamp(v / N), text: `Le plus riche depuis ${v}/${N} tour(s)`, done: v >= N };
   },
-  // Hole in one : 3 trous noirs différents pendant un tour de table
+  // Hole in one : les 4 états de trou noir en 4 tours de table
   "VC-BASE-3": ({ s, pos, N }) => {
     const hist = s.bhHist ?? [];
+    const W = 4 * N;
     let best = 0;
-    for (let from = Math.max(0, pos - 60); from <= pos; from++) {
-      const n = statesInWindow(hist, from, N).size;
-      if (n >= 3) return { ratio: 1, text: "3 trous noirs différents en un tour de table", done: true };
-      if (from >= pos - N + 1) best = Math.max(best, n);
+    for (let from = Math.max(0, pos - W - 60); from <= pos; from++) {
+      const n = statesInWindow(hist, from, W).size;
+      if (n >= 4) return { ratio: 1, text: "Les 4 trous noirs en 4 tours de table", done: true };
+      if (from >= pos - W + 1) best = Math.max(best, n);
     }
-    return { ratio: best / 3, text: `Trous noirs différents sur le dernier tour de table : ${best}/3`, done: false };
+    return { ratio: best / 4, text: `Trous noirs différents sur les 4 derniers tours de table : ${best}/4`, done: false };
   },
-  // Racoon : au moins 2 interactions avec chaque autre joueur
+  // Racoon : au moins 3 interactions avec chaque autre joueur
   "VC-BASE-4": ({ s, all, uid }) => {
     const others = all.filter((u) => u !== uid);
-    const n = (u: string) => Math.min(2, s.metN?.[u] ?? ((s.met ?? []).includes(u) ? 1 : 0));
+    const n = (u: string) => Math.min(3, s.metN?.[u] ?? ((s.met ?? []).includes(u) ? 1 : 0));
     const v = others.reduce((t, u) => t + n(u), 0);
-    return { ...frac(v, others.length * 2, "Interactions (2 par autre joueur) :"), done: others.every((u) => n(u) >= 2) };
+    return { ...frac(v, others.length * 3, "Interactions (3 par autre joueur) :"), done: others.every((u) => n(u) >= 3) };
   },
 };
 

@@ -16,6 +16,7 @@ import { sfx } from "./sfx";
 import SoundControl from "./SoundControl";
 import { claimWord, vcProgress, voteWord } from "../game/victory";
 import HoverCard from "./HoverCard";
+import KwText from "./KwText";
 import { VersionTag } from "./UpdatePrompt";
 import { playerColor } from "./pose";
 import { fxStore, useFx } from "./fxStore";
@@ -738,6 +739,7 @@ function VoteModal({ room, uid, isHost }: { room: Room; uid: string; isHost: boo
     <div className="modal-bg">
       <div className="modal panel">
         <h2>🏆 {last ? E.teamLabel(room, last.team) : ""} a gagné !</h2>
+        {last && <WinRecap r={last} />}
         <p>Que voulez-vous faire ?</p>
         <div className="vote-opts">
           {opts.map(([v, label]) => (
@@ -755,6 +757,32 @@ function VoteModal({ room, uid, isHost }: { room: Room; uid: string; isHost: boo
           <p className="small muted">L'hôte appliquera le choix.</p>
         )}
       </div>
+    </div>
+  );
+}
+
+/** Résumé de victoire : conditions remplies et dernières actions qui y ont mené. */
+function WinRecap({ r }: { r: GameState["ranking"][number] }) {
+  if (!r.vcs?.length && !r.recap?.length) return null;
+  return (
+    <div className="win-recap">
+      {!!r.vcs?.length && (
+        <div className="win-vcs">
+          {r.vcs.map((id) => (
+            <div key={id} className="win-vc" title={card(id).text}>
+              ✔ <b>{card(id).name}</b> <span className="small muted">{card(id).text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {!!r.recap?.length && (
+        <>
+          <div className="small muted">Les dernières actions avant la victoire :</div>
+          <ol className="win-steps">
+            {r.recap.map((t, i) => <li key={i} style={{ animationDelay: `${i * 120}ms` }}><KwText text={t} /></li>)}
+          </ol>
+        </>
+      )}
     </div>
   );
 }
