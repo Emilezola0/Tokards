@@ -5465,10 +5465,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — Quand un autre joueur change vos 💰, 🧠 ou 🌀 : cette carte va à la fin de son terrain.\nS'il l'a encore à la fin de son prochain tour : il défausse sa main et ne pose rien au tour suivant.",
-   "rules": "Déclenché quand un autre joueur change les gold, la sentience ou le trou noir du porteur. La carte va à la fin du terrain de ce joueur. À la fin de son prochain tour, s'il l'a encore : il défausse sa main avant de piocher, et au tour suivant il ne peut que défausser en phase 2.",
+   "text": "Passif — Quand un autre joueur change vos 💰, 🧠 ou 🌀 : cette carte va à la fin de son terrain.\nS'il l'a encore à la fin de son prochain tour : il défausse sa main et ne pose rien au tour suivant (une seule fois par joueur et par partie).",
+   "rules": "Déclenché quand un autre joueur change les gold, la sentience ou le trou noir du porteur. La carte va à la fin du terrain de ce joueur. À la fin de son prochain tour, s'il l'a encore : il défausse sa main avant de piocher, et au tour suivant il ne peut que défausser en phase 2. Un joueur qui a déjà subi cette punition ne la subit plus : la carte continue de passer de terrain en terrain.",
    "image": "FLE-10.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.33 (demande du Prompt)"
   },
   "FLE-11": {
    "id": "FLE-11",
@@ -5670,14 +5670,14 @@
     "gold": false,
     "blackHole": false
    },
-   "trigger": "Activation",
+   "trigger": "Passif",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Tant que 🧠 vraie : seules les cartes en place impaire (1, 3, 5…) de votre terrain s'activent.",
-   "rules": "Tant qu'elle est sur le terrain et que la sentience est vraie, les cartes en position paire ne s'activent pas pendant la phase 1.",
+   "text": "Passif — Tant que 🧠 vraie : les cartes en place paire (2, 4, 6…) de ce terrain sont désactivées (sauf cette carte).",
+   "rules": "La sentience regardée est celle du joueur dont le terrain contient la Varicelle. Les cartes en place paire sont désactivées tant que la Varicelle reste sur ce terrain, active, et que la sentience est vraie : leur effet et leurs passifs ne jouent pas. Si la Varicelle est elle-même en place paire, elle n'est pas touchée.",
    "image": "FLE-21.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.33 (demande du Prompt)"
   },
   "FLE-22": {
    "id": "FLE-22",
@@ -5959,10 +5959,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Coût : 10 💰. 🌀 → Blazard.\nPosez cette carte où vous voulez, sur n'importe quel terrain : désactivez ses voisines.\nÀ la fin du tour de ce joueur : les voisines sont réactivées et cette carte est mélangée dans votre pioche.",
-   "rules": "Les voisines sont réactivées et le gaz revient à la fin du tour du joueur ciblé (le tour en cours si c'est vous). Le coût est payé même si l'effet ne peut pas aller au bout.",
+   "text": "Coût : 10 💰. 🌀 → Blazard.\nPosez cette carte où vous voulez, sur n'importe quel terrain : désactivez ses voisines, puis désactivez cette carte.\nÀ la fin du tour de ce joueur (même désactivée) : les voisines sont réactivées et cette carte est mélangée dans votre pioche.",
+   "rules": "Les voisines et le gaz sont désactivés jusqu'à la fin du tour du joueur ciblé (le tour en cours si c'est vous). Sa fin de tour se joue même s'il est désactivé. Seules les voisines désactivées par le gaz sont réactivées : une désactivation plus longue venant d'une autre carte reste. Le coût est payé même si l'effet ne peut pas aller au bout.",
    "image": "POL-04.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.33 (demande du Prompt)"
   },
   "POL-05": {
    "id": "POL-05",
@@ -6035,10 +6035,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Coût : 10 💰.\nJusqu'à la fin de votre prochain tour, les cartes désactivées vont sous cette carte ; ensuite, défaussez-la avec les cartes dessous.\nSi elle est défaussée avant, ou dès qu'il y a plus de 4 cartes dessous : elles reprennent leur place, réactivées, et cette carte est désactivée (⏱ début de votre prochain tour).",
-   "rules": "Les cartes désactivées par n'importe quel effet vont dessous tant que la garde à vue dure. Quand la garde à vue est défaussée, les cartes d'autres joueurs défaussées avec elle comptent comme défaussées par son lanceur.",
+   "text": "Coût : 10 💰.\nJusqu'à la fin de votre prochain tour, les cartes désactivées vont sous cette carte ; ensuite, défaussez-la avec les cartes dessous. S'il n'y a aucune carte dessous : la garde à vue se réactive (⏱ fin de votre prochain tour).\nSi elle est défaussée avant, ou dès qu'il y a plus de 4 cartes dessous : elles reprennent leur place, réactivées, et cette carte est désactivée (⏱ début de votre prochain tour).",
+   "rules": "Les cartes désactivées par n'importe quel effet vont dessous tant que la garde à vue dure. Si elle n'a rien attrapé à la fin de votre prochain tour, elle reste et la garde à vue repart pour un tour, sans repayer. Quand la garde à vue est défaussée, les cartes d'autres joueurs défaussées avec elle comptent comme défaussées par son lanceur.",
    "image": "POL-08.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.33 (demande du Prompt)"
   },
   "POL-09": {
    "id": "POL-09",
@@ -6073,10 +6073,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : 🎲 1 chance sur 2 de la désactiver (⏱ toujours), sinon le Démineur saute : défaussez-le.\nPuis désactivez ses voisines (⏱ fin de votre prochain tour).",
-   "rules": "Désactivée sans durée = jusqu'à nouvel ordre. Les voisines = les cartes juste à gauche et à droite du Démineur au moment où il se joue ; elles sont désactivées même s'il saute.",
+   "text": "Coût : 10 💰.\nD'abord, désactivez les voisines du Démineur (⏱ fin de votre prochain tour).\nPuis ciblez une carte d'un terrain : 🎲 1 chance sur 2 de la désactiver (⏱ toujours), sinon le Démineur saute : défaussez-le.",
+   "rules": "Désactivée sans durée = jusqu'à nouvel ordre. Les voisines = les cartes juste à gauche et à droite du Démineur ; elles sont désactivées avant le lancer, donc même s'il saute. Une voisine peut ensuite être ciblée : la durée la plus longue (⏱ toujours) l'emporte.",
    "image": "POL-10.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.33 (demande du Prompt)"
   },
   "POL-11": {
    "id": "POL-11",
@@ -7457,7 +7457,7 @@
   {
    "term": "Désactiver",
    "cat": "Action",
-   "def": "Une carte désactivée reste en place mais son effet ne se joue plus et ses passifs ne réagissent plus. La durée est donnée par l'effet ; sans durée, c'est jusqu'à nouvel ordre. Une carte qui quitte les terrains n'est plus désactivée.",
+   "def": "Une carte désactivée reste en place mais son effet ne se joue plus et ses passifs ne réagissent plus. La durée est donnée par l'effet ; sans durée, c'est jusqu'à nouvel ordre. Une carte qui quitte les terrains n'est plus désactivée. Si une carte déjà désactivée est désactivée à nouveau, la durée la plus longue l'emporte (sans durée = la plus longue).",
    "example": "Désactivez-la jusqu'à la fin de votre prochain tour.",
    "anim": "disable",
    "words": [

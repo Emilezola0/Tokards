@@ -91,7 +91,9 @@ export function seeThrough(g: GameState): boolean {
 export function isDisabled(g: GameState, id: string): boolean {
   if (g.disabled?.[id]) return true;
   const at = locate(g, id);
-  if (!at || at.zone !== "terrain" || g.order.length < 2) return false;
+  if (!at || at.zone !== "terrain") return false;
+  if (varicelleHit(g, at.uid, at.index, id)) return true;
+  if (g.order.length < 2) return false;
   for (const n of new Set(neighbours(g, at.uid))) {
     if (n === at.uid) continue;
     if (g.players[n].terrain[at.index] === DRONE && !g.disabled?.[DRONE]) return true;
@@ -99,9 +101,35 @@ export function isDisabled(g: GameState, id: string): boolean {
   return false;
 }
 
-/** Désactive une carte jusqu'à `until` (absent = jusqu'à nouvel ordre). */
-export function disableCard(g: GameState, id: string, until?: Until) {
+/** Varicelle cosmique (passif) : tant que la sentience du joueur est vraie, les cartes en place paire (2, 4, 6…) de son terrain sont désactivées. */
+export const VARICELLE = "FLE-21";
+export function varicelleHit(g: GameState, uid: string, index: number, id: string): boolean {
+  if (id === VARICELLE || index % 2 !== 1) return false;
+  const p = g.players[uid];
+  return !!p?.sentience && p.terrain.includes(VARICELLE) && !g.disabled?.[VARICELLE];
+}
+
+/** Moment où une désactivation prend fin, pour comparer deux durées (sans fin = Infinity). */
+export function untilRank(g: GameState, u?: Partial<Until>): number {
+  if (!u || !u.uid || u.after === undefined) return Infinity;
+  const n = g.order.length;
+  const i = g.order.indexOf(u.uid);
+  if (i < 0 || !n) return Infinity;
+  let P = u.after + 1;
+  while (((P % n) + n) % n !== i) P++;
+  return P * 2 + (u.edge === "end" ? 1 : 0);
+}
+
+/**
+ * Désactive une carte jusqu'à `until` (absent = jusqu'à nouvel ordre).
+ * La durée la plus longue l'emporte : une carte déjà désactivée plus longtemps garde sa durée.
+ * Renvoie la durée retenue.
+ */
+export function disableCard(g: GameState, id: string, until?: Until): Partial<Until> | undefined {
+  const cur = g.disabled?.[id];
+  if (cur && untilRank(g, cur) >= untilRank(g, until)) return cur;
   g.disabled = { ...(g.disabled ?? {}), [id]: until ? { ...until } : {} };
+  return until;
 }
 export function enableCard(g: GameState, id: string) {
   if (!g.disabled?.[id]) return false;
@@ -349,6 +377,11 @@ function rhumeCheck(room: Room, g: GameState, uid: string) {
   delete g.rhume;
   const p = g.players[uid];
   if (!p.terrain.includes(RHUME)) return;
+  if (g.rhumeDone?.includes(uid)) {
+    log(g, `🤧 Rhume quantique : ${nameOf(room, uid)} l'a déjà subi une fois, il garde sa main.`, { src: RHUME, from: uid });
+    return;
+  }
+  g.rhumeDone = [...(g.rhumeDone ?? []), uid];
   const n = p.hand.length;
   for (const c of [...p.hand]) moveCard(room, g, c, { uid, zone: "discard" }, true);
   p.cantPlayNext = "Rhume quantique : tu ne peux pas poser de carte ce tour (tu peux seulement défausser).";

@@ -133,3 +133,7 @@ Lignes validées retirées de l'onglet « Interprétations » du classeur (gard�
 ## v0.31 — équilibrage du deck Météo (validé en bloc)
 
 Météo de départ au hasard pour le joueur Météo ; carte Météo : Primordial = Grêle ; Climatisation : Pluie → Neige ; effet de secours « votre météo change au hasard » sur les cartes à météo imposée ; Temps pluvieux, Neige parfaite, Temps qu'à faire (Vent violent) et Éclair à 25 % ; Temps pluvieux, Hot et Neige parfaite ne touchent que les autres joueurs ; Para-Tonnerre 1d100 💰 ; Temps pour prier 150 / 100 💰 ; Temporiser (Vent violent) 50 💰 ; Météo étrange (Canicule) : 1 chance sur 2 de +20 💰, sinon −10 💰 ; thème de chaque météo écrit dans la description du deck.
+
+## v0.33 — demandes du Prompt (Police, Fléaux, durées)
+
+Durées de désactivation : la plus longue l'emporte (sans durée = la plus longue) ; Gaz lacrymogène : se désactive lui-même après ses voisines, sa fin de tour se joue quand même et ne réactive que les voisines qu'il a désactivées ; Garde à vue : sans carte dessous à la fin de votre prochain tour, elle repart pour un tour (sans repayer) ; Démineur : voisines désactivées avant le ciblage et le dé ; Varicelle cosmique : passif, cartes en place paire de son terrain désactivées tant que la sentience de ce joueur est vraie (elle-même exceptée) ; Rhume quantique : la main jetée n'arrive qu'une fois par joueur.

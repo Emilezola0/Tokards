@@ -325,14 +325,9 @@ export const FLEAUX: Record<string, CardScript> = {
     },
   },
 
-  // Varicelle cosmique : règle appliquée par le moteur pendant la phase 1
-  "FLE-21": {
-    activate: (x, { me }) => {
-      x.log(x.p(me).sentience
-        ? "🦠 Varicelle cosmique : seules les cartes en position impaire se jouent."
-        : "🦠 Varicelle cosmique : sentience fausse, aucun effet.");
-    },
-  },
+  // Varicelle cosmique (passif) : appliquée par le moteur (E.varicelleHit) — tant que la sentience est vraie,
+  // les cartes en place paire du terrain où elle se trouve sont désactivées (elle-même exceptée).
+  "FLE-21": {},
 
   // Transmigration de maladie
   "FLE-22": {

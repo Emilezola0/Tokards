@@ -65,6 +65,8 @@ export type CardScript = {
   guarded?: boolean;
   /** ses passifs écoutent aussi quand elle est face visible dans une main */
   inHand?: boolean;
+  /** ses passifs écoutent même quand elle est désactivée */
+  evenDisabled?: boolean;
   /** ne peut arriver sur un terrain que par l'effet de cette carte */
   placedOnlyBy?: string | string[];
   /** sur un terrain, ne peut être déplacée (défausse, vol…) que par ses propres effets et ceux de ces cartes */
@@ -407,7 +409,7 @@ export class Ctx {
       if (p.terrain.includes("FLE-14") && p.discard[0] && SCRIPTS[p.discard[0]]?.on) out.push([this.current, p.discard[0], "discard"]);
       for (const id of p.hand) if (this.g.revealed?.includes(id) && SCRIPTS[id]?.inHand && !out.some((o) => o[1] === id)) out.push([uid, id, "hand"]);
     }
-    return out.filter(([, id, zone]) => zone !== "terrain" || !E.isDisabled(this.g, id));
+    return out.filter(([, id, zone]) => zone !== "terrain" || SCRIPTS[id]?.evenDisabled || !E.isDisabled(this.g, id));
   }
   /** Un effet touche quelque chose de `target` : compte l'interaction et prévient les passifs. */
   interact(target: string, what: string) {
@@ -986,8 +988,8 @@ export class Ctx {
   untilStartOfNext = (uid: string): Until => ({ uid, edge: "start", after: E.pos(this.g) });
   /** Fin du tour en cours. */
   untilEndOfTurn = (): Until => ({ uid: this.current, edge: "end", after: E.pos(this.g) - 1 });
-  private untilLabel(u?: Until) {
-    if (!u) return "";
+  private untilLabel(u?: Partial<Until>) {
+    if (!u || !u.uid || u.after === undefined) return "";
     if (u.after < E.pos(this.g)) return " jusqu'à la fin du tour";
     return u.edge === "start" ? ` jusqu'au début du prochain tour de ${this.name(u.uid)}` : ` jusqu'à la fin du prochain tour de ${this.name(u.uid)}`;
   }
@@ -1004,7 +1006,12 @@ export class Ctx {
       if ((this.g.under?.[c.host]?.length ?? 0) > 4) this.releaseCustody(true);
       return true;
     }
-    E.disableCard(this.g, id, until);
+    const was = this.g.disabled?.[id];
+    const kept = E.disableCard(this.g, id, until);
+    if (was && this.g.disabled?.[id] === was) {
+      this.log(`⛔ « ${card(id).name} » (${this.name(at.uid)}) est déjà désactivée plus longtemps${this.untilLabel(kept)} : sa durée ne change pas.`, { dst: id, to: at.uid });
+      return true;
+    }
     // Origine de la désactivation (affichée dans le détail de la carte) — jamais de valeur `undefined` (Firestore).
     const by: { src?: string; by?: string; at: number } = { at: E.pos(this.g) };
     if (this.source && this.source !== id) by.src = this.source;
@@ -1174,16 +1181,7 @@ export class Ctx {
         E.setPhase(g, "action");
         break;
       }
-      // Varicelle cosmique : avec la sentience vraie, seules les cartes en position impaire (1, 3, 5…) se jouent.
       const t = g.players[this.current].terrain;
-      if (t.includes("FLE-21") && g.players[this.current].sentience && t.indexOf(id) % 2 === 1) {
-        g.activated = [...(g.activated ?? []), id];
-        this.countFail(this.current);
-        const why = "Varicelle cosmique : seules les cartes en position impaire se jouent.";
-        this.fx({ k: "fail", card: id, uid: this.current, reason: why });
-        this.log(`« ${card(id).name} » ne se joue pas. ${why}`, { src: "FLE-21", dst: id });
-        continue;
-      }
       if (g.facedown?.includes(id)) {
         g.facedown = g.facedown.filter((c) => c !== id);
         E.enableCard(g, id);
@@ -1194,7 +1192,9 @@ export class Ctx {
         continue;
       }
       const skip = E.isDisabled(g, id)
-        ? "Désactivée : son effet ne se joue pas."
+        ? !g.disabled?.[id] && E.varicelleHit(g, this.current, t.indexOf(id), id)
+          ? "Varicelle cosmique : désactivée (place paire, sentience vraie)."
+          : "Désactivée : son effet ne se joue pas."
         : t[t.indexOf(id) - 1] === "EMI-13" && !E.isDisabled(g, "EMI-13")
           ? "ADS : la carte qui suit ADS ne se joue pas."
           : null;

@@ -127,10 +127,17 @@ export const POLICE: Record<string, CardScript> = {
       const now = E.locate(x.g, id);
       if (now?.zone !== "terrain") return;
       const t = x.p(now.uid).terrain;
-      for (const c of [t[now.index - 1], t[now.index + 1]]) if (c) x.disable(c, untilEndOfTurnOf(x, now.uid));
+      const until = untilEndOfTurnOf(x, now.uid);
+      for (const c of [t[now.index - 1], t[now.index + 1]]) if (c) x.disable(c, until);
       x.g.marks = { ...(x.g.marks ?? {}), [id]: `${me}|${now.uid}` };
       arm(x, id);
+      // Puis le gaz se désactive lui-même ; sa fin de tour se joue quand même (evenDisabled).
+      if (E.locate(x.g, id)?.zone === "terrain") {
+        E.disableCard(x.g, id, until);
+        x.log("😶‍🌫️ Le Gaz lacrymogène se désactive lui-même (sa fin de tour se jouera quand même).", { dst: id });
+      }
     },
+    evenDisabled: true,
     on: {
       turnEnd: (x, self, e) => {
         if (!isArmed(x, self.id)) return;
@@ -139,7 +146,13 @@ export const POLICE: Record<string, CardScript> = {
         disarm(x, self.id);
         const back = caster || x.g.owner[self.id];
         if (!back || !x.p(back)) return;
-        x.triggered(self, "le gaz se dissipe, la carte revient dans la pioche.");
+        x.triggered(self, "le gaz se dissipe : les voisines sont réactivées, la carte revient dans la pioche.");
+        const at = E.locate(x.g, self.id);
+        if (at?.zone === "terrain") {
+          const t = x.p(at.uid).terrain;
+          // Seules les voisines désactivées par le gaz lui-même sont réactivées.
+          for (const c of [t[at.index - 1], t[at.index + 1]]) if (c && x.g.disabled?.[c] && x.g.disabledBy?.[c]?.src === self.id) x.enable(c);
+        }
         x.move(self.id, { uid: back, zone: "deck" });
         x.shuffleZone(back, "deck");
       },
@@ -247,7 +260,13 @@ export const POLICE: Record<string, CardScript> = {
           const from = x.g.underFrom?.[p]?.uid ?? x.g.owner[p];
           if (from && from !== c.uid) st.discOthers = (st.discOthers ?? 0) + 1;
         }
-        x.triggered(self, `fin de la garde à vue : la carte${n ? ` et ses ${n} prisonnière(s)` : ""} vont à la défausse.`);
+        if (!n) {
+          // Personne dessous : la garde à vue se réactive jusqu'à la fin du prochain tour.
+          x.g.custody = { ...c, at: E.pos(x.g) };
+          x.triggered(self, "aucune carte dessous : la garde à vue se réactive jusqu'à la fin de ton prochain tour.");
+          return;
+        }
+        x.triggered(self, `fin de la garde à vue : la carte et ses ${n} prisonnière(s) vont à la défausse.`);
         x.discard(self.id);
       },
     },
@@ -278,17 +297,18 @@ export const POLICE: Record<string, CardScript> = {
         x.reason = "Aucune carte à cibler sur les terrains.";
         return false;
       }
-      const c = pickCard(x, me, id, "Démineur : quelle carte ?", pool)!;
-      // Voisines prises avant que le Démineur ne quitte peut-être le terrain.
+      // D'abord : ses voisines sont désactivées jusqu'à la fin du prochain tour du lanceur.
       const at = E.locate(x.g, id);
       const t = at?.zone === "terrain" ? x.p(at.uid).terrain : [];
       const near = at?.zone === "terrain" ? [t[at.index - 1], t[at.index + 1]].filter((v): v is string => !!v) : [];
+      for (const v of near) if (E.locate(x.g, v)?.zone === "terrain") x.disable(v, x.untilEndOfNext(me));
+      const c = pickCard(x, me, id, "Démineur : quelle carte ?", pool.filter((v) => E.locate(x.g, v)?.zone === "terrain"))!;
+      if (!c) return;
       if (x.dice(me, 2) === 1) x.disable(c);
       else {
         x.log("💥 Le Démineur saute : il est défaussé.", { src: id });
         x.discard(id);
       }
-      for (const v of near) if (E.locate(x.g, v)?.zone === "terrain") x.disable(v, x.untilEndOfNext(me));
     },
   },
 

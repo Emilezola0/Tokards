@@ -21,6 +21,63 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.33.0",
+    date: "21 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "⏱ La durée la plus longue gagne",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">⛔ toujours</span>
+            <span className="pn-big">＞</span>
+            <span className="pn-chip">⛔ fin du tour</span>
+          </div>
+        ),
+        text: <>Une carte déjà désactivée qui est désactivée à nouveau garde la durée la plus longue : une désactivation courte n'écourte plus une longue.</>,
+      },
+      {
+        cat: "cartes",
+        title: "🦠 Varicelle cosmique devient un passif",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="FLE-21" cls="hg-pop" />
+            <Arrow />
+            <span className="pn-chip">1 ✅ 2 ⛔ 3 ✅ 4 ⛔</span>
+          </div>
+        ),
+        text: <>Tant que la sentience est vraie, les cartes en place paire de son terrain sont désactivées (elle-même exceptée).</>,
+      },
+      {
+        cat: "cartes",
+        title: "🚔 Gaz lacrymogène, Garde à vue et Démineur",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="POL-04" />
+            <Img id="POL-08" />
+            <Img id="POL-10" />
+          </div>
+        ),
+        text: (
+          <>
+            Le Gaz se désactive lui-même après ses voisines, mais sa fin de tour se joue quand même. La Garde à vue sans prisonnier repart
+            pour un tour au lieu d'être défaussée. Le Démineur désactive d'abord ses voisines, puis lance le dé.
+          </>
+        ),
+      },
+      {
+        cat: "cartes",
+        title: "🤧 Rhume quantique : une fois par joueur",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="FLE-10" cls="hg-pop" />
+          </div>
+        ),
+        text: <>Chaque joueur ne peut jeter sa main qu'une seule fois à cause du Rhume. Ensuite, la carte continue de passer de terrain en terrain sans punition.</>,
+      },
+    ],
+  },
+  {
     version: "0.32.0",
     date: "21 novembre 2026",
     notes: [

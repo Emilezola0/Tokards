@@ -223,6 +223,8 @@ export function modifiersOf(room: Room, g: GameState, id: string): Mod[] {
     if (by?.at !== undefined) details.push(`Depuis le tour ${by.at + 1}.`);
     if (g.facedown?.includes(id)) details.push("Face cachée (« Cache Oeil ») : elle se retourne à son prochain passage en phase 1, sans jouer son effet.");
     out.push({ icon: "⛔", label: "Désactivée", kind: "debuff", details });
+  } else if (at?.zone === "terrain" && E.varicelleHit(g, at.uid, at.index, id)) {
+    out.push({ icon: "⛔", label: "Désactivée par la Varicelle", kind: "debuff", details: [`Origine : ${cardName(E.VARICELLE)} de ${name(at.uid)}.`, `Place paire (${at.index + 1}) et sentience vraie.`, "Durée : tant que la Varicelle reste sur ce terrain, active, et que la sentience est vraie."] });
   } else if (at?.zone === "terrain" && E.isDisabled(g, id)) {
     const drone = g.order.find((u) => u !== at.uid && g.players[u].terrain[at.index] === E.DRONE);
     out.push({ icon: "⛔", label: "Désactivée par un drone", kind: "debuff", details: [`Origine : ${cardName(E.DRONE)} de ${name(drone)}, à la même place (${at.index + 1}) sur un terrain voisin.`, "Durée : tant que le drone reste en face et actif."] });

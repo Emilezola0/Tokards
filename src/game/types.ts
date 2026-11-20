@@ -232,6 +232,8 @@ export interface GameState {
   spent?: string[];
   /** Rhume quantique : joueur qui l'a reçu et tour global où il l'a reçu */
   rhume?: { uid: string; at: number };
+  /** Rhume quantique : joueurs ayant déjà jeté leur main à cause de lui (une seule fois par joueur). */
+  rhumeDone?: string[];
   /** cartes désactivées : leur effet et leurs passifs ne fonctionnent plus (objet vide = jusqu'à nouvel ordre) */
   disabled?: Record<string, Partial<Until>>;
   /** origine de chaque désactivation : carte qui l'a causée (`src`) et joueur qui l'a lancée (`by`) */
