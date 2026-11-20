@@ -129,3 +129,7 @@ Lignes validées retirées de l'onglet « Interprétations » du classeur (gard�
 | MET-32 | Bulletin météo | « face visible » | ✔ Corrigé (v0.12) selon ta réponse : Sur un terrain inclut aussi le mien dans le cas de cette carte. L'orage ne peut pas être récupéré |
 | POL-05 | Ministre de l'interieur | Coût de défausse sans les gold | Sans 10 gold, le joueur perd ce qu'il a (jusqu'à 0). |
 | Règle | Difficulté des decks | Valeurs par défaut | Facile : Popo emplois. Moyen : Empire Goblin, Grenouilles, Police, Pirate. Difficile : Emile, Fléaux, Météo. Modifiable dans l'onglet Decks. ✔ Corrigé (v0.17) selon ta réponse : Empire Goblin = Facile. |
+
+## v0.31 — équilibrage du deck Météo (validé en bloc)
+
+Météo de départ au hasard pour le joueur Météo ; carte Météo : Primordial = Grêle ; Climatisation : Pluie → Neige ; effet de secours « votre météo change au hasard » sur les cartes à météo imposée ; Temps pluvieux, Neige parfaite, Temps qu'à faire (Vent violent) et Éclair à 25 % ; Temps pluvieux, Hot et Neige parfaite ne touchent que les autres joueurs ; Para-Tonnerre 1d100 💰 ; Temps pour prier 150 / 100 💰 ; Temporiser (Vent violent) 50 💰 ; Météo étrange (Canicule) : 1 chance sur 2 de +20 💰, sinon −10 💰 ; thème de chaque météo écrit dans la description du deck.

@@ -390,7 +390,7 @@
    "code": "MET",
    "inGame": true,
    "color": "",
-   "description": "",
+   "description": "Chaque météo a son thème : Pluie = pioche et main, Vent violent = déplacements et ordre du terrain, Canicule = gold et prise de risque, Neige = accumulation, Grêle = chaos, Orage = blocage. Le joueur Météo commence avec une météo tirée au hasard.",
    "keywords": [
     "Météo",
     "Trou noir",
@@ -4306,10 +4306,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "La météo de tous change selon votre 🌀 :\nBlazard : Pluie · Quasar : Vent violent · Trou de ver : Canicule · Primordial : Neige.",
-   "rules": "Chaque joueur a sa propre météo, à part de son trou noir. Au début de la partie : Beau temps.",
+   "text": "La météo de tous change selon votre 🌀 :\nBlazard : Pluie · Quasar : Vent violent · Trou de ver : Canicule · Primordial : Grêle.",
+   "rules": "Chaque joueur a sa propre météo, à part de son trou noir. Au début de la partie : Beau temps, sauf le joueur du deck Météo qui commence avec une météo tirée au hasard (Pluie, Vent violent, Canicule, Neige ou Grêle).",
    "image": "MET-01.png",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-02": {
    "id": "MET-02",
@@ -4344,10 +4344,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque joueur à 🧠 vraie sous la Pluie : chacune de ses cartes Sentience a 5 % de chances de retourner dans sa pioche (sauf cette carte).",
+   "text": "Chaque autre joueur à 🧠 vraie sous la Pluie : chacune de ses cartes Sentience a 25 % de chances de retourner dans sa pioche (sauf cette carte).",
    "rules": "",
    "image": "MET-03.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-04": {
    "id": "MET-04",
@@ -4382,10 +4382,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque joueur à 🧠 vraie sous la Canicule : ses cartes Sentience lancent 🎲 1d2 avant de se jouer ; sur un 2, elles ne se jouent pas (sauf cette carte).",
+   "text": "Chaque autre joueur à 🧠 vraie sous la Canicule : ses cartes Sentience lancent 🎲 1d2 avant de se jouer ; sur un 2, elles ne se jouent pas (sauf cette carte).",
    "rules": "Le d2 est lancé au moment où la carte devrait se jouer (1 = elle se joue, 2 = non), une seule fois.",
    "image": "MET-05.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-06": {
    "id": "MET-06",
@@ -4401,10 +4401,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Chaque joueur à 🧠 vraie sous la Neige : 10 % de chances qu'une de ses cartes au hasard soit ensevelie (elle quitte le terrain).\nQuand plus personne n'a la Neige, les cartes ensevelies sont mélangées et redistribuées.",
+   "text": "Chaque autre joueur à 🧠 vraie sous la Neige : 25 % de chances qu'une de ses cartes au hasard soit ensevelie (elle quitte le terrain).\nQuand plus personne n'a la Neige, les cartes ensevelies sont mélangées et redistribuées.",
    "rules": "Les cartes ensevelies ne sont dans aucune zone. Elles reviennent sur les terrains d'où elles sont parties, mais mélangées.",
    "image": "MET-06.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-07": {
    "id": "MET-07",
@@ -4439,10 +4439,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Neige : gagnez 1 💰 par carte jouée (par tous) sous la Neige depuis sa pose.\nLe compteur se fige hors Neige et repart à zéro après chaque gain.",
+   "text": "Si votre météo est Neige : gagnez 1 💰 par carte jouée (par tous) sous la Neige depuis sa pose.\nLe compteur se fige hors Neige et repart à zéro après chaque gain. Sinon : votre météo change au hasard.",
    "rules": "« Carte jouée » = un effet de carte activé, par n'importe quel joueur, pendant que votre météo est Neige.",
    "image": "MET-08.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-09": {
    "id": "MET-09",
@@ -4458,10 +4458,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Canicule, vous pouvez tenter 🎲 1d100 :\n1-20 gagnez 50 💰 · 21-40 perdez 50 💰 · 41-100 tout le monde gagne 20 💰.",
+   "text": "Si votre météo est Canicule, vous pouvez tenter 🎲 1d100 :\n1-20 gagnez 50 💰 · 21-40 perdez 50 💰 · 41-100 tout le monde gagne 20 💰. Sinon : votre météo change au hasard.",
    "rules": "",
    "image": "MET-09.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-10": {
    "id": "MET-10",
@@ -4477,10 +4477,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Pluie : les autres peuvent rejoindre le pari.\nChaque participant (vous compris) : 1 chance sur 2 de gagner 🎲 1d100/2 💰, sinon il les perd.",
+   "text": "Si votre météo est Pluie : les autres peuvent rejoindre le pari.\nChaque participant (vous compris) : 1 chance sur 2 de gagner 🎲 1d100/2 💰, sinon il les perd. Sinon : votre météo change au hasard.",
    "rules": "",
    "image": "MET-10.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-11": {
    "id": "MET-11",
@@ -4496,10 +4496,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre météo :\nPluie : passe à Grêle.\nVent violent : rejouez une carte de votre terrain.\nCanicule : pour 10 💰, choisissez votre 🌀 et 🧠 → fausse.\nNeige ou Grêle : passe à Pluie et 🌀 → Blazard.",
+   "text": "Selon votre météo :\nPluie : passe à Neige.\nVent violent : rejouez une carte de votre terrain.\nCanicule : pour 10 💰, choisissez votre 🌀 et 🧠 → fausse.\nNeige ou Grêle : passe à Pluie et 🌀 → Blazard. / Autre météo : elle change au hasard.",
    "rules": "",
    "image": "MET-11.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-12": {
    "id": "MET-12",
@@ -4572,10 +4572,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre météo :\nPluie : chacun mélange sa main dans sa pioche et pioche 4 cartes.\nVent violent : chaque terrain a 10 % de chances d'être mélangé.\nCanicule : choisissez un 🌀 provisoire (⏱ fin de votre tour).\nGrêle : chacun défausse sa main et pioche 1 carte.",
+   "text": "Selon votre météo :\nPluie : chacun mélange sa main dans sa pioche et pioche 4 cartes.\nVent violent : chaque terrain a 25 % de chances d'être mélangé.\nCanicule : choisissez un 🌀 provisoire (⏱ fin de votre tour).\nGrêle : chacun défausse sa main et pioche 1 carte. / Autre météo : elle change au hasard.",
    "rules": "",
    "image": "MET-15.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-16": {
    "id": "MET-16",
@@ -4667,10 +4667,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Pluie : un orage se prépare. À sa prochaine activation, cette carte est défaussée et l'Orage prend sa place.",
+   "text": "Si votre météo est Pluie : un orage se prépare. À sa prochaine activation, cette carte est défaussée et l'Orage prend sa place. Sinon : votre météo change au hasard.",
    "rules": "L'orage éclate à la prochaine activation de la carte (en général à votre prochain tour).",
    "image": "MET-20.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-21": {
    "id": "MET-21",
@@ -4705,10 +4705,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "1 chance sur 4 : choisissez votre météo.\nPuis 🎲 1d100 : 1 l'Orage arrive chez vous (s'il y est déjà, gagnez 500 💰) · 50 donnez 50 💰 à chaque joueur · 100 gagnez 250 💰.",
+   "text": "1 chance sur 4 : choisissez votre météo.\nPuis 🎲 1d100 : 1 l'Orage arrive chez vous (s'il y est déjà, gagnez 150 💰) · 50 donnez 50 💰 à chaque joueur · 100 gagnez 100 💰.",
    "rules": "Le d4 est lancé d'abord (1 = vous choisissez votre météo), puis le d100 dans tous les cas.",
    "image": "MET-22.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-23": {
    "id": "MET-23",
@@ -4724,10 +4724,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si 🧠 vraie, vous pouvez payer selon votre météo :\nPluie, 20 💰 : déplacez une carte.\nVent violent, 200 💰 : échangez les terrains de deux joueurs.\nCanicule, 100 💰 : changez le 🌀 d'un joueur.\nNeige, 50 💰 : défaussez une carte de n'importe qui.\nGrêle, 20 💰 : une carte ne se joue pas à son prochain passage.",
+   "text": "Si 🧠 vraie, vous pouvez payer selon votre météo :\nPluie, 20 💰 : déplacez une carte.\nVent violent, 50 💰 : échangez les terrains de deux joueurs.\nCanicule, 100 💰 : changez le 🌀 d'un joueur.\nNeige, 50 💰 : défaussez une carte de n'importe qui.\nGrêle, 20 💰 : une carte ne se joue pas à son prochain passage.",
    "rules": "Se joue à son tour en phase 1, comme les autres cartes.",
    "image": "MET-23.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-24": {
    "id": "MET-24",
@@ -4819,10 +4819,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Selon votre météo :\nPluie : inversez la 🧠 de tous ceux qui ont la Pluie.\nVent violent : jusqu'à 2 fois, un joueur de votre choix lance le dé trou noir.\nCanicule : rien.\nNeige : retirez jusqu'à 20 💰 à un joueur.\nGrêle : le joueur à votre droite choisit votre 🌀 et change le sien.\nOrage : tout le monde vous donne 25 💰.",
+   "text": "Selon votre météo :\nPluie : inversez la 🧠 de tous ceux qui ont la Pluie.\nVent violent : jusqu'à 2 fois, un joueur de votre choix lance le dé trou noir.\nCanicule : 1 chance sur 2 de gagner 20 💰, sinon perdez 10 💰.\nNeige : retirez jusqu'à 20 💰 à un joueur.\nGrêle : le joueur à votre droite choisit votre 🌀 et change le sien.\nOrage : tout le monde vous donne 25 💰. / Beau temps : votre météo change au hasard.",
    "rules": "Grêle : c'est le joueur à votre droite (le suivant) qui choisit les deux trous noirs.",
    "image": "MET-28.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-29": {
    "id": "MET-29",
@@ -4838,10 +4838,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si votre météo est Orage ou Grêle : choisissez votre 🌀, votre météo suit.\nSi l'Orage est sur votre terrain, il est défaussé.",
+   "text": "Si votre météo est Orage ou Grêle : choisissez votre 🌀, votre météo suit.\nSi l'Orage est sur votre terrain, il est défaussé. Sinon : votre météo change au hasard.",
    "rules": "",
    "image": "MET-29.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-30": {
    "id": "MET-30",
@@ -4857,10 +4857,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Seulement s'il y a un Orage : cette carte va sur son terrain. Chaque carte (sauf Orage et Éclair) a 50 % de chances d'être défaussée ; une carte défaussée a 5 % de chances de se jouer à la place.",
-   "rules": "Le 50 % est un dé à 2 faces, le 5 % un 1 sur 1d20. Para-Tonnerre doit être sur le terrain frappé.",
+   "text": "Seulement s'il y a un Orage : cette carte va sur son terrain. Chaque carte (sauf Orage et Éclair) a 50 % de chances d'être défaussée ; une carte défaussée a 25 % de chances de se jouer à la place.",
+   "rules": "Le 50 % est un dé à 2 faces, le 25 % un 1 sur 1d4. Para-Tonnerre doit être sur le terrain frappé.",
    "image": "MET-30.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-31": {
    "id": "MET-31",
@@ -4876,10 +4876,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — Si un éclair tombe sur votre terrain : gagnez 🎲 1d100 × 10 💰 et aucune carte n'est défaussée.",
+   "text": "Passif — Si un éclair tombe sur votre terrain : gagnez 🎲 1d100 💰 et aucune carte n'est défaussée.",
    "rules": "",
    "image": "MET-31.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.31 (équilibrage)"
   },
   "MET-32": {
    "id": "MET-32",
@@ -7440,7 +7440,7 @@
   {
    "term": "Météo",
    "cat": "Règle",
-   "def": "Chaque joueur a une météo, à part de son trou noir : Beau temps au départ, puis Pluie, Vent violent, Canicule, Neige, Grêle ou Orage. La carte « Météo » la fait suivre le trou noir : Blazard = Pluie, Quasar = Vent violent, Trou de ver = Canicule, Primordial = Neige.",
+   "def": "Chaque joueur a une météo, à part de son trou noir : Beau temps au départ (le joueur du deck Météo commence avec une météo au hasard), puis Pluie, Vent violent, Canicule, Neige, Grêle ou Orage. La carte « Météo » la fait suivre le trou noir : Blazard = Pluie, Quasar = Vent violent, Trou de ver = Canicule, Primordial = Grêle.",
    "example": "Si votre météo est Pluie, un orage se prépare.",
    "anim": "weather",
    "words": [

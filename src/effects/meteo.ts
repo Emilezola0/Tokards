@@ -37,6 +37,14 @@ function need(x: Ctx, me: string, ...ws: Weather[]) {
   x.reason = `Il faut ${ws.join(" ou ")} (ta météo : ${weatherLabel(w)}).`;
   return false;
 }
+/** Joueurs autres que `me` dont la sentience est vraie et la météo `w` (effets négatifs : le lanceur est épargné). */
+const touchedOthers = (x: Ctx, me: string, w: Weather) => touched(x, w).filter((u) => u !== me);
+/** Effet de secours quand la météo du lanceur ne convient pas : elle change au hasard. */
+function shiftWeather(x: Ctx, me: string, label: string) {
+  const w = x.random(SKY.filter((s) => s !== x.weather(me)));
+  x.log(`🌦 ${label} : pas la bonne météo, celle de ${x.name(me)} change au hasard.`);
+  x.setWeather(me, w);
+}
 /** Désactive une carte jusqu'à son prochain passage (fin du tour de son joueur). */
 function skipNextPlay(x: Ctx, c: string) {
   const u = E.locate(x.g, c)?.uid ?? x.current;
@@ -119,18 +127,18 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Temps pluvieux : joueurs sentients sous la pluie → chaque carte 🧠 a 5 % de retourner dans la pioche
+  // Temps pluvieux : autres joueurs sentients sous la pluie → chaque carte 🧠 a 25 % de retourner dans la pioche
   "MET-03": {
-    activate: (x, { id }) => {
-      const who = touched(x, "Pluie");
+    activate: (x, { id, me }) => {
+      const who = touchedOthers(x, me, "Pluie");
       if (!who.length) {
-        x.reason = "Aucun joueur n'a la sentience vraie et la pluie.";
+        x.reason = "Aucun autre joueur n'a la sentience vraie et la pluie.";
         return false;
       }
       for (const u of who) {
         let back = 0;
         for (const c of x.p(u).terrain.filter((c) => c !== id && tags(x, c).sentience)) {
-          if (x.dice(u, 20) === 1 && x.move(c, { uid: u, zone: "deck" })) back++;
+          if (x.dice(u, 4) === 1 && x.move(c, { uid: u, zone: "deck" })) back++;
         }
         if (back) x.shuffleZone(u, "deck");
         else x.log(`${x.name(u)} : aucune carte ne repart.`);
@@ -165,12 +173,12 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Hot : joueurs sentients en canicule → chaque carte 🧠 a 50 % de ne pas se jouer
+  // Hot : autres joueurs sentients en canicule → chaque carte 🧠 a 50 % de ne pas se jouer
   "MET-05": {
-    activate: (x, { id }) => {
-      const who = touched(x, "Canicule");
+    activate: (x, { id, me }) => {
+      const who = touchedOthers(x, me, "Canicule");
       if (!who.length) {
-        x.reason = "Aucun joueur n'a la sentience vraie et la canicule.";
+        x.reason = "Aucun autre joueur n'a la sentience vraie et la canicule.";
         return false;
       }
       for (const u of who) {
@@ -182,18 +190,18 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Neige parfaite (passif) : au début du tour d'un joueur sentient sous la neige, 10 % qu'une de ses cartes soit ensevelie
+  // Neige parfaite : autres joueurs sentients sous la neige → 25 % qu'une de leurs cartes soit ensevelie
   "MET-06": {
-    activate: (x, { id }) => {
-      const who = x.turnOrder().filter((u) => !x.p(u).out && x.p(u).sentience && x.weather(u) === "Neige");
+    activate: (x, { id, me }) => {
+      const who = touchedOthers(x, me, "Neige");
       if (!who.length) {
-        x.reason = "Aucun joueur n'a la sentience vraie et la neige.";
+        x.reason = "Aucun autre joueur n'a la sentience vraie et la neige.";
         return false;
       }
       for (const u of who) {
         const pool = x.p(u).terrain.filter((c) => c !== id && c !== ORAGE);
         if (!pool.length) continue;
-        if (x.dice(u, 10) !== 1) {
+        if (x.dice(u, 4) !== 1) {
           x.log(`❄️ ${x.name(u)} : la neige épargne son terrain.`, { to: u });
           continue;
         }
@@ -223,7 +231,7 @@ export const METEO: Record<string, CardScript> = {
   // Trace de pneu : sous la neige, gagne 1 gold par carte jouée (par n'importe qui) depuis sa pose
   "MET-08": {
     activate: (x, { id, me }) => {
-      if (!need(x, me, "Neige")) return false;
+      if (x.weather(me) !== "Neige") return shiftWeather(x, me, "Trace de pneu");
       const n = num(x, id);
       if (!n) return x.log("Trace de pneu : aucune carte jouée sous la neige depuis sa pose.");
       x.gain(me, n);
@@ -243,7 +251,7 @@ export const METEO: Record<string, CardScript> = {
   // Hot-dog : en canicule, tu prends le risque ? 1-20 : +50, 21-40 : −50, 41-100 : tout le monde +20
   "MET-09": {
     activate: (x, { id, me }) => {
-      if (!need(x, me, "Canicule")) return false;
+      if (x.weather(me) !== "Canicule") return shiftWeather(x, me, "Hot-dog");
       if (!x.confirm(me, "Hot-dog : manger chaud par cette canicule ?", id)) return x.log("Hot-dog : pas de prise de risque.");
       const v = x.dice(me, 100);
       if (v <= 20) x.gain(me, 50);
@@ -255,7 +263,7 @@ export const METEO: Record<string, CardScript> = {
   // Ga-Doux : sous la pluie, chaque joueur qui le veut a 50 % de gagner 1d100/2 gold, sinon il les perd
   "MET-10": {
     activate: (x, { id, me }) => {
-      if (!need(x, me, "Pluie")) return false;
+      if (x.weather(me) !== "Pluie") return shiftWeather(x, me, "Ga-Doux");
       const players = [me, ...x.others(me).filter((u) => !x.p(u).out && x.confirm(u, `Ga-Doux : rejoindre le pari de ${x.name(me)} (gagner ou perdre 1d100/2 gold) ?`, id))];
       for (const u of players) {
         const n = Math.floor(x.dice(u, 100) / 2);
@@ -269,7 +277,7 @@ export const METEO: Record<string, CardScript> = {
   "MET-11": {
     activate: (x, { id, me }) => {
       const w = x.weather(me);
-      if (w === "Pluie") x.setWeather(me, "Grêle");
+      if (w === "Pluie") x.setWeather(me, "Neige");
       else if (w === "Vent violent") {
         const c = x.chooseCard(me, "Climatisation : quelle carte de ton terrain rejouer ?", activatable(x, x.p(me).terrain, id), id);
         if (!c) {
@@ -289,10 +297,7 @@ export const METEO: Record<string, CardScript> = {
       } else if (w === "Neige" || w === "Grêle") {
         x.setWeather(me, "Pluie");
         x.setBlackHole(me, B);
-      } else {
-        x.reason = `Rien à climatiser (ta météo : ${weatherLabel(w)}).`;
-        return false;
-      }
+      } else shiftWeather(x, me, "Climatisation");
     },
   },
 
@@ -368,7 +373,7 @@ export const METEO: Record<string, CardScript> = {
         }
       } else if (w === "Vent violent") {
         for (const u of all) {
-          if (x.dice(u, 10) !== 1 || x.p(u).terrain.length < 2 || !x.canReorder(u)) continue;
+          if (x.dice(u, 4) !== 1 || x.p(u).terrain.length < 2 || !x.canReorder(u)) continue;
           x.p(u).terrain = E.shuffle(x.p(u).terrain);
           x.log(`🌬️ Le terrain de ${x.name(u)} est mélangé.`, { to: u });
           x.interact(u, "terrain");
@@ -382,10 +387,7 @@ export const METEO: Record<string, CardScript> = {
           for (const c of [...x.p(u).hand]) x.move(c, { uid: u, zone: "discard" });
           x.draw(u, 1);
         }
-      } else {
-        x.reason = `Rien ne se passe avec ta météo (${weatherLabel(w)}).`;
-        return false;
-      }
+      } else shiftWeather(x, me, "Temps qu'à faire");
     },
   },
 
@@ -509,7 +511,7 @@ export const METEO: Record<string, CardScript> = {
         summonStorm(x, at.uid, at.index);
         return;
       }
-      if (!need(x, me, "Pluie")) return false;
+      if (x.weather(me) !== "Pluie") return shiftWeather(x, me, "Temps de merde");
       arm(x, id);
       x.log("⛈️ Un orage se prépare : à la prochaine activation de cette carte, l'Orage arrive.");
     },
@@ -548,8 +550,8 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Temps pour prier : 25 % de pouvoir changer ta météo, puis 1d100 : 1 → Orage (ou +500 s'il est déjà chez toi),
-  // 100 → +250 gold, 50 → donne 50 gold à chaque joueur
+  // Temps pour prier : 25 % de pouvoir changer ta météo, puis 1d100 : 1 → Orage (ou +150 s'il est déjà chez toi),
+  // 100 → +100 gold, 50 → donne 50 gold à chaque joueur
   "MET-22": {
     activate: (x, { id, me }) => {
       if (x.dice(me, 4) === 1) {
@@ -558,9 +560,9 @@ export const METEO: Record<string, CardScript> = {
       } else x.log("Temps pour prier : la météo ne change pas.");
       const v = x.dice(me, 100);
       if (v === 1) {
-        if (x.p(me).terrain.includes(ORAGE)) x.gain(me, 500);
+        if (x.p(me).terrain.includes(ORAGE)) x.gain(me, 150);
         else summonStorm(x, me);
-      } else if (v === 100) x.gain(me, 250);
+      } else if (v === 100) x.gain(me, 100);
       else if (v === 50) for (const u of x.others(me)) if (!x.p(u).out) x.transfer(me, u, 50);
       else x.log("Les prières restent sans réponse.");
     },
@@ -577,7 +579,7 @@ export const METEO: Record<string, CardScript> = {
       const w = x.weather(me);
       const cost: Partial<Record<Weather, [number, string]>> = {
         Pluie: [20, "changer la position d'une carte"],
-        "Vent violent": [200, "échanger les terrains de deux joueurs"],
+        "Vent violent": [50, "échanger les terrains de deux joueurs"],
         Canicule: [100, "changer le trou noir d'un joueur"],
         Neige: [50, "défausser la carte de n'importe qui"],
         Grêle: [20, "empêcher une carte de se jouer à son prochain passage"],
@@ -756,6 +758,10 @@ export const METEO: Record<string, CardScript> = {
           if (!i) break;
           x.setBlackHole(all[i - 1], x.bhDice(all[i - 1]));
         }
+      } else if (w === "Canicule") {
+        // Canicule = gold et prise de risque.
+        if (x.dice(me, 2) === 1) x.gain(me, 20);
+        else x.lose(me, 10);
       } else if (w === "Neige") {
         const u = x.choosePlayer(me, "Météo étrange : à qui retirer des gold ?", all, id);
         if (u) x.lose(u, x.chooseNumber(me, `Combien retirer à ${x.name(u)} (jusqu'à 20) ?`, 0, 20, id));
@@ -765,17 +771,14 @@ export const METEO: Record<string, CardScript> = {
         if (prev !== me) x.setBlackHole(prev, x.chooseBlackHole(prev, "Météo étrange : et ton nouveau trou noir ?", undefined, id));
       } else if (w === "Orage") {
         for (const u of x.others(me)) if (!x.p(u).out) x.transfer(u, me, 25);
-      } else {
-        x.reason = `Rien ne se passe (ta météo : ${weatherLabel(w)}).`;
-        return false;
-      }
+      } else shiftWeather(x, me, "Météo étrange");
     },
   },
 
   // Éclaircissement : sous l'orage ou la grêle, choisis ton trou noir ; la météo suit et l'Orage quitte ton terrain
   "MET-29": {
     activate: (x, { id, me }) => {
-      if (!need(x, me, "Orage", "Grêle")) return false;
+      if (!need(x, me, "Orage", "Grêle")) return shiftWeather(x, me, "Éclaircissement");
       const to = x.chooseBlackHole(me, "Éclaircissement : ton nouveau trou noir ?", undefined, id);
       x.setBlackHole(me, to);
       if (x.p(me).terrain.includes(ORAGE)) x.move(ORAGE, { uid: x.g.owner[ORAGE] ?? me, zone: "discard" });
@@ -784,7 +787,7 @@ export const METEO: Record<string, CardScript> = {
   },
 
   // Éclair : seulement s'il y a un Orage ; tombe sur son terrain, chaque carte a 50 % d'aller dans la défausse
-  // (5 % qu'elle se joue au lieu d'être défaussée). Para-Tonnerre bloque tout et rapporte 1d100 × 10 gold.
+  // (25 % qu'elle se joue au lieu d'être défaussée). Para-Tonnerre bloque tout et rapporte 1d100 gold.
   "MET-30": {
     activate: (x, { id, me }) => {
       const at = E.locate(x.g, ORAGE);
@@ -797,12 +800,12 @@ export const METEO: Record<string, CardScript> = {
       x.log(`⚡ L'éclair frappe le terrain de ${x.name(u)} !`, { to: u });
       if (x.active("MET-31", u)) {
         x.log("⚡ Para-Tonnerre attire la foudre : aucune carte n'est touchée.", { src: "MET-31" });
-        x.runAs("MET-31", u, () => x.gain(u, x.dice(u, 100) * 10));
+        x.runAs("MET-31", u, () => x.gain(u, x.dice(u, 100)));
         return;
       }
       for (const c of x.p(u).terrain.filter((c) => c !== ORAGE && c !== id)) {
         if (x.dice(u, 2) !== 1) continue;
-        if (x.dice(u, 20) === 1) {
+        if (x.dice(u, 4) === 1) {
           x.log(`✨ « ${card(c).name} » échappe à l'éclair et se joue !`, {
             dst: c,
           });

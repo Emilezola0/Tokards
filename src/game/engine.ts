@@ -206,6 +206,14 @@ export function startGame(room: Room): GameState {
       personalVC: null, personalDone: false, stats: { bhHist: [{ pos: 0, bh: "Primordial" }] },
     };
   }
+  // Deck Météo : son joueur commence avec une météo tirée au hasard (sinon tout le deck attend la carte Météo).
+  const SKY = ["Pluie", "Vent violent", "Canicule", "Neige", "Grêle"] as const;
+  for (const uid of order)
+    if (room.players[uid].deck === "Météo") {
+      const w = SKY[roll(SKY.length) - 1];
+      g.players[uid].weather = w;
+      log(g, `🌦 ${nameOf(room, uid)} commence avec la météo ${w}.`);
+    }
   // Mode automatique : seules les conditions vérifiées automatiquement sont tirées.
   if (room.auto !== false && hooks.vcOk) vcPool = vcPool.filter(hooks.vcOk);
   vcPool = shuffle(vcPool);

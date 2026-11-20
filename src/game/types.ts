@@ -2,7 +2,7 @@ export type BlackHole = "Primordial" | "Quasar" | "Blazard" | "Trou de ver";
 
 /** La « météo » est un surnom du trou noir. */
 export const BLACK_HOLES: { id: BlackHole; weather: string; icon: string }[] = [
-  { id: "Primordial", weather: "Neige", icon: "❄️" },
+  { id: "Primordial", weather: "Grêle", icon: "🌨️" },
   { id: "Quasar", weather: "Vent violent", icon: "🌬️" },
   { id: "Blazard", weather: "Pluie", icon: "🌧️" },
   { id: "Trou de ver", weather: "Canicule", icon: "☀️" },
@@ -20,7 +20,7 @@ export const WEATHERS: { id: Weather; icon: string; fx: string }[] = [
 export const weatherIcon = (w: Weather | null | undefined) => WEATHERS.find((x) => x.id === w)?.icon ?? "🌤️";
 export const weatherLabel = (w: Weather | null | undefined) => w ?? "Beau temps";
 /** Météo correspondant à chaque trou noir (carte « Météo »). */
-export const BH_WEATHER: Record<BlackHole, Weather> = { Blazard: "Pluie", Quasar: "Vent violent", "Trou de ver": "Canicule", Primordial: "Neige" };
+export const BH_WEATHER: Record<BlackHole, Weather> = { Blazard: "Pluie", Quasar: "Vent violent", "Trou de ver": "Canicule", Primordial: "Grêle" };
 /** Symbole de chaque état sur le dé trou noir et dans le glossaire. */
 export const BH_SYMBOL: Record<BlackHole, string> = { Primordial: "🌑", Quasar: "✴️", Blazard: "🔥", "Trou de ver": "🕳️" };
 /** La météo n'est mentionnée que si le deck Météo est en jeu (info contextuelle). */

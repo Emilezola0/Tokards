@@ -21,6 +21,68 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.31.0",
+    date: "20 novembre 2026",
+    notes: [
+      {
+        cat: "cartes",
+        title: "🌦 Météo dès le départ",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🎲 au hasard</span>
+            <Arrow />
+            <span className="pn-chip pn-glow">🌧️</span><span className="pn-chip pn-glow d1">🌬️</span><span className="pn-chip pn-glow d2">☀️</span><span className="pn-chip pn-glow d3">❄️</span><span className="pn-chip pn-glow">🌨️</span>
+          </div>
+        ),
+        text: <>Le joueur du deck Météo commence avec une météo tirée au hasard : ses cartes servent dès le premier tour.</>,
+      },
+      {
+        cat: "cartes",
+        title: "🌨️ La Grêle sur la carte Météo",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-01" cls="hg-pop" />
+            <Arrow />
+            <span className="pn-chip">Primordial = 🌨️ Grêle</span>
+          </div>
+        ),
+        text: <>Avec la carte Météo, Primordial donne maintenant la Grêle (au lieu de la Neige). La Neige s'obtient avec Climatisation (Pluie → Neige).</>,
+      },
+      {
+        cat: "cartes",
+        title: "🔁 Plus de cartes qui ne font rien",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-09" cls="hg-pop" /><Img id="MET-10" cls="hg-pop d1" />
+            <Arrow />
+            <span className="pn-chip pn-glow">🌦 météo au hasard</span>
+          </div>
+        ),
+        text: <>Trace de pneu, Hot-dog, Ga-Doux, Climatisation, Temps qu'à faire, Temps de merde, Météo étrange et Éclaircissement : sans la bonne météo, ta météo change au hasard au lieu de ne rien faire. Météo étrange en Canicule : 1 chance sur 2 de gagner 20 💰, sinon −10 💰.</>,
+      },
+      {
+        cat: "cartes",
+        title: "🎯 Chances et cibles",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-03" /><Img id="MET-05" /><Img id="MET-06" /><Img id="MET-30" />
+          </div>
+        ),
+        text: <>Temps pluvieux, Neige parfaite, Temps qu'à faire (Vent violent) et Éclair passent à 25 % de chances. Temps pluvieux, Hot et Neige parfaite ne touchent plus que les autres joueurs.</>,
+      },
+      {
+        cat: "cartes",
+        title: "💰 Gains ramenés à la normale",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-31" cls="hg-pop" /><Img id="MET-22" cls="hg-pop d1" /><Img id="MET-23" cls="hg-pop" />
+          </div>
+        ),
+        text: <>Para-Tonnerre : 1d100 💰 (au lieu de ×10). Temps pour prier : 150 et 100 💰 (au lieu de 500 et 250). Temporiser en Vent violent : 50 💰 (au lieu de 200).</>,
+      },
+    ],
+  },
+  {
     version: "0.30.0",
     date: "20 novembre 2026",
     notes: [
