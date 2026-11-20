@@ -219,6 +219,42 @@ function makeCard(id: string, label?: string, text?: string) {
   return el;
 }
 
+type Spin = {
+  key: number; end: number; dur: number; label: string; who: string; landed: boolean; value: string;
+  slices: { uid: string; name: string; color: string }[];
+};
+
+/** Roulette des joueurs (tirage au hasard d'un joueur). */
+function Wheel({ spin }: { spin: Spin }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const a = ref.current?.animate([{ transform: "rotate(0deg)" }, { transform: `rotate(${spin.end}deg)` }], {
+      duration: spin.dur, easing: "cubic-bezier(.12,.75,.18,1)", fill: "forwards",
+    });
+    return () => a?.cancel();
+  }, [spin.end, spin.dur]);
+  const n = spin.slices.length;
+  const step = 360 / n;
+  const bg = `conic-gradient(${spin.slices.map((s, i) => `${s.color} ${i * step}deg ${(i + 1) * step}deg`).join(", ")})`;
+  const win = spin.slices.find((s) => s.uid === spin.value);
+  return (
+    <div className="fx-wheel-wrap">
+      <div className="fx-die-who">{spin.label || `🎯 ${spin.who} : joueur tiré au hasard`}</div>
+      <div className="fx-wheel-box">
+        <div className="fx-wheel-pointer">▼</div>
+        <div ref={ref} className={`fx-wheel ${spin.landed ? "landed" : ""}`} style={{ background: bg }}>
+          {spin.slices.map((s, i) => (
+            <span key={s.uid} className="fx-wheel-name" style={{ transform: `rotate(${(i + 0.5) * step}deg) translateY(-62px)` }}>
+              {s.name}
+            </span>
+          ))}
+        </div>
+      </div>
+      {spin.landed && win && <div className="fx-wheel-result" style={{ color: win.color }}>{win.name}</div>}
+    </div>
+  );
+}
+
 /** Joue les effets visuels (g.fx) les uns après les autres. */
 export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
   g: GameState; room: Room; me: string; fresh: boolean; startDelay: number; colorOf: (uid: string) => string;
@@ -233,6 +269,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
   const [banner, setBanner] = useState<{ text: string; key: number; kind: string } | null>(null);
   const [turn, setTurn] = useState<{ name: string; color: string; key: number; mine: boolean } | null>(null);
   const [die, setDie] = useState<DieRoll | null>(null);
+  const [wheel, setWheel] = useState<Spin | null>(null);
   const [phase, setPhase] = useState<{ n: number; label: string; key: number; color: string; who: string } | null>(null);
   const [win, setWin] = useState<{ name: string; card: string; color: string; key: number; common: boolean } | null>(null);
 
@@ -279,6 +316,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         } catch (e) {
           console.warn("[fx]", f.k, e);
           setDie(null);
+          setWheel(null);
           dropCenter();
         } finally {
           // La table montre l'état réel au fur et à mesure (ex. les cartes bougent une fois le dé tombé).
@@ -486,6 +524,30 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         }
         break;
       }
+      case "roulette": {
+        // Roulette des joueurs : le tirage est montré avant la suite de l'effet.
+        const n = f.options.length;
+        const k = Math.max(0, f.options.indexOf(f.value));
+        const turns = reduced() ? 0 : 4;
+        // Le segment k est centré sous la flèche (en haut) à la fin de la rotation.
+        const end = turns * 360 + (360 - (k + 0.5) * (360 / n));
+        const dur = (reduced() ? 300 : 2400) * Math.max(speed, 0.5);
+        sfx.dice();
+        const spin: Spin = {
+          key: f.id, end, dur, label: f.label, who: E.nameOf(room, f.uid), landed: false, value: f.value,
+          slices: f.options.map((u) => ({ uid: u, name: E.nameOf(room, u), color: colorOf(u) })),
+        };
+        setWheel(spin);
+        try {
+          await wait(dur);
+          sfx.drop();
+          setWheel({ ...spin, landed: true });
+          await wait(1300 * Math.max(speed, 0.6));
+        } finally {
+          setWheel(null);
+        }
+        break;
+      }
       case "vc": {
         await hideCenter(speed);
         const label = f.uid ? `${E.nameOf(room, f.uid)} reçoit` : "Condition commune";
@@ -632,6 +694,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         </div>
       )}
       {die && <Die3D key={die.key} roll={die} />}
+      {wheel && <Wheel key={wheel.key} spin={wheel} />}
     </div>
   );
 }

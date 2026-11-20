@@ -160,6 +160,8 @@ export type Fx =
   | { id: number; k: "bh"; uid: string; to: BlackHole }
   | { id: number; k: "weather"; uid: string; to: Weather | null }
   | { id: number; k: "dice"; uid: string; faces: number; value: number; bh?: boolean; sent?: boolean; snap?: DiceSnap }
+  /** tirage d'un joueur au hasard (roulette) */
+  | { id: number; k: "roulette"; uid: string; options: string[]; value: string; label: string; snap?: DiceSnap }
   | { id: number; k: "move"; card: string }
   | { id: number; k: "banner"; text: string }
   /** annonce du joueur dont c'est le tour */

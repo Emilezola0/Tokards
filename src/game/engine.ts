@@ -150,7 +150,7 @@ export function pushFx(g: GameState, f: FxInput) {
   // Les instantanés des jets de dé ne servent qu'à l'animation en cours : on les retire des anciens effets (taille du document).
   for (let i = 0; i < list.length - SNAP_KEEP; i++) {
     const o = list[i];
-    if (o.k === "dice" && o.snap) {
+    if ((o.k === "dice" || o.k === "roulette") && o.snap) {
       const { snap: _drop, ...rest } = o;
       list[i] = rest;
     }

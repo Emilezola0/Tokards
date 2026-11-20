@@ -8,15 +8,89 @@ function Img({ id, cls = "" }: { id: string; cls?: string }) {
 }
 const Arrow = ({ cls = "hg-pulse" }: { cls?: string }) => <span className={`hg-arrow ${cls}`}>➜</span>;
 
-type Note = { title: string; scene: ReactNode; text: ReactNode };
+type Cat = "jeu" | "cartes" | "visuel" | "fix";
+type Note = { cat: Cat; title: string; scene: ReactNode; text: ReactNode };
+/** Rubriques des patch notes, dans l'ordre d'affichage. */
+const CATS: { id: Cat; label: string }[] = [
+  { id: "jeu", label: "🎮 Jeu et interface" },
+  { id: "cartes", label: "🃏 Cartes et conditions" },
+  { id: "visuel", label: "🎨 Images, effets et son" },
+  { id: "fix", label: "🛠️ Corrections" },
+];
 type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
+  {
+    version: "0.29.0",
+    date: "20 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "🎯 Roulette des joueurs",
+        scene: (
+          <div className="hg-scene hg-row">
+            <div className="pn-wheel"><span>▼</span></div>
+            <Arrow />
+            <span className="pn-chip">🎯 joueur tiré au sort</span>
+          </div>
+        ),
+        text: <>Quand un effet choisit un joueur au hasard, une roulette avec les joueurs tourne d'abord. La suite de l'effet n'arrive qu'une fois le résultat affiché.</>,
+      },
+      {
+        cat: "jeu",
+        title: "🔦 Toutes les cibles possibles",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="GRE-08" cls="hg-pop" />
+            <Arrow />
+            <span className="pn-chip pn-glow">Joueur A</span><span className="pn-chip pn-glow d1">Joueur B</span><span className="pn-chip pn-glow d2">Joueur C</span>
+          </div>
+        ),
+        text: <>Au survol d'une carte au résultat aléatoire, tout ce qu'elle peut toucher est surligné, sans indiquer ce qui sera vraiment touché.</>,
+      },
+      {
+        cat: "jeu",
+        title: "📜 Patch notes par rubrique",
+        scene: (
+          <div className="hg-scene hg-row">
+            {CATS.map((c, i) => <span key={c.id} className={`pn-chip pn-glow d${i}`}>{c.label}</span>)}
+          </div>
+        ),
+        text: <>Les nouveautés sont rangées par rubrique : jeu et interface, cartes, images et son, corrections.</>,
+      },
+      {
+        cat: "cartes",
+        title: "🐸 Crapaud stratège",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="GRE-21" cls="hg-pop" />
+            <Arrow />
+            <div className="pn-wheel small"><span>▼</span></div>
+          </div>
+        ),
+        text: <>Au début de chaque tour, le joueur pour qui joue la carte sous le Crapaud est tiré au sort (son vrai propriétaire peut être tiré). Ses choix restent faits au hasard.</>,
+      },
+      {
+        cat: "cartes",
+        title: "💸 Poro money maker",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">Autre joueur</span>
+            <Arrow />
+            <Img id="POP-05" cls="hg-pop" />
+            <span className="pn-chip">+10 💰</span>
+          </div>
+        ),
+        text: <>Elle ne rapporte plus à chaque interaction du jeu : seulement quand un autre joueur interagit avec celui qui l'a.</>,
+      },
+    ],
+  },
   {
     version: "0.28.0",
     date: "20 novembre 2026",
     notes: [
       {
+        cat: "jeu",
         title: "🎲 Le dé d'abord, l'effet ensuite",
         scene: (
           <div className="hg-scene hg-row">
@@ -30,6 +104,7 @@ const PATCHES_ALL: Patch[] = [
         text: <>Quand une carte lance un dé, les cartes ne bougent plus avant que le dé soit tombé. Le journal attend aussi la fin des animations, pour ne pas dévoiler le résultat.</>,
       },
       {
+        cat: "jeu",
         title: "🏆 Suspense jusqu'au bout",
         scene: (
           <div className="hg-scene hg-row">
@@ -41,6 +116,7 @@ const PATCHES_ALL: Patch[] = [
         text: <>Le vainqueur n'est révélé qu'une fois l'effet de la carte gagnante terminé : conditions cochées, journal et fenêtre de victoire arrivent ensemble.</>,
       },
       {
+        cat: "visuel",
         title: "🎨 Nouvelles images",
         scene: (
           <div className="hg-scene hg-row pn-gallery">
@@ -51,6 +127,7 @@ const PATCHES_ALL: Patch[] = [
         text: <>Nouveau dos pour le deck Fléaux, et des illustrations pour Météo Rite, Temps Curieux et Pour Temps, Cent Temps, The Word, Pierre qui roule et Pas le paff.</>,
       },
       {
+        cat: "visuel",
         title: "🖼️ Fond du plateau",
         scene: (
           <div className="hg-scene hg-row">
@@ -60,6 +137,7 @@ const PATCHES_ALL: Patch[] = [
         text: <>Le dos du deck du joueur actif s'affiche maintenant en entier au centre de la table, avec un fondu en cercle vers l'extérieur.</>,
       },
       {
+        cat: "cartes",
         title: "💣 Démineur, Crocodilo et Tardigrade",
         scene: (
           <div className="hg-scene hg-row">
@@ -80,6 +158,7 @@ const PATCHES_ALL: Patch[] = [
     date: "20 novembre 2026",
     notes: [
       {
+        cat: "jeu",
         title: "🏆 Résumé de victoire",
         scene: (
           <div className="hg-scene hg-row">
@@ -95,6 +174,7 @@ const PATCHES_ALL: Patch[] = [
         text: <>Quand une équipe gagne, la fenêtre de victoire rappelle ses conditions remplies et les dernières actions qui l'ont menée à la victoire.</>,
       },
       {
+        cat: "cartes",
         title: "👮 Police : des effets à chaque activation",
         scene: (
           <div className="hg-scene hg-row">
@@ -111,6 +191,7 @@ const PATCHES_ALL: Patch[] = [
         ),
       },
       {
+        cat: "cartes",
         title: "🐢 Tardigrade en chaîne",
         scene: (
           <div className="hg-scene hg-row">
@@ -124,6 +205,7 @@ const PATCHES_ALL: Patch[] = [
         text: <>Si la carte rejouée par Tardigrade vous fait encore perdre des gold, il se relance. À 0 gold on ne perd plus rien, donc la chaîne s'arrête.</>,
       },
       {
+        cat: "cartes",
         title: "⛳ Hole in one",
         scene: (
           <div className="hg-scene hg-row">
@@ -136,6 +218,7 @@ const PATCHES_ALL: Patch[] = [
         text: <>Nouvelle condition : passer par <b>les 4 états de trou noir</b> en 4 tours de table.</>,
       },
       {
+        cat: "visuel",
         title: "🔊 Voix plus légères",
         scene: (
           <div className="hg-scene hg-row">
@@ -151,6 +234,7 @@ const PATCHES_ALL: Patch[] = [
     date: "20 novembre 2026",
     notes: [
       {
+        cat: "cartes",
         title: "🪝 Crochet : garder ou défausser",
         scene: (
           <div className="hg-scene hg-row">
@@ -170,6 +254,7 @@ const PATCHES_ALL: Patch[] = [
     date: "19 novembre 2026",
     notes: [
       {
+        cat: "fix",
         title: "🎲 L'aperçu ne dévoile plus le hasard",
         scene: (
           <div className="hg-scene hg-row">
@@ -190,6 +275,7 @@ const PATCHES_ALL: Patch[] = [
     date: "19 novembre 2026",
     notes: [
       {
+        cat: "visuel",
         title: "✨ Plus d'effets visuels",
         scene: (
           <div className="hg-scene hg-row">
@@ -201,6 +287,7 @@ const PATCHES_ALL: Patch[] = [
         text: <>Anneaux à l'activation, étincelles sur les gains de gold, vortex au changement de trou noir, confettis quand une condition est remplie. Le dé 3D ne laisse plus de traces à l'écran.</>,
       },
       {
+        cat: "jeu",
         title: "🔎 Aides à la lecture",
         scene: (
           <div className="hg-scene hg-row">
@@ -269,12 +356,17 @@ export default function PatchNotes() {
             </div>
             <div key={p.version} className="pn-list">
               <div className="small muted">{p.date}</div>
-              {p.notes.map((n, i) => (
-                <div key={n.title} className="hg-slide pn-note" style={{ animationDelay: `${i * 90}ms` }}>
-                  <h3>{n.title}</h3>
-                  {n.scene}
-                  <p>{n.text}</p>
-                </div>
+              {CATS.filter((c) => p.notes.some((n) => n.cat === c.id)).map((c, ci) => (
+                <section key={c.id} className={`pn-cat pn-cat-${c.id}`} style={{ animationDelay: `${ci * 120}ms` }}>
+                  <h4 className="pn-cat-title">{c.label}</h4>
+                  {p.notes.filter((n) => n.cat === c.id).map((n, i) => (
+                    <div key={n.title} className="hg-slide pn-note" style={{ animationDelay: `${ci * 120 + i * 90}ms` }}>
+                      <h3>{n.title}</h3>
+                      {n.scene}
+                      <p>{n.text}</p>
+                    </div>
+                  ))}
+                </section>
               ))}
             </div>
           </div>

@@ -81,8 +81,10 @@ export const POPO: Record<string, CardScript> = {
   // Poro money maker (passif) : +10 gold à chaque interaction ; si sentience vraie, son trou noir passe en Blazard
   "POP-05": {
     on: {
-      interaction: (x, self) => {
-        x.triggered(self, "interaction → +10 gold.");
+      // Seulement les interactions des autres joueurs avec celui qui a la carte.
+      interaction: (x, self, e) => {
+        if (e.target !== self.me || e.actor === self.me) return;
+        x.triggered(self, `${x.name(e.actor)} interagit avec ${x.name(self.me)} → +10 gold.`);
         x.gain(self.me, 10);
         if (x.p(self.me).sentience) x.setBlackHole(self.me, B);
       },

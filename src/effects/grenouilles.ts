@@ -267,6 +267,12 @@ export const GRENOUILLES: Record<string, CardScript> = {
         return false;
       }
       x.putUnder(id, host);
+      // Nouveau support : le vrai lanceur garde la main jusqu'au prochain début de tour.
+      if (x.g.marks?.["GRE-21"]) {
+        const m = { ...x.g.marks };
+        delete m["GRE-21"];
+        x.g.marks = m;
+      }
       x.log(`🐸 Crapaud stratège se place sous « ${card(host).name} » : ses choix se feront au hasard.`, { dst: host });
     },
   },

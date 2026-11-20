@@ -3166,8 +3166,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Placez cette carte sous une carte de n'importe quel terrain : ses choix se font désormais au hasard.\nElle suit la carte, sauf d'un terrain à un autre.",
-   "rules": "La carte « hôte » joue ses choix au hasard tant que le Crapaud stratège est dessous. Si l'hôte va dans une pioche, une main ou une défausse, le crapaud y va aussi et s'en détache. S'il passe sur un autre terrain, le crapaud reste dessous.",
+   "text": "Placez cette carte sous une carte de n'importe quel terrain : ses choix se font désormais au hasard.\nAu début de chaque tour, le joueur pour qui elle se joue est tiré au hasard.\nElle suit la carte, sauf d'un terrain à un autre.",
+   "rules": "La carte « hôte » joue ses choix au hasard tant que le Crapaud stratège est dessous. Au début de chaque tour (de n'importe quel joueur), une roulette tire le joueur pour qui l'hôte se joue jusqu'au tour suivant ; son vrai propriétaire peut être tiré, et l'hôte reste sur son terrain. Avant le premier tirage, l'hôte se joue pour son propriétaire. Si l'hôte va dans une pioche, une main ou une défausse, le crapaud y va aussi et s'en détache. S'il passe sur un autre terrain, le crapaud reste dessous.",
    "image": "GRE-21.jpg",
    "claude": ""
   },
@@ -3318,8 +3318,8 @@
    "event": "Interaction",
    "target": "",
    "check": "",
-   "text": "Passif — À chaque interaction : gagnez 10 💰 ; si 🧠 vraie, 🌀 → Blazard.",
-   "rules": "Passif. Interaction = un effet de carte, lancé par n'importe quel joueur, qui touche les gold, la sentience, le trou noir, les cartes (main, terrain, pioche, défausse) d'un joueur, lanceur compris. Chaque interaction : +10 gold au porteur, puis s'il a la sentience vraie son trou noir passe en Blazard. Les poses, défausses et pioches normales du tour ne comptent pas.",
+   "text": "Passif — Quand un autre joueur interagit avec vous : gagnez 10 💰 ; si 🧠 vraie, 🌀 → Blazard.",
+   "rules": "Passif. Interaction = un effet de carte lancé par un autre joueur qui touche vos gold, votre sentience, votre trou noir ou vos cartes (main, terrain, pioche, défausse). Vos propres effets et les interactions entre les autres joueurs ne comptent pas. Chaque interaction : +10 gold, puis si votre sentience est vraie, votre trou noir passe en Blazard.",
    "image": "POP-05.jpg",
    "claude": ""
   },

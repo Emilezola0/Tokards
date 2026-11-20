@@ -2,7 +2,7 @@ import type { GameState } from "../game/types";
 
 /**
  * État affiché par la table pendant les animations : tant qu'un effet n'est pas encore animé,
- * - un jet de dé montre les cartes telles qu'elles étaient au moment du jet (le hasard d'abord, l'effet ensuite) ;
+ * - un jet de dé (ou une roulette de joueurs) montre les cartes telles qu'elles étaient au moment du jet (le hasard d'abord, l'effet ensuite) ;
  * - une condition remplie (et la victoire qui en découle) reste cachée jusqu'à son animation ;
  * - le journal attend la fin des animations (il dévoilerait le dé ou le vainqueur).
  * `settledLog` : le journal tel qu'il était quand plus rien n'était en attente.
@@ -12,8 +12,9 @@ export function viewState(g: GameState, doneId: number | null, settledLog: GameS
   const pending = (g.fx ?? []).filter((f) => f.id > doneId);
   if (!pending.length) return g;
   let v: GameState = { ...g, log: settledLog };
-  const dice = pending.find((f) => f.k === "dice" && f.snap);
-  if (dice?.k === "dice" && dice.snap) {
+  // Dé ou roulette : la table reste comme au moment du tirage jusqu'à ce qu'il soit montré.
+  const dice = pending.find((f) => (f.k === "dice" || f.k === "roulette") && f.snap);
+  if ((dice?.k === "dice" || dice?.k === "roulette") && dice.snap) {
     const players = { ...v.players };
     for (const [u, z] of Object.entries(dice.snap.z)) if (players[u]) players[u] = { ...players[u], ...z };
     v = { ...v, players, disabled: dice.snap.disabled };

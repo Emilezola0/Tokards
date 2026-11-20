@@ -1115,3 +1115,26 @@ button.danger:hover { border-color: var(--bad); }
   animation: pn-breathe 4s ease-in-out infinite; }
 @keyframes pn-breathe { 50% { transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .pn-deal, .pn-backdrop { animation: none; } }
+/* v0.29 : roulette des joueurs */
+.fx-wheel-wrap { position: fixed; z-index: 46; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; pointer-events: none; background: #05030b66; animation: pn-in 0.25s ease-out; }
+.fx-wheel-box { position: relative; width: 200px; height: 200px; }
+.fx-wheel { width: 200px; height: 200px; border-radius: 50%; border: 4px solid #ffd23f; box-shadow: 0 0 30px #000c, inset 0 0 30px #0008; position: relative; will-change: transform; }
+.fx-wheel::after { content: ""; position: absolute; inset: 40%; border-radius: 50%; background: #0b0716; border: 3px solid #ffd23f; }
+.fx-wheel.landed { box-shadow: 0 0 40px var(--gold), inset 0 0 30px #0008; }
+.fx-wheel-name { position: absolute; left: 50%; top: 50%; width: 90px; margin: -9px 0 0 -45px; text-align: center; font-weight: 800; font-size: 13px; color: #fff; text-shadow: 0 1px 3px #000, 0 0 6px #000; transform-origin: 50% 50%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fx-wheel-pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); z-index: 2; font-size: 26px; color: #ffd23f; text-shadow: 0 2px 6px #000; }
+.fx-wheel-result { font-family: Cinzel, serif; font-weight: 900; font-size: 30px; text-shadow: 0 0 18px currentColor, 0 3px 10px #000; animation: result-pop-c 0.35s ease-out; }
+@keyframes result-pop-c { from { transform: scale(0.3); opacity: 0; } }
+/* v0.29 : rubriques des patch notes */
+.pn-cat { display: grid; gap: 14px; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: #ffffff06; border-left: 4px solid var(--cat, var(--accent)); animation: pn-in 0.35s ease-out both; }
+.pn-cat-jeu { --cat: #7af7ff; } .pn-cat-cartes { --cat: #ffd23f; } .pn-cat-visuel { --cat: #b388ff; } .pn-cat-fix { --cat: #5be38a; }
+.pn-cat-title { margin: 0; font-family: Cinzel, serif; font-size: 15px; letter-spacing: 1px; text-transform: uppercase; color: var(--cat); display: flex; align-items: center; gap: 10px; }
+.pn-cat-title::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--cat), transparent); opacity: 0.6; }
+.pn-cat .pn-note h3 { font-size: 15px; }
+.pn-wheel { position: relative; width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffd23f; }
+.pn-wheel::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(#ff5a7a 0 90deg, #5ab8ff 90deg 180deg, #5be38a 180deg 270deg, #ffd23f 270deg 360deg); animation: pn-spin 2.4s cubic-bezier(.2,.7,.2,1) infinite; }
+.pn-wheel.small { width: 74px; height: 74px; }
+.pn-wheel span { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); color: #ffd23f; font-size: 18px; }
+.pn-glow { animation: pn-light 3s ease-in-out infinite both; }
+.pn-glow.d1 { animation-delay: 0.4s; } .pn-glow.d2 { animation-delay: 0.8s; } .pn-glow.d3 { animation-delay: 1.2s; }
+@media (prefers-reduced-motion: reduce) { .pn-cat, .pn-wheel::before, .pn-glow { animation: none; } }

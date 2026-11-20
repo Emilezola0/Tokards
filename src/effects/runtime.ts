@@ -185,7 +185,15 @@ export class Ctx {
     return this.rolls[this.ri++];
   }
   random<T>(arr: T[]): T {
+    // Tirage d'un joueur parmi plusieurs : affiché avec une roulette.
+    if (arr.length > 1 && arr.every((v) => typeof v === "string" && !!this.g.players[v as string])) return this.rollPlayer(arr as string[]) as T;
     return arr[Math.floor(this.rand() * arr.length)];
+  }
+  /** Joueur tiré au hasard dans `list`, montré par une roulette (avant la suite de l'effet). */
+  rollPlayer(list: string[], label?: string): string {
+    const u = list[Math.floor(this.rand() * list.length)];
+    if (list.length > 1) this.fx({ k: "roulette", uid: this.actor ?? this.current, options: [...list], value: u, label: label ?? "", snap: this.snap() });
+    return u;
   }
   /** Cartes de chaque joueur au moment d'un jet (affichées jusqu'à ce que le dé tombe). */
   private snap(): DiceSnap {
@@ -234,6 +242,17 @@ export class Ctx {
     return u;
   }
 
+  /** Crapaud stratège : au début de chaque tour, le lanceur de la carte sous laquelle il est se tire au hasard. */
+  crapaudLauncher() {
+    const host = Object.entries(this.g.under ?? {}).find(([, l]) => l.includes("GRE-21"))?.[0];
+    if (!host || E.locate(this.g, host)?.zone !== "terrain") return;
+    const pool = this.g.order.filter((u) => this.p(u) && !this.p(u).out);
+    const u = this.rollPlayer(pool, `🐸 Crapaud stratège : qui lance « ${card(host).name} » ce tour ?`);
+    if (!u) return;
+    this.g.marks = { ...(this.g.marks ?? {}), "GRE-21": u };
+    this.log(`🐸 Crapaud stratège : ce tour, « ${card(host).name} » est lancée pour ${this.name(u)}.`, { src: "GRE-21", dst: host, to: u });
+  }
+
   /** Exécute `fn` une seule fois à la fois pour `key` (évite qu'un passif se relance lui-même). */
   once(key: string, fn: () => void) {
     if (this.busy.has(key)) return;
@@ -249,7 +268,7 @@ export class Ctx {
   private randomAnswer(p: Prompt): unknown {
     const r = (n: number) => Math.floor(this.rand() * n);
     switch (p.kind) {
-      case "player": return p.options[r(p.options.length)];
+      case "player": return p.options.length > 1 ? this.rollPlayer(p.options) : p.options[0];
       case "option": return r(p.options.length);
       case "number": return p.min + r(p.max - p.min + 1);
       case "cards": {
@@ -1080,6 +1099,12 @@ export class Ctx {
     }
     const strat = (this.g.under?.[id] ?? []).includes("GRE-21");
     if (strat) {
+      // Lanceur tiré au hasard au début de chaque tour (le vrai lanceur peut être tiré).
+      const who = this.g.marks?.["GRE-21"];
+      if (who && who !== me && this.p(who) && !this.p(who).out) {
+        this.log(`🐸 Crapaud stratège : « ${c.name} » est lancée pour ${this.name(who)}.`, { src: "GRE-21", dst: id, to: who });
+        me = who;
+      }
       this.log(`🐸 Crapaud stratège : les choix de « ${c.name} » se font au hasard.`, { src: "GRE-21", dst: id });
       this.forcedRandom.push(me);
     }
@@ -1256,6 +1281,7 @@ function perform(x: Ctx, a: EffectAction) {
         x.g.doubleNow = x.current;
         x.log(`⛵ Voile : ce tour, chaque carte de ${x.name(x.current)} se joue deux fois.`);
       }
+      x.crapaudLauncher();
       x.emit({ type: "turnStart", uid: x.current });
       break;
     }
@@ -1333,7 +1359,7 @@ export type Preview = {
 export function previewEffect(room: Room, id: string, me: string): Preview | null {
   // L'aperçu ne doit rien dévoiler qu'on ne saurait pas avant de jouer la carte : ni le résultat d'un dé ou d'un
   // tirage au hasard, ni l'ordre des pioches, ni les mains cachées des autres. On simule donc plusieurs fois,
-  // avec d'autres dés et les cartes cachées remélangées, et on ne garde que ce qui est vrai à chaque fois.
+  // avec d'autres dés et les cartes cachées remélangées : si le résultat change, on montre toutes les possibilités.
   const runs: { p: Preview; rolled: boolean }[] = [];
   for (let i = 0; i < 6; i++) {
     const r = previewOnce(room, id, me, i > 0);
@@ -1344,8 +1370,15 @@ export function previewEffect(room: Room, id: string, me: string): Preview | nul
   const key = (p: Preview) => JSON.stringify([p.ok, p.reason ?? "", p.summary ?? []]);
   const random = runs.some((r) => r.rolled) || runs.some((r) => key(r.p) !== key(first));
   if (!random) return first;
-  const common = (k: "cards" | "gold" | "sentience" | "bh" | "players") => first[k].filter((v) => runs.every((r) => r.p[k].includes(v)));
-  return { ok: true, random: true, cards: common("cards"), gold: common("gold"), sentience: common("sentience"), bh: common("bh"), players: common("players") };
+  // Résultat au hasard : on surligne TOUT ce qui peut être touché (sans dire quoi le sera).
+  // Plus de tirages pour couvrir les possibilités ; la simulation sur l'état réel (n° 0) n'est pas utilisée,
+  // elle dévoilerait le vrai dé et les vraies cartes cachées.
+  for (let i = runs.length; i < 16; i++) {
+    const r = previewOnce(room, id, me, true);
+    if (r) runs.push(r);
+  }
+  const all = (k: "cards" | "gold" | "sentience" | "bh" | "players") => [...new Set(runs.slice(1).flatMap((r) => r.p[k]))];
+  return { ok: true, random: true, cards: all("cards"), gold: all("gold"), sentience: all("sentience"), bh: all("bh"), players: all("players") };
 }
 
 /** Remélange ce que le joueur ne peut pas voir : l'ordre des pioches et le contenu des mains des autres. */
