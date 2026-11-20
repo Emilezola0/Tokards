@@ -165,8 +165,11 @@ export const PIRATE: Record<string, CardScript> = {
           }
         }
       }
-      if (x.p(me).sentience) {
-        did = x.draw(me, 1) > 0 || did;
+      if (x.p(me).sentience && x.draw(me, 1) > 0) {
+        did = true;
+        // La carte piochée n'est montrée qu'au joueur (cardId) : la question reste neutre pour les autres.
+        const c = x.p(me).hand[x.p(me).hand.length - 1];
+        if (c && x.chooseOption(me, "Crochet : garder la carte piochée ou la défausser ?", ["La garder", "La défausser"], c) === 1) x.discard(c);
       }
       if (!did) {
         x.reason = "Ni Blazard ni Trou de ver avec une carte à jouer, et sentience fausse.";

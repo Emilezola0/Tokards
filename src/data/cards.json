@@ -4990,7 +4990,7 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Blazard : jouez une carte de votre main, puis défaussez-la.\nTrou de ver : choisissez face cachée une carte de la main d'un autre joueur ; elle se joue pour lui, puis va dans sa défausse.\n🧠 vraie : piochez une carte.",
+   "text": "Blazard : jouez une carte de votre main, puis défaussez-la.\nTrou de ver : choisissez face cachée une carte de la main d'un autre joueur ; elle se joue pour lui, puis va dans sa défausse.\n🧠 vraie : piochez une carte, puis gardez-la ou défaussez-la.",
    "rules": "Jouer une carte = la poser à la place de votre choix sur votre terrain et activer son effet. Les effets de trou noir et de sentience s'additionnent.",
    "image": "PIR-05.png",
    "claude": ""
