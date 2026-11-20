@@ -6,9 +6,10 @@ import type { BlackHole } from "../game/types";
  * l'animation correspondante arrive (les gold s'ajoutent quand les pièces atterrissent).
  */
 export type Held = { gold?: number; sentience?: boolean; bh?: BlackHole };
-type State = { busy: boolean; held: Record<string, Held> };
+/** `doneId` : dernier effet déjà animé (null = pas encore connu, tout est considéré comme joué). */
+type State = { busy: boolean; held: Record<string, Held>; doneId: number | null };
 
-let state: State = { busy: false, held: {} };
+let state: State = { busy: false, held: {}, doneId: null };
 const subs = new Set<() => void>();
 const emit = () => subs.forEach((f) => f());
 
@@ -29,6 +30,11 @@ export const fxStore = {
     const add: Held = {};
     for (const k of Object.keys(h) as (keyof Held)[]) if (cur[k] === undefined) (add as Record<string, unknown>)[k] = h[k];
     if (Object.keys(add).length) this.hold(uid, add);
+  },
+  setDone(id: number | null) {
+    if (id === state.doneId) return;
+    state = { ...state, doneId: id };
+    emit();
   },
   release() {
     state = { ...state, held: {} };

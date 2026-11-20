@@ -7,7 +7,7 @@
 import { DEFAULT_REASON, REASONS } from "./reasons";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
-import type { BlackHole, EffectAction, FxInput, GameState, Prompt, Room, TrailStep, Until, Weather, Zone } from "../game/types";
+import type { BlackHole, DiceSnap, EffectAction, FxInput, GameState, Prompt, Room, TrailStep, Until, Weather, Zone } from "../game/types";
 import { BH_SYMBOL, BLACK_HOLES, blackHoleLabel, weatherIcon, weatherLabel } from "../game/types";
 import { SCRIPTS } from "./scripts";
 import "../game/victory";
@@ -99,7 +99,7 @@ class NeedChoice extends Error {
   }
 }
 
-const MAX_DEPTH = 8;
+const MAX_DEPTH = 12;
 
 export class Ctx {
   private ai = 0;
@@ -107,6 +107,8 @@ export class Ctx {
   private depth = 0;
   /** passifs en cours de résolution : une carte ne se redéclenche pas pendant son propre effet (évite les cascades sans fin) */
   private resolving = new Set<string>();
+  /** relances en chaîne déjà faites pendant cette action, par carte (Tardigrade) */
+  loops: Record<string, number> = {};
   /** joueur dont l'effet est en train de s'appliquer */
   actor: string | null = null;
   /** carte dont l'effet est en train de s'appliquer */
@@ -185,9 +187,18 @@ export class Ctx {
   random<T>(arr: T[]): T {
     return arr[Math.floor(this.rand() * arr.length)];
   }
+  /** Cartes de chaque joueur au moment d'un jet (affichées jusqu'à ce que le dé tombe). */
+  private snap(): DiceSnap {
+    const z: DiceSnap["z"] = {};
+    for (const u of this.g.order) {
+      const p = this.p(u);
+      if (p) z[u] = { terrain: [...p.terrain], hand: [...p.hand], discard: [...p.discard], deck: [...p.deck] };
+    }
+    return { z, disabled: { ...(this.g.disabled ?? {}) } };
+  }
   dice(uid: string, faces: number): number {
     const v = 1 + Math.floor(this.rand() * faces);
-    this.fx({ k: "dice", uid, faces, value: v });
+    this.fx({ k: "dice", uid, faces, value: v, snap: this.snap() });
     this.log(`🎲 ${this.name(uid)} lance un d${faces} : ${v}.`);
     return v;
   }
@@ -196,7 +207,7 @@ export class Ctx {
   bhDice(uid: string): BlackHole {
     const v = 1 + Math.floor(this.rand() * 4);
     const b = BLACK_HOLES[v - 1].id;
-    this.fx({ k: "dice", uid, faces: 4, value: v, bh: true });
+    this.fx({ k: "dice", uid, faces: 4, value: v, bh: true, snap: this.snap() });
     this.log(`🎲 ${this.name(uid)} lance le dé trou noir : ${b}.`);
     return b;
   }
@@ -204,7 +215,7 @@ export class Ctx {
   /** Dé de sentience (2 faces : Vraie, Fausse). */
   sentDice(uid: string): boolean {
     const v = 1 + Math.floor(this.rand() * 2);
-    this.fx({ k: "dice", uid, faces: 2, value: v, sent: true });
+    this.fx({ k: "dice", uid, faces: 2, value: v, sent: true, snap: this.snap() });
     this.log(`🎲 ${this.name(uid)} lance le dé de sentience : ${v === 1 ? "Vraie" : "Fausse"}.`);
     return v === 1;
   }

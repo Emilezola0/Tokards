@@ -144,6 +144,12 @@ export interface Pending {
 /** Un choix déjà fait : carte qui l'a demandé, question, réponse en clair. */
 export type TrailStep = { card: string; chooser: string; text: string; label: string };
 
+/** Cartes au moment d'un jet de dé : la table les affiche ainsi tant que le dé n'est pas tombé (le hasard d'abord, l'effet ensuite). */
+export interface DiceSnap {
+  z: Record<string, { terrain: string[]; hand: string[]; discard: string[]; deck: string[] }>;
+  disabled: Record<string, Partial<Until>>;
+}
+
 export type Fx =
   | { id: number; k: "activate"; card: string; uid: string }
   | { id: number; k: "fail"; card: string; uid: string; reason?: string }
@@ -153,7 +159,7 @@ export type Fx =
   | { id: number; k: "sentience"; uid: string; v: boolean }
   | { id: number; k: "bh"; uid: string; to: BlackHole }
   | { id: number; k: "weather"; uid: string; to: Weather | null }
-  | { id: number; k: "dice"; uid: string; faces: number; value: number; bh?: boolean; sent?: boolean }
+  | { id: number; k: "dice"; uid: string; faces: number; value: number; bh?: boolean; sent?: boolean; snap?: DiceSnap }
   | { id: number; k: "move"; card: string }
   | { id: number; k: "banner"; text: string }
   /** annonce du joueur dont c'est le tour */

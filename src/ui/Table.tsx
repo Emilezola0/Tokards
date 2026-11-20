@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
-import { DECKS, PLACEHOLDER, card, cardImage, deckBack } from "../data/cards";
+import { DECKS, card, cardImage, deckBack } from "../data/cards";
 import * as E from "../game/engine";
 import { act, backToLobby, effect, update } from "../game/room";
 import type { EffectAction, GameState, Room, Vote } from "../game/types";
@@ -20,6 +20,7 @@ import KwText from "./KwText";
 import { VersionTag } from "./UpdatePrompt";
 import { playerColor } from "./pose";
 import { fxStore, useFx } from "./fxStore";
+import { viewState } from "./view";
 import { dealDuration, useCardFlip } from "./useCardFlip";
 
 const PHASE_LABEL = { activation: "Activation", action: "Poser / défausser", end: "Fin du tour" };
@@ -126,8 +127,15 @@ function usePreloadImages(decks: (string | null | undefined)[]) {
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-export default function Table({ room, uid }: { room: Room; uid: string }) {
-  const g = room.game!;
+export default function Table({ room: realRoom, uid }: { room: Room; uid: string }) {
+  const real = realRoom.game!;
+  const fx = useFx();
+  // Ce qui est affiché suit les animations (dé, victoire, journal) : voir viewState.
+  const settledLog = useRef(real.log);
+  const pendingFx = fx.doneId != null && (real.fx ?? []).some((f) => f.id > fx.doneId!);
+  if (!pendingFx) settledLog.current = real.log;
+  const g = useMemo(() => viewState(real, fx.doneId, settledLog.current), [real, fx.doneId, pendingFx]); // eslint-disable-line react-hooks/exhaustive-deps
+  const room = useMemo(() => (g === real ? realRoom : { ...realRoom, game: g }), [realRoom, real, g]);
   const [openCard, setOpenCard] = useState<string | null>(null);
   const [openPlayer, setOpenPlayer] = useState<string | null>(null);
   const [placing, setPlacing] = useState<Placing | null>(null);
@@ -141,7 +149,6 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
   const [fresh] = useState(() => !!g.startedAt && Date.now() - g.startedAt < 15000 && g.round === 1 && g.turn === 0);
   const arena = useRef<HTMLDivElement>(null);
   const size = useSize(arena);
-  const fx = useFx();
   // Fin de partie / vote : affichés seulement quand les animations (dont celle de la victoire) sont finies.
   const settled = useSettled(!fx.busy);
 
@@ -340,7 +347,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
 
       <div className={`arena ${moving ? "is-moving" : ""} ${tablePick.pick ? "is-picking" : ""}`} ref={arena}>
         {turnBack && (
-          <div key={current} className="turn-backdrop" style={{ backgroundImage: `url("${turnBack}"), url("${PLACEHOLDER}")`, ["--pc" as string]: colorOf(current) }} />
+          <div key={current} className="turn-backdrop" style={{ backgroundImage: `url("${turnBack}")`, ["--pc" as string]: colorOf(current) }} />
         )}
         <div className="table-felt" />
         {arrows.length > 0 && (
@@ -484,7 +491,7 @@ export default function Table({ room, uid }: { room: Room; uid: string }) {
       {myPrompt && tablePick.pick && (
         <ChoiceDock room={room} g={g} prompt={myPrompt} pick={tablePick.pick} answer={tablePick.answer} onCard={setOpenCard} />
       )}
-      <FxLayer g={g} room={room} me={uid} fresh={fresh} startDelay={fresh ? dealDuration(g) : 0} colorOf={colorOf} />
+      <FxLayer g={real} room={realRoom} me={uid} fresh={fresh} startDelay={fresh ? dealDuration(g) : 0} colorOf={colorOf} />
       {viewDeck && <DeckModal deck={viewDeck} onClose={() => setViewDeck(null)} />}
       {showGone && <GoneModal ids={gone} ownerName={(id) => E.nameOf(room, g.owner[id])} onCard={setOpenCard} onClose={() => setShowGone(false)} />}
       {viewTerrain && g.players[viewTerrain] && (

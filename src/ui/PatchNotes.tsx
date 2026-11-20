@@ -1,8 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { PLACEHOLDER, cardImage } from "../data/cards";
+import { PLACEHOLDER, cardImage, deckBack } from "../data/cards";
 import { sfx } from "./sfx";
 
-// Patch notes illustrées : on garde seulement les 3 dernières versions (la plus récente d'abord).
+// Patch notes illustrées : on garde seulement les 5 dernières versions (la plus récente d'abord).
 function Img({ id, cls = "" }: { id: string; cls?: string }) {
   return <img className={`hg-card ${cls}`} src={cardImage(id)} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />;
 }
@@ -11,7 +11,70 @@ const Arrow = ({ cls = "hg-pulse" }: { cls?: string }) => <span className={`hg-a
 type Note = { title: string; scene: ReactNode; text: ReactNode };
 type Patch = { version: string; date: string; notes: Note[] };
 
-const PATCHES: Patch[] = [
+const PATCHES_ALL: Patch[] = [
+  {
+    version: "0.28.0",
+    date: "20 novembre 2026",
+    notes: [
+      {
+        title: "🎲 Le dé d'abord, l'effet ensuite",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="hg-die">?</span>
+            <Arrow />
+            <Img id="POL-10" cls="hg-act" />
+            <Arrow />
+            <span className="pn-big">💥</span>
+          </div>
+        ),
+        text: <>Quand une carte lance un dé, les cartes ne bougent plus avant que le dé soit tombé. Le journal attend aussi la fin des animations, pour ne pas dévoiler le résultat.</>,
+      },
+      {
+        title: "🏆 Suspense jusqu'au bout",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">✨ effet de la carte…</span>
+            <Arrow />
+            <span className="hg-trophy">🏆</span>
+          </div>
+        ),
+        text: <>Le vainqueur n'est révélé qu'une fois l'effet de la carte gagnante terminé : conditions cochées, journal et fenêtre de victoire arrivent ensemble.</>,
+      },
+      {
+        title: "🎨 Nouvelles images",
+        scene: (
+          <div className="hg-scene hg-row pn-gallery">
+            <img className="hg-card hg-pop" src={deckBack("Fléaux") ?? PLACEHOLDER} alt="" />
+            {["VC-MET-1", "VC-MET-2", "VC-MET-3", "VC-EMI-1", "VC-EMI-2", "VC-EMI-3"].map((id, i) => <Img key={id} id={id} cls={`pn-deal d${i}`} />)}
+          </div>
+        ),
+        text: <>Nouveau dos pour le deck Fléaux, et des illustrations pour Météo Rite, Temps Curieux et Pour Temps, Cent Temps, The Word, Pierre qui roule et Pas le paff.</>,
+      },
+      {
+        title: "🖼️ Fond du plateau",
+        scene: (
+          <div className="hg-scene hg-row">
+            <div className="pn-backdrop" style={{ backgroundImage: `url("${deckBack("Fléaux") ?? PLACEHOLDER}")` }} />
+          </div>
+        ),
+        text: <>Le dos du deck du joueur actif s'affiche maintenant en entier au centre de la table, avec un fondu en cercle vers l'extérieur.</>,
+      },
+      {
+        title: "💣 Démineur, Crocodilo et Tardigrade",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="POL-10" cls="hg-pop" />
+            <Img id="EMI-11" cls="hg-pop d1" />
+            <Img id="FLE-09" cls="hg-pop" />
+          </div>
+        ),
+        text: (
+          <><b>Démineur</b> : 1 chance sur 2 de désactiver la cible, sinon c'est lui qui saute (défaussé). Dans tous les cas, ses voisines sont désactivées
+            jusqu'à la fin de votre prochain tour. <b>Crocodilo Bombardino</b> : texte plus clair. <b>Tardigrade</b> : jusqu'à 10 relances en chaîne.</>
+        ),
+      },
+    ],
+  },
   {
     version: "0.27.0",
     date: "20 novembre 2026",
@@ -122,7 +185,37 @@ const PATCHES: Patch[] = [
       },
     ],
   },
+  {
+    version: "0.24.0",
+    date: "19 novembre 2026",
+    notes: [
+      {
+        title: "✨ Plus d'effets visuels",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="GOB-01" cls="hg-act" />
+            <span className="hg-coin c1">🪙</span><span className="hg-coin c2">🪙</span><span className="hg-coin c3">🪙</span>
+            <span className="pn-big pn-spin">🌀</span>
+          </div>
+        ),
+        text: <>Anneaux à l'activation, étincelles sur les gains de gold, vortex au changement de trou noir, confettis quand une condition est remplie. Le dé 3D ne laisse plus de traces à l'écran.</>,
+      },
+      {
+        title: "🔎 Aides à la lecture",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">Si tu l'actives : +20 💰</span>
+            <span className="pn-chip bad">🚫</span>
+            <span className="pn-chip">🔥 presque remplie</span>
+          </div>
+        ),
+        text: <>Le survol d'une carte résume ce qu'elle ferait, les cartes impossibles à poser sont marquées 🚫, le journal se filtre (tout, ce tour, moi) et une condition presque remplie s'allume 🔥.</>,
+      },
+    ],
+  },
 ];
+/** Au plus 5 versions affichées. */
+const PATCHES = PATCHES_ALL.slice(0, 5);
 
 const SEEN = "tokards.patchSeen";
 const latest = PATCHES[0].version;

@@ -496,7 +496,7 @@
     "Contagion"
    ],
    "summary": "Des fléaux passifs qui se déclenchent pendant le tour des autres, passent d'un terrain à l'autre et punissent chaque perte de gold.",
-   "back": "BACK-FLE.png",
+   "back": "BACK-FLE.jpg",
    "difficulty": "Difficile",
    "cards": [
     "FLE-01",
@@ -2064,8 +2064,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "🧠 vraie : au prochain tour, elle explose : tout son terrain est défaussé.\n🧠 fausse : si les autres ne vous donnent pas 25 💰 au total, elle part sur le terrain d'un autre joueur au hasard.",
-   "rules": "Chaque autre joueur, dans l'ordre du tour, choisit combien il donne jusqu'à atteindre 25 gold. Si à eux tous ils n'ont pas 25 gold, ils donnent automatiquement tout ce qu'ils ont et la carte part quand même.",
+   "text": "🧠 vraie : elle s'amorce, puis explose à sa prochaine activation : tout le terrain où elle se trouve est défaussé.\n🧠 fausse : les autres joueurs doivent vous donner 25 💰 au total, sinon elle part sur le terrain d'un autre joueur au hasard.",
+   "rules": "Les autres joueurs, dans l'ordre du tour, choisissent combien ils donnent jusqu'à 25 💰. S'ils n'ont pas 25 💰 à eux tous, ils donnent automatiquement tout ce qu'ils ont et elle part quand même.",
    "image": "EMI-11.png",
    "claude": ""
   },
@@ -5447,7 +5447,7 @@
    "target": "",
    "check": "",
    "text": "Passif — 🔒 Ne peut pas être défaussée.\nQuand vous perdez des 💰 : posez la première carte de votre défausse en première place et activez-la.",
-   "rules": "Ne peut pas être défaussée par un effet. À chaque perte de gold : la première carte de sa défausse va en première position de son terrain et s'active. Si cette carte vous fait encore perdre des gold, Tardigrade se relance. À 0 gold, on ne perd plus rien : la chaîne s'arrête.",
+   "rules": "Ne peut pas être défaussée par un effet. À chaque perte de gold : la première carte de sa défausse va en première position de son terrain et s'active. Si cette carte vous fait encore perdre des gold, Tardigrade se relance (10 fois au plus par action). À 0 gold, on ne perd plus rien : la chaîne s'arrête.",
    "image": "FLE-09.jpg",
    "claude": "✏️ Modifiée v0.23 (tags)"
   },
@@ -6073,8 +6073,8 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : 1 chance sur 2 de la désactiver (⏱ toujours), sinon défaussez-la.",
-   "rules": "Désactivée sans durée = jusqu'à nouvel ordre.",
+   "text": "Coût : 10 💰.\nCiblez une carte d'un terrain : 🎲 1 chance sur 2 de la désactiver (⏱ toujours), sinon le Démineur saute : défaussez-le.\nPuis désactivez ses voisines (⏱ fin de votre prochain tour).",
+   "rules": "Désactivée sans durée = jusqu'à nouvel ordre. Les voisines = les cartes juste à gauche et à droite du Démineur au moment où il se joue ; elles sont désactivées même s'il saute.",
    "image": "POL-10.jpg",
    "claude": ""
   },
@@ -6569,7 +6569,7 @@
    "check": "",
    "text": "Chaque première lettre de vos cartes est considérée comme des lettres, si vous pouvez former un mot avec qui a plus de 3 lettres alors vous avez rempli les conditions de victoire (Ex : Scrabble).",
    "rules": "Le joueur propose un mot (plus de 3 lettres) écrit avec les premières lettres des cartes de son terrain, chaque lettre une fois. Le jeu vérifie les lettres, puis les autres joueurs votent (majorité stricte pour valider).",
-   "image": "",
+   "image": "VC-EMI-1.jpg",
    "claude": ""
   },
   "VC-EMI-2": {
@@ -6588,7 +6588,7 @@
    "check": "",
    "text": "Il est dit qu'une pierre roule quand Trou Noir est sous l'état de Primordial, que sa Sentience est à faux et que sa mousse gold est supérieure à 100 et que sur le plateau il y est une carte qui ce soit déplacé.",
    "rules": "Toutes les conditions en même temps : Primordial, sentience fausse, plus de 100 gold, et une carte déplacée par un effet se trouve sur un terrain.",
-   "image": "",
+   "image": "VC-EMI-2.png",
    "claude": ""
   },
   "VC-EMI-3": {
@@ -6607,7 +6607,7 @@
    "check": "",
    "text": "Intéragisser avec 3 cartes de chaque type de ressources d'un autre joueur. Si une carte a plusieurs tags, choisissez 1 tag. (Si une de vos cartes se déplace sur le terrain d'un autre joueur, ça compte)",
    "rules": "3 cartes différentes de chaque tag (🧠, 💰, 🌀) appartenant à d'autres joueurs touchées par ses effets.",
-   "image": "",
+   "image": "VC-EMI-3.jpg",
    "claude": ""
   },
   "VC-POP-1": {
@@ -6778,7 +6778,7 @@
    "check": "",
    "text": "Changer de trou noir 3 fois pendant votre tour",
    "rules": "3 changements de son trou noir pendant un même tour à lui.",
-   "image": "",
+   "image": "VC-MET-1.jpg",
    "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-MET-2": {
@@ -6797,7 +6797,7 @@
    "check": "",
    "text": "Avoir 150 gold avec un trou noir Trou de ver",
    "rules": "Au moins 150 gold et trou noir Trou de ver en même temps.",
-   "image": "",
+   "image": "VC-MET-2.jpg",
    "claude": "✏️ Modifiée v0.23 (équilibrage)"
   },
   "VC-MET-3": {
@@ -6816,7 +6816,7 @@
    "check": "",
    "text": "Il s'est écoulé 20 tours (ton tours) pouvant être réduits de 1 pour 50 gold.",
    "rules": "Avoir joué 20 de ses tours ; il en faut 1 de moins par tranche de 50 gold possédés.",
-   "image": "",
+   "image": "VC-MET-3.jpg",
    "claude": ""
   },
   "VC-PIR-1": {

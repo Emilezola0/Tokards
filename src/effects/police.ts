@@ -268,7 +268,8 @@ export const POLICE: Record<string, CardScript> = {
     },
   },
 
-  // Démineur : une chance sur deux de désactiver ou de défausser la carte ciblée
+  // Démineur : une chance sur deux de désactiver la carte ciblée, sinon le Démineur saute (défaussé) ;
+  // dans tous les cas, ses voisines sont désactivées jusqu'à la fin du prochain tour du lanceur.
   "POL-10": {
     activate: (x, { id, me }) => {
       if (!pay(x, me)) return false;
@@ -278,8 +279,16 @@ export const POLICE: Record<string, CardScript> = {
         return false;
       }
       const c = pickCard(x, me, id, "Démineur : quelle carte ?", pool)!;
+      // Voisines prises avant que le Démineur ne quitte peut-être le terrain.
+      const at = E.locate(x.g, id);
+      const t = at?.zone === "terrain" ? x.p(at.uid).terrain : [];
+      const near = at?.zone === "terrain" ? [t[at.index - 1], t[at.index + 1]].filter((v): v is string => !!v) : [];
       if (x.dice(me, 2) === 1) x.disable(c);
-      else x.discard(c);
+      else {
+        x.log("💥 Le Démineur saute : il est défaussé.", { src: id });
+        x.discard(id);
+      }
+      for (const v of near) if (E.locate(x.g, v)?.zone === "terrain") x.disable(v, x.untilEndOfNext(me));
     },
   },
 

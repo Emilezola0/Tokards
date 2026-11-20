@@ -5,6 +5,9 @@ import type { BlackHole, Zone } from "../game/types";
 import { BLACK_HOLES } from "../game/types";
 import type { CardScript, Ctx, Self } from "./runtime";
 
+/** Tardigrade : nombre maximal de relances en chaîne pendant une même action. */
+const MAX_LOOP = 10;
+
 const P: BlackHole = "Primordial";
 const Q: BlackHole = "Quasar";
 const B: BlackHole = "Blazard";
@@ -164,6 +167,13 @@ export const FLEAUX: Record<string, CardScript> = {
         if (e.uid !== self.me || e.amount <= 0) return;
         const c = x.p(self.me).discard[0];
         if (!c) return;
+        const n = (x.loops[self.id] ?? 0) + 1;
+        if (n > MAX_LOOP) {
+          if (n === MAX_LOOP + 1) x.log(`🐢 Tardigrade : ${MAX_LOOP} relances, la chaîne s'arrête.`, { src: self.id });
+          x.loops[self.id] = n;
+          return;
+        }
+        x.loops[self.id] = n;
         x.triggered(self, `perte de gold → « ${card(c).name} » revient en première position et s'active.`);
         x.move(c, { uid: self.me, zone: "terrain", index: 0 }, { activate: self.me });
       },

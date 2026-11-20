@@ -242,6 +242,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
     if (seen.current === null) {
       // Au chargement on ne rejoue pas l'historique, sauf la mise en place d'une partie qui vient de commencer.
       seen.current = fresh ? 0 : last;
+      fxStore.setDone(seen.current);
       if (fresh) document.querySelectorAll<HTMLElement>("[data-vc]").forEach((el) => (el.style.opacity = "0"));
     }
     const fresh_ = list.filter((f) => f.id > seen.current!);
@@ -279,6 +280,9 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
           console.warn("[fx]", f.k, e);
           setDie(null);
           dropCenter();
+        } finally {
+          // La table montre l'état réel au fur et à mesure (ex. les cartes bougent une fois le dé tombé).
+          fxStore.setDone(f.id);
         }
       }
       if (document.hidden) dropCenter();

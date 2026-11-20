@@ -146,8 +146,18 @@ export function setPhase(g: GameState, phase: Phase) {
 /** Ajoute un effet visuel à la file (joué par tous les clients). */
 export function pushFx(g: GameState, f: FxInput) {
   g.fxSeq = (g.fxSeq ?? 0) + 1;
-  g.fx = [...(g.fx ?? []), { ...f, id: g.fxSeq } as Fx].slice(-FX_KEEP);
+  const list = [...(g.fx ?? []), { ...f, id: g.fxSeq } as Fx].slice(-FX_KEEP);
+  // Les instantanés des jets de dé ne servent qu'à l'animation en cours : on les retire des anciens effets (taille du document).
+  for (let i = 0; i < list.length - SNAP_KEEP; i++) {
+    const o = list[i];
+    if (o.k === "dice" && o.snap) {
+      const { snap: _drop, ...rest } = o;
+      list[i] = rest;
+    }
+  }
+  g.fx = list;
 }
+const SNAP_KEEP = 30;
 
 export function log(g: GameState, text: string, extra?: Omit<LogEntry, "ts" | "text">) {
   const e: LogEntry = { ts: Date.now(), text };
