@@ -163,9 +163,16 @@ export const GOBLIN: Record<string, CardScript> = {
   // L'odyssée Gobline
   "GOB-12": {
     activate: (x, { id, me }) => {
-      if (x.p(me).blackHole !== T || x.p(me).terrain.length < 2) return false;
-      x.p(me).terrain = x.chooseOrder(me, "Réorganise ton terrain (ordre de lecture)", x.p(me).terrain, id);
-      x.log(`${x.name(me)} réorganise son terrain.`);
+      if (x.p(me).blackHole !== T) return false;
+      // Le lanceur puis ses alliés peuvent réorganiser leur propre terrain.
+      const who = x.team(me).filter((u) => !x.p(u).out && x.p(u).terrain.length >= 2 && x.canReorder(u));
+      if (!who.length) return false;
+      for (const u of [me, ...who.filter((u) => u !== me)]) {
+        if (!who.includes(u)) continue;
+        x.p(u).terrain = x.chooseOrder(u, u === me ? "Réorganise ton terrain (ordre de lecture)" : `L'odyssée gobline de ${x.name(me)} : réorganise ton terrain (ordre de lecture)`, x.p(u).terrain, id);
+        x.log(`${x.name(u)} réorganise son terrain.`, { to: u });
+        x.interact(u, "terrain");
+      }
     },
   },
 
@@ -403,7 +410,7 @@ export const GOBLIN: Record<string, CardScript> = {
   // Le donjon goblin : une chance sur quatre (il faut un 4 au d4)
   "GOB-31": {
     activate: (x, { id, me }) => {
-      const v = x.dice(me, 2);
+      const v = x.dice(me, 2, (v) => (v === 2 ? "réussi" : "raté (il faut un 2)"));
       if (v !== 2) {
         x.reason = `Le dé donne ${v} : il fallait un 2.`;
         return false;

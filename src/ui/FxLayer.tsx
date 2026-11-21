@@ -513,14 +513,14 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         const to = { x: c.cx + (Math.random() - 0.5) * 120, y: c.cy + (Math.random() - 0.5) * 60 };
         const dur = 1200 * Math.max(speed, 0.5);
         sfx.dice();
-        const roll: DieRoll = { key: f.id, faces: f.faces, value: f.value, bh: f.bh, sent: f.sent, who: E.nameOf(room, f.uid), color: colorOf(f.uid), from, to, dur, landed: false, outcome: f.outcome };
+        const roll: DieRoll = { key: f.id, faces: f.faces, value: f.value, bh: f.bh, sent: f.sent, who: E.nameOf(room, f.uid), color: colorOf(f.uid), from, to, dur, landed: false, outcome: f.outcome, pick: f.pick };
         setDie(roll);
         try {
           await wait(dur);
           sfx.drop();
           setDie({ ...roll, landed: true });
           // Un résumé de l'effet choisi par le dé reste un peu plus longtemps à l'écran.
-          await wait((f.outcome?.length ? 2400 : 1300) * Math.max(speed, 0.6));
+          await wait((f.outcome?.length || f.pick ? 2600 : 1300) * Math.max(speed, 0.6));
         } finally {
           // Toujours retirer le dé, même si l'effet est interrompu : sinon il reste figé à l'écran.
           setDie(null);

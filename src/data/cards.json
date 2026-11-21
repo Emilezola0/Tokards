@@ -1076,10 +1076,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Si 🌀 Trou de ver : réorganisez votre terrain.",
-   "rules": "Le joueur réorganise son terrain en glissant les cartes.",
+   "text": "Si 🌀 Trou de ver : réorganisez votre terrain ; vos alliés peuvent aussi réorganiser le leur.",
+   "rules": "Chaque joueur réorganise son propre terrain en glissant les cartes, le lanceur d'abord.",
    "image": "GOB-12.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.35 (demande du Prompt)"
   },
   "GOB-13": {
    "id": "GOB-13",
@@ -4553,10 +4553,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Repositionnez jusqu'à 2 cartes de votre terrain.\nSous le Vent violent, 🎲 1d3 : 1 échangez une carte de votre défausse avec une de votre terrain · 2 une carte au hasard de chaque terrain part sur le terrain du joueur suivant · 3 chaque joueur sous le Vent violent défausse une carte au hasard de son terrain.",
-   "rules": "La carte reprise de la défausse est posée sans son effet, à la place de celle qu'elle remplace.",
+   "text": "Vous pouvez échanger une carte de votre main avec une de votre terrain.\nSous le Vent violent, au choix :\n· un terrain est tiré au hasard : choisissez une de ses cartes, elle retourne dans la main de son joueur ;\n· la météo d'un joueur de votre choix avance d'un cran (Grêle → Pluie → Vent violent → Canicule → Grêle) ;\n· prenez en main la carte du dessus d'une défausse : 25 % d'échec, elle part alors sur un terrain au hasard.",
+   "rules": "La carte de la main est posée sans son effet, à la place de celle qui revient en main. Avancer la météo change aussi le 🌀 (sauf Neige et Beau temps, qui passent à la Grêle). La carte emportée par le vent est posée sans son effet.",
    "image": "MET-14.jpg",
-   "claude": "✏️ Modifiée v0.34 (rework Météo validé)"
+   "claude": "✏️ Modifiée v0.35 (demande du Prompt)"
   },
   "MET-15": {
    "id": "MET-15",
@@ -4834,14 +4834,14 @@
     "gold": false,
     "blackHole": true
    },
-   "trigger": "Activation",
+   "trigger": "Les deux",
    "event": "",
    "target": "",
    "check": "",
-   "text": "Votre météo → Beau temps. L'Orage est défaussé où qu'il soit ; s'il était sur votre terrain, gagnez 50 💰.",
-   "rules": "",
+   "text": "Votre météo → Beau temps. L'Orage est défaussé où qu'il soit ; s'il était sur votre terrain, gagnez 50 💰.\nPassif — Sous le Beau temps : chaque fois qu'une autre de vos cartes se joue, chaque adversaire vous donne 5 💰.",
+   "rules": "Le passif compte chaque effet joué (phase 1, pose, rejeu), sauf celui d'Éclaircissement. Les alliés ne paient pas.",
    "image": "MET-29.jpg",
-   "claude": "✏️ Modifiée v0.34 (rework Météo validé)"
+   "claude": "✏️ Modifiée v0.35 (demande du Prompt)"
   },
   "MET-30": {
    "id": "MET-30",

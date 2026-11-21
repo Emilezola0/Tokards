@@ -224,7 +224,7 @@ export const PIRATE: Record<string, CardScript> = {
       x.setSentience(u, false);
       const got = n ? x.lose(u, 5 * n) : 0;
       if (got) setRatLoot(x, id, ratLoot(x, id) + got);
-      if (x.p(owner) && !x.p(owner).out && x.chance(owner, RAT_RETURN)) {
+      if (x.p(owner) && !x.p(owner).out && x.chance(owner, RAT_RETURN, ["le rat rentre avec le butin", "le rat repart"])) {
         const loot = ratLoot(x, id);
         x.log(`🐀 Le rat rentre chez ${x.name(owner)}${loot ? ` avec ${loot} gold` : ""}.`, { to: owner });
         x.move(id, { uid: owner, zone: "terrain" });
@@ -398,7 +398,7 @@ export const PIRATE: Record<string, CardScript> = {
         x.reason = "Aucune carte à jouer dans ta main ni dans celle d'un allié.";
         return false;
       }
-      if (!x.p(me).sentience && x.dice(me, 2) === 1) {
+      if (!x.p(me).sentience && x.dice(me, 2, (v) => (v === 1 ? "le pistolet explose" : "le tir part")) === 1) {
         x.log("💥 Le Pistolet explose !");
         x.discard(c);
         x.discard(id);
@@ -414,14 +414,14 @@ export const PIRATE: Record<string, CardScript> = {
   // Black pearl : 10 % de réussite, selon le trou noir, puis elle va dans la défausse
   "PIR-12": {
     activate: (x, { id, me }) => {
-      if (x.dice(me, 10) !== 1) return x.log("Black pearl : raté (10 % de chances), elle reste en place.");
+      if (x.dice(me, 10, (v) => (v === 1 ? "réussi" : "raté (il faut un 1)")) !== 1) return x.log("Black pearl : raté (10 % de chances), elle reste en place.");
       const bh = x.p(me).blackHole;
       if (bh === B) {
         const u = x.choosePlayer(me, "Black pearl : quel terrain aborder ?", x.others(me).filter((u) => x.p(u).terrain.length), id);
         if (u) {
           const picks = x.chooseCards(me, "Black pearl : choisis jusqu'à 3 cartes (25 % de chances de voler chacune).", x.p(u).terrain, 1, 3, id);
           for (const c of picks) {
-            if (x.dice(me, 4) === 1) {
+            if (x.dice(me, 4, (v) => (v === 1 ? `« ${card(c).name} » est volée` : `« ${card(c).name} » : raté`)) === 1) {
               if (x.move(c, { uid: me, zone: "hand" })) x.take(c, me);
             } else x.log(`« ${card(c).name} » : raté.`, { dst: c });
           }
@@ -515,7 +515,7 @@ export const PIRATE: Record<string, CardScript> = {
       if (x.p(me).blackHole === T && !x.confirm(me, "Kraken : tu es en Trou de ver, le lâcher quand même ?", id)) return x.log("Kraken : il reste au fond.");
       const picks = x.chooseCards(me, "Kraken : choisis 8 cartes de ton terrain (25 % de chances d'être défaussée chacune).", t, Math.min(8, t.length), 8, id);
       for (const c of picks) {
-        if (x.dice(me, 4) === 1) x.discard(c);
+        if (x.dice(me, 4, (v) => (v === 1 ? `« ${card(c).name} » est défaussée` : `« ${card(c).name} » résiste`)) === 1) x.discard(c);
         else x.log(`« ${card(c).name} » résiste au Kraken.`, { dst: c });
       }
     },
@@ -566,7 +566,7 @@ export const PIRATE: Record<string, CardScript> = {
         return false;
       }
       for (const c of before) {
-        const v = x.dice(me, 4);
+        const v = x.dice(me, 4, (v) => (v === 1 ? `« ${card(c).name} » en main` : v === 2 ? `« ${card(c).name} » défaussée` : "+10 gold"));
         if (v === 1) x.move(c, { uid: me, zone: "hand" });
         else if (v === 2) x.discard(c);
         else x.gain(me, 10);
@@ -579,7 +579,7 @@ export const PIRATE: Record<string, CardScript> = {
     activate: (x, { id, me }) => {
       if (isArmed(x, id)) {
         disarm(x, id);
-        if (x.dice(me, 2) === 1) {
+        if (x.dice(me, 2, (v) => (v === 1 ? "+100 gold" : "rien")) === 1) {
           x.log("😴 Le Fatigué se réveille avec 100 gold !");
           x.gain(me, 100);
         } else x.log("😴 Le Fatigué se réveille les poches vides.");

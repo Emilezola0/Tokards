@@ -213,10 +213,15 @@ export class Ctx {
     }
     return { z, disabled: { ...(this.g.disabled ?? {}) } };
   }
-  dice(uid: string, faces: number): number {
+  /**
+   * Lance un dé. `pick` : l'effet choisi par le résultat (« 1-3 : vous perdez la mise »…), affiché en gros sous le dé
+   * et écrit dans le journal, pour que chacun voie tout de suite ce que le dé a décidé.
+   */
+  dice(uid: string, faces: number, pick?: string | ((v: number) => string)): number {
     const v = 1 + Math.floor(this.rand() * faces);
-    this.fx({ k: "dice", uid, faces, value: v, snap: this.snap() });
-    this.log(`🎲 ${this.name(uid)} lance un d${faces} : ${v}.`);
+    const p = typeof pick === "function" ? pick(v) : pick;
+    this.fx({ k: "dice", uid, faces, value: v, snap: this.snap(), ...(p ? { pick: p } : {}) });
+    this.log(`🎲 ${this.name(uid)} lance un d${faces} : ${v}${p ? ` → ${p}` : ""}.`);
     return v;
   }
 
@@ -251,8 +256,8 @@ export class Ctx {
     return v === 1;
   }
   /** Chance sur 100 (affichée comme un d100 réussi si ≤ pct). */
-  chance(uid: string, pct: number): boolean {
-    return this.dice(uid, 100) <= pct;
+  chance(uid: string, pct: number, labels?: [string, string]): boolean {
+    return this.dice(uid, 100, labels ? (v) => (v <= pct ? `réussi (≤ ${pct}) : ${labels[0]}` : `raté (> ${pct}) : ${labels[1]}`) : undefined) <= pct;
   }
   /** Joueur tiré au hasard parmi `list`, annoncé dans le journal. */
   randomPlayer(list: string[]): string | null {

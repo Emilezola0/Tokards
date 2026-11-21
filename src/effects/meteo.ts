@@ -184,13 +184,13 @@ export const METEO: Record<string, CardScript> = {
       turnStart: (x, self, e) => {
         if (x.p(e.uid)?.out || !x.isWeather(e.uid, "Neige")) return;
         const pool = x.p(e.uid).terrain.filter((c) => c !== ORAGE && !x.g.disabled?.[c]);
-        if (!pool.length || !x.chance(e.uid, 20)) return;
+        if (!pool.length || !x.chance(e.uid, 20, ["une carte gèle", "pas de gel"])) return;
         freeze(x, x.random(pool), e.uid);
       },
       placed: (x, self, e) => {
         const by = x.current;
         if (e.card === self.id || !x.isWeather(by, "Neige") || E.locate(x.g, e.card)?.zone !== "terrain") return;
-        if (x.chance(by, 20)) freeze(x, e.card, by);
+        if (x.chance(by, 20, [`« ${card(e.card).name} » gèle`, "pas de gel"])) freeze(x, e.card, by);
       },
     },
   },
@@ -241,7 +241,7 @@ export const METEO: Record<string, CardScript> = {
       const m = hot ? Math.max(2, under(x, "Canicule").length) : 1;
       const bet = x.chooseNumber(me, `Hot-dog : combien parier (jusqu'à 50) ?${hot ? ` Canicule : gain ou perte × ${m}.` : ""}`, 0, max, id);
       if (!bet) return x.log("Hot-dog : pas de pari.");
-      const v = x.dice(me, 6);
+      const v = x.dice(me, 6, (v) => (v >= 4 ? `gagné : +${bet * m} gold` : `perdu : −${bet * m} gold`));
       if (v >= 4) x.gain(me, bet * m);
       else x.lose(me, bet * m);
     },
@@ -335,34 +335,54 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Temps bien que mal : repositionnez jusqu'à 2 cartes de votre terrain ; sous le Vent violent, 1d3 :
-  // 1 échange défausse ↔ terrain · 2 une carte au hasard de chaque terrain part sur le terrain suivant ·
-  // 3 chaque joueur sous le Vent violent défausse une carte au hasard de son terrain.
+  // Temps bien que mal : échangez (facultatif) une carte de votre main avec une de votre terrain ; sous le Vent violent,
+  // au choix : une carte d'un terrain tiré au hasard retourne dans la main de son joueur · la météo d'un joueur avance
+  // d'un cran · prenez la carte du dessus d'une défausse (25 % d'échec : elle part sur un terrain au hasard).
   "MET-14": {
     activate: (x, { id, me }) => {
-      const picks = x.chooseCards(me, "Temps bien que mal : repositionner jusqu'à 2 cartes de ton terrain ?", x.p(me).terrain.filter((c) => c !== id), 0, 2, id);
-      for (const c of picks) x.move(c, { uid: me, zone: "terrain", index: x.chooseSlot(me, `Nouvelle place de « ${card(c).name} » ?`, me, c, id) });
+      const mine = x.p(me).terrain.filter((c) => c !== id && c !== ORAGE);
+      const [h] = mine.length ? x.chooseCards(me, "Temps bien que mal : échanger une carte de ta main avec une de ton terrain ? (facultatif)", x.p(me).hand.filter((c) => c !== ORAGE), 0, 1, id) : [];
+      if (h) {
+        const t = x.chooseCard(me, `Contre quelle carte de ton terrain échanger « ${card(h).name} » ?`, mine, id);
+        if (t) {
+          const idx = x.p(me).terrain.indexOf(t);
+          x.move(t, { uid: me, zone: "hand" });
+          x.move(h, { uid: me, zone: "terrain", index: idx }, { activate: false });
+          x.log(`🔁 « ${card(h).name} » prend la place de « ${card(t).name} », qui revient en main (sans effet).`, { dst: h });
+        }
+      }
       if (pickWx(x, me, id, ["Vent violent"]) !== "Vent violent") return;
-      const v = x.dice(me, 3);
-      if (v === 1) {
-        const d = x.chooseCard(me, "Vent violent : quelle carte de ta défausse remettre sur ton terrain ?", x.p(me).discard, id);
-        const t = d && x.chooseCard(me, "Vent violent : contre quelle carte de ton terrain ?", x.p(me).terrain.filter((c) => c !== id && c !== ORAGE), id);
-        if (!d || !t) return x.log("Vent violent : rien à échanger.");
-        const idx = x.p(me).terrain.indexOf(t);
-        x.discard(t);
-        x.move(d, { uid: me, zone: "terrain", index: idx }, { activate: false });
-      } else if (v === 2) {
-        const all = alive(x);
-        const moves = all
-          .map((u, k) => [x.p(u).terrain.filter((c) => c !== ORAGE && c !== id), all[(k + 1) % all.length]] as const)
-          .filter(([pool]) => pool.length)
-          .map(([pool, to]) => [x.random(pool), to] as const);
-        x.log("🌬️ Le vent emporte une carte de chaque terrain chez le joueur suivant.");
-        for (const [c, to] of moves) x.move(c, { uid: to, zone: "terrain" });
+      const opts = [
+        "Rien",
+        "Un terrain au hasard : une de ses cartes retourne dans la main de son joueur",
+        "Faire avancer la météo d'un joueur d'un cran",
+        "Prendre la carte du dessus d'une défausse (25 % d'échec)",
+      ];
+      const i = x.chooseOption(me, "Vent violent : que faire ?", opts, id);
+      if (!i) return x.log("Vent violent : rien de plus.");
+      x.log(`🌬️ Vent violent : ${opts[i].toLowerCase()}.`);
+      if (i === 1) {
+        const u = x.randomPlayer(alive(x).filter((u) => x.p(u).terrain.some((c) => c !== ORAGE && c !== id)));
+        if (!u) return;
+        const c = x.chooseCard(me, `Vent violent : quelle carte du terrain de ${x.name(u)} renvoyer dans sa main ?`, x.p(u).terrain.filter((c) => c !== ORAGE && c !== id), id);
+        if (c) x.move(c, { uid: u, zone: "hand" });
+      } else if (i === 2) {
+        const u = x.choosePlayer(me, "Vent violent : la météo de qui faire avancer (Grêle → Pluie → Vent violent → Canicule → Grêle) ?", alive(x), id);
+        if (!u) return;
+        const cycle: Weather[] = ["Grêle", "Pluie", "Vent violent", "Canicule"];
+        const k = cycle.indexOf(x.weather(u) as Weather);
+        goWeather(x, u, cycle[k < 0 ? 0 : (k + 1) % 4]);
       } else {
-        for (const u of under(x, "Vent violent")) {
-          const pool = x.p(u).terrain.filter((c) => c !== ORAGE && c !== id);
-          if (pool.length) x.discard(x.random(pool));
+        const piles = alive(x).filter((u) => x.p(u).discard.length);
+        if (!piles.length) return x.log("Vent violent : toutes les défausses sont vides.");
+        const tops = piles.map((u) => x.p(u).discard[0]);
+        const c = x.chooseCard(me, "Vent violent : quelle carte du dessus d'une défausse prendre ?", tops, id);
+        if (!c) return;
+        if (x.chance(me, 75, ["la carte arrive dans ta main", "le vent l'emporte sur un terrain au hasard"])) {
+          if (x.move(c, { uid: me, zone: "hand" })) x.take(c, me);
+        } else {
+          const u = x.randomPlayer(alive(x));
+          if (u) x.move(c, { uid: u, zone: "terrain" }, { activate: false });
         }
       }
     },
@@ -510,7 +530,7 @@ export const METEO: Record<string, CardScript> = {
   // Temps pour prier : 1d6 — 1 l'Orage arrive chez vous (déjà là : +250) · 2-5 +20 · 6 choisissez votre météo et +50
   "MET-22": {
     activate: (x, { id, me }) => {
-      const v = x.dice(me, 6);
+      const v = x.dice(me, 6, (v) => (v === 1 ? "l'Orage arrive chez vous" : v <= 5 ? "+20 gold" : "choisissez votre météo, +50 gold"));
       if (v === 1) {
         if (x.p(me).terrain.includes(ORAGE)) x.gain(me, 250);
         else summonStorm(x, me);
@@ -658,7 +678,8 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Éclaircissement : votre météo → Beau temps ; l'Orage est défaussé où qu'il soit (+50 gold s'il était chez vous)
+  // Éclaircissement : votre météo → Beau temps ; l'Orage est défaussé où qu'il soit (+50 gold s'il était chez vous).
+  // Passif : sous le Beau temps, chaque fois qu'une autre de vos cartes se joue, chaque adversaire vous donne 5 gold.
   "MET-29": {
     activate: (x, { me }) => {
       const at = E.locate(x.g, ORAGE);
@@ -666,6 +687,15 @@ export const METEO: Record<string, CardScript> = {
       if (at?.zone === "terrain") x.move(ORAGE, { uid: x.g.owner[ORAGE] ?? me, zone: "discard" });
       x.setWeather(me, null);
       if (mine) x.gain(me, 50);
+    },
+    on: {
+      activated: (x, self, e) => {
+        if (e.uid !== self.me || e.card === self.id || !x.isWeather(self.me, null)) return;
+        const opp = x.others(self.me).filter((u) => !x.p(u).out && !x.team(self.me).includes(u));
+        if (!opp.length) return;
+        x.triggered(self, `beau temps : « ${card(e.card).name} » se joue, chaque adversaire donne 5 gold.`);
+        for (const u of opp) x.transfer(u, self.me, 5);
+      },
     },
   },
 

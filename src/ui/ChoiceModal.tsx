@@ -1,5 +1,5 @@
 import { useEffect, useState, type DragEvent } from "react";
-import KwText from "./KwText";
+import KwText, { activeTerms } from "./KwText";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Prompt, Room, TrailStep } from "../game/types";
@@ -101,7 +101,7 @@ export function ChoiceDock({ room, g, prompt, pick, answer, onCard }: {
         {!hide && (
           <>
             <TrailInfo g={g} prompt={prompt} />
-            {prompt.cardId && <p className="small dock-text"><b>{card(prompt.cardId).name} :</b> <KwText text={card(prompt.cardId).text} /></p>}
+            {prompt.cardId && <p className="small dock-text"><b>{card(prompt.cardId).name} :</b> <KwText text={card(prompt.cardId).text} active={g ? activeTerms(g, E.locate(g, prompt.cardId)?.uid ?? prompt.chooser) : undefined} /></p>}
             <p className="small muted">{hint}</p>
             {prompt.kind === "slot" && (
               <div className="row small"><CardView id={prompt.card} size="xs" ghost /> <span>→ terrain de <b>{E.nameOf(room, prompt.uid)}</b></span></div>
@@ -251,7 +251,7 @@ export default function ChoiceModal({ room, prompt, onAnswer, onCard }: {
               <span className="small muted">Choix demandé par</span>
               <CardView id={prompt.cardId} size="m" ghost />
               <strong>{card(prompt.cardId).name}</strong>
-              <p className="small choice-origin-text"><KwText text={card(prompt.cardId).text} /></p>
+              <p className="small choice-origin-text"><KwText text={card(prompt.cardId).text} active={g ? activeTerms(g, E.locate(g, prompt.cardId)?.uid ?? prompt.chooser) : undefined} /></p>
             </aside>
           )}
           <div className="choice-main">

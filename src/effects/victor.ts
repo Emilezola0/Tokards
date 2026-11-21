@@ -169,7 +169,7 @@ export const VICTOR: Record<string, CardScript> = {
   // BezRoulette : 1d100 ; sur 100, une de tes conditions de victoire est validée pour ce tour
   "VIC-07": {
     activate: (x, { id, me }) => {
-      if (x.dice(me, 100) !== 100) {
+      if (x.dice(me, 100, (v) => (v === 100 ? "100 : réussi !" : "pas de 100 : rien")) !== 100) {
         x.reason = "Pas de 100 : rien ne se passe.";
         return false;
       }
@@ -194,7 +194,8 @@ export const VICTOR: Record<string, CardScript> = {
   // À l'abordage ! : 1d6
   "VIC-08": {
     activate: (x, { id, me }) => {
-      const v = x.dice(me, 6);
+      const v = x.dice(me, 6, (v) =>
+        ["votre voisin de droite déplace une de vos cartes", "rien", "une carte posée retourne dans la pioche", "défaussez une carte posée", "défaussez une carte posée", "prenez une carte adverse sur votre terrain"][v - 1]);
       if (v === 2) return x.log("🏴‍☠️ 2 : rien ne se passe.");
       if (v === 1) {
         const right = E.neighbours(x.g, me)[1];

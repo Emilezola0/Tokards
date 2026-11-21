@@ -99,7 +99,26 @@ export function playVoice(id: string, gain = 1, rate = 1) {
   el.onended = () => drop(p);
   el.onerror = () => drop(p);
   playing.push(p);
+  if (FADE_DECKS.has(CARDS[id]?.deck ?? "")) fade(el, gain * volume);
   void el.play().catch(() => drop(p));
+}
+
+/** Decks dont les voicelines démarrent et finissent en fondu rapide (sons coupés net à l'enregistrement). */
+const FADE_DECKS = new Set(["Météo"]);
+const FADE_MS = 120;
+/** Fondu d'entrée puis de sortie rapide sur le volume (sans Web Audio). */
+function fade(el: HTMLAudioElement, target: number) {
+  el.volume = 0;
+  const tick = () => {
+    if (el.paused && el.currentTime > 0) return;
+    const d = el.duration;
+    const t = el.currentTime * 1000;
+    const left = Number.isFinite(d) ? (d - el.currentTime) * 1000 / (el.playbackRate || 1) : Infinity;
+    const k = Math.min(1, t / FADE_MS / (el.playbackRate || 1), left / FADE_MS);
+    el.volume = Math.max(0, Math.min(1, target * k));
+    if (!el.ended) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 /** Joue la voiceline d'une carte au hasard du deck (choix du deck dans le salon). */

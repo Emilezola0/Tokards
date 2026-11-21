@@ -9,6 +9,8 @@ export type DieRoll = {
   bh?: boolean;
   /** ce que le résultat a décidé (lignes du journal qui suivent le jet) */
   outcome?: string[];
+  /** effet choisi par le dé */
+  pick?: string;
   /** dé de sentience : ✔ Vraie / ✖ Fausse */
   sent?: boolean;
   who: string;
@@ -93,8 +95,11 @@ export default function Die3D({ roll }: { roll: DieRoll }) {
           <div className="die3d-result" style={{ color: roll.color }}>
             <span className="die3d-who">{roll.who} · {roll.bh ? "dé trou noir" : roll.sent ? "dé de sentience" : `d${roll.faces}`}</span>
             <span className="die3d-value">{result}</span>
-            {!!roll.outcome?.length && (
-              <span className="die3d-outcome">{roll.outcome.map((t, i) => <span key={i}>{t}</span>)}</span>
+            {(roll.pick || !!roll.outcome?.length) && (
+              <span className="die3d-outcome">
+                {roll.pick && <b className="die3d-pick">➜ {roll.pick}</b>}
+                {roll.outcome?.map((t, i) => <span key={i}>{t}</span>)}
+              </span>
             )}
           </div>
         )}

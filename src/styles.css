@@ -1230,3 +1230,10 @@ button.danger:hover { border-color: var(--bad); }
 .choice-hide { position: absolute; top: 8px; right: 8px; font-size: 12px; padding: 4px 10px; z-index: 2; }
 .choice-reopen { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 60; padding: 10px 18px; box-shadow: 0 6px 24px rgba(0,0,0,.45); animation: choice-pulse 1.6s ease-in-out infinite; }
 @keyframes choice-pulse { 50% { box-shadow: 0 0 0 6px rgba(160,120,255,.35), 0 6px 24px rgba(0,0,0,.45); } }
+
+/* v0.35 : effet choisi par le dé, bien visible */
+.die3d-pick { font-size: 15px; color: var(--pc, #fff); text-shadow: 0 0 10px #000; letter-spacing: 0.01em; }
+
+/* v0.35 : passages du texte qui s'appliquent (ou pas) avec les états en cours */
+.kw-on { background: #7c4dff33; box-shadow: inset 3px 0 0 var(--accent); border-radius: 4px; padding: 0 3px; font-weight: 600; }
+.kw-off { opacity: 0.45; }

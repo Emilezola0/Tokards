@@ -102,7 +102,7 @@ export const POLICE: Record<string, CardScript> = {
       const c = pickCard(x, me, id, "Flashball : quelle carte viser ?", pool)!;
       const at = E.locate(x.g, c)!;
       const next = x.p(at.uid).terrain[at.index + 1];
-      if (x.dice(me, 2) === 1) x.discard(c);
+      if (x.dice(me, 2, (v) => (v === 1 ? "la carte visée est défaussée" : "la carte suivante est défaussée")) === 1) x.discard(c);
       else if (next && next !== id) x.discard(next);
       else x.log("Il n'y a pas de carte après : le tir rate.");
       if (E.locate(x.g, id)?.zone === "terrain") {
@@ -225,7 +225,7 @@ export const POLICE: Record<string, CardScript> = {
           return;
         }
         x.triggered(self, `enquête sur « ${card(c).name} » : 1d6.`);
-        if (x.dice(self.me, 6) === 6) {
+        if (x.dice(self.me, 6, (v) => (v === 6 ? `« ${card(c).name} » est défaussée` : "l'enquête continue")) === 6) {
           x.discard(c);
           const m = { ...x.g.marks };
           delete m[self.id];
@@ -304,7 +304,7 @@ export const POLICE: Record<string, CardScript> = {
       for (const v of near) if (E.locate(x.g, v)?.zone === "terrain") x.disable(v, x.untilEndOfNext(me));
       const c = pickCard(x, me, id, "Démineur : quelle carte ?", pool.filter((v) => E.locate(x.g, v)?.zone === "terrain"))!;
       if (!c) return;
-      if (x.dice(me, 2) === 1) x.disable(c);
+      if (x.dice(me, 2, (v) => (v === 1 ? `« ${card(c).name} » est désactivée` : "le Démineur saute")) === 1) x.disable(c);
       else {
         x.log("💥 Le Démineur saute : il est défaussé.", { src: id });
         x.discard(id);

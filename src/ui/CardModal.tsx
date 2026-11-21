@@ -1,5 +1,5 @@
 import { useState } from "react";
-import KwText from "./KwText";
+import KwText, { activeTerms } from "./KwText";
 import { PLACEHOLDER, card, cardImage, claudeMark, tagIcons } from "../data/cards";
 import * as E from "../game/engine";
 import type { GameState, Room, Until } from "../game/types";
@@ -149,7 +149,7 @@ export default function CardModal({ id, room, uid, run, onPlace, onClose, onClai
               : <span className="badge">✋ Effet manuel</span>)}
           </p>
           {claudeMark(c) && <p className="small claude-note">{claudeMark(c)!.icon} {claudeMark(c)!.label}</p>}
-          <p className="card-text"><KwText text={c.text} /></p>
+          <p className="card-text"><KwText text={c.text} active={activeTerms(g, at && (at.zone === "terrain" || at.zone === "hand") ? at.uid : owner)} /></p>
           {c.rules && <p className="small rules"><b>Précisions :</b> {c.rules}</p>}
           <VoiceButton id={id} />
           <Stack id={id} g={g} onOpen={onOpen} />

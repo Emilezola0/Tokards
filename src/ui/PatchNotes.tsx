@@ -21,6 +21,71 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.35.0",
+    date: "21 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "🎲 Le dé annonce son effet",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-big">🎲</span>
+            <Arrow />
+            <span className="pn-chip pn-glow">➜ +20 gold</span>
+          </div>
+        ),
+        text: <>Quand un dé choisit un effet, cet effet s'affiche en gros sous le résultat et dans le journal, même si un choix suit tout de suite.</>,
+      },
+      {
+        cat: "jeu",
+        title: "🔦 Le texte suit la météo",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip pn-glow">Sous le Vent violent : …</span>
+            <span className="pn-chip" style={{ opacity: 0.45 }}>Sous la Neige : …</span>
+          </div>
+        ),
+        text: <>Dans le détail d'une carte et pendant un choix, le passage qui s'applique avec la météo et la sentience actuelles est mis en avant ; les autres sont estompés.</>,
+      },
+      {
+        cat: "cartes",
+        title: "🌬️ Temps bien que mal et ☀️ Éclaircissement",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-14" />
+            <Img id="MET-29" />
+          </div>
+        ),
+        text: (
+          <>
+            Temps bien que mal échange une carte de ta main avec une de ton terrain, puis te laisse choisir parmi 3 effets sous le Vent violent.
+            Éclaircissement : sous le Beau temps, chaque adversaire te donne 5 gold à chaque fois qu'une autre de tes cartes se joue.
+          </>
+        ),
+      },
+      {
+        cat: "cartes",
+        title: "🧭 L'odyssée gobline en équipe",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="GOB-12" cls="hg-pop" />
+          </div>
+        ),
+        text: <>Quand elle se joue, tes alliés peuvent aussi réorganiser leur terrain.</>,
+      },
+      {
+        cat: "visuel",
+        title: "🔉 Voix Météo plus douces",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">▁▃▅▇▅▃▁</span>
+          </div>
+        ),
+        text: <>Les voicelines du deck Météo démarrent et finissent en fondu rapide.</>,
+      },
+    ],
+  },
+  {
     version: "0.34.0",
     date: "21 novembre 2026",
     notes: [

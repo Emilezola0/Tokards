@@ -91,7 +91,7 @@ export const GRENOUILLES: Record<string, CardScript> = {
   // Rainette Roulette : une chance sur trois pour chaque effet
   "GRE-08": {
     activate: (x, { me }) => {
-      const v = x.dice(me, 3);
+      const v = x.dice(me, 3, (v) => ["+10 gold", "trou noir → Blazard", "sentience vraie"][v - 1]);
       if (v === 1) x.gain(me, 10);
       else if (v === 2) x.setBlackHole(me, B);
       else x.setSentience(me, true);
@@ -164,7 +164,9 @@ export const GRENOUILLES: Record<string, CardScript> = {
   // Grenouille Corp CEO : table du d100
   "GRE-13": {
     activate: (x, { id, me }) => {
-      const v = x.dice(me, 100);
+      const v = x.dice(me, 100, (v) =>
+        v <= 10 ? "−10 gold" : v <= 20 ? "+10 gold" : v <= 30 ? "trou noir → Quasar" : v <= 40 ? "trou noir → Blazard" : v <= 50 ? "trou noir → Primordial"
+          : v <= 60 ? "trou noir → Trou de ver" : v <= 70 ? "sentience vraie" : v <= 80 ? "sentience fausse" : "la carte est défaussée");
       if (v <= 10) x.lose(me, 10);
       else if (v <= 20) x.gain(me, 10);
       else if (v <= 30) x.setBlackHole(me, Q);
@@ -183,7 +185,7 @@ export const GRENOUILLES: Record<string, CardScript> = {
       if (!x.spend(me, 10)) return false;
       x.setBlackHole(me, T);
       x.setSentience(me, false);
-      if (x.dice(me, 4) === 4) x.discard(id);
+      if (x.dice(me, 4, (v) => (v === 4 ? "elle se défausse" : "elle reste")) === 4) x.discard(id);
     },
   },
 

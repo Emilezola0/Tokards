@@ -114,7 +114,7 @@ export const EMILE: Record<string, CardScript> = {
   // Obélisque de la vérité : 1d6 ; sur 1 elle part chez le plus pauvre, sinon tu changes une ressource (toi ou un allié)
   "EMI-03": {
     activate: (x, { id, me }) => {
-      if (x.dice(me, 6) === 1) {
+      if (x.dice(me, 6, (v) => (v === 1 ? "l'obélisque part chez le plus pauvre" : "changez une ressource d'un allié")) === 1) {
         const poor = x.poorest(x.order)!;
         if (poor === me) return x.log("Tu es le plus pauvre : l'obélisque reste chez toi.");
         x.log(`L'obélisque part chez le plus pauvre, ${x.name(poor)}.`);
@@ -147,7 +147,7 @@ export const EMILE: Record<string, CardScript> = {
   // Obelix : 30 % → Obélisque de la vérité et sentience vraie ; 70 % → Sanglier chasseur d'or et sentience fausse
   "EMI-05": {
     activate: (x, { me }) => {
-      if (x.dice(me, 10) <= 3) {
+      if (x.dice(me, 10, (v) => (v <= 3 ? "Obélisque de la vérité" : "Sanglier chasseur d'or")) <= 3) {
         x.log("Obelix ramène l'Obélisque de la vérité.");
         bring(x, me, "EMI-03");
         x.setSentience(me, true);
@@ -167,7 +167,7 @@ export const EMILE: Record<string, CardScript> = {
         const rich = x.richest(x.order)!;
         const golds = x.p(rich).terrain.filter((c) => c !== id && isGold(c));
         x.log(`Le plus riche, ${x.name(rich)}, lance un dé pour ${golds.length} carte(s) 💰 (1 chance sur 5 de la perdre).`);
-        for (const c of golds) if (x.dice(rich, 5) === 1) x.discard(c);
+        for (const c of golds) if (x.dice(rich, 5, (v) => (v === 1 ? `« ${card(c).name} » est perdue` : `« ${card(c).name} » reste`)) === 1) x.discard(c);
         x.discard(id);
         return;
       }
@@ -412,7 +412,7 @@ export const EMILE: Record<string, CardScript> = {
   // Thommage : 1d6 ; 6 → le joueur suivant passe son tour, 1 → tu passes ton prochain tour
   "EMI-15": {
     activate: (x, { me }) => {
-      const v = x.dice(me, 6);
+      const v = x.dice(me, 6, (v) => (v === 6 ? "le joueur suivant passe son tour" : v === 1 ? "vous passez votre prochain tour" : "rien ne se passe"));
       if (v === 6) {
         const next = E.neighbours(x.g, me)[1];
         x.p(next).skipNext = true;
@@ -429,7 +429,7 @@ export const EMILE: Record<string, CardScript> = {
     activate: (x, { id, me }) => {
       if (!x.spend(me, 20)) return false;
       x.setBlackHole(me, x.chooseBlackHole(me, "Octogone : nouveau trou noir ?", x.p(me).blackHole, id));
-      if (x.dice(me, 2) === 1 && x.canPay(me, 20) && x.confirm(me, "Octogone : rejouer la carte (20 gold) ?", id)) x.activateCard(id, me);
+      if (x.dice(me, 2, (v) => (v === 1 ? "vous pouvez la rejouer (20 gold)" : "pas de 2e jeu")) === 1 && x.canPay(me, 20) && x.confirm(me, "Octogone : rejouer la carte (20 gold) ?", id)) x.activateCard(id, me);
     },
   },
 
@@ -506,14 +506,14 @@ export const EMILE: Record<string, CardScript> = {
   "EMI-22": {
     activate: (x, { me }) => {
       if (!x.p(me).sentience) return void x.setSentience(me, true);
-      x.setBlackHole(me, [Q, B, T, P][x.dice(me, 4) - 1]);
+      x.setBlackHole(me, [Q, B, T, P][x.dice(me, 4, (v) => `trou noir → ${[Q, B, T, P][v - 1]}`) - 1]);
     },
   },
 
   // Turbo pas broken : pile ou face, 2 gold par carte 🧠 ou par carte 🌀 de ton terrain
   "EMI-23": {
     activate: (x, { me }) => {
-      const sent = x.dice(me, 2) === 1;
+      const sent = x.dice(me, 2, (v) => (v === 1 ? "les cartes 🧠 rapportent" : "les cartes 🌀 rapportent")) === 1;
       const n = x.p(me).terrain.filter(sent ? isSent : isBH).length;
       x.log(`Turbo : ${sent ? "les cartes 🧠" : "les cartes 🌀"} rapportent (${n}).`);
       for (let i = 0; i < n; i++) x.gain(me, 2);
@@ -575,7 +575,7 @@ export const EMILE: Record<string, CardScript> = {
       // N'importe quel joueur, toi compris.
       const u = x.choosePlayer(me, "Gratin : le trou noir de quel joueur (toi compris) ?", x.turnOrder(), id);
       if (!u) return false;
-      if (x.dice(me, 2) === 1) x.setBlackHole(u, x.chooseBlackHole(me, `Nouveau trou noir de ${x.name(u)} ?`, x.p(u).blackHole, id));
+      if (x.dice(me, 2, (v) => (v === 1 ? "le trou noir change" : "raté")) === 1) x.setBlackHole(u, x.chooseBlackHole(me, `Nouveau trou noir de ${x.name(u)} ?`, x.p(u).blackHole, id));
       else x.log("Raté : le trou noir ne change pas.");
     },
   },
