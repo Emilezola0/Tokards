@@ -41,7 +41,7 @@ export const GOBLIN: Record<string, CardScript> = {
   // Goblin Nécromancien
   "GOB-02": {
     activate: (x, { id, me }) => {
-      const cost = x.p(me).blackHole === T ? 0 : 15;
+      const cost = x.p(me).blackHole === T ? 0 : 25;
       if (!x.p(me).discard.length || !x.canPay(me, cost)) return false;
       const q = cost ? `Dépenser ${cost} gold pour récupérer une carte de ta défausse ?` : "Récupérer une carte de ta défausse (gratuit grâce au trou de ver) ?";
       if (!x.confirm(me, q, id)) return false;

@@ -21,6 +21,68 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.34.0",
+    date: "21 novembre 2026",
+    notes: [
+      {
+        cat: "cartes",
+        title: "🌦️ Rework du deck Météo",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🔥 Blazard</span>
+            <Arrow />
+            <span className="pn-chip pn-glow">🌧️ Pluie</span>
+          </div>
+        ),
+        text: (
+          <>
+            Avec le deck Météo en jeu, chacun commence avec une météo au hasard, puis sa météo suit son trou noir. Les 32 cartes ont été
+            refaites d'après tes réponses : un thème par météo, moins de hasard, des effets plus lisibles.
+          </>
+        ),
+      },
+      {
+        cat: "cartes",
+        title: "❄️ Gel, 2e météo et prévisions",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-06" />
+            <Img id="MET-28" />
+            <Img id="MET-24" />
+          </div>
+        ),
+        text: (
+          <>
+            Neige parfaite gèle des cartes jusqu'au prochain changement de météo, Météo étrange donne une 2e météo, et Indice de temps fixe
+            le trou noir d'un joueur pour dans 2 tours de table.
+          </>
+        ),
+      },
+      {
+        cat: "jeu",
+        title: "🙈 Voir le plateau pendant un choix",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🙈 Voir le plateau</span>
+            <Arrow />
+            <span className="pn-chip pn-glow">👁 Revenir au choix</span>
+          </div>
+        ),
+        text: <>Quand un choix t'est demandé, tu peux le masquer pour regarder le plateau et les cartes, puis le rouvrir.</>,
+      },
+      {
+        cat: "cartes",
+        title: "💀 Goblin Nécromancien : 25 💰",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="GOB-02" cls="hg-pop" />
+          </div>
+        ),
+        text: <>Son coût passe de 15 à 25 gold (toujours gratuit en Trou de ver).</>,
+      },
+    ],
+  },
+  {
     version: "0.33.0",
     date: "21 novembre 2026",
     notes: [

@@ -2,7 +2,7 @@
 // Les effets des cartes ne sont pas automatisés : les joueurs les appliquent avec les outils manuels.
 import { BASE_VCS, DECKS, card } from "../data/cards";
 import type { BlackHole, Fx, FxInput, GameState, LogEntry, Phase, PlayerState, Room, Stats, Until, Vote, Zone, Weather } from "./types";
-import { blackHoleLabel, ZONE_LABEL } from "./types";
+import { BH_WEATHER, blackHoleLabel, ZONE_LABEL } from "./types";
 
 export const START_GOLD = 10;
 export const HAND_SIZE = 4;
@@ -72,6 +72,13 @@ export function weatherOf(g: GameState, uid: string): Weather | null {
   if (!p) return null;
   if (p.terrain.includes(ORAGE)) return "Orage";
   return p.weather ?? null;
+}
+/** Le joueur a-t-il la météo `w` (sa météo ou sa 2e météo de « Météo étrange ») ? */
+export function hasWeather(g: GameState, uid: string, w: Weather | null): boolean {
+  const p = g.players[uid];
+  if (!p) return false;
+  const main = weatherOf(g, uid);
+  return main === w || (main !== "Orage" && !!w && p.weather2 === w);
 }
 
 /** Voisins d'un joueur dans l'ordre du tour : [à gauche (précédent), à droite (suivant)]. */
@@ -158,6 +165,12 @@ function expire(room: Room, g: GameState, uid: string, edge: "start" | "end") {
   if (g.tempTags?.length) g.tempTags = [];
   for (const t of (g.temp ?? []).filter((t) => t.uid === uid)) {
     const p = g.players[uid];
+    if (t.kind === "wx") {
+      p.weather = (t.prev || null) as Weather | null;
+      log(g, `⏪ ${nameOf(room, uid)} retrouve sa météo ${t.prev || "Beau temps"} (météo provisoire terminée).`);
+      pushFx(g, { k: "weather", uid, to: p.weather ?? null });
+      continue;
+    }
     if (t.kind === "bh") p.blackHole = t.prev as BlackHole;
     else p.sentience = t.prev === "true";
     log(g, `⏪ ${nameOf(room, uid)} retrouve ${t.kind === "bh" ? `son trou noir ${blackHoleLabel(t.prev as BlackHole)}` : `sa sentience ${t.prev === "true" ? "Vraie" : "Fausse"}`} (valeur provisoire terminée).`);
@@ -234,14 +247,16 @@ export function startGame(room: Room): GameState {
       personalVC: null, personalDone: false, stats: { bhHist: [{ pos: 0, bh: "Primordial" }] },
     };
   }
-  // Deck Météo : son joueur commence avec une météo tirée au hasard (sinon tout le deck attend la carte Météo).
+  // Deck Météo en jeu : chaque joueur commence avec une météo tirée au hasard ; ensuite elle suit son trou noir.
   const SKY = ["Pluie", "Vent violent", "Canicule", "Neige", "Grêle"] as const;
-  for (const uid of order)
-    if (room.players[uid].deck === "Météo") {
+  if (order.some((uid) => room.players[uid].deck === "Météo")) {
+    g.meteo = true;
+    for (const uid of order) {
       const w = SKY[roll(SKY.length) - 1];
       g.players[uid].weather = w;
       log(g, `🌦 ${nameOf(room, uid)} commence avec la météo ${w}.`);
     }
+  }
   // Mode automatique : seules les conditions vérifiées automatiquement sont tirées.
   if (room.auto !== false && hooks.vcOk) vcPool = vcPool.filter(hooks.vcOk);
   vcPool = shuffle(vcPool);
@@ -268,6 +283,7 @@ function beginTurn(room: Room, g: GameState) {
   g.actionsLeft = 1;
   const s = st(p);
   s.bhTurn = 0;
+  s.wxTurn = 0;
   s.failed = 0; // « Inhibition toxique » se vérifie sur un seul tour
   s.spentTurn = 0;
   s.lostTurn = 0;
@@ -347,6 +363,8 @@ export function endTurn(room: Room, g: GameState) {
   const uid = currentPlayer(g);
   const p = g.players[uid];
   rhumeCheck(room, g, uid);
+  // Albédo : la réduction ne dure que le tour visé.
+  if (g.albedo?.uid === uid && pos(g) > g.albedo.at) g.albedo = null;
   const need = Math.max(0, g.handSize - p.hand.length);
   const drawn = drawCards(g, uid, need);
   if (drawn) hooks.drew?.(g, uid, drawn);
@@ -623,10 +641,20 @@ export function setSentience(room: Room, g: GameState, uid: string, v: boolean) 
 }
 
 export function setBlackHole(room: Room, g: GameState, uid: string, b: BlackHole) {
-  if (g.players[uid].locked) return log(g, `🔒 ${nameOf(room, uid)} est bloqué : son trou noir ne peut pas changer.`);
+  if (g.players[uid].locked || bhLocked(g, uid)) return log(g, `🔒 ${nameOf(room, uid)} est bloqué : son trou noir ne peut pas changer.`);
   const before = g.players[uid].blackHole;
   g.players[uid].blackHole = b;
   log(g, `${nameOf(room, uid)} : trou noir ${blackHoleLabel(before)} → ${blackHoleLabel(b)}.`);
+  if (g.meteo && before !== b) {
+    g.players[uid].weather = BH_WEATHER[b];
+    g.players[uid].weather2 = null;
+    log(g, `🌦 Météo de ${nameOf(room, uid)} : ${BH_WEATHER[b]} (suit le trou noir).`);
+  }
+}
+/** Indice de temps : le trou noir de `uid` est figé. */
+export function bhLocked(g: GameState, uid: string): boolean {
+  const u = g.bhLock?.[uid];
+  return u !== undefined && pos(g) <= u;
 }
 
 // ---------- Conditions de victoire ----------

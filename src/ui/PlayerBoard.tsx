@@ -111,6 +111,7 @@ export default function PlayerBoard(p: Props) {
   const sentience = held.sentience ?? st.sentience;
   const bhId = held.bh ?? st.blackHole;
   const weather = E.weatherOf(g, owner);
+  const w2 = g.players[owner]?.weather2 ?? null;
   const lobbyP = room.players[owner];
   const current = E.currentPlayer(g);
   const nextCard = g.phase === "activation" && owner === current ? E.nextActivation(g) : undefined;
@@ -343,8 +344,8 @@ export default function PlayerBoard(p: Props) {
             🌀 {bhId}
           </span>
           {showWeather() && (
-            <span className={`res weather ${weather ? "on" : ""}`} data-weather={owner} title={`Météo : ${weatherLabel(weather)}`}>
-              {weatherIcon(weather)}<small>{weatherLabel(weather)}</small>
+            <span className={`res weather ${weather ? "on" : ""}`} data-weather={owner} title={`Météo : ${weatherLabel(weather)}${w2 ? ` + ${w2} (Météo étrange)` : ""}`}>
+              {weatherIcon(weather)}{w2 && weather !== "Orage" ? weatherIcon(w2) : ""}<small>{weatherLabel(weather)}{w2 && weather !== "Orage" ? ` + ${w2}` : ""}</small>
             </span>
           )}
           <span className={`res gold ${tgt("gold", owner) ? "target" : ""}`} data-gold={owner}>

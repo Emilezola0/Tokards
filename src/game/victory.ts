@@ -94,14 +94,14 @@ const CHECKS: Record<string, (c: C) => Progress> = {
   "VC-POP-2": ({ g, all }) => frac(count(all, (u) => g.players[u].blackHole === "Blazard"), all.length, "Joueurs en Blazard :"),
   "VC-POP-3": ({ s }) => frac(s.goldMoved ?? 0, 150, "Gold échangés entre joueurs :"),
   "VC-MET-1": ({ s, g, uid }) => {
-    const v = E.currentPlayer(g) === uid ? s.bhTurn ?? 0 : 0;
-    return frac(v, 3, "Changements de trou noir ce tour :");
+    const v = E.currentPlayer(g) === uid ? s.wxTurn ?? 0 : 0;
+    return frac(v, 3, "Changements de météo ce tour :");
   },
-  "VC-MET-2": ({ p }) => {
-    const w = p.blackHole === "Trou de ver";
+  "VC-MET-2": ({ p, g, uid }) => {
+    const w = E.hasWeather(g, uid, "Canicule");
     return {
       ratio: (Math.min(p.gold, 150) / 150 + (w ? 1 : 0)) / 2, done: w && p.gold >= 150,
-      text: `💰 ${Math.min(p.gold, 150)}/150 · ${w ? "✔" : "✖"} Trou de ver`,
+      text: `💰 ${Math.min(p.gold, 150)}/150 · ${w ? "✔" : "✖"} Canicule`,
     };
   },
   // Cent Temps : 20 de ses tours, −1 par tranche de 50 gold possédés

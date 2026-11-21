@@ -154,6 +154,8 @@ export default function ChoiceModal({ room, prompt, onAnswer, onCard }: {
   const [order, setOrder] = useState<string[]>(prompt.kind === "order" ? prompt.options : []);
   const [dragging, setDragging] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  // Le choix peut être masqué pour regarder le plateau, puis réaffiché.
+  const [hidden, setHidden] = useState(false);
   const answer = (a: unknown) => {
     if (sent) return;
     setSent(true);
@@ -231,9 +233,18 @@ export default function ChoiceModal({ room, prompt, onAnswer, onCard }: {
     }
   }
 
+  if (hidden)
+    return (
+      <button className="primary choice-reopen" onClick={() => setHidden(false)} title="Réafficher le choix en attente">
+        👁 Revenir au choix
+      </button>
+    );
   return (
     <div className="modal-bg choice-bg">
       <div className="modal panel choice-modal">
+        <button className="choice-hide" onClick={() => setHidden(true)} title="Masquer le choix pour regarder le plateau et les cartes">
+          🙈 Voir le plateau
+        </button>
         <div className="choice-layout">
           {prompt.cardId && (
             <aside className="choice-origin">

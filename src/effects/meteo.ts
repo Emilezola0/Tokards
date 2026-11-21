@@ -1,22 +1,24 @@
-// Météo — effets automatiques. Chaque joueur a une météo, un état à part de son trou noir :
-// Beau temps (au départ), Pluie, Vent violent, Canicule, Neige, Grêle ou Orage (Orage = la carte Orage est sur son terrain).
-// « Il pleut », « canicule »… = la météo du lanceur, sauf pour les cartes « qui s'appliquent à tous les joueurs ».
-// Les choix d'interprétation sont notés dans l'onglet « Interprétations » du tableau.
+// Météo — effets automatiques (rework v0.34). Chaque joueur a sa météo : Beau temps, Pluie, Vent violent, Canicule,
+// Neige, Grêle ou Orage (Orage = la carte Orage est sur son terrain). Quand le deck Météo est en jeu, chacun commence
+// avec une météo au hasard, puis sa météo suit son trou noir (Blazard Pluie · Quasar Vent violent · Trou de ver Canicule ·
+// Primordial Grêle) ; la Neige ne vient que des cartes. Un thème par météo : Pluie = pioche et main, Vent violent =
+// déplacements, Canicule = gold et paris, Neige = accumuler et geler, Grêle = chaos, Orage = blocage.
+// Les choix d'interprétation sont notés dans l'onglet « Interprétations » du tableau et dans docs/interpretations-validees.md.
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole, Weather } from "../game/types";
 import { BH_WEATHER, weatherIcon, weatherLabel } from "../game/types";
-import type { CardScript, Ctx, Self } from "./runtime";
+import type { CardScript, Ctx } from "./runtime";
 
-const P: BlackHole = "Primordial";
-const Q: BlackHole = "Quasar";
-const B: BlackHole = "Blazard";
-const T: BlackHole = "Trou de ver";
 const ORAGE = E.ORAGE;
 /** Météos qu'une carte peut choisir ou tirer (l'Orage ne vient que de sa carte). */
 const SKY: Weather[] = ["Pluie", "Vent violent", "Canicule", "Neige", "Grêle"];
+/** Trou noir associé à chaque météo (inverse de BH_WEATHER ; pas de trou noir pour la Neige). */
+const WEATHER_BH: Partial<Record<Weather, BlackHole>> = { Pluie: "Blazard", "Vent violent": "Quasar", Canicule: "Trou de ver", Grêle: "Primordial" };
+/** Trou noir favorisé : 40 % de chances, +20 % à chaque échec, remis à 40 % une fois obtenu. */
+const FAV_BASE = 40;
+const FAV_STEP = 20;
 
-const tags = (x: Ctx, id: string) => E.tagsOf(x.g, id);
 const num = (x: Ctx, key: string) => Number(x.g.marks?.[key] ?? 0) || 0;
 function setMark(x: Ctx, key: string, v: string | number | null) {
   const m = { ...(x.g.marks ?? {}) };
@@ -28,37 +30,23 @@ const isArmed = (x: Ctx, id: string) => (x.g.armed ?? []).includes(id);
 const arm = (x: Ctx, id: string) => !isArmed(x, id) && (x.g.armed = [...(x.g.armed ?? []), id]);
 const disarm = (x: Ctx, id: string) => (x.g.armed = (x.g.armed ?? []).filter((c) => c !== id));
 
-/** Joueurs (lanceur compris) dont la sentience est vraie et la météo `w`. */
-const touched = (x: Ctx, w: Weather) => x.turnOrder().filter((u) => !x.p(u).out && x.p(u).sentience && x.weather(u) === w);
-/** La météo du lanceur doit être `ws` (sinon l'effet échoue). */
-function need(x: Ctx, me: string, ...ws: Weather[]) {
-  const w = x.weather(me);
-  if (w && ws.includes(w)) return true;
-  x.reason = `Il faut ${ws.join(" ou ")} (ta météo : ${weatherLabel(w)}).`;
-  return false;
+const alive = (x: Ctx) => x.turnOrder().filter((u) => !x.p(u).out);
+/** Joueurs encore en jeu qui ont la météo `w`. */
+const under = (x: Ctx, w: Weather) => alive(x).filter((u) => x.isWeather(u, w));
+const wxText = (w: Weather | null) => `${weatherIcon(w)} ${weatherLabel(w)}`;
+
+/**
+ * Météo utilisée par une carte à plusieurs cas : la météo du joueur, ou sa 2e météo (Météo étrange) s'il en a une
+ * qui sert aussi — il choisit alors laquelle appliquer.
+ */
+function pickWx(x: Ctx, me: string, id: string, useful: Weather[]): Weather | null {
+  const main = x.weather(me);
+  const second = main !== "Orage" ? x.p(me).weather2 ?? null : null;
+  const opts = [main, second].filter((w, i, a): w is Weather => !!w && useful.includes(w) && a.indexOf(w) === i);
+  if (opts.length < 2) return opts[0] ?? main;
+  return opts[x.chooseOption(me, "Météo étrange : quelle météo utiliser pour cette carte ?", opts.map(wxText), id)];
 }
-/** Joueurs autres que `me` dont la sentience est vraie et la météo `w` (effets négatifs : le lanceur est épargné). */
-const touchedOthers = (x: Ctx, me: string, w: Weather) => touched(x, w).filter((u) => u !== me);
-/** Effet de secours quand la météo du lanceur ne convient pas : elle change au hasard. */
-function shiftWeather(x: Ctx, me: string, label: string) {
-  const w = x.random(SKY.filter((s) => s !== x.weather(me)));
-  x.log(`🌦 ${label} : pas la bonne météo, celle de ${x.name(me)} change au hasard.`);
-  x.setWeather(me, w);
-}
-/** Désactive une carte jusqu'à son prochain passage (fin du tour de son joueur). */
-function skipNextPlay(x: Ctx, c: string) {
-  const u = E.locate(x.g, c)?.uid ?? x.current;
-  x.disable(c, u === x.current ? x.untilEndOfTurn() : x.untilEndOfNext(u));
-}
-/** Joue une carte : `me` choisit sa place sur le terrain de `uid`, elle y est posée et son effet s'active pour `me`. */
-function playCard(x: Ctx, c: string, me: string, uid = me) {
-  const from = E.locate(x.g, c);
-  const slot = x.chooseSlot(me, `Où poser « ${card(c).name} » ?`, uid, c);
-  if (!x.move(c, { uid, zone: "terrain", index: slot }, { activate: me })) return false;
-  if (from?.zone === "terrain" && E.locate(x.g, c)?.zone === "terrain") x.activateCard(c, me);
-  return true;
-}
-const activatable = (x: Ctx, list: string[], except?: string) => list.filter((c) => c !== except && x.canActivate(c) && !x.isDisabled(c));
+
 
 /** Fait arriver l'Orage sur le terrain de `me` (à la place `index`). */
 function summonStorm(x: Ctx, me: string, index?: number) {
@@ -74,432 +62,400 @@ function summonStorm(x: Ctx, me: string, index?: number) {
   return x.move(ORAGE, { uid: me, zone: "terrain", index });
 }
 
-/** Une carte de l'autre joueur à la même météo se joue pour `u` (Météo photoshoppée). */
-function photoshop(x: Ctx, self: Self, u: string) {
-  const w = x.weather(u);
-  if (!w) return false;
-  const twins = x.others(u).filter((o) => !x.p(o).out && x.weather(o) === w);
-  const pool = twins.flatMap((o) => activatable(x, x.p(o).terrain, self.id));
-  if (!pool.length) return false;
-  const [c] = x.chooseCards(u, `Météo photoshoppée (${w}) : jouer pour toi une carte d'un joueur qui a la même météo ? (facultatif)`, pool, 0, 1, self.id);
-  if (!c) return false;
-  x.activateCard(c, u);
-  return true;
+/** Inverse l'ordre du terrain de `u` (la carte `keep` garde sa place). */
+function invertTerrain(x: Ctx, u: string, keep: string) {
+  if (x.p(u).terrain.length < 2 || !x.canReorder(u)) return;
+  const t = x.p(u).terrain;
+  const k = t.indexOf(keep);
+  const rest = t.filter((c) => c !== keep).reverse();
+  if (k >= 0) rest.splice(k, 0, keep);
+  x.p(u).terrain = rest;
+  x.log(`🌬️ Mistrale : l'ordre du terrain de ${x.name(u)} s'inverse.`, { src: "MET-04", to: u });
+  x.interact(u, "terrain");
 }
 
-/** Gain lié à un changement de météo (Pas Temps que ça). */
-const xFor = (w: Weather | null) => (w === "Canicule" ? 1 : w === "Grêle" ? 20 : w === "Orage" ? 50 : 5);
+/** Neige parfaite : la carte gèle (désactivée) jusqu'au prochain changement de météo de `uid`. */
+function freeze(x: Ctx, c: string, uid: string) {
+  if (c === ORAGE || E.locate(x.g, c)?.zone !== "terrain" || x.g.disabled?.[c]) return;
+  x.log(`❄️ « ${card(c).name} » gèle jusqu'au prochain changement de météo de ${x.name(uid)}.`, { src: "MET-06", dst: c });
+  if (x.disable(c) && x.g.disabled?.[c]) x.g.frozen = { ...(x.g.frozen ?? {}), [c]: uid };
+}
+
+/** Change la météo de `me` en passant par son trou noir (la météo suit le trou noir) ; Neige / Beau temps : directement. */
+function goWeather(x: Ctx, me: string, w: Weather | null) {
+  const bh = w ? WEATHER_BH[w] : undefined;
+  if (bh && x.p(me).blackHole !== bh) {
+    x.setBlackHole(me, bh);
+    if (x.p(me).blackHole === bh) return;
+  }
+  x.setWeather(me, w);
+}
 
 export const METEO: Record<string, CardScript> = {
-  // Météo : la météo de tout le monde suit le trou noir du lanceur
+  // Météo : dé trou noir avec un trou noir favorisé (40 %, +20 % à chaque échec, remis à 40 % une fois obtenu) ;
+  // la météo du lanceur suit le résultat.
   "MET-01": {
-    activate: (x, { me }) => {
-      const w = BH_WEATHER[x.p(me).blackHole];
-      x.log(`${weatherIcon(w)} ${x.p(me).blackHole} : la météo de tout le monde passe à ${w}.`);
-      for (const u of x.turnOrder()) if (!x.p(u).out) x.setWeather(u, w);
+    activate: (x, { id, me }) => {
+      const key = `MET-01:miss:${me}`;
+      const pct = Math.min(100, FAV_BASE + FAV_STEP * num(x, key));
+      const fav = x.chooseBlackHole(me, `Météo : quel trou noir favoriser (${pct} % de chances) ?`, undefined, id);
+      const b = x.bhDiceFav(me, fav, pct);
+      if (b === fav) setMark(x, key, null);
+      else {
+        setMark(x, key, num(x, key) + 1);
+        x.log(`Météo : raté, ${fav} aura ${Math.min(100, pct + FAV_STEP)} % la prochaine fois.`);
+      }
+      if (x.p(me).blackHole !== b) x.setBlackHole(me, b);
+      if (x.p(me).blackHole === b && x.weather(me) !== BH_WEATHER[b]) x.setWeather(me, BH_WEATHER[b]);
     },
   },
 
-  // Météo pays : fait appel à la carte Météo ; si elle est déjà sur un terrain, changer de trou noir pour 10 gold
+  // Météo pays : pour 20 gold, chaque autre joueur favorise un trou noir puis lance le dé (jamais son trou noir actuel)
   "MET-02": {
     activate: (x, { id, me }) => {
-      const at = E.locate(x.g, "MET-01");
-      if (at?.zone === "terrain") {
-        if (!x.canPay(me, 10)) {
-          x.reason = "La carte Météo est déjà sur un terrain et il faut 10 gold pour changer de trou noir.";
-          return false;
-        }
-        if (!x.confirm(me, "Météo pays : la carte Météo est déjà en jeu. Changer de trou noir pour 10 gold ?", id)) return x.log("Météo pays : rien ne change.");
-        if (!x.spend(me, 10)) return false;
-        x.setBlackHole(me, x.chooseBlackHole(me, "Météo pays : nouveau trou noir ?", x.p(me).blackHole, id));
-        return;
-      }
-      if (x.p(me).blackHole === T) {
-        x.reason = "Tu es en Trou de ver.";
+      const others = alive(x).filter((u) => u !== me);
+      if (!others.length) {
+        x.reason = "Aucun autre joueur.";
         return false;
       }
-      if (!at) {
-        x.reason = "La carte Météo n'est pas en jeu.";
+      if (!x.canPay(me, 20)) {
+        x.reason = "Il faut 20 gold.";
         return false;
       }
-      if (!x.confirm(me, "Météo pays : faire appel à la carte Météo et la jouer ?", id)) return x.log("Météo pays : la carte Météo reste où elle est.");
-      if (playCard(x, "MET-01", me)) x.take("MET-01", me);
+      if (!x.confirm(me, "Météo pays : payer 20 gold pour que chaque autre joueur change de trou noir ?", id)) return x.log("Météo pays : rien ne change.");
+      if (!x.spend(me, 20)) return false;
+      for (const u of others) {
+        const cur = x.p(u).blackHole;
+        const fav = x.chooseBlackHole(u, `Météo pays : quel nouveau trou noir favoriser (${FAV_BASE} % de chances) ?`, cur, id);
+        const b = x.bhDiceFav(u, fav, FAV_BASE, cur);
+        x.setBlackHole(u, b);
+      }
     },
   },
 
-  // Temps pluvieux : autres joueurs sentients sous la pluie → chaque carte 🧠 a 25 % de retourner dans la pioche
+  // Temps pluvieux : votre météo → Pluie ; si c'était déjà la Pluie, piochez 2 cartes
   "MET-03": {
-    activate: (x, { id, me }) => {
-      const who = touchedOthers(x, me, "Pluie");
-      if (!who.length) {
-        x.reason = "Aucun autre joueur n'a la sentience vraie et la pluie.";
-        return false;
-      }
-      for (const u of who) {
-        let back = 0;
-        for (const c of x.p(u).terrain.filter((c) => c !== id && tags(x, c).sentience)) {
-          if (x.dice(u, 4) === 1 && x.move(c, { uid: u, zone: "deck" })) back++;
-        }
-        if (back) x.shuffleZone(u, "deck");
-        else x.log(`${x.name(u)} : aucune carte ne repart.`);
-      }
+    activate: (x, { me }) => {
+      const was = x.isWeather(me, "Pluie");
+      goWeather(x, me, "Pluie");
+      if (was) x.draw(me, 2);
     },
   },
 
-  // Mistrale : joueurs sentients dans le vent violent → 80 % que l'ordre de leur terrain s'inverse
+  // Mistrale (passif) : un joueur qui passe sous le Vent violent voit l'ordre de son terrain s'inverser
+  // (une fois par passage ; ceux qui y sont déjà quand Mistrale arrive aussi). Mistrale garde sa place.
   "MET-04": {
-    activate: (x, { id }) => {
-      const who = touched(x, "Vent violent");
-      if (!who.length) {
-        x.reason = "Aucun joueur n'a la sentience vraie et le vent violent.";
-        return false;
-      }
-      for (const u of who) {
-        if (x.dice(u, 10) > 8) {
-          x.log(`🌬️ ${x.name(u)} : le vent tombe, l'ordre ne change pas.`);
-          continue;
-        }
-        if (!x.canReorder(u)) continue;
-        const t = x.p(u).terrain;
-        const keep = t.indexOf(id);
-        const rest = t.filter((c) => c !== id).reverse();
-        if (keep >= 0) rest.splice(keep, 0, id);
-        x.p(u).terrain = rest;
-        x.log(`🌬️ Le terrain de ${x.name(u)} se joue dans l'autre sens.`, {
-          to: u,
-        });
-        x.interact(u, "terrain");
-      }
-    },
-  },
-
-  // Hot : autres joueurs sentients en canicule → chaque carte 🧠 a 50 % de ne pas se jouer
-  "MET-05": {
-    activate: (x, { id, me }) => {
-      const who = touchedOthers(x, me, "Canicule");
-      if (!who.length) {
-        x.reason = "Aucun autre joueur n'a la sentience vraie et la canicule.";
-        return false;
-      }
-      for (const u of who) {
-        const hot = x.p(u).terrain.filter((c) => c !== id && tags(x, c).sentience && !(x.g.hot ?? []).includes(c));
-        if (!hot.length) continue;
-        x.g.hot = [...(x.g.hot ?? []), ...hot];
-        x.log(`☀️ Hot : ${hot.map((c) => `« ${card(c).name} »`).join(", ")} de ${x.name(u)} — 1 chance sur 2 de ne pas se jouer à leur prochain passage.`, { to: u });
-      }
-    },
-  },
-
-  // Neige parfaite : autres joueurs sentients sous la neige → 25 % qu'une de leurs cartes soit ensevelie
-  "MET-06": {
-    activate: (x, { id, me }) => {
-      const who = touchedOthers(x, me, "Neige");
-      if (!who.length) {
-        x.reason = "Aucun autre joueur n'a la sentience vraie et la neige.";
-        return false;
-      }
-      for (const u of who) {
-        const pool = x.p(u).terrain.filter((c) => c !== id && c !== ORAGE);
-        if (!pool.length) continue;
-        if (x.dice(u, 4) !== 1) {
-          x.log(`❄️ ${x.name(u)} : la neige épargne son terrain.`, { to: u });
-          continue;
-        }
-        const c = x.random(pool);
-        x.log(`❄️ « ${card(c).name} » de ${x.name(u)} est ensevelie sous la neige.`, { dst: c });
-        E.attachUnder(x.g, c, E.SNOW);
-        x.fx({ k: "move", card: c });
-      }
-    },
-  },
-
-  // Temps de Grêle : joueurs sentients sous la grêle → 50 % de gagner 50 gold, sinon donnent 25 gold à chaque autre joueur
-  "MET-07": {
-    activate: (x) => {
-      const who = touched(x, "Grêle");
-      if (!who.length) {
-        x.reason = "Aucun joueur n'a la sentience vraie et la grêle.";
-        return false;
-      }
-      for (const u of who) {
-        if (x.dice(u, 2) === 1) x.gain(u, 50);
-        else for (const o of x.others(u)) if (!x.p(o).out) x.transfer(u, o, 25);
-      }
-    },
-  },
-
-  // Trace de pneu : sous la neige, gagne 1 gold par carte jouée (par n'importe qui) depuis sa pose
-  "MET-08": {
-    activate: (x, { id, me }) => {
-      if (x.weather(me) !== "Neige") return shiftWeather(x, me, "Trace de pneu");
-      const n = num(x, id);
-      if (!n) return x.log("Trace de pneu : aucune carte jouée sous la neige depuis sa pose.");
-      x.gain(me, n);
-      setMark(x, id, 0);
-    },
     on: {
       placed: (x, self, e) => {
-        if (e.card === self.id) setMark(x, self.id, 0);
+        if (e.card !== self.id) return;
+        for (const u of under(x, "Vent violent")) invertTerrain(x, u, self.id);
       },
-      activated: (x, self, e) => {
-        if (e.card === self.id || x.weather(self.me) !== "Neige") return;
-        setMark(x, self.id, num(x, self.id) + 1);
-      },
-    },
-  },
-
-  // Hot-dog : en canicule, tu prends le risque ? 1-20 : +50, 21-40 : −50, 41-100 : tout le monde +20
-  "MET-09": {
-    activate: (x, { id, me }) => {
-      if (x.weather(me) !== "Canicule") return shiftWeather(x, me, "Hot-dog");
-      if (!x.confirm(me, "Hot-dog : manger chaud par cette canicule ?", id)) return x.log("Hot-dog : pas de prise de risque.");
-      const v = x.dice(me, 100);
-      if (v <= 20) x.gain(me, 50);
-      else if (v <= 40) x.lose(me, 50);
-      else for (const u of x.turnOrder()) if (!x.p(u).out) x.gain(u, 20);
-    },
-  },
-
-  // Ga-Doux : sous la pluie, chaque joueur qui le veut a 50 % de gagner 1d100/2 gold, sinon il les perd
-  "MET-10": {
-    activate: (x, { id, me }) => {
-      if (x.weather(me) !== "Pluie") return shiftWeather(x, me, "Ga-Doux");
-      const players = [me, ...x.others(me).filter((u) => !x.p(u).out && x.confirm(u, `Ga-Doux : rejoindre le pari de ${x.name(me)} (gagner ou perdre 1d100/2 gold) ?`, id))];
-      for (const u of players) {
-        const n = Math.floor(x.dice(u, 100) / 2);
-        if (x.dice(u, 2) === 1) x.gain(u, n);
-        else x.lose(u, n);
-      }
-    },
-  },
-
-  // Climatisation : selon ta météo
-  "MET-11": {
-    activate: (x, { id, me }) => {
-      const w = x.weather(me);
-      if (w === "Pluie") x.setWeather(me, "Neige");
-      else if (w === "Vent violent") {
-        const c = x.chooseCard(me, "Climatisation : quelle carte de ton terrain rejouer ?", activatable(x, x.p(me).terrain, id), id);
-        if (!c) {
-          x.reason = "Aucune autre carte de ton terrain à rejouer.";
-          return false;
-        }
-        x.activateCard(c, me);
-      } else if (w === "Canicule") {
-        if (!x.canPay(me, 10)) {
-          x.reason = "Il faut 10 gold.";
-          return false;
-        }
-        if (!x.confirm(me, "Climatisation : choisir un nouveau trou noir contre ta sentience (fausse) et 10 gold ?", id)) return x.log("Climatisation : rien ne change.");
-        if (!x.spend(me, 10)) return false;
-        x.setSentience(me, false);
-        x.setBlackHole(me, x.chooseBlackHole(me, "Climatisation : nouveau trou noir ?", x.p(me).blackHole, id));
-      } else if (w === "Neige" || w === "Grêle") {
-        x.setWeather(me, "Pluie");
-        x.setBlackHole(me, B);
-      } else shiftWeather(x, me, "Climatisation");
-    },
-  },
-
-  // Présentateur météo : change ta sentience gratuitement, et celle d'un autre joueur pour 10 gold
-  "MET-12": {
-    activate: (x, { id, me }) => {
-      if (x.confirm(me, `Présentateur météo : inverser ta sentience (gratuit) ?`, id)) x.invertSentience(me);
-      let others = x.others(me).filter((u) => !x.p(u).out);
-      while (others.length && x.canPay(me, 10)) {
-        const i = x.chooseOption(me, "Présentateur météo : changer la sentience d'un autre joueur pour 10 gold ?", ["Personne d'autre", ...others.map((u) => x.name(u))], id);
-        if (!i) break;
-        const u = others[i - 1];
-        if (!x.spend(me, 10)) break;
-        x.invertSentience(u);
-        others = others.filter((o) => o !== u);
-      }
-    },
-  },
-
-  // Temps d'antenne (passif) : à chaque changement de météo d'un joueur, gagne X gold
-  "MET-13": {
-    on: {
       weather: (x, self, e) => {
-        const gain: Partial<Record<Weather, number>> = {
-          Pluie: 5,
-          "Vent violent": 15,
-          Canicule: -5,
-          Neige: 10,
-          Grêle: 50,
-        };
-        const n = e.to ? (gain[e.to] ?? 0) : 0;
-        if (!n) return;
-        x.triggered(self, `météo de ${x.name(e.uid)} → ${e.to} : ${n > 0 ? "+" : ""}${n} gold.`);
-        if (n > 0) x.gain(self.me, n);
-        else x.lose(self.me, -n);
+        if (e.to !== "Vent violent" || e.from === "Vent violent" || x.p(e.uid)?.out) return;
+        invertTerrain(x, e.uid, self.id);
       },
     },
   },
 
-  // Temps bien que mal : selon ta météo, puis repositionne jusqu'à 3 cartes de toi et tes alliés
-  "MET-14": {
-    activate: (x, { id, me }) => {
-      const w = x.weather(me);
-      if (w === "Canicule") {
-        const u = x.choosePlayer(me, "Temps bien que mal : à qui donner 10 gold ?", x.others(me).filter((u) => !x.p(u).out), id);
-        if (u) x.transfer(me, u, 10);
-      } else if (w === "Vent violent") x.gain(me, x.dice(me, 20));
-      const choosers = w === "Grêle" ? x.turnOrder().filter((u) => !x.p(u).out) : [me];
-      if (w === "Grêle") x.log("🌨️ Grêle : chaque joueur repositionne ses propres cartes.");
-      for (const chooser of choosers) {
-        const team = x.team(chooser);
-        const pool = team.flatMap((u) => x.p(u).terrain).filter((c) => c !== id);
-        const picks = x.chooseCards(chooser, "Temps bien que mal : repositionner jusqu'à 3 cartes (toi et tes alliés).", pool, 0, 3, id);
-        for (const c of picks) {
-          const u = x.choosePlayer(chooser, `Sur quel terrain mettre « ${card(c).name} » ?`, team, id) ?? chooser;
-          const slot = x.chooseSlot(chooser, `À quelle place sur le terrain de ${x.name(u)} ?`, u, c, id);
-          x.move(c, { uid: u, zone: "terrain", index: slot });
-        }
+  // Hot : chaque joueur sous la Canicule lance le dé de sentience ; +10 gold au lanceur par sentience changée
+  "MET-05": {
+    activate: (x, { me }) => {
+      const who = under(x, "Canicule");
+      if (!who.length) {
+        x.reason = "Personne n'a la Canicule.";
+        return false;
       }
+      let n = 0;
+      for (const u of who) {
+        const before = x.p(u).sentience;
+        const v = x.sentDice(u);
+        if (v !== before) x.setSentience(u, v);
+        if (x.p(u).sentience !== before) n++;
+      }
+      if (n) x.gain(me, 10 * n);
+      else x.log("Hot : aucune sentience n'a changé.");
     },
   },
 
-  // Temps qu'à faire : selon ta météo
-  "MET-15": {
-    activate: (x, { id, me }) => {
-      const w = x.weather(me);
-      const all = x.turnOrder().filter((u) => !x.p(u).out);
-      if (w === "Pluie") {
-        for (const u of all) {
-          for (const c of [...x.p(u).hand]) x.move(c, { uid: u, zone: "deck" });
-          x.shuffleZone(u, "deck");
-          x.draw(u, 4);
-        }
-      } else if (w === "Vent violent") {
-        for (const u of all) {
-          if (x.dice(u, 4) !== 1 || x.p(u).terrain.length < 2 || !x.canReorder(u)) continue;
-          x.p(u).terrain = E.shuffle(x.p(u).terrain);
-          x.log(`🌬️ Le terrain de ${x.name(u)} est mélangé.`, { to: u });
-          x.interact(u, "terrain");
-        }
-      } else if (w === "Canicule") {
-        const to = x.chooseBlackHole(me, "Temps qu'à faire : trou noir provisoire (jusqu'à la fin de ton tour) ?", undefined, id);
-        if (!(x.g.temp ?? []).some((t) => t.uid === me && t.kind === "bh")) x.g.temp = [...(x.g.temp ?? []), { uid: me, kind: "bh", prev: x.p(me).blackHole }];
-        x.setBlackHole(me, to);
-      } else if (w === "Grêle") {
-        for (const u of all) {
-          for (const c of [...x.p(u).hand]) x.move(c, { uid: u, zone: "discard" });
-          x.draw(u, 1);
-        }
-      } else shiftWeather(x, me, "Temps qu'à faire");
-    },
-  },
-
-  // Temps Pie (passif) : sous la pluie ou le vent, l'argent perdu est stocké ; récupéré en canicule, perdu en grêle ou orage
-  "MET-16": {
+  // Neige parfaite (passif) : au début du tour d'un joueur sous la Neige, 20 % qu'une carte au hasard de son terrain gèle ;
+  // une carte posée par un joueur sous la Neige a aussi 20 % de geler. Dégel au changement de météo de ce joueur.
+  "MET-06": {
     on: {
-      goldLost: (x, self, e) => {
-        const w = x.weather(self.me);
-        if (e.uid !== self.me || (w !== "Pluie" && w !== "Vent violent")) return;
-        setMark(x, self.id, num(x, self.id) + e.amount);
-        x.triggered(self, `${e.amount} gold perdus sont stockés (${num(x, self.id)} en réserve).`);
+      turnStart: (x, self, e) => {
+        if (x.p(e.uid)?.out || !x.isWeather(e.uid, "Neige")) return;
+        const pool = x.p(e.uid).terrain.filter((c) => c !== ORAGE && !x.g.disabled?.[c]);
+        if (!pool.length || !x.chance(e.uid, 20)) return;
+        freeze(x, x.random(pool), e.uid);
+      },
+      placed: (x, self, e) => {
+        const by = x.current;
+        if (e.card === self.id || !x.isWeather(by, "Neige") || E.locate(x.g, e.card)?.zone !== "terrain") return;
+        if (x.chance(by, 20)) freeze(x, e.card, by);
+      },
+    },
+  },
+
+  // Temps de Grêle (passif) : au début du tour d'un joueur sous la Grêle, une carte au hasard de son terrain va à la défausse
+  "MET-07": {
+    on: {
+      turnStart: (x, self, e) => {
+        if (x.p(e.uid)?.out || !x.isWeather(e.uid, "Grêle")) return;
+        const pool = x.p(e.uid).terrain.filter((c) => c !== ORAGE && c !== self.id);
+        if (!pool.length) return;
+        const c = x.random(pool);
+        x.triggered(self, `la grêle tombe sur le terrain de ${x.name(e.uid)} : « ${card(c).name} » est défaussée.`);
+        x.discard(c);
+      },
+    },
+  },
+
+  // Trace de pneu (passif) : sous la Neige, chaque carte posée (par n'importe qui) met 5 gold de côté ici ;
+  // quand la Neige s'arrête, son joueur les récupère.
+  "MET-08": {
+    on: {
+      placed: (x, self, e) => {
+        if (e.card === self.id || !x.isWeather(self.me, "Neige")) return;
+        setMark(x, self.id, num(x, self.id) + 5);
+        x.triggered(self, `trace dans la neige : +5 gold de côté (${num(x, self.id)}).`);
       },
       weather: (x, self, e) => {
         const n = num(x, self.id);
-        if (e.uid !== self.me || !n) return;
-        if (e.to === "Canicule") {
-          x.triggered(self, `canicule : ${n} gold récupérés.`);
-          setMark(x, self.id, 0);
-          x.gain(self.me, n);
-        } else if (e.to === "Grêle" || e.to === "Orage") {
-          x.triggered(self, `${e.to} : les ${n} gold stockés sont perdus.`);
-          setMark(x, self.id, 0);
-        }
-      },
-    },
-  },
-
-  // Température modérée : peut bloquer la carte Météo, puis météo au hasard ou dé de sentience
-  "MET-17": {
-    activate: (x, { id, me }) => {
-      const met = E.locate(x.g, "MET-01");
-      if (met?.zone === "terrain" && !x.isDisabled("MET-01") && x.confirm(me, "Température modérée : bloquer la carte Météo ?", id)) x.disable("MET-01");
-      const i = x.chooseOption(me, "Température modérée : que faire ?", ["Rien", "Changer ta météo au hasard", "Lancer le dé de sentience"], id);
-      if (i === 1) {
-        const w = x.random(SKY);
-        x.log(`🎯 Météo tirée au hasard : ${w}.`);
-        x.setWeather(me, w);
-      } else if (i === 2) x.setSentience(me, x.sentDice(me));
-    },
-  },
-
-  // Temps tôt fini : sentience vraie → joue une carte de ta main (elle y reste, montrée à tous) et repositionne une carte ;
-  // fausse → chaque autre joueur montre et joue une carte de sa main
-  "MET-18": {
-    activate: (x, { id, me }) => {
-      if (x.p(me).sentience) {
-        const c = x.chooseCard(me, "Temps tôt fini : quelle carte de ta main jouer (elle reste dans ta main) ?", x.p(me).hand.filter((c) => x.canActivate(c)), id);
-        if (c) {
-          x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== c), c];
-        x.noteOrigin("revealed", c);
-          x.noteOrigin("revealed", c);
-          x.log(`👁 ${x.name(me)} montre « ${card(c).name} » et la joue depuis sa main.`, { dst: c });
-          x.activateCard(c, me);
-        }
-        const t = x.p(me).terrain;
-        if (t.length > 1) {
-          const [m] = x.chooseCards(me, "Temps tôt fini : repositionner une carte de ton terrain ? (facultatif)", t, 0, 1, id);
-          if (m)
-            x.move(m, {
-              uid: me,
-              zone: "terrain",
-              index: x.chooseSlot(me, `Nouvelle place de « ${card(m).name} » ?`, me, m, id),
-            });
-        }
-        if (!c && t.length <= 1) {
-          x.reason = "Aucune carte à jouer ni à déplacer.";
-          return false;
-        }
-        return;
-      }
-      for (const u of x.others(me)) {
-        if (x.p(u).out) continue;
-        const c = x.chooseCard(
-          u,
-          `Temps tôt fini : quelle carte de ta main montrer et jouer (elle reste dans ta main) ?`,
-          x.p(u).hand.filter((c) => x.canActivate(c)),
-          id,
-        );
-        if (!c) continue;
-        x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== c), c];
-        x.noteOrigin("revealed", c);
-        x.log(`👁 ${x.name(u)} montre « ${card(c).name} » et la joue depuis sa main.`, { dst: c });
-        x.activateCard(c, u);
-      }
-    },
-  },
-
-  // Pas Temps que ça : gagne X gold maintenant, puis à chaque changement de ta météo
-  "MET-19": {
-    activate: (x, { me }) => {
-      x.gain(me, xFor(x.weather(me)));
-    },
-    on: {
-      turnStart: (x, self, e) => {
-        if (e.uid === self.me) setMark(x, `${self.id}:seen`, null);
-      },
-      weather: (x, self, e) => {
-        if (E.locate(x.g, self.id)?.zone !== "terrain") return;
-        let n = xFor(e.to);
-        if (x.current === self.me) {
-          const seen = (x.g.marks?.[`${self.id}:seen`] ?? "").split("|").filter(Boolean);
-          if (seen.length >= 4) n = 50;
-          const k = weatherLabel(e.to);
-          if (!seen.includes(k)) setMark(x, `${self.id}:seen`, [...seen, k].join("|"));
-        }
-        x.triggered(self, `météo de ${x.name(e.uid)} → ${weatherLabel(e.to)} : +${n} gold.`);
+        if (e.uid !== self.me || e.from !== "Neige" || e.to === "Neige" || !n) return;
+        setMark(x, self.id, null);
+        x.triggered(self, `la neige fond : ${n} gold récupérés.`);
         x.gain(self.me, n);
       },
     },
   },
 
-  // Temps de merde : sous la pluie, un orage se prépare ; si la carte est encore là au début de ton prochain tour, l'Orage prend sa place
+  // Hot-dog : pari jusqu'à 50 gold, 1d6 (4-6 gagné, 1-3 perdu) ; sous la Canicule, gain et perte × le nombre de joueurs
+  // sous la Canicule (×2 au minimum)
+  "MET-09": {
+    activate: (x, { id, me }) => {
+      const max = Math.min(50, x.p(me).gold);
+      if (max <= 0) {
+        x.reason = "Il faut au moins 1 gold pour parier.";
+        return false;
+      }
+      const hot = x.isWeather(me, "Canicule");
+      const m = hot ? Math.max(2, under(x, "Canicule").length) : 1;
+      const bet = x.chooseNumber(me, `Hot-dog : combien parier (jusqu'à 50) ?${hot ? ` Canicule : gain ou perte × ${m}.` : ""}`, 0, max, id);
+      if (!bet) return x.log("Hot-dog : pas de pari.");
+      const v = x.dice(me, 6);
+      if (v >= 4) x.gain(me, bet * m);
+      else x.lose(me, bet * m);
+    },
+  },
+
+  // Ga-Doux : défaussez une carte du terrain d'un joueur sous la Pluie ; ce joueur peut poser une carte de sa main sans son effet
+  "MET-10": {
+    activate: (x, { id, me }) => {
+      const rainy = under(x, "Pluie");
+      const pool = rainy.flatMap((u) => x.p(u).terrain).filter((c) => c !== id && c !== ORAGE);
+      if (!pool.length) {
+        x.reason = "Aucune carte sur le terrain d'un joueur sous la Pluie.";
+        return false;
+      }
+      const c = x.chooseCard(me, "Ga-Doux : quelle carte défausser (terrain d'un joueur sous la Pluie) ?", pool, id);
+      if (!c) return false;
+      const u = E.locate(x.g, c)!.uid;
+      x.discard(c);
+      const [h] = x.chooseCards(u, "Ga-Doux : poser une carte de ta main sur ton terrain, sans son effet ? (facultatif)", x.p(u).hand.filter((c) => c !== ORAGE), 0, 1, id);
+      if (h) x.move(h, { uid: u, zone: "terrain", index: x.chooseSlot(u, `Où poser « ${card(h).name} » ?`, u, h, id) }, { activate: false });
+    },
+  },
+
+  // Climatisation : payer (facultatif) pour une météo provisoire jusqu'à la fin de votre tour
+  "MET-11": {
+    activate: (x, { id, me }) => {
+      const opts: [string, number, Weather | null][] = [];
+      if (x.isWeather(me, "Canicule")) opts.push(["10 gold : Canicule → Beau temps", 10, null]);
+      opts.push(["25 gold : Vent violent", 25, "Vent violent"], ["25 gold : Neige", 25, "Neige"]);
+      const ok = opts.filter((o) => x.canPay(me, o[1]));
+      if (!ok.length) {
+        x.reason = "Pas assez de gold.";
+        return false;
+      }
+      const i = x.chooseOption(me, "Climatisation : météo provisoire jusqu'à la fin de ton tour ?", ["Rien", ...ok.map((o) => o[0])], id);
+      if (!i) return x.log("Climatisation : rien ne change.");
+      const [, cost, w] = ok[i - 1];
+      if (!x.spend(me, cost)) return false;
+      x.setWeatherUntilTurnEnd(me, w);
+    },
+  },
+
+  // Présentateur météo : prédit la météo de chaque autre joueur ; si tout est juste au début de votre prochain tour,
+  // inversez la sentience d'un joueur de votre choix.
+  "MET-12": {
+    activate: (x, { id, me }) => {
+      const others = alive(x).filter((u) => u !== me);
+      if (!others.length) {
+        x.reason = "Aucun autre joueur.";
+        return false;
+      }
+      const all: (Weather | null)[] = [null, ...SKY, "Orage"];
+      const pred: Record<string, string> = {};
+      for (const u of others) pred[u] = weatherLabel(all[x.chooseOption(me, `Présentateur météo : quelle météo aura ${x.name(u)} au début de ton prochain tour ?`, all.map(wxText), id)]);
+      setMark(x, id, JSON.stringify({ by: me, at: E.pos(x.g), pred }));
+      x.log(`📺 Prévisions : ${others.map((u) => `${x.name(u)} ${pred[u]}`).join(" · ")}.`);
+    },
+    on: {
+      turnStart: (x, self, e) => {
+        const raw = x.g.marks?.[self.id];
+        if (!raw) return;
+        const m = JSON.parse(raw) as { by: string; at: number; pred: Record<string, string> };
+        if (e.uid !== m.by || E.pos(x.g) <= m.at) return;
+        setMark(x, self.id, null);
+        const wrong = Object.entries(m.pred).filter(([u, w]) => x.p(u) && !x.p(u).out && weatherLabel(E.weatherOf(x.g, u)) !== w);
+        if (wrong.length) return x.triggered(self, `prévisions fausses (${wrong.map(([u]) => x.name(u)).join(", ")}).`);
+        x.triggered(self, "toutes les prévisions sont justes !");
+        const u = x.choosePlayer(m.by, "Présentateur météo : inverser la sentience de qui ?", alive(x), self.id);
+        if (u) x.invertSentience(u);
+      },
+    },
+  },
+
+  // Temps d'antenne : 5 gold par cran, la météo avance Grêle → Pluie → Vent violent → Canicule → Grêle ;
+  // le trou noir suit la météo obtenue.
+  "MET-13": {
+    activate: (x, { id, me }) => {
+      const cycle: Weather[] = ["Grêle", "Pluie", "Vent violent", "Canicule"];
+      const max = Math.min(3, Math.floor(x.p(me).gold / 5));
+      if (max <= 0) {
+        x.reason = "Il faut 5 gold par cran.";
+        return false;
+      }
+      const cur = x.weather(me);
+      const i = cur ? cycle.indexOf(cur) : -1;
+      const steps = x.chooseNumber(me, `Temps d'antenne : de combien de crans avancer (5 gold par cran) ? Ta météo : ${weatherLabel(cur)}.`, 0, max, id);
+      if (!steps) return x.log("Temps d'antenne : la météo ne change pas.");
+      if (!x.spend(me, 5 * steps)) return false;
+      const to = cycle[i < 0 ? (steps - 1) % 4 : (i + steps) % 4];
+      goWeather(x, me, to);
+    },
+  },
+
+  // Temps bien que mal : repositionnez jusqu'à 2 cartes de votre terrain ; sous le Vent violent, 1d3 :
+  // 1 échange défausse ↔ terrain · 2 une carte au hasard de chaque terrain part sur le terrain suivant ·
+  // 3 chaque joueur sous le Vent violent défausse une carte au hasard de son terrain.
+  "MET-14": {
+    activate: (x, { id, me }) => {
+      const picks = x.chooseCards(me, "Temps bien que mal : repositionner jusqu'à 2 cartes de ton terrain ?", x.p(me).terrain.filter((c) => c !== id), 0, 2, id);
+      for (const c of picks) x.move(c, { uid: me, zone: "terrain", index: x.chooseSlot(me, `Nouvelle place de « ${card(c).name} » ?`, me, c, id) });
+      if (pickWx(x, me, id, ["Vent violent"]) !== "Vent violent") return;
+      const v = x.dice(me, 3);
+      if (v === 1) {
+        const d = x.chooseCard(me, "Vent violent : quelle carte de ta défausse remettre sur ton terrain ?", x.p(me).discard, id);
+        const t = d && x.chooseCard(me, "Vent violent : contre quelle carte de ton terrain ?", x.p(me).terrain.filter((c) => c !== id && c !== ORAGE), id);
+        if (!d || !t) return x.log("Vent violent : rien à échanger.");
+        const idx = x.p(me).terrain.indexOf(t);
+        x.discard(t);
+        x.move(d, { uid: me, zone: "terrain", index: idx }, { activate: false });
+      } else if (v === 2) {
+        const all = alive(x);
+        const moves = all
+          .map((u, k) => [x.p(u).terrain.filter((c) => c !== ORAGE && c !== id), all[(k + 1) % all.length]] as const)
+          .filter(([pool]) => pool.length)
+          .map(([pool, to]) => [x.random(pool), to] as const);
+        x.log("🌬️ Le vent emporte une carte de chaque terrain chez le joueur suivant.");
+        for (const [c, to] of moves) x.move(c, { uid: to, zone: "terrain" });
+      } else {
+        for (const u of under(x, "Vent violent")) {
+          const pool = x.p(u).terrain.filter((c) => c !== ORAGE && c !== id);
+          if (pool.length) x.discard(x.random(pool));
+        }
+      }
+    },
+  },
+
+  // Temps qu'à faire : jusqu'à 2 fois, échangez une carte entre les mains de deux joueurs sous la Pluie ;
+  // si vous ne faites rien, vous pouvez inverser votre sentience.
+  "MET-15": {
+    activate: (x, { id, me }) => {
+      let done = 0;
+      for (let k = 0; k < 2; k++) {
+        const rainy = under(x, "Pluie").filter((u) => x.p(u).hand.length);
+        if (rainy.length < 2) break;
+        if (!x.confirm(me, `Temps qu'à faire (${k + 1}/2) : échanger une carte entre les mains de deux joueurs sous la Pluie ?`, id)) break;
+        const a = x.choosePlayer(me, "Première main ?", rainy, id);
+        const b = a && x.choosePlayer(me, "Avec la main de qui ?", rainy.filter((u) => u !== a), id);
+        if (!a || !b) break;
+        const ca = x.chooseCard(me, `Quelle carte de la main de ${x.name(a)} ?`, x.p(a).hand, id);
+        const cb = x.chooseCard(me, `Contre quelle carte de la main de ${x.name(b)} ?`, x.p(b).hand, id);
+        if (!ca || !cb) break;
+        x.move(ca, { uid: b, zone: "hand" });
+        x.move(cb, { uid: a, zone: "hand" });
+        x.log(`🌧️ ${x.name(a)} et ${x.name(b)} échangent une carte de leur main.`);
+        done++;
+      }
+      if (!done && x.confirm(me, "Temps qu'à faire : aucun échange. Inverser ta sentience ?", id)) x.invertSentience(me);
+    },
+  },
+
+  // Temps Pie (passif) : sous la Neige, les gold perdus sont mis de côté ; quand la Neige s'arrête ils reviennent,
+  // sauf si la météo passe à Grêle ou Orage (perdus).
+  "MET-16": {
+    on: {
+      goldLost: (x, self, e) => {
+        if (e.uid !== self.me || !x.isWeather(self.me, "Neige")) return;
+        setMark(x, self.id, num(x, self.id) + e.amount);
+        x.triggered(self, `${e.amount} gold perdus sont mis de côté (${num(x, self.id)} en réserve).`);
+      },
+      weather: (x, self, e) => {
+        const n = num(x, self.id);
+        if (e.uid !== self.me || e.from !== "Neige" || e.to === "Neige" || !n) return;
+        setMark(x, self.id, null);
+        if (e.to === "Grêle" || e.to === "Orage") return x.triggered(self, `${e.to} : les ${n} gold mis de côté sont perdus.`);
+        x.triggered(self, `la neige fond : ${n} gold récupérés.`);
+        x.gain(self.me, n);
+      },
+    },
+  },
+
+  // Température modérée : la météo de tous les autres joueurs devient la vôtre (pas sous l'Orage)
+  "MET-17": {
+    activate: (x, { me }) => {
+      const w = x.weather(me);
+      if (w === "Orage") {
+        x.reason = "Ne marche pas sous l'Orage.";
+        return false;
+      }
+      x.log(`🌡️ Température modérée : tout le monde passe à ${wxText(w)}.`);
+      for (const u of alive(x)) if (u !== me) x.setWeather(u, w);
+    },
+  },
+
+  // Temps tôt fini : sentience vraie → jouez l'effet d'une carte de votre main (elle reste en main) ; fausse → sentience vraie
+  "MET-18": {
+    activate: (x, { id, me }) => {
+      if (!x.p(me).sentience) {
+        x.setSentience(me, true);
+        return;
+      }
+      const c = x.chooseCard(me, "Temps tôt fini : quelle carte de ta main jouer (elle reste dans ta main) ?", x.p(me).hand.filter((c) => x.canActivate(c)), id);
+      if (!c) {
+        x.reason = "Aucune carte de ta main à jouer.";
+        return false;
+      }
+      x.g.revealed = [...(x.g.revealed ?? []).filter((r) => r !== c), c];
+      x.noteOrigin("revealed", c);
+      x.log(`👁 ${x.name(me)} montre « ${card(c).name} » et la joue depuis sa main.`, { dst: c });
+      x.activateCard(c, me);
+    },
+  },
+
+  // Pas Temps que ça : gagnez 1d6 × 5 gold ; sous la Grêle, un autre joueur au hasard perd autant
+  "MET-19": {
+    activate: (x, { me }) => {
+      const n = x.dice(me, 6) * 5;
+      x.gain(me, n);
+      if (!x.isWeather(me, "Grêle")) return;
+      const u = x.randomPlayer(alive(x).filter((u) => u !== me));
+      if (u) x.lose(u, n);
+    },
+  },
+
+  // Temps de merde : sous la Pluie, un orage se prépare (l'Orage prend sa place à sa prochaine activation) ; sinon météo → Pluie
   "MET-20": {
     activate: (x, { id, me }) => {
       if (isArmed(x, id)) {
@@ -511,7 +467,11 @@ export const METEO: Record<string, CardScript> = {
         summonStorm(x, at.uid, at.index);
         return;
       }
-      if (x.weather(me) !== "Pluie") return shiftWeather(x, me, "Temps de merde");
+      if (!x.isWeather(me, "Pluie")) {
+        x.log("Temps de merde : pas encore de pluie, elle arrive.");
+        goWeather(x, me, "Pluie");
+        return;
+      }
       arm(x, id);
       x.log("⛈️ Un orage se prépare : à la prochaine activation de cette carte, l'Orage arrive.");
     },
@@ -534,10 +494,7 @@ export const METEO: Record<string, CardScript> = {
         if (n >= 5) {
           setMark(x, self.id, null);
           x.triggered(self, "après 5 tours, l'orage se dissipe.");
-          x.move(self.id, {
-            uid: x.g.owner[self.id] ?? self.me,
-            zone: "discard",
-          });
+          x.move(self.id, { uid: x.g.owner[self.id] ?? self.me, zone: "discard" });
           return;
         }
         if (e.uid !== self.me) return;
@@ -550,246 +507,172 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Temps pour prier : 25 % de pouvoir changer ta météo, puis 1d100 : 1 → Orage (ou +150 s'il est déjà chez toi),
-  // 100 → +100 gold, 50 → donne 50 gold à chaque joueur
+  // Temps pour prier : 1d6 — 1 l'Orage arrive chez vous (déjà là : +250) · 2-5 +20 · 6 choisissez votre météo et +50
   "MET-22": {
     activate: (x, { id, me }) => {
-      if (x.dice(me, 4) === 1) {
-        const i = x.chooseOption(me, "Temps pour prier : ta nouvelle météo ?", SKY.map((w) => `${weatherIcon(w)} ${w}`), id);
-        x.setWeather(me, SKY[i]);
-      } else x.log("Temps pour prier : la météo ne change pas.");
-      const v = x.dice(me, 100);
+      const v = x.dice(me, 6);
       if (v === 1) {
-        if (x.p(me).terrain.includes(ORAGE)) x.gain(me, 150);
+        if (x.p(me).terrain.includes(ORAGE)) x.gain(me, 250);
         else summonStorm(x, me);
-      } else if (v === 100) x.gain(me, 100);
-      else if (v === 50) for (const u of x.others(me)) if (!x.p(u).out) x.transfer(me, u, 50);
-      else x.log("Les prières restent sans réponse.");
+      } else if (v <= 5) x.gain(me, 20);
+      else {
+        const i = x.chooseOption(me, "Temps pour prier : ta nouvelle météo ?", SKY.map(wxText), id);
+        goWeather(x, me, SKY[i]);
+        x.gain(me, 50);
+      }
     },
   },
 
-  // Temporiser (passif) : au début de ton tour, si ta sentience est vraie, tu peux payer selon ta météo pour un effet
+  // Temporiser : payez 30 gold pour l'action de votre météo
   "MET-23": {
     activate: (x, { id, me }) => {
-      const self = { id, me };
-      if (!x.p(me).sentience) {
-        x.reason = "Ta sentience est fausse.";
-        return false;
-      }
-      const w = x.weather(me);
-      const cost: Partial<Record<Weather, [number, string]>> = {
-        Pluie: [20, "changer la position d'une carte"],
-        "Vent violent": [50, "échanger les terrains de deux joueurs"],
-        Canicule: [100, "changer le trou noir d'un joueur"],
-        Neige: [50, "défausser la carte de n'importe qui"],
-        Grêle: [20, "empêcher une carte de se jouer à son prochain passage"],
+      const acts: Partial<Record<Weather, string>> = {
+        Pluie: "piocher 2 cartes",
+        "Vent violent": "déplacer une carte sur son terrain",
+        Canicule: "gagner 1d6 × 10 gold",
+        Neige: "désactiver une carte jusqu'à la fin de ton prochain tour",
+        Grêle: "défausser une carte au hasard d'un terrain",
       };
-      const c = w ? cost[w] : undefined;
-      if (!c) {
-        x.reason = `Rien à faire avec ta météo (${weatherLabel(w)}).`;
+      const w = pickWx(x, me, id, Object.keys(acts) as Weather[]);
+      const what = w ? acts[w] : undefined;
+      if (!w || !what) {
+        x.reason = `Rien à faire avec ta météo (${weatherLabel(x.weather(me))}).`;
         return false;
       }
-      if (!x.canPay(me, c[0])) {
-        x.reason = `Il faut ${c[0]} gold.`;
+      if (!x.canPay(me, 30)) {
+        x.reason = "Il faut 30 gold.";
         return false;
       }
-      if (!x.confirm(me, `Temporiser (${w}) : payer ${c[0]} gold pour ${c[1]} ?`, self.id)) return x.log("Temporiser : rien n'est fait.");
-      if (!x.spend(me, c[0])) return false;
-      const all = x.turnOrder().filter((u) => !x.p(u).out);
-      if (w === "Pluie") {
-        const m = x.chooseCard(me, "Temporiser : quelle carte déplacer ?", x.allTerrainCards(), self.id);
+      if (!x.confirm(me, `Temporiser (${w}) : payer 30 gold pour ${what} ?`, id)) return x.log("Temporiser : rien n'est fait.");
+      if (!x.spend(me, 30)) return false;
+      if (w === "Pluie") x.draw(me, 2);
+      else if (w === "Vent violent") {
+        const m = x.chooseCard(me, "Temporiser : quelle carte déplacer ?", x.allTerrainCards().filter((c) => c !== ORAGE), id);
         const u = m ? E.locate(x.g, m)?.uid : null;
-        if (m && u)
-          x.move(m, {
-            uid: u,
-            zone: "terrain",
-            index: x.chooseSlot(me, `Nouvelle place de « ${card(m).name} » ?`, u, m, self.id),
-          });
-      } else if (w === "Vent violent") {
-        const a = x.choosePlayer(me, "Temporiser : premier terrain à échanger ?", all, self.id);
-        const b =
-          a &&
-          x.choosePlayer(
-            me,
-            "Temporiser : avec quel terrain ?",
-            all.filter((u) => u !== a),
-            self.id,
-          );
-        if (a && b && x.canReorder(a) && x.canReorder(b)) {
-          const ta = x.p(a).terrain;
-          x.p(a).terrain = x.p(b).terrain;
-          x.p(b).terrain = ta;
-          x.log(`🌬️ ${x.name(a)} et ${x.name(b)} échangent leurs terrains.`);
-          x.interact(a, "terrain");
-          x.interact(b, "terrain");
-        }
-      } else if (w === "Canicule") {
-        const u = x.choosePlayer(me, "Temporiser : le trou noir de qui changer ?", all, self.id);
-        if (u) x.setBlackHole(u, x.chooseBlackHole(me, `Nouveau trou noir de ${x.name(u)} ?`, x.p(u).blackHole, self.id));
-      } else if (w === "Neige") {
-        const m = x.chooseCard(
-          me,
-          "Temporiser : quelle carte défausser ?",
-          x.allTerrainCards().filter((c) => c !== self.id),
-          self.id,
-        );
-        if (m) x.discard(m);
+        if (m && u) x.move(m, { uid: u, zone: "terrain", index: x.chooseSlot(me, `Nouvelle place de « ${card(m).name} » ?`, u, m, id) });
+      } else if (w === "Canicule") x.gain(me, x.dice(me, 6) * 10);
+      else if (w === "Neige") {
+        const m = x.chooseCard(me, "Temporiser : quelle carte désactiver ?", x.allTerrainCards().filter((c) => c !== id), id);
+        if (m) x.disable(m, x.untilEndOfNext(me));
       } else {
-        const m = x.chooseCard(
-          me,
-          "Temporiser : quelle carte geler ?",
-          x.allTerrainCards().filter((c) => !x.isDisabled(c)),
-          self.id,
-        );
-        if (m) skipNextPlay(x, m);
+        const u = x.choosePlayer(me, "Temporiser : sur quel terrain faire tomber la grêle ?", alive(x).filter((u) => x.p(u).terrain.some((c) => c !== ORAGE && c !== id)), id);
+        if (u) x.discard(x.random(x.p(u).terrain.filter((c) => c !== ORAGE && c !== id)));
       }
     },
   },
 
-  // Indice de temps : selon la météo d'un joueur tiré au hasard, change le trou noir de la cible
+  // Indice de temps : choisissez un joueur et un trou noir ; il l'aura dans 2 tours de table. En attendant, cette carte est
+  // désactivée et le trou noir de ce joueur ne peut pas changer. Puis la carte va à la défausse.
   "MET-24": {
+    evenDisabled: true,
     activate: (x, { id, me }) => {
-      const src = x.randomPlayer(x.turnOrder().filter((u) => !x.p(u).out && x.weather(u)));
-      if (!src) {
-        x.reason = "Personne n'a de météo (Beau temps partout).";
-        return false;
-      }
-      const w = x.weather(src)!;
-      if (w === "Orage") {
-        x.log("⛈️ Orage : le trou noir de tout le monde est tiré au hasard.");
-        for (const u of x.turnOrder()) if (!x.p(u).out) x.setBlackHole(u, x.bhDice(u));
-        return;
-      }
-      const u = x.choosePlayer(me, `Indice de temps (${w}) : le trou noir de qui changer ?`, x.turnOrder().filter((u) => !x.p(u).out), id);
+      if (x.g.marks?.[id]) return x.log("Indice de temps : une prévision est déjà en cours.");
+      const u = x.choosePlayer(me, "Indice de temps : le trou noir de qui changer ?", alive(x), id);
       if (!u) return false;
-      const map: Partial<Record<Weather, BlackHole>> = {
-        Pluie: Q,
-        "Vent violent": P,
-        Canicule: T,
-        Neige: B,
-      };
-      const to = map[w] ?? x.chooseBlackHole(u, "Grêle : choisis ton trou noir.", undefined, id);
-      x.setBlackHole(u, to);
+      const bh = x.chooseBlackHole(me, `Indice de temps : quel trou noir pour ${x.name(u)} (dans 2 tours de table) ?`, undefined, id);
+      const due = E.pos(x.g) + 2 * x.g.order.length;
+      setMark(x, id, `${u}|${bh}|${due}`);
+      x.g.bhLock = { ...(x.g.bhLock ?? {}), [u]: due };
+      E.disableCard(x.g, id);
+      x.log(`🔮 Indice de temps : ${x.name(u)} passera en ${bh} dans 2 tours de table ; d'ici là, son trou noir est figé.`, { dst: id, to: u });
+    },
+    beforeLeave: (x, self) => {
+      const v = x.g.marks?.[self.id];
+      if (!v) return;
+      const [u] = v.split("|");
+      setMark(x, self.id, null);
+      const l = { ...(x.g.bhLock ?? {}) };
+      delete l[u];
+      x.g.bhLock = l;
+    },
+    on: {
+      turnEnd: (x, self) => {
+        const v = x.g.marks?.[self.id];
+        if (!v) return;
+        const [u, bh, due] = v.split("|");
+        if (E.pos(x.g) < Number(due)) return;
+        setMark(x, self.id, null);
+        const l = { ...(x.g.bhLock ?? {}) };
+        delete l[u];
+        x.g.bhLock = l;
+        E.enableCard(x.g, self.id);
+        x.triggered(self, `la prévision tombe : ${x.name(u)} passe en ${bh}.`);
+        if (x.p(u) && !x.p(u).out) x.setBlackHole(u, bh as BlackHole);
+        if (E.locate(x.g, self.id)?.zone === "terrain") x.discard(self.id);
+      },
     },
   },
 
-  // Albédo : à la fin de ton tour, les gold gagnés pendant ce tour sont multipliés selon ta météo au moment de la carte
+  // Albédo : choisissez un joueur ; pendant son prochain tour, ses gains sont réduits (moitié sous la Neige, sinon −10 %)
   "MET-25": {
     activate: (x, { id, me }) => {
-      const w = x.weather(me);
-      const m = w === "Pluie" ? 1.5 : w === "Neige" ? 2 : w === "Canicule" ? 0.5 : 1;
-      if (m === 1) {
-        x.reason = `Multiplicateur ×1 avec ta météo (${weatherLabel(w)}).`;
-        return false;
-      }
-      setMark(x, id, `${me}:${E.pos(x.g)}:${m}`);
-      x.log(`☀️ Albédo : à la fin de ton tour, les gold gagnés ce tour seront multipliés par ${m}.`);
-    },
-    on: {
-      turnEnd: (x, self, e) => {
-        const v = x.g.marks?.[self.id];
-        if (!v || e.uid !== self.me) return;
-        const [uid, at, m] = v.split(":");
-        if (uid !== self.me || Number(at) !== E.pos(x.g)) return;
-        setMark(x, self.id, null);
-        const gained = x.p(self.me).goldGainedSince ?? 0;
-        const delta = Math.trunc(gained * Number(m)) - gained;
-        x.triggered(self, `${gained} gold gagnés ce tour × ${m}.`);
-        if (delta > 0) x.gain(self.me, delta);
-        else if (delta < 0) x.lose(self.me, -delta);
-      },
+      const u = x.choosePlayer(me, "Albédo : quel joueur viser ?", alive(x), id);
+      if (!u) return false;
+      x.g.albedo = { uid: u, by: me, at: E.pos(x.g) };
+      x.log(`🪞 Albédo : pendant son prochain tour, les gains de ${x.name(u)} sont réduits (moitié sous la Neige, sinon −10 %).`, { to: u });
     },
   },
 
-  // Nuage : 1d100 × multiplicateur de ta météo ; 50 % de le répartir entre tous les joueurs
+  // Nuage : choisissez Pluie, Grêle ou Neige ; les cartes placées après Nuage sur son terrain voient cette météo
   "MET-26": {
-    activate: (x, { me }) => {
-      const w = x.weather(me);
-      const mult: Record<string, number> = {
-        Pluie: 1.5,
-        "Vent violent": 2,
-        Canicule: 0,
-        Neige: 0.5,
-        Grêle: -1,
-        Orage: -2,
-      };
-      const m = w ? mult[w] : 1;
-      const v = Math.trunc(x.dice(me, 100) * m);
-      x.log(`☁️ Nuage : ${v} gold (×${m}, ${weatherLabel(w)}).`);
-      const all = x.turnOrder().filter((u) => !x.p(u).out);
-      const share = x.dice(me, 2) === 1;
-      const each = share ? Math.trunc(v / all.length) : v;
-      if (share) x.log(`Les ${v > 0 ? "gains" : "coûts"} sont répartis : ${each} chacun.`);
-      for (const u of share ? all : [me]) {
-        if (each > 0) x.gain(u, each);
-        else if (each < 0) x.lose(u, -each);
-      }
+    activate: (x, { id, me }) => {
+      const opts: Weather[] = ["Pluie", "Grêle", "Neige"];
+      const w = opts[x.chooseOption(me, "Nuage : quelle météo pour les cartes placées après Nuage ?", opts.map(wxText), id)];
+      setMark(x, id, w);
+      x.log(`☁️ Nuage : les cartes après Nuage sur le terrain de ${x.name(me)} voient la météo ${wxText(w)}.`);
     },
   },
 
-  // Météo photoshoppée : deux joueurs à la même météo peuvent jouer une carte de l'autre au début de leur tour
+  // Météo photoshoppée : copiez l'effet d'une carte Météo visible (votre main, terrains, défausses, cartes montrées)
   "MET-27": {
-    activate: (x, self) => {
-      if (!photoshop(x, self, self.me)) {
-        x.reason = "Aucun autre joueur n'a ta météo, ou aucune carte choisie.";
+    activate: (x, { id, me }) => {
+      const visible = (c: string) => {
+        const at = E.locate(x.g, c);
+        if (!at) return false;
+        if (at.zone === "terrain" || at.zone === "discard") return true;
+        return at.zone === "hand" && (at.uid === me || (x.g.revealed ?? []).includes(c));
+      };
+      const pool = alive(x)
+        .flatMap((u) => [...x.p(u).terrain, ...x.p(u).discard, ...x.p(u).hand])
+        .filter((c) => c.startsWith("MET-") && c !== id && c !== ORAGE && visible(c) && x.canActivate(c));
+      const c = x.chooseCard(me, "Météo photoshoppée : quel effet de carte Météo copier ?", pool, id);
+      if (!c) {
+        x.reason = "Aucune carte Météo visible à copier.";
         return false;
       }
-    },
-    on: {
-      turnStart: (x, self, e) => {
-        if (x.p(e.uid)?.out) return;
-        photoshop(x, self, e.uid);
-      },
+      x.log(`📸 Météo photoshoppée copie « ${card(c).name} ».`, { dst: c });
+      x.activateCard(c, me);
     },
   },
 
-  // Météo étrange : selon ta météo
+  // Météo étrange : une 2e météo jusqu'à votre prochain changement de trou noir ; chaque carte utilise la plus utile
   "MET-28": {
     activate: (x, { id, me }) => {
-      const w = x.weather(me);
-      const all = x.turnOrder().filter((u) => !x.p(u).out);
-      if (w === "Pluie") {
-        const rainy = all.filter((u) => x.weather(u) === "Pluie");
-        if (!x.confirm(me, `Météo étrange : inverser la sentience des joueurs sous la pluie (${rainy.map((u) => x.name(u)).join(", ")}) ?`, id)) return;
-        for (const u of rainy) x.invertSentience(u);
-      } else if (w === "Vent violent") {
-        for (let k = 0; k < 2; k++) {
-          const i = x.chooseOption(me, `Météo étrange (${k + 1}/2) : qui lance le dé trou noir ?`, ["Personne", ...all.map((u) => x.name(u))], id);
-          if (!i) break;
-          x.setBlackHole(all[i - 1], x.bhDice(all[i - 1]));
-        }
-      } else if (w === "Canicule") {
-        // Canicule = gold et prise de risque.
-        if (x.dice(me, 2) === 1) x.gain(me, 20);
-        else x.lose(me, 10);
-      } else if (w === "Neige") {
-        const u = x.choosePlayer(me, "Météo étrange : à qui retirer des gold ?", all, id);
-        if (u) x.lose(u, x.chooseNumber(me, `Combien retirer à ${x.name(u)} (jusqu'à 20) ?`, 0, 20, id));
-      } else if (w === "Grêle") {
-        const prev = E.neighbours(x.g, me)[1];
-        x.setBlackHole(me, x.chooseBlackHole(prev, `Météo étrange : ${x.name(prev)}, choisis le nouveau trou noir de ${x.name(me)}.`, undefined, id));
-        if (prev !== me) x.setBlackHole(prev, x.chooseBlackHole(prev, "Météo étrange : et ton nouveau trou noir ?", undefined, id));
-      } else if (w === "Orage") {
-        for (const u of x.others(me)) if (!x.p(u).out) x.transfer(u, me, 25);
-      } else shiftWeather(x, me, "Météo étrange");
+      const main = x.weather(me);
+      const opts = SKY.filter((w) => w !== main);
+      const w = opts[x.chooseOption(me, `Météo étrange : quelle 2e météo (en plus de ${weatherLabel(main)}) ?`, opts.map(wxText), id)];
+      x.p(me).weather2 = w;
+      x.fx({ k: "weather", uid: me, to: w });
+      x.log(`🌈 ${x.name(me)} a deux météos : ${weatherLabel(main)} et ${w} (jusqu'à son prochain changement de trou noir).`, { to: me });
+      x.interact(me, "météo");
     },
   },
 
-  // Éclaircissement : sous l'orage ou la grêle, choisis ton trou noir ; la météo suit et l'Orage quitte ton terrain
+  // Éclaircissement : votre météo → Beau temps ; l'Orage est défaussé où qu'il soit (+50 gold s'il était chez vous)
   "MET-29": {
-    activate: (x, { id, me }) => {
-      if (!need(x, me, "Orage", "Grêle")) return shiftWeather(x, me, "Éclaircissement");
-      const to = x.chooseBlackHole(me, "Éclaircissement : ton nouveau trou noir ?", undefined, id);
-      x.setBlackHole(me, to);
-      if (x.p(me).terrain.includes(ORAGE)) x.move(ORAGE, { uid: x.g.owner[ORAGE] ?? me, zone: "discard" });
-      x.setWeather(me, BH_WEATHER[to]);
+    activate: (x, { me }) => {
+      const at = E.locate(x.g, ORAGE);
+      const mine = at?.zone === "terrain" && at.uid === me;
+      if (at?.zone === "terrain") x.move(ORAGE, { uid: x.g.owner[ORAGE] ?? me, zone: "discard" });
+      x.setWeather(me, null);
+      if (mine) x.gain(me, 50);
     },
   },
 
-  // Éclair : seulement s'il y a un Orage ; tombe sur son terrain, chaque carte a 50 % d'aller dans la défausse
-  // (25 % qu'elle se joue au lieu d'être défaussée). Para-Tonnerre bloque tout et rapporte 1d100 gold.
+  // Éclair : seulement s'il y a un Orage ; tombe sur son terrain et défausse 2 cartes au hasard (pas l'Orage).
+  // Para-Tonnerre : aucune défausse, +25 gold, puis défausses volontaires à 5 gold la carte.
   "MET-30": {
-    activate: (x, { id, me }) => {
+    activate: (x, { id }) => {
       const at = E.locate(x.g, ORAGE);
       if (at?.zone !== "terrain") {
         x.reason = "Il n'y a pas d'Orage sur les terrains.";
@@ -800,17 +683,28 @@ export const METEO: Record<string, CardScript> = {
       x.log(`⚡ L'éclair frappe le terrain de ${x.name(u)} !`, { to: u });
       if (x.active("MET-31", u)) {
         x.log("⚡ Para-Tonnerre attire la foudre : aucune carte n'est touchée.", { src: "MET-31" });
-        x.runAs("MET-31", u, () => x.gain(u, x.dice(u, 100)));
+        x.runAs("MET-31", u, () => {
+          x.gain(u, 25);
+          const skip = [ORAGE, id, "MET-31"];
+          const mine = x.chooseCards(u, "Para-Tonnerre : défausser des cartes de ton terrain (+5 gold chacune) ?", x.p(u).terrain.filter((c) => !skip.includes(c)), 0, 99, "MET-31");
+          for (const c of mine) {
+            x.discard(c);
+            if (E.locate(x.g, c)?.zone !== "terrain") x.gain(u, 5);
+          }
+          const theirs = x.chooseCards(u, "Para-Tonnerre : défausser des cartes des autres terrains (leur joueur gagne 5 gold par carte) ?", x.others(u).filter((o) => !x.p(o).out).flatMap((o) => x.p(o).terrain).filter((c) => !skip.includes(c)), 0, 99, "MET-31");
+          for (const c of theirs) {
+            const o = E.locate(x.g, c)?.uid;
+            if (!o) continue;
+            x.discard(c);
+            if (E.locate(x.g, c)?.zone !== "terrain") x.gain(o, 5);
+          }
+        });
         return;
       }
-      for (const c of x.p(u).terrain.filter((c) => c !== ORAGE && c !== id)) {
-        if (x.dice(u, 2) !== 1) continue;
-        if (x.dice(u, 4) === 1) {
-          x.log(`✨ « ${card(c).name} » échappe à l'éclair et se joue !`, {
-            dst: c,
-          });
-          x.activateCard(c, u);
-        } else x.discard(c);
+      const pool = x.p(u).terrain.filter((c) => c !== ORAGE && c !== id);
+      for (let k = 0; k < 2 && pool.length; k++) {
+        const c = pool.splice(Math.floor(x.rand() * pool.length), 1)[0];
+        x.discard(c);
       }
     },
   },
@@ -818,30 +712,23 @@ export const METEO: Record<string, CardScript> = {
   // Para-Tonnerre (passif) : géré par Éclair.
   "MET-31": {},
 
-  // Bulletin météo : sentience vraie → récupère une carte Météo face visible (terrain, défausse, main révélée) et la pose sans effet ;
-  // fausse → ta sentience passe à vraie
+  // Bulletin météo : sentience vraie → une carte Météo de votre défausse en main (pas l'Orage) ; fausse → sentience vraie.
+  // Sous le Beau temps : choisissez en plus la sentience d'un adversaire.
   "MET-32": {
     activate: (x, { id, me }) => {
-      if (!x.p(me).sentience) {
-        x.setSentience(me, true);
-        return;
+      if (!x.p(me).sentience) x.setSentience(me, true);
+      else {
+        const pool = x.p(me).discard.filter((c) => c.startsWith("MET-") && c !== ORAGE && c !== id);
+        const [c] = x.chooseCards(me, "Bulletin météo : reprendre une carte Météo de ta défausse ?", pool, 0, 1, id);
+        if (c) x.move(c, { uid: me, zone: "hand" });
+        else x.log("Bulletin météo : aucune carte reprise.");
       }
-      const visible = (c: string) => {
-        const at = E.locate(x.g, c);
-        return !!at && (at.zone === "terrain" || at.zone === "discard" || (at.zone === "hand" && (x.g.revealed ?? []).includes(c)));
-      };
-      const pool = x.turnOrder()
-        .flatMap((u) => [...x.p(u).terrain, ...x.p(u).discard, ...x.p(u).hand])
-        .filter((c) => c.startsWith("MET-") && c !== id && c !== ORAGE && visible(c));
-      const [c] = x.chooseCards(me, "Bulletin météo : récupérer une carte Météo et la poser sur ton terrain (sans son effet) ?", pool, 0, 1, id);
-      if (!c) {
-        if (!pool.length) {
-          x.reason = "Aucune carte Météo face visible à récupérer.";
-          return false;
-        }
-        return x.log("Bulletin météo : aucune carte récupérée.");
-      }
-      if (x.move(c, { uid: me, zone: "terrain" }, { activate: false })) x.take(c, me);
+      if (!x.isWeather(me, null)) return;
+      const u = x.choosePlayer(me, "Beau temps : la sentience de quel adversaire choisir ?", alive(x).filter((o) => o !== me), id);
+      if (!u) return;
+      const v = x.chooseOption(me, `Sentience de ${x.name(u)} ?`, ["Vraie", "Fausse"], id) === 0;
+      x.setSentience(u, v);
     },
   },
 };
+

@@ -63,7 +63,7 @@ export default function PlayerModal({ owner, room, uid, run, onCard, onClose }: 
 
           {showWeather() && (
             <>
-              <h3>🌦️ Météo : {weatherLabel(E.weatherOf(g, owner))}</h3>
+              <h3>🌦️ Météo : {weatherLabel(E.weatherOf(g, owner))}{p.weather2 ? ` + ${p.weather2} (Météo étrange)` : ""}</h3>
               <div className="row wrap">
                 {[null, ...WEATHERS.filter((w) => w.id !== "Orage")].map((w) => (
                   <button key={w?.id ?? "clear"} className={(p.weather ?? null) === (w?.id ?? null) ? "primary" : ""} onClick={() => run((r, gg) => {

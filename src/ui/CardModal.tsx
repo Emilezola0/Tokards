@@ -217,7 +217,8 @@ export function modifiersOf(room: Room, g: GameState, id: string): Mod[] {
   const d = g.disabled?.[id];
   if (d) {
     const by = g.disabledBy?.[id];
-    const details = [`Durée : ${untilText(room, g, d)}.`];
+    const fr = g.frozen?.[id];
+    const details = [fr ? `Durée : gelée jusqu'au prochain changement de météo de ${name(fr)} (Neige parfaite).` : `Durée : ${untilText(room, g, d)}.`];
     if (by?.src) details.unshift(`Origine : ${cardName(by.src)}${by.by ? `, lancée par ${name(by.by)}` : ""}.`);
     else if (by?.by) details.unshift(`Origine : effet lancé par ${name(by.by)}.`);
     if (by?.at !== undefined) details.push(`Depuis le tour ${by.at + 1}.`);

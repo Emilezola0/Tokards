@@ -8,7 +8,7 @@ import { DEFAULT_REASON, REASONS } from "./reasons";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole, DiceSnap, EffectAction, FxInput, GameState, Prompt, Room, TrailStep, Until, Weather, Zone } from "../game/types";
-import { BH_SYMBOL, BLACK_HOLES, blackHoleLabel, weatherIcon, weatherLabel } from "../game/types";
+import { BH_SYMBOL, BH_WEATHER, BLACK_HOLES, blackHoleLabel, weatherIcon, weatherLabel } from "../game/types";
 import { SCRIPTS } from "./scripts";
 import "../game/victory";
 
@@ -226,6 +226,20 @@ export class Ctx {
     const b = BLACK_HOLES[v - 1].id;
     this.fx({ k: "dice", uid, faces: 4, value: v, bh: true, snap: this.snap() });
     this.log(`🎲 ${this.name(uid)} lance le dé trou noir : ${b}.`);
+    return b;
+  }
+
+  /**
+   * Dé trou noir avec un trou noir favorisé (Météo, Météo pays) : `fav` tombe à `pct` %, sinon un des autres au hasard.
+   * `exclude` : trou noir qui ne peut pas sortir.
+   */
+  bhDiceFav(uid: string, fav: BlackHole, pct: number, exclude?: BlackHole): BlackHole {
+    const others = BLACK_HOLES.map((b) => b.id).filter((b) => b !== fav && b !== exclude);
+    const hit = this.rand() * 100 < pct || !others.length;
+    const b = hit ? fav : others[Math.floor(this.rand() * others.length)];
+    const v = BLACK_HOLES.findIndex((x) => x.id === b) + 1;
+    this.fx({ k: "dice", uid, faces: 4, value: v, bh: true, snap: this.snap() });
+    this.log(`🎲 ${this.name(uid)} lance le dé trou noir (${fav} favorisé à ${Math.min(100, pct)} %) : ${b}.`);
     return b;
   }
 
@@ -516,6 +530,15 @@ export class Ctx {
     }
     // Gravité grave : tant qu'elle est sur un terrain, toutes les sources de gold rapportent 1 gold de plus.
     if (E.locate(this.g, "EMI-20")?.zone === "terrain" && !E.isDisabled(this.g, "EMI-20")) n += 1;
+    // Albédo : pendant son tour, les gains du joueur visé sont réduits (moitié sous la Neige, sinon −10 %).
+    const al = this.g.albedo;
+    if (al && al.uid === uid && this.current === uid && E.pos(this.g) > al.at) {
+      const snow = E.hasWeather(this.g, uid, "Neige");
+      const m = snow ? Math.floor(n / 2) : Math.round(n * 0.9);
+      if (m !== n) this.log(`🪞 Albédo : ${n} → ${m} gold pour ${this.name(uid)} (${snow ? "Neige : moitié" : "−10 %"}).`, { src: "MET-25", to: uid });
+      n = m;
+      if (n <= 0) return 0;
+    }
     const p = this.p(uid);
     p.gold += n;
     p.goldGainedSince = (p.goldGainedSince ?? 0) + n;
@@ -626,7 +649,31 @@ export class Ctx {
     else this.emit({ type: "goldLost", uid: b, amount: gb - ga });
   }
   /** Météo d'un joueur (Orage sur son terrain = Orage). */
-  weather = (uid: string) => E.weatherOf(this.g, uid);
+  weather = (uid: string): Weather | null => this.cloud(uid) ?? E.weatherOf(this.g, uid);
+  /** Le joueur a-t-il la météo `w` (2e météo de Météo étrange et Nuage compris) ? */
+  isWeather = (uid: string, w: Weather | null): boolean => {
+    const c = this.cloud(uid);
+    if (c) return c === w;
+    return E.hasWeather(this.g, uid, w);
+  };
+  /** Nuage : les cartes après lui sur son terrain voient la météo choisie pour leur joueur. */
+  private cloud(uid: string): Weather | null {
+    const NUAGE = "MET-26";
+    const w = this.g.marks?.[NUAGE] as Weather | undefined;
+    const src = this.source;
+    if (!w || !src || src === NUAGE) return null;
+    const n = E.locate(this.g, NUAGE);
+    const s = E.locate(this.g, src);
+    if (n?.zone !== "terrain" || s?.zone !== "terrain" || n.uid !== uid || s.uid !== uid || s.index < n.index) return null;
+    if (E.isDisabled(this.g, NUAGE)) return null;
+    return w;
+  }
+  /** Météo provisoire jusqu'à la fin du tour en cours (Climatisation). */
+  setWeatherUntilTurnEnd(uid: string, w: Weather | null) {
+    if (!(this.g.temp ?? []).some((t) => t.uid === uid && t.kind === "wx"))
+      this.g.temp = [...(this.g.temp ?? []), { uid, kind: "wx", prev: this.p(uid).weather ?? "" }];
+    this.setWeather(uid, w);
+  }
   setWeather(uid: string, w: Weather | null) {
     const p = this.p(uid);
     if (!p) return;
@@ -643,6 +690,20 @@ export class Ctx {
     this.fx({ k: "weather", uid, to });
     this.log(`${weatherIcon(to)} Météo de ${this.name(uid)} : ${weatherLabel(from)} → ${weatherLabel(to)}.`, { to: uid });
     this.interact(uid, "météo");
+    if (uid === this.current) {
+      const s = E.st(this.p(uid));
+      s.wxTurn = (s.wxTurn ?? 0) + 1;
+    }
+    // Neige parfaite : les cartes gelées de ce joueur dégèlent quand sa météo change.
+    const thaw = Object.entries(this.g.frozen ?? {}).filter(([, u]) => u === uid).map(([c]) => c);
+    if (thaw.length) {
+      const f = { ...(this.g.frozen ?? {}) };
+      for (const c of thaw) {
+        delete f[c];
+        if (E.enableCard(this.g, c)) this.log(`💧 « ${card(c).name} » dégèle (la météo de ${this.name(uid)} a changé).`, { dst: c });
+      }
+      this.g.frozen = f;
+    }
     this.emit({ type: "weather", uid, from, to });
     this.thawSnow();
   }
@@ -693,6 +754,7 @@ export class Ctx {
     const from = p.blackHole;
     if (from === to) return;
     if (p.locked) return this.log(`🔒 ${this.name(uid)} est bloqué : son trou noir ne change pas.`);
+    if (E.bhLocked(this.g, uid)) return this.log(`🔒 Indice de temps : le trou noir de ${this.name(uid)} ne peut pas changer.`, { src: "MET-24", to: uid });
     if (this.shielded(uid, false)) return;
     p.blackHole = to;
     this.trackBlackHole(uid, to);
@@ -700,6 +762,17 @@ export class Ctx {
     this.fx({ k: "bh", uid, to });
     this.log(`${this.name(uid)} : trou noir ${blackHoleLabel(from)} → ${blackHoleLabel(to)}.`, { to: uid });
     this.emit({ type: "blackHole", uid, from, to });
+    this.followBlackHole(uid);
+  }
+  /** Deck Météo en jeu : la météo du joueur suit son trou noir (la Neige et la 2e météo partent). */
+  followBlackHole(uid: string) {
+    if (!this.g.meteo) return;
+    const p = this.p(uid);
+    if (p.weather2) {
+      this.log(`🌦 ${this.name(uid)} perd sa 2e météo (${p.weather2}) en changeant de trou noir.`, { to: uid });
+      p.weather2 = null;
+    }
+    if (E.weatherOf(this.g, uid) !== BH_WEATHER[p.blackHole] || p.weather !== BH_WEATHER[p.blackHole]) this.setWeather(uid, BH_WEATHER[p.blackHole]);
   }
   private trackBlackHole(uid: string, to: BlackHole) {
     const s = E.st(this.p(uid));

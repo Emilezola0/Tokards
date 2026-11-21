@@ -66,6 +66,8 @@ export interface PlayerState {
   skipNext?: boolean;
   /** météo (deck Météo) ; absente ou null = Beau temps */
   weather?: Weather | null;
+  /** Météo étrange : 2e météo, gardée jusqu'au prochain changement de trou noir */
+  weather2?: Weather | null;
 }
 
 /** Fin d'un état temporaire : au début (`start`) ou à la fin (`end`) d'un tour de `uid` joué après le tour global `after`. */
@@ -83,6 +85,8 @@ export interface Stats {
   lost?: number;
   /** changements de son trou noir pendant son tour en cours */
   bhTurn?: number;
+  /** changements de météo pendant son tour (Météo Rite) */
+  wxTurn?: number;
   /** gold gagnés depuis le dernier changement de trou noir de ce tour (null = pas encore de changement) */
   gainSinceBH?: number | null;
   bhGainHit?: boolean;
@@ -234,6 +238,14 @@ export interface GameState {
   rhume?: { uid: string; at: number };
   /** Rhume quantique : joueurs ayant déjà jeté leur main à cause de lui (une seule fois par joueur). */
   rhumeDone?: string[];
+  /** Le deck Météo est en jeu : la météo suit le trou noir et chacun commence avec une météo au hasard. */
+  meteo?: boolean;
+  /** Neige parfaite : carte gelée → joueur dont le changement de météo la dégèle. */
+  frozen?: Record<string, string>;
+  /** Indice de temps : le trou noir du joueur ne peut pas changer jusqu'à cette position (incluse). */
+  bhLock?: Record<string, number>;
+  /** Albédo : les gold gagnés par `uid` pendant son prochain tour sont réduits. */
+  albedo?: { uid: string; by: string; at: number } | null;
   /** cartes désactivées : leur effet et leurs passifs ne fonctionnent plus (objet vide = jusqu'à nouvel ordre) */
   disabled?: Record<string, Partial<Until>>;
   /** origine de chaque désactivation : carte qui l'a causée (`src`) et joueur qui l'a lancée (`by`) */
@@ -253,7 +265,7 @@ export interface GameState {
   /** tag 🧠 ajouté jusqu'à la fin du tour en cours (Transformers) */
   tempTags?: string[];
   /** valeurs provisoires remises à la fin du tour en cours (Disconnect) */
-  temp?: { uid: string; kind: "bh" | "sent"; prev: string }[];
+  temp?: { uid: string; kind: "bh" | "sent" | "wx"; prev: string }[];
   /** Garde à vue : les prochaines cartes désactivées vont sous `host` */
   custody?: { host: string; uid: string; at: number } | null;
   /** Tung Tung Tung Sahur : les gold gagnés par les autres vont à `uid` jusqu'au tour global `until` */
