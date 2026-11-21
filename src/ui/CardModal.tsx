@@ -223,13 +223,17 @@ export function modifiersOf(room: Room, g: GameState, id: string): Mod[] {
     else if (by?.by) details.unshift(`Origine : effet lancé par ${name(by.by)}.`);
     if (by?.at !== undefined) details.push(`Depuis le tour ${by.at + 1}.`);
     if (g.facedown?.includes(id)) details.push("Face cachée (« Cache Oeil ») : elle se retourne à son prochain passage en phase 1, sans jouer son effet.");
-    out.push({ icon: "⛔", label: "Désactivée", kind: "debuff", details });
+    out.push({ icon: fr ? "❄️" : "⛔", label: fr ? "Gelée" : "Désactivée", kind: "debuff", details });
   } else if (at?.zone === "terrain" && E.varicelleHit(g, at.uid, at.index, id)) {
     out.push({ icon: "⛔", label: "Désactivée par la Varicelle", kind: "debuff", details: [`Origine : ${cardName(E.VARICELLE)} de ${name(at.uid)}.`, `Place paire (${at.index + 1}) et sentience vraie.`, "Durée : tant que la Varicelle reste sur ce terrain, active, et que la sentience est vraie."] });
+  } else if (at?.zone === "terrain" && E.muddy(g, id)) {
+    out.push({ icon: "🟫", label: "Ga-Doux (boue)", kind: "debuff", details: [`Origine : ${cardName("MET-10")}.`, `Bloquée : son effet ne se joue pas tant que ${name(at.uid)} est sous la Pluie.`, "Durée : jusqu'à ce qu'elle quitte le terrain."] });
   } else if (at?.zone === "terrain" && E.isDisabled(g, id)) {
     const drone = g.order.find((u) => u !== at.uid && g.players[u].terrain[at.index] === E.DRONE);
     out.push({ icon: "⛔", label: "Désactivée par un drone", kind: "debuff", details: [`Origine : ${cardName(E.DRONE)} de ${name(drone)}, à la même place (${at.index + 1}) sur un terrain voisin.`, "Durée : tant que le drone reste en face et actif."] });
   }
+  if (at?.zone === "terrain" && g.mud?.includes(id) && !E.muddy(g, id))
+    out.push({ icon: "🟫", label: "Boue (Ga-Doux)", kind: "debuff", details: [`Origine : ${cardName("MET-10")}.`, `Sans effet pour l'instant : elle ne bloque la carte que si ${name(at.uid)} est sous la Pluie.`, "Durée : jusqu'à ce qu'elle quitte le terrain."] });
   if (g.hot?.includes(id)) out.push({ icon: "☀️", label: "Hot", kind: "debuff", details: [`Origine : ${cardName("MET-05")}.`, "Au moment de se jouer : 1d2, sur un 2 elle ne se joue pas.", "Durée : une seule fois, à son prochain passage."] });
   const under = g.under?.[id] ?? [];
   if (under.length)

@@ -35,3 +35,21 @@ export function viewState(g: GameState, doneId: number | null, settledLog: GameS
   }
   return v;
 }
+
+/**
+ * Pendant un choix, la table montre l'action en cours (déjà jouée jusqu'au choix) plutôt que l'état d'avant :
+ * joueurs, désactivations, journal et effets visuels de ce qui vient de se passer.
+ */
+export function withPreview(g: GameState): GameState {
+  const pv = g.pending?.preview;
+  if (!pv) return g;
+  const known = new Set((g.fx ?? []).map((f) => f.id));
+  return {
+    ...g,
+    players: pv.players,
+    disabled: pv.disabled ?? g.disabled,
+    fx: [...(g.fx ?? []), ...pv.fx.filter((f) => !known.has(f.id))],
+    fxSeq: Math.max(g.fxSeq ?? 0, pv.fxSeq),
+    log: [...g.log, ...pv.log],
+  };
+}

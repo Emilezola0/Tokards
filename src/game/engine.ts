@@ -100,6 +100,7 @@ export function isDisabled(g: GameState, id: string): boolean {
   const at = locate(g, id);
   if (!at || at.zone !== "terrain") return false;
   if (varicelleHit(g, at.uid, at.index, id)) return true;
+  if (muddy(g, id)) return true;
   if (g.order.length < 2) return false;
   for (const n of new Set(neighbours(g, at.uid))) {
     if (n === at.uid) continue;
@@ -138,6 +139,13 @@ export function disableCard(g: GameState, id: string, until?: Until): Partial<Un
   g.disabled = { ...(g.disabled ?? {}), [id]: until ? { ...until } : {} };
   return until;
 }
+/** Ga-Doux : la carte est couverte de boue et le joueur de son terrain est sous la Pluie. */
+export function muddy(g: GameState, id: string): boolean {
+  if (!g.mud?.includes(id)) return false;
+  const at = locate(g, id);
+  return !!at && at.zone === "terrain" && hasWeather(g, at.uid, "Pluie");
+}
+
 export function enableCard(g: GameState, id: string) {
   if (!g.disabled?.[id]) return false;
   const d = { ...g.disabled };
@@ -523,6 +531,12 @@ export function moveCard(room: Room, g: GameState, id: string, dest: Dest, quiet
  * (le Crapaud stratège, lui, suit la carte dans sa nouvelle zone). */
 function leaveTerrain(room: Room, g: GameState, id: string, holder: string, dest: Dest) {
   enableCard(g, id);
+  if (g.frozen?.[id]) {
+    const f = { ...g.frozen };
+    delete f[id];
+    g.frozen = f;
+  }
+  if (g.mud?.includes(id)) g.mud = g.mud.filter((c) => c !== id);
   if (g.facedown?.includes(id)) g.facedown = g.facedown.filter((c) => c !== id);
   if (g.hot?.includes(id)) g.hot = g.hot.filter((c) => c !== id);
   const under = g.under?.[id];

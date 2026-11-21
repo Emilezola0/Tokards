@@ -297,7 +297,7 @@ export const GOBLIN: Record<string, CardScript> = {
       if (!t) return false;
       const c = x.chooseCard(t, `${x.name(me)} te donne une carte de sa main : choisis-la`, x.p(me).hand, id);
       if (c) x.move(c, { uid: t, zone: "hand" });
-      x.gain(me, 25);
+      x.gain(me, 30);
       x.discard(id);
     },
   },
@@ -407,12 +407,12 @@ export const GOBLIN: Record<string, CardScript> = {
   // Hôpital du Dr. Goblinstein : règle permanente gérée par le moteur (moveCard)
   "GOB-30": {},
 
-  // Le donjon goblin : une chance sur quatre (il faut un 4 au d4)
+  // Le donjon goblin : une chance sur trois (il faut un 3 au d3)
   "GOB-31": {
     activate: (x, { id, me }) => {
-      const v = x.dice(me, 2, (v) => (v === 2 ? "réussi" : "raté (il faut un 2)"));
-      if (v !== 2) {
-        x.reason = `Le dé donne ${v} : il fallait un 2.`;
+      const v = x.dice(me, 3, (v) => (v === 3 ? "réussi" : "raté (il faut un 3)"));
+      if (v !== 3) {
+        x.reason = `Le dé donne ${v} : il fallait un 3.`;
         return false;
       }
       const t = pickTarget(x, me, id, "Quelle cible ?");

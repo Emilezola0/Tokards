@@ -144,6 +144,17 @@ export interface Pending {
   prompt: Prompt;
   /** choix déjà faits pendant cette action (affichés pour suivre où on en est) */
   trail?: TrailStep[];
+  /**
+   * La table au moment où le choix est demandé (l'action est en cours) : ce qui s'est déjà passé est montré
+   * avant de choisir (ex. : la sentience a déjà changé quand un passif demande son choix).
+   */
+  preview?: {
+    players: GameState["players"];
+    disabled?: GameState["disabled"];
+    fx: Fx[];
+    fxSeq: number;
+    log: LogEntry[];
+  };
 }
 /** Un choix déjà fait : carte qui l'a demandé, question, réponse en clair. */
 export type TrailStep = { card: string; chooser: string; text: string; label: string };
@@ -242,6 +253,8 @@ export interface GameState {
   meteo?: boolean;
   /** Neige parfaite : carte gelée → joueur dont le changement de météo la dégèle. */
   frozen?: Record<string, string>;
+  /** Ga-Doux : cartes couvertes de boue (bloquées tant que le joueur de leur terrain est sous la Pluie). */
+  mud?: string[];
   /** Indice de temps : le trou noir du joueur ne peut pas changer jusqu'à cette position (incluse). */
   bhLock?: Record<string, number>;
   /** Albédo : les gold gagnés par `uid` pendant son prochain tour sont réduits. */

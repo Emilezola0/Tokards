@@ -1272,7 +1272,11 @@ export class Ctx {
       const skip = E.isDisabled(g, id)
         ? !g.disabled?.[id] && E.varicelleHit(g, this.current, t.indexOf(id), id)
           ? "Varicelle cosmique : désactivée (place paire, sentience vraie)."
-          : "Désactivée : son effet ne se joue pas."
+          : g.frozen?.[id] && g.disabled?.[id]
+            ? "Gelée (Neige parfaite) : son effet ne se joue pas."
+            : !g.disabled?.[id] && E.muddy(g, id)
+              ? "Ga-Doux : embourbée sous la Pluie, son effet ne se joue pas."
+              : "Désactivée : son effet ne se joue pas."
         : t[t.indexOf(id) - 1] === "EMI-13" && !E.isDisabled(g, "EMI-13")
           ? "ADS : la carte qui suit ADS ne se joue pas."
           : null;
@@ -1402,12 +1406,35 @@ export function runEffect(room: Room, action: EffectAction | null, answer?: unkn
     room.game = work;
   } catch (e) {
     if (!(e instanceof NeedChoice)) throw e;
-    base.pending = { action: act, answers, rolls: x.rolls, prompt: e.prompt, trail: x.trail };
+    base.pending = { action: act, answers, rolls: x.rolls, prompt: e.prompt, trail: x.trail, preview: previewOf(base, work) };
     room.game = base;
   } finally {
     E.RNG.next = prev;
     E.live.g = prevLive;
   }
+}
+
+/** Ce que la table doit montrer pendant le choix : joueurs, désactivations, nouveaux effets et nouvelles lignes du journal. */
+function previewOf(base: GameState, work: GameState): NonNullable<GameState["pending"]>["preview"] {
+  const seq = base.fxSeq ?? 0;
+  const last = base.log[base.log.length - 1];
+  let from = work.log.length;
+  if (!last) from = 0;
+  else for (let i = work.log.length - 1; i >= 0; i--) {
+    const l = work.log[i];
+    if (l.ts === last.ts && l.text === last.text) {
+      from = i + 1;
+      break;
+    }
+  }
+  const out: NonNullable<GameState["pending"]>["preview"] = {
+    players: work.players,
+    fx: (work.fx ?? []).filter((f) => f.id > seq),
+    fxSeq: work.fxSeq ?? seq,
+    log: work.log.slice(from),
+  };
+  if (work.disabled) out.disabled = work.disabled;
+  return out;
 }
 
 function defaultAnswer(p: Prompt): unknown {

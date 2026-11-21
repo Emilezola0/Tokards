@@ -21,6 +21,102 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.36.0",
+    date: "21 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "⏱️ Le choix arrive au bon moment",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🧠 Fausse → Vraie</span>
+            <Arrow />
+            <span className="pn-chip pn-glow">❓ Choix du passif</span>
+          </div>
+        ),
+        text: <>Quand un passif demande un choix, la table montre d'abord ce qui vient de se passer (ex. : la sentience a changé), puis le choix arrive. Le Fonctionnaire goblin choisit donc bien après le changement.</>,
+      },
+      {
+        cat: "jeu",
+        title: "✋ La main de celui qui joue",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip pn-glow">✋ À toi de poser</span>
+          </div>
+        ),
+        text: <>En phase 2, la main du joueur qui doit jouer est encadrée et brille. La condition de victoire perso ne déborde plus du cadre du joueur.</>,
+      },
+      {
+        cat: "jeu",
+        title: "🌀 Météo ↔ trou noir",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🔥 Blazard ↔ 🌧️ Pluie</span>
+            <span className="pn-chip">✴️ Quasar ↔ 🌬️ Vent</span>
+          </div>
+        ),
+        text: <>Avec le deck Météo, le bouton « 📜 Effets » d'un terrain montre quelle météo va avec quel trou noir, et ceux du joueur.</>,
+      },
+      {
+        cat: "cartes",
+        title: "❄️ Neige parfaite",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-06" />
+            <Arrow />
+            <span className="pn-chip pn-glow">20 % par carte</span>
+          </div>
+        ),
+        text: <>Au début du tour d'un joueur sous la Neige, chaque carte de son terrain a 20 % de geler. Toute carte qui arrive sur son terrain, de n'importe quelle façon, a aussi 20 %. Une carte gelée ne se joue pas jusqu'au changement de météo.</>,
+      },
+      {
+        cat: "cartes",
+        title: "🌬️ Mistrale",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-04" />
+            <Arrow />
+            <span className="pn-chip pn-glow">↔ 2 cartes</span>
+          </div>
+        ),
+        text: <>Les terrains sous le Vent violent s'inversent, sauf celui du joueur de Mistrale : lui peut replacer jusqu'à 2 cartes au début de son tour (sous le Vent violent).</>,
+      },
+      {
+        cat: "cartes",
+        title: "🟫 Ga-Doux",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-10" />
+            <Arrow />
+            <span className="pn-chip pn-glow">🟫 boue</span>
+          </div>
+        ),
+        text: <>La victime doit poser une carte sans son effet : elle et ses voisines prennent de la boue, qui les bloque tant que ce joueur est sous la Pluie.</>,
+      },
+      {
+        cat: "cartes",
+        title: "👺 Goblins",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="GOB-22" />
+            <Img id="GOB-31" />
+          </div>
+        ),
+        text: <>Négociateur : 30 gold (au lieu de 25). Donjon goblin : 1d3, sur un 3 (au lieu de 1d2, sur un 2).</>,
+      },
+      {
+        cat: "visuel",
+        title: "🃏 Pioche et fond de table",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-big">🗂️</span>
+          </div>
+        ),
+        text: <>La pioche ressemble à une vraie pile, plus épaisse quand il reste beaucoup de cartes. L'image de fond de la table est plus grande.</>,
+      },
+    ],
+  },
+  {
     version: "0.35.0",
     date: "21 novembre 2026",
     notes: [

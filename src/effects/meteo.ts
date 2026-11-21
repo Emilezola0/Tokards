@@ -81,6 +81,12 @@ function freeze(x: Ctx, c: string, uid: string) {
   if (x.disable(c) && x.g.disabled?.[c]) x.g.frozen = { ...(x.g.frozen ?? {}), [c]: uid };
 }
 
+/** Neige parfaite : une carte arrive sur le terrain de `u` ; sous la Neige, 20 % qu'elle gèle. */
+function snowLanding(x: Ctx, self: string, c: string, u: string) {
+  if (c === self || c === ORAGE || x.p(u)?.out || !x.isWeather(u, "Neige") || E.locate(x.g, c)?.zone !== "terrain") return;
+  if (x.chance(u, 20, [`« ${card(c).name} » gèle`, "pas de gel"])) freeze(x, c, u);
+}
+
 /** Change la météo de `me` en passant par son trou noir (la météo suit le trou noir) ; Neige / Beau temps : directement. */
 function goWeather(x: Ctx, me: string, w: Weather | null) {
   const bh = w ? WEATHER_BH[w] : undefined;
@@ -148,11 +154,28 @@ export const METEO: Record<string, CardScript> = {
     on: {
       placed: (x, self, e) => {
         if (e.card !== self.id) return;
-        for (const u of under(x, "Vent violent")) invertTerrain(x, u, self.id);
+        for (const u of under(x, "Vent violent")) if (u !== self.me) invertTerrain(x, u, self.id);
       },
       weather: (x, self, e) => {
-        if (e.to !== "Vent violent" || e.from === "Vent violent" || x.p(e.uid)?.out) return;
+        if (e.to !== "Vent violent" || e.from === "Vent violent" || x.p(e.uid)?.out || e.uid === self.me) return;
         invertTerrain(x, e.uid, self.id);
+      },
+      // Le joueur de Mistrale, lui, peut replacer jusqu'à 2 cartes de son terrain au début de son tour (sous le Vent violent).
+      turnStart: (x, self, e) => {
+        const me = self.me;
+        if (e.uid !== me || x.p(me)?.out || !x.isWeather(me, "Vent violent") || x.p(me).terrain.length < 2 || !x.canReorder(me)) return;
+        const picked = x.chooseCards(me, "Mistrale : replacer jusqu'à 2 cartes de ton terrain ? (facultatif)", [...x.p(me).terrain], 0, 2, self.id);
+        if (!picked.length) return;
+        x.triggered(self, `${x.name(me)} replace ${picked.length} carte${picked.length > 1 ? "s" : ""} de son terrain.`);
+        for (const c of picked) {
+          if (E.locate(x.g, c)?.zone !== "terrain") continue;
+          const t = x.p(me).terrain;
+          t.splice(t.indexOf(c), 1);
+          const slot = x.chooseSlot(me, `Mistrale : où replacer « ${card(c).name} » ?`, me, c, self.id);
+          t.splice(slot, 0, c);
+          x.p(me).terrain = [...t];
+        }
+        x.interact(me, "terrain");
       },
     },
   },
@@ -177,20 +200,25 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Neige parfaite (passif) : au début du tour d'un joueur sous la Neige, 20 % qu'une carte au hasard de son terrain gèle ;
-  // une carte posée par un joueur sous la Neige a aussi 20 % de geler. Dégel au changement de météo de ce joueur.
+  // Neige parfaite (passif) : au début du tour d'un joueur sous la Neige, chaque carte de son terrain a 20 % de geler ;
+  // une carte qui arrive sur son terrain a aussi 20 % de geler. Dégel au changement de météo de ce joueur.
   "MET-06": {
     on: {
+      // Début du tour d'un joueur sous la Neige : chaque carte de son terrain a 20 % de geler.
       turnStart: (x, self, e) => {
         if (x.p(e.uid)?.out || !x.isWeather(e.uid, "Neige")) return;
-        const pool = x.p(e.uid).terrain.filter((c) => c !== ORAGE && !x.g.disabled?.[c]);
-        if (!pool.length || !x.chance(e.uid, 20, ["une carte gèle", "pas de gel"])) return;
-        freeze(x, x.random(pool), e.uid);
+        const pool = x.p(e.uid).terrain.filter((c) => c !== ORAGE && c !== self.id && !x.g.disabled?.[c]);
+        if (!pool.length) return;
+        const hit = pool.filter(() => x.rand() < 0.2);
+        x.triggered(self, hit.length
+          ? `la neige tombe sur le terrain de ${x.name(e.uid)} : ${hit.length} carte${hit.length > 1 ? "s gèlent" : " gèle"} sur ${pool.length} (20 % chacune).`
+          : `la neige tombe sur le terrain de ${x.name(e.uid)} : aucune carte ne gèle (20 % chacune, ${pool.length} carte${pool.length > 1 ? "s" : ""}).`);
+        for (const c of hit) freeze(x, c, e.uid);
       },
-      placed: (x, self, e) => {
-        const by = x.current;
-        if (e.card === self.id || !x.isWeather(by, "Neige") || E.locate(x.g, e.card)?.zone !== "terrain") return;
-        if (x.chance(by, 20, [`« ${card(e.card).name} » gèle`, "pas de gel"])) freeze(x, e.card, by);
+      // Toute carte qui arrive sur le terrain d'un joueur sous la Neige (posée, donnée, déplacée…) a 20 % de geler.
+      placed: (x, self, e) => snowLanding(x, self.id, e.card, e.uid),
+      cardMoved: (x, self, e) => {
+        if (e.from.zone === "terrain" && e.to?.zone === "terrain" && e.from.uid !== e.to.uid) snowLanding(x, self.id, e.card, e.to.uid);
       },
     },
   },
@@ -247,7 +275,8 @@ export const METEO: Record<string, CardScript> = {
     },
   },
 
-  // Ga-Doux : défaussez une carte du terrain d'un joueur sous la Pluie ; ce joueur peut poser une carte de sa main sans son effet
+  // Ga-Doux : défaussez une carte du terrain d'un joueur sous la Pluie ; ce joueur doit poser une carte de sa main sans son effet,
+  // et met de la boue sur elle et ses voisines (bloquées tant que ce joueur est sous la Pluie)
   "MET-10": {
     activate: (x, { id, me }) => {
       const rainy = under(x, "Pluie");
@@ -260,8 +289,18 @@ export const METEO: Record<string, CardScript> = {
       if (!c) return false;
       const u = E.locate(x.g, c)!.uid;
       x.discard(c);
-      const [h] = x.chooseCards(u, "Ga-Doux : poser une carte de ta main sur ton terrain, sans son effet ? (facultatif)", x.p(u).hand.filter((c) => c !== ORAGE), 0, 1, id);
-      if (h) x.move(h, { uid: u, zone: "terrain", index: x.chooseSlot(u, `Où poser « ${card(h).name} » ?`, u, h, id) }, { activate: false });
+      // Le joueur doit poser une carte de sa main (sans son effet) : elle et ses voisines prennent de la boue.
+      const hand = x.p(u).hand.filter((c) => c !== ORAGE);
+      if (!hand.length) return x.log(`Ga-Doux : ${x.name(u)} n'a aucune carte à poser.`);
+      const [h] = x.chooseCards(u, "Ga-Doux : pose une carte de ta main sur ton terrain (sans son effet) ; elle et ses voisines prennent de la boue.", hand, 1, 1, id);
+      if (!h || !x.move(h, { uid: u, zone: "terrain", index: x.chooseSlot(u, `Où poser « ${card(h).name} » ?`, u, h, id) }, { activate: false })) return;
+      const t = x.p(u).terrain;
+      const i = t.indexOf(h);
+      if (i < 0) return;
+      const muddy = [t[i - 1], h, t[i + 1]].filter((c): c is string => !!c && c !== ORAGE);
+      x.g.mud = [...new Set([...(x.g.mud ?? []), ...muddy])];
+      x.log(`🟫 Ga-Doux : ${muddy.map((c) => `« ${card(c).name} »`).join(", ")} ${muddy.length > 1 ? "sont couvertes" : "est couverte"} de boue : bloquée${muddy.length > 1 ? "s" : ""} tant que ${x.name(u)} est sous la Pluie.`, { src: id, to: u });
+      x.interact(u, "terrain");
     },
   },
 

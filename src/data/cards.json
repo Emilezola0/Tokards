@@ -1266,10 +1266,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Ciblez un joueur : il prend une carte de votre main. Gagnez 25 💰.\nPuis défaussez cette carte.",
+   "text": "Ciblez un joueur : il prend une carte de votre main. Gagnez 30 💰.\nPuis défaussez cette carte.",
    "rules": "La cible voit la main du lanceur et choisit la carte qu'elle reçoit.",
    "image": "GOB-22.jpg",
-   "claude": "✏️ Modifiée v0.23 (équilibrage)"
+   "claude": "✏️ Modifiée v0.36 (demande du Prompt)"
   },
   "GOB-23": {
    "id": "GOB-23",
@@ -1437,10 +1437,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "🎲 1d2, sur un 2 : ciblez un joueur, défaussez la première carte de son terrain ; il mélange sa pioche, puis sa défausse.",
-   "rules": "Une chance sur deux : l'effet n'a lieu que sur un 2. La première carte va dans la défausse de la cible ; sa pioche et sa défausse sont mélangées chacune de leur côté.",
+   "text": "🎲 1d3, sur un 3 : ciblez un joueur, défaussez la première carte de son terrain ; il mélange sa pioche, puis sa défausse.",
+   "rules": "Une chance sur trois : l'effet n'a lieu que sur un 3. La première carte va dans la défausse de la cible ; sa pioche et sa défausse sont mélangées chacune de leur côté.",
    "image": "GOB-31.jpg",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.36 (demande du Prompt)"
   },
   "GOB-32": {
    "id": "GOB-32",
@@ -4363,10 +4363,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — Quand un joueur passe sous le Vent violent : l'ordre de son terrain s'inverse (cette carte garde sa place).\nÀ son arrivée, les joueurs déjà sous le Vent violent sont inversés aussi.",
-   "rules": "Une seule inversion par passage au Vent violent.",
+   "text": "Passif — Quand un joueur passe sous le Vent violent : l'ordre de son terrain s'inverse (cette carte garde sa place).\nÀ son arrivée, les joueurs déjà sous le Vent violent sont inversés aussi.\nSauf vous : sous le Vent violent, au début de votre tour, vous pouvez replacer jusqu'à 2 cartes de votre terrain.",
+   "rules": "Une seule inversion par passage au Vent violent. Le terrain du joueur de Mistrale n'est jamais inversé par elle.",
    "image": "MET-04.jpg",
-   "claude": "✏️ Modifiée v0.34 (rework Météo validé)"
+   "claude": "✏️ Modifiée v0.36 (demande du Prompt)"
   },
   "MET-05": {
    "id": "MET-05",
@@ -4401,10 +4401,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — Au début du tour d'un joueur sous la Neige : 20 % de chances qu'une carte au hasard de son terrain gèle.\nUne carte posée par un joueur sous la Neige a aussi 20 % de chances de geler.\nUne carte gelée est désactivée jusqu'au prochain changement de météo de ce joueur.",
-   "rules": "Le gel compte comme une désactivation (Garde à vue, durées…). L'Orage ne gèle pas.",
+   "text": "Passif — Au début du tour d'un joueur sous la Neige : chaque carte de son terrain a 20 % de chances de geler.\nUne carte qui arrive sur le terrain d'un joueur sous la Neige (de n'importe quelle façon) a aussi 20 % de chances de geler.\nUne carte gelée ne se joue pas jusqu'au prochain changement de météo de ce joueur.",
+   "rules": "Le gel compte comme une désactivation (Garde à vue, durées…). L'Orage et Neige parfaite ne gèlent pas. Une carte qui quitte le terrain dégèle.",
    "image": "MET-06.jpg",
-   "claude": "✏️ Modifiée v0.34 (rework Météo validé)"
+   "claude": "✏️ Modifiée v0.36 (demande du Prompt)"
   },
   "MET-07": {
    "id": "MET-07",
@@ -4477,10 +4477,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Défaussez une carte du terrain d'un joueur sous la Pluie. Ce joueur peut poser une carte de sa main sur son terrain, sans son effet.",
-   "rules": "La carte posée ne joue pas son effet de pose ; elle se joue normalement aux tours suivants.",
+   "text": "Défaussez une carte du terrain d'un joueur sous la Pluie. Ce joueur doit poser une carte de sa main sur son terrain, sans son effet : elle et ses voisines prennent de la Ga-Doux.\nUne carte avec de la Ga-Doux ne se joue pas tant que son joueur est sous la Pluie.",
+   "rules": "La carte posée ne joue pas son effet de pose. La boue reste tant que la carte est sur le terrain ; hors Pluie, elle ne bloque rien.",
    "image": "MET-10.jpg",
-   "claude": "✏️ Modifiée v0.34 (rework Météo validé)"
+   "claude": "✏️ Modifiée v0.36 (demande du Prompt)"
   },
   "MET-11": {
    "id": "MET-11",

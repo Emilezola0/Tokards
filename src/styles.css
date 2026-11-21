@@ -403,16 +403,30 @@ button.mini { font-size: 11px; padding: 1px 8px; border-radius: 8px; }
 .hand .card { width: 64px; }
 .hand.fanned .hand-slot:hover { transform: rotate(0deg) translateY(-12px); z-index: 50 !important; }
 .hand.expandable { cursor: zoom-in; }
+/* phase 2 : la main du joueur qui doit jouer est mise en avant */
+.hand.hand-turn {
+  border-radius: 12px; background: radial-gradient(ellipse at center, color-mix(in srgb, var(--pc, #ffd23f) 22%, transparent), transparent 72%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pc, #ffd23f) 70%, transparent) inset; animation: hand-turn 1.8s ease-in-out infinite;
+}
+.hand.hand-turn .card { box-shadow: 0 0 10px color-mix(in srgb, var(--pc, #ffd23f) 65%, transparent); }
+@keyframes hand-turn { 0%, 100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--pc, #ffd23f) 45%, transparent) inset; } 50% { box-shadow: 0 0 0 2px var(--pc, #ffd23f) inset, 0 0 18px color-mix(in srgb, var(--pc, #ffd23f) 55%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .hand.hand-turn { animation: none; } }
 .hand-grid-bg { position: fixed; inset: 0; z-index: 35; background: #05030b99; display: grid; place-items: center; }
 .hand-grid { max-width: min(760px, 94vw); display: grid; gap: 10px; animation: drawer 0.2s ease-out; }
 .hand-grid-cards { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 
-.stack { position: relative; isolation: isolate; }
-.stack::before, .stack::after { content: ""; position: absolute; inset: 0; border-radius: 8px; background: #2a1d55; border: 1px solid #ffffff33; z-index: -1; }
-.stack.layers-0::before, .stack.layers-0::after { display: none; }
-.stack.layers-1::after { display: none; }
-.stack::before { transform: translate(3px, 3px); filter: brightness(0.75); }
-.stack::after { transform: translate(6px, 6px); filter: brightness(0.5); }
+/* pioche : vraie pile de cartes, plus épaisse quand il reste beaucoup de cartes */
+.stack { position: relative; isolation: isolate; transform: translate(calc(var(--layers, 0) * -1px), calc(var(--layers, 0) * -1.5px)); }
+.stack > .card { position: relative; z-index: 1; box-shadow: 0 1px 0 #ffffff22 inset; }
+.stack-layer {
+  position: absolute; inset: 0; border-radius: 8px; z-index: 0; pointer-events: none;
+  transform: translate(calc(var(--i) * 1.5px), calc(var(--i) * 2.5px)) rotate(calc((var(--i) - 3) * 0.6deg));
+  background: linear-gradient(160deg, #8a76d6, #4a3a92 55%, #2c2160);
+  border: 1px solid #e6dcff66; border-bottom-color: #1a1238;
+  filter: brightness(calc(1.05 - var(--i) * 0.07));
+  box-shadow: 0 1px 0 #f0e9ff55 inset, 0 2px 3px #000a;
+}
+.stack-layer:first-child { box-shadow: 0 1px 0 #d8c9ff33, 0 8px 14px #000b; }
 .pile.discard .under { position: absolute; left: 2px; top: 50%; margin-top: -48px; pointer-events: none; }
 .pile.discard .under .card { width: 64px; filter: brightness(0.55); }
 .pile.discard .under-1 { transform: translate(4px, 3px) rotate(4deg); }
@@ -427,7 +441,11 @@ button.mini { font-size: 11px; padding: 1px 8px; border-radius: 8px; }
 .passive-badge { color: #7af7ff; border-color: #7af7ff; }
 
 /* jauges des conditions */
-.res-bar { height: 46px; }
+.res-bar { height: 46px; min-width: 0; }
+/* la condition de victoire perso reste dans le cadre du joueur : les ressources se tassent, le texte se coupe */
+.res-group { min-width: 0; overflow: hidden; }
+.res.bh { min-width: 0; }
+.res-bar .vc-chip { flex: 0 1 200px; width: auto; min-width: 90px; overflow: hidden; }
 .gauge { display: block; height: 5px; border-radius: 3px; background: #ffffff1c; overflow: hidden; width: 100%; }
 .gauge > span { display: block; height: 100%; background: linear-gradient(90deg, #ffcf5a, #ffe9a8); border-radius: 3px; transition: width 0.6s ease; }
 .gauge.done > span { background: var(--ok); }
@@ -1016,8 +1034,8 @@ button.danger:hover { border-color: var(--bad); }
 }
 /* image entière, fondue en cercle : le masque suit l'image elle-même, pas toute la table */
 .turn-backdrop img {
-  max-width: 100%; max-height: 100%; object-fit: contain; display: block;
-  -webkit-mask-image: radial-gradient(circle closest-side at center, #000 40%, transparent 100%); mask-image: radial-gradient(circle closest-side at center, #000 40%, transparent 100%);
+  height: 135%; width: auto; max-width: 135%; object-fit: contain; display: block; flex: none;
+  -webkit-mask-image: radial-gradient(circle closest-side at center, #000 50%, transparent 100%); mask-image: radial-gradient(circle closest-side at center, #000 50%, transparent 100%);
 }
 @keyframes backdrop-in { from { opacity: 0; } to { opacity: 0.5; } }
 /* flèches courbes du sens de jeu */
@@ -1168,6 +1186,12 @@ button.danger:hover { border-color: var(--bad); }
 .gloss-group > ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .gloss-group-title { display: flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 .voice-btn { justify-self: start; }
+.wx-bh { display: grid; gap: 6px; margin: 6px 0 12px; padding: 8px 10px; border-radius: 10px; background: #00000033; border: 1px solid var(--line); }
+.wx-bh-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+.wx-bh-cell { padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px; white-space: nowrap; }
+.wx-bh-cell.on { border-color: var(--gold); background: #ffcf5a1a; font-weight: 600; }
+.wx-bh-cell.match { box-shadow: 0 0 10px #ffcf5a55; }
+.wx-bh p { margin: 0; }
 .stack-info { display: grid; gap: 8px; padding: 8px 10px; border-radius: 10px; background: #00000033; border: 1px solid var(--line); }
 .stack-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .stack-card { display: grid; justify-items: center; gap: 3px; width: 72px; text-align: center; }

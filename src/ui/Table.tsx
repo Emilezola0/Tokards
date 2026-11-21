@@ -20,7 +20,7 @@ import KwText from "./KwText";
 import { VersionTag } from "./UpdatePrompt";
 import { playerColor } from "./pose";
 import { fxStore, useFx } from "./fxStore";
-import { viewState } from "./view";
+import { viewState, withPreview } from "./view";
 import { dealDuration, useCardFlip } from "./useCardFlip";
 
 const PHASE_LABEL = { activation: "Activation", action: "Poser / défausser", end: "Fin du tour" };
@@ -127,7 +127,12 @@ function usePreloadImages(decks: (string | null | undefined)[]) {
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-export default function Table({ room: realRoom, uid }: { room: Room; uid: string }) {
+export default function Table({ room: rawRoom, uid }: { room: Room; uid: string }) {
+  // Pendant un choix : la table montre l'action en cours jusqu'au choix (voir withPreview).
+  const realRoom = useMemo(() => {
+    const pg = rawRoom.game && withPreview(rawRoom.game);
+    return pg === rawRoom.game ? rawRoom : { ...rawRoom, game: pg };
+  }, [rawRoom]);
   const real = realRoom.game!;
   const fx = useFx();
   // Ce qui est affiché suit les animations (dé, victoire, journal) : voir viewState.
@@ -501,7 +506,13 @@ export default function Table({ room: realRoom, uid }: { room: Room; uid: string
       {viewDeck && <DeckModal deck={viewDeck} onClose={() => setViewDeck(null)} />}
       {showGone && <GoneModal ids={gone} ownerName={(id) => E.nameOf(room, g.owner[id])} onCard={setOpenCard} onClose={() => setShowGone(false)} />}
       {viewTerrain && g.players[viewTerrain] && (
-        <TerrainModal name={E.nameOf(room, viewTerrain)} terrain={g.players[viewTerrain].terrain} onCard={setOpenCard} onClose={() => setViewTerrain(null)} />
+        <TerrainModal
+          name={E.nameOf(room, viewTerrain)}
+          terrain={g.players[viewTerrain].terrain}
+          sky={g.meteo ? { bh: g.players[viewTerrain].blackHole, weather: E.weatherOf(g, viewTerrain) } : undefined}
+          onCard={setOpenCard}
+          onClose={() => setViewTerrain(null)}
+        />
       )}
       {g.wordClaim && <WordVote room={room} uid={uid} />}
       {g.vote && settled && <VoteModal room={room} uid={uid} isHost={isHost} />}

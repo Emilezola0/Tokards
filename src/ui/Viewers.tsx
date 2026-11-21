@@ -6,6 +6,7 @@ import CardView from "./CardView";
 import { sfx } from "./sfx";
 import VoiceButton, { VoiceVolume } from "./VoiceButton";
 import { hasVoice, playDeckVoice } from "./voice";
+import { BH_SYMBOL, BH_WEATHER, BLACK_HOLES, weatherIcon, type BlackHole, type Weather } from "../game/types";
 
 /** Détail d'une carte (image, tags, déclenchement, texte, précisions). */
 export function CardDetail({ id, onBack, backLabel = "← Retour au deck" }: { id: string; onBack: () => void; backLabel?: string }) {
@@ -168,7 +169,31 @@ export function GoneModal({ ids, ownerName, onCard, onClose }: { ids: string[]; 
 }
 
 /** Les effets d'un terrain dans l'ordre d'activation, reliés par des flèches. */
-export function TerrainModal({ name, terrain, onCard, onClose }: { name: string; terrain: string[]; onCard?: (id: string) => void; onClose: () => void }) {
+/** Association météo ↔ trou noir (deck Météo : la météo suit le trou noir), avec l'état actuel du joueur en avant. */
+function WeatherBlackHoles({ bh, weather }: { bh: BlackHole; weather: Weather | null }) {
+  return (
+    <div className="wx-bh">
+      <strong className="small">🌦️ Météo ↔ 🌀 trou noir</strong>
+      <div className="wx-bh-grid">
+        {BLACK_HOLES.map((b) => {
+          const w = BH_WEATHER[b.id];
+          const on = b.id === bh;
+          return (
+            <span key={b.id} className={`wx-bh-cell ${on ? "on" : ""} ${on && weather === w ? "match" : ""}`} title={on ? "Ton trou noir actuel" : undefined}>
+              {BH_SYMBOL[b.id]} {b.id} <span className="muted">↔</span> {weatherIcon(w)} {w}
+            </span>
+          );
+        })}
+      </div>
+      <p className="small muted">
+        Changer de trou noir change la météo (et inversement). Neige et Beau temps n'ont pas de trou noir : ils ne le changent pas.
+        Actuellement : {BH_SYMBOL[bh]} {bh} · {weatherIcon(weather)} {weather ?? "Beau temps"}.
+      </p>
+    </div>
+  );
+}
+
+export function TerrainModal({ name, terrain, onCard, onClose, sky }: { name: string; terrain: string[]; onCard?: (id: string) => void; onClose: () => void; sky?: { bh: BlackHole; weather: Weather | null } }) {
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal panel viewer" onClick={(e) => e.stopPropagation()}>
@@ -177,6 +202,7 @@ export function TerrainModal({ name, terrain, onCard, onClose }: { name: string;
           <button className="ghost" onClick={onClose}>✕</button>
         </div>
         <p className="small muted">Ordre d'activation (sens de lecture) pendant la phase 1.</p>
+        {sky && <WeatherBlackHoles bh={sky.bh} weather={sky.weather} />}
         <div className="chain">
           {terrain.map((id, i) => {
             const c = card(id);
