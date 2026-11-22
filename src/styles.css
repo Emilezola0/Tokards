@@ -1261,3 +1261,19 @@ button.danger:hover { border-color: var(--bad); }
 /* v0.35 : passages du texte qui s'appliquent (ou pas) avec les états en cours */
 .kw-on { background: #7c4dff33; box-shadow: inset 3px 0 0 var(--accent); border-radius: 4px; padding: 0 3px; font-weight: 600; }
 .kw-off { opacity: 0.45; }
+
+/* ===== v0.38 : accueil et salon ===== */
+.recent-rooms { display: grid; gap: 8px; margin-top: 14px; text-align: left; }
+.recent-room { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px 10px; }
+.recent-room .code { font-family: ui-monospace, monospace; letter-spacing: 2px; font-weight: 800; color: var(--gold); }
+.recent-info { display: grid; flex: 1; min-width: 0; }
+.recent-info > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recent-go { color: var(--muted); }
+.recent-room:hover .recent-go { color: var(--gold); }
+.team-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.team-pill { padding: 3px 12px; border-radius: 99px; font-size: 13px; border: 1px solid color-mix(in srgb, var(--tc, #9a8fc0) 60%, transparent); }
+.team-pill.on { background: color-mix(in srgb, var(--tc, #9a8fc0) 30%, transparent); border-color: var(--tc, #9a8fc0); font-weight: 700; box-shadow: 0 0 10px color-mix(in srgb, var(--tc, #9a8fc0) 45%, transparent); }
+.lobby-notes { position: fixed; z-index: 60; top: 16px; right: 16px; display: grid; gap: 6px; pointer-events: none; }
+.lobby-note { padding: 8px 14px; border-radius: 10px; background: #1a1233f2; border: 1px solid var(--line); box-shadow: 0 6px 18px #000a; animation: note-in 0.3s ease-out; }
+@keyframes note-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lobby-note { animation: none; } }

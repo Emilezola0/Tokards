@@ -1,11 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { PLACEHOLDER, cardImage, deckBack } from "../data/cards";
-import { kickPlayer, launch, update } from "../game/room";
+import { kickPlayer, launch, leaveRoom, transferHost, update } from "../game/room";
 import type { Room } from "../game/types";
 import { LOBBY_DECKS } from "../effects/ready";
 import { playDeckVoice } from "./voice";
 import { DeckModal, VictoryModal } from "./Viewers";
 import { deckColor, playerColor } from "./pose";
+import { sfx } from "./sfx";
+
+/** Équipes proposées en un clic (un nom libre reste possible). */
+const TEAMS: { name: string; color: string }[] = [
+  { name: "Rouge", color: "#ff5c6c" },
+  { name: "Bleu", color: "#4f8cff" },
+  { name: "Vert", color: "#3ddc84" },
+  { name: "Jaune", color: "#ffcf3a" },
+];
 
 /** Ordre d'affichage des decks : les plus faciles d'abord, les decks en cours à la fin. */
 const DIFF_RANK: Record<string, number> = { facile: 0, moyen: 1, difficile: 2 };
@@ -33,6 +42,27 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
     wasReady.current = now;
   });
 
+  // Quelqu'un arrive ou part : petit son et annonce.
+  const [notes, setNotes] = useState<{ id: number; text: string }[]>([]);
+  const known = useRef<Map<string, string> | null>(null);
+  useEffect(() => {
+    const now = new Map(players.map((p) => [p.uid, p.name]));
+    const prev = known.current;
+    known.current = now;
+    if (!prev) return;
+    const add: string[] = [];
+    for (const [u, n] of now) if (!prev.has(u) && u !== uid) add.push(`👋 ${n} a rejoint le salon`);
+    for (const [u, n] of prev) if (!now.has(u)) add.push(`🚪 ${n} est parti`);
+    if (prev.size && room.hostUid !== hostRef.current && room.players[room.hostUid]) add.push(`👑 ${room.players[room.hostUid].name} est maintenant l'hôte`);
+    hostRef.current = room.hostUid;
+    if (!add.length) return;
+    sfx.turn();
+    const items = add.map((text) => ({ id: Math.random(), text }));
+    setNotes((l) => [...l, ...items].slice(-4));
+    setTimeout(() => setNotes((l) => l.filter((x) => !items.includes(x))), 3500);
+  });
+  const hostRef = useRef(room.hostUid);
+
   const run = (p: Promise<unknown>) => p.catch((e) => setErr((e as Error).message));
   const pickDeck = (deck: string | null) =>
     run(update(room.code, (r) => {
@@ -42,11 +72,31 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
       r.players[uid].deck = deck;
       r.players[uid].ready = false; // changer de deck annule « prêt »
     }));
+  const randomDeck = () => {
+    const free = SORTED_DECKS.filter(({ deck: d, status }) => status.ready && d.name !== me.deck && !players.some((p) => p.uid !== uid && p.deck === d.name));
+    if (!free.length) return setErr("Aucun autre deck libre.");
+    const d = free[Math.floor(Math.random() * free.length)].deck.name;
+    playDeckVoice(d);
+    pickDeck(d);
+  };
+  const setMyTeam = (t: string) => {
+    setTeam(t);
+    run(update(room.code, (r) => void (r.players[uid].team = t)));
+  };
+  // L'hôte répartit les joueurs (avec un deck) en 2 équipes au hasard, aussi égales que possible.
+  const randomTeams = () =>
+    run(update(room.code, (r) => {
+      const list = Object.values(r.players).filter((p) => p.deck).sort(() => Math.random() - 0.5);
+      list.forEach((p, i) => (p.team = TEAMS[i % 2].name));
+    }));
   const toggleReady = () => run(update(room.code, (r) => void (r.players[uid].ready = !r.players[uid].ready)));
   const saveTeam = () => run(update(room.code, (r) => void (r.players[uid].team = team.trim().slice(0, 20))));
-  // L'hôte garde sa place (il est le seul à pouvoir lancer) : il ferme juste la page.
-  const leave = () =>
-    isHost ? (location.hash = "") : run(update(room.code, (r) => void delete r.players[uid]).then(() => (location.hash = "")));
+  // Quitter : la place est libérée ; si c'était l'hôte, le rôle passe au joueur arrivé le plus tôt.
+  const leave = () => {
+    const next = players.find((p) => p.uid !== uid);
+    if (isHost && next && !confirm(`Quitter le salon ? ${next.name} deviendra l'hôte.`)) return;
+    run(leaveRoom(room.code, uid).then(() => (location.hash = "")));
+  };
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(location.href);
@@ -57,7 +107,8 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
     }
   };
   const withDeck = players.filter((p) => p.deck);
-  const notReady = players.filter((p) => p.uid !== room.hostUid && !p.ready);
+  // Seuls les joueurs avec un deck doivent être prêts : les autres regardent.
+  const notReady = players.filter((p) => p.uid !== room.hostUid && p.deck && !p.ready);
 
   return (
     <div className="lobby">
@@ -85,11 +136,20 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
                   <span className="lp-top">
                     <strong className="lp-name">{p.name}</strong>
                     {p.uid === room.hostUid && <span className="badge">hôte</span>}
-                    <span className="muted">{p.team ? `Équipe ${p.team}` : "Solo"}</span>
+                    <span className="muted" style={{ color: TEAMS.find((t) => t.name === p.team)?.color }}>{p.team ? `Équipe ${p.team}` : "Solo"}</span>
                   </span>
                   <span className={p.deck ? "deck-tag" : "muted"}>{p.deck ?? "spectateur (pas de deck)"}</span>
                 </span>
                 {p.uid !== room.hostUid && <span className={`lp-ready ${p.ready ? "on" : ""}`}>{p.ready ? "✔ Prêt" : "…"}</span>}
+                {isHost && p.uid !== uid && (
+                  <button
+                    className="mini ghost lp-kick"
+                    title={`Donner le rôle d'hôte à ${p.name}`}
+                    onClick={() => confirm(`Donner le rôle d'hôte à ${p.name} ? Il pourra lancer la partie et exclure des joueurs.`) && run(transferHost(room.code, uid, p.uid))}
+                  >
+                    👑
+                  </button>
+                )}
                 {isHost && p.uid !== uid && (
                   <button
                     className="mini ghost danger lp-kick"
@@ -102,13 +162,23 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
               </li>
             ))}
           </ul>
-          <label className="team-field">
-            Ton équipe (même nom = même équipe, vide = solo)
+          <div className="team-field">
+            <span>Ton équipe</span>
+            <div className="team-pills">
+              <button className={`team-pill ${!me.team ? "on" : ""}`} onClick={() => setMyTeam("")}>Solo</button>
+              {TEAMS.map((t) => (
+                <button key={t.name} className={`team-pill ${me.team === t.name ? "on" : ""}`} style={{ ["--tc" as string]: t.color }} onClick={() => setMyTeam(t.name)}>
+                  {t.name}
+                </button>
+              ))}
+              {isHost && <button className="team-pill ghost" title="Répartir les joueurs avec un deck en 2 équipes au hasard" onClick={randomTeams}>🎲 Au hasard</button>}
+            </div>
+            <span className="muted small">Ou un nom libre (même nom = même équipe) :</span>
             <div className="row">
               <input value={team} maxLength={20} onChange={(e) => setTeam(e.target.value)} onKeyDown={(e) => e.key === "Enter" && saveTeam()} placeholder="ex : Rouge" />
               <button onClick={saveTeam} disabled={team.trim() === me.team}>Valider</button>
             </div>
-          </label>
+          </div>
           <label className="check auto-toggle">
             <input
               type="checkbox"
@@ -126,6 +196,14 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
                 Lancer la partie ({withDeck.length} joueur{withDeck.length > 1 ? "s" : ""})
               </button>
               {notReady.length > 0 && <p className="muted small">En attente : {notReady.map((p) => p.name).join(", ")} (pas encore prêt).</p>}
+              {notReady.length > 0 && withDeck.some((p) => p.uid === room.hostUid || p.ready) && (
+                <button
+                  className="ghost small"
+                  onClick={() => confirm(`Lancer sans attendre ? ${notReady.map((p) => p.name).join(", ")} regardera la partie en spectateur.`) && run(launch(room.code, true))}
+                >
+                  Lancer quand même (les autres regardent)
+                </button>
+              )}
             </>
           ) : (
             <>
@@ -142,6 +220,7 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
         <section className="panel">
           <div className="row deck-grid-head">
             <h2 className="grow">Choisis ton deck</h2>
+            <button className="mini" onClick={randomDeck} title="Prendre un deck libre au hasard">🎲 Deck au hasard</button>
             <button className="mini" onClick={() => setShowVC(true)}>🏁 Conditions de victoire</button>
           </div>
           <div className="deck-grid">
@@ -180,6 +259,9 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
             })}
           </div>
         </section>
+      </div>
+      <div className="lobby-notes" aria-live="polite">
+        {notes.map((n) => <div key={n.id} className="lobby-note">{n.text}</div>)}
       </div>
       {viewDeck && <DeckModal deck={viewDeck} onClose={() => setViewDeck(null)} />}
       {showVC && <VictoryModal decks={SORTED_DECKS.filter((d) => d.status.ready).map((d) => d.deck.name)} onClose={() => setShowVC(false)} />}

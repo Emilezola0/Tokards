@@ -21,6 +21,46 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.38.0",
+    date: "22 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "↩ Reprendre une partie",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip pn-glow">ABCDE · 🎲 Partie en cours ➜</span>
+          </div>
+        ),
+        text: <>L'accueil propose de revenir dans tes derniers salons encore ouverts, en un clic. Entrée crée ou rejoint un salon, et tu peux coller le lien d'invitation entier dans le champ du code.</>,
+      },
+      {
+        cat: "jeu",
+        title: "🛋️ Salon plus pratique",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🎲 Deck au hasard</span>
+            <span className="pn-chip" style={{ borderColor: "#ff5c6c" }}>Rouge</span>
+            <span className="pn-chip" style={{ borderColor: "#4f8cff" }}>Bleu</span>
+          </div>
+        ),
+        text: <>Deck au hasard parmi les libres. Équipes en un clic (Rouge, Bleu, Vert, Jaune), et l'hôte peut répartir les joueurs en 2 équipes au hasard. Une annonce et un son quand quelqu'un arrive ou part.</>,
+      },
+      {
+        cat: "jeu",
+        title: "👑 L'hôte peut passer la main",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-big">👑</span>
+            <Arrow />
+            <span className="pn-chip pn-glow">Nouvel hôte</span>
+          </div>
+        ),
+        text: <>La couronne à côté d'un joueur lui donne le rôle d'hôte. Si l'hôte quitte le salon, le joueur arrivé le plus tôt prend sa place. Les spectateurs (sans deck) ne bloquent plus le lancement, et l'hôte peut lancer sans attendre ceux qui ne sont pas prêts : ils regardent la partie.</>,
+      },
+    ],
+  },
+  {
     version: "0.37.0",
     date: "22 novembre 2026",
     notes: [

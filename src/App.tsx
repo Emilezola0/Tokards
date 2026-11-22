@@ -7,7 +7,7 @@ import Home from "./ui/Home";
 import Lobby from "./ui/Lobby";
 import Table from "./ui/Table";
 
-import { getName } from "./ui/name";
+import { getName, rememberRoom } from "./ui/name";
 import UpdatePrompt from "./ui/UpdatePrompt";
 import HelpGuide from "./ui/HelpGuide";
 import Glossary from "./ui/Glossary";
@@ -70,6 +70,7 @@ function Screen() {
       </div>
     );
   if (room === undefined || !room.players[user.uid]) return <div className="center muted">Chargement du salon…</div>;
+  rememberRoom(room.code);
   if (room.status === "lobby") return <Lobby room={room} uid={user.uid} />;
   return <Table room={room} uid={user.uid} />;
 }

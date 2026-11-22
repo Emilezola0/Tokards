@@ -34,6 +34,12 @@ export async function joinRoom(code: string, uid: string, name: string): Promise
   });
 }
 
+/** Lecture simple d'un salon (accueil : salons récents). */
+export async function peekRoom(code: string): Promise<Room | null> {
+  const s = await getDoc(roomRef(code));
+  return s.exists() ? (s.data() as Room) : null;
+}
+
 export function watchRoom(code: string, cb: (r: Room | null) => void, onError: (e: Error) => void) {
   return onSnapshot(roomRef(code), (s) => cb(s.exists() ? (s.data() as Room) : null), onError);
 }
@@ -63,10 +69,13 @@ export function effect(code: string, action: EffectAction | null, answer?: unkno
   return update(code, (room) => runEffect(room, action, answer));
 }
 
-export function launch(code: string) {
+/** Lance la partie. `force` : les joueurs pas encore prêts la regardent en spectateurs (leur deck est rendu). */
+export function launch(code: string, force = false) {
   return update(code, (room) => {
-    const late = Object.values(room.players).filter((p) => p.uid !== room.hostUid && !p.ready);
-    if (late.length) throw new Error(`Pas encore prêt : ${late.map((p) => p.name).join(", ")}.`);
+    const late = Object.values(room.players).filter((p) => p.uid !== room.hostUid && p.deck && !p.ready);
+    if (late.length && !force) throw new Error(`Pas encore prêt : ${late.map((p) => p.name).join(", ")}.`);
+    for (const p of late) p.deck = null;
+    if (!Object.values(room.players).some((p) => p.deck)) throw new Error("Personne n'a de deck.");
     room.game = startGame(room);
     room.status = "playing";
   });
@@ -85,6 +94,28 @@ export function kickPlayer(code: string, by: string, target: string) {
     } else {
       if (g) g.spectators = g.spectators.filter((u) => u !== target);
       delete room.players[target];
+    }
+  });
+}
+
+/** L'hôte donne son rôle à un autre joueur du salon. */
+export function transferHost(code: string, by: string, to: string) {
+  return update(code, (room) => {
+    if (room.hostUid !== by) throw new Error("Seul l'hôte peut donner son rôle.");
+    if (!room.players[to]) throw new Error("Ce joueur n'est plus dans le salon.");
+    room.hostUid = to;
+    room.players[by].ready = false;
+  });
+}
+
+/** Quitter le salon : l'hôte passe la main au joueur arrivé le plus tôt (le salon se ferme s'il était seul). */
+export function leaveRoom(code: string, uid: string) {
+  return update(code, (room) => {
+    if (!room.players[uid]) return;
+    delete room.players[uid];
+    if (room.hostUid === uid) {
+      const next = Object.values(room.players).sort((a, b) => a.joinedAt - b.joinedAt)[0];
+      if (next) room.hostUid = next.uid;
     }
   });
 }

@@ -8,8 +8,10 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.resource.data.hostUid == request.auth.uid
         && roomId.size() == 5;
+      // Le rôle d'hôte ne change que si c'est l'hôte actuel qui le donne (ou qui quitte le salon).
       allow update: if request.auth != null
-        && request.resource.data.hostUid == resource.data.hostUid;
+        && (request.resource.data.hostUid == resource.data.hostUid
+            || resource.data.hostUid == request.auth.uid);
       allow delete: if false;
     }
     // Demandes de retrait de contenu : n'importe quel visiteur connecté peut en créer une,
