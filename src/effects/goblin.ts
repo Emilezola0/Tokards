@@ -234,7 +234,7 @@ export const GOBLIN: Record<string, CardScript> = {
   // Ingénierie Gobline
   "GOB-16": {
     activate: (x, { id, me }) => {
-      x.draw(me, 6);
+      x.draw(me, 3);
       const c = x.chooseCard(me, "Défausse une carte de ta main", x.p(me).hand, id);
       if (c) x.discard(c);
       x.discard(id);

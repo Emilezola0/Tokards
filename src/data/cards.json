@@ -1152,10 +1152,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Piochez 6 cartes, défaussez une carte de votre main.\nPuis défaussez cette carte.",
-   "rules": "Pioche 6, défausse 1 carte de la main, puis cette carte est défaussée.",
+   "text": "Piochez 3 cartes, défaussez une carte de votre main.\nPuis défaussez cette carte.",
+   "rules": "Pioche 3, défausse 1 carte de la main, puis cette carte est défaussée.",
    "image": "GOB-16.webp",
-   "claude": ""
+   "claude": "✏️ Modifiée v0.37 (demande du Prompt)"
   },
   "GOB-17": {
    "id": "GOB-17",
@@ -4401,10 +4401,10 @@
    "event": "",
    "target": "",
    "check": "",
-   "text": "Passif — Au début du tour d'un joueur sous la Neige : chaque carte de son terrain a 20 % de chances de geler.\nUne carte qui arrive sur le terrain d'un joueur sous la Neige (de n'importe quelle façon) a aussi 20 % de chances de geler.\nUne carte gelée ne se joue pas jusqu'au prochain changement de météo de ce joueur.",
-   "rules": "Le gel compte comme une désactivation (Garde à vue, durées…). L'Orage et Neige parfaite ne gèlent pas. Une carte qui quitte le terrain dégèle.",
+   "text": "Passif — Au début du tour d'un joueur sous la Neige : chaque carte de son terrain a 20 % de chances de geler.\nUne carte qui arrive sur le terrain d'un joueur sous la Neige (de n'importe quelle façon) a aussi 20 % de chances de geler.\nUne carte gelée ne se joue pas jusqu'au prochain changement de météo de ce joueur.\nSous la Canicule : sans effet sur vous.",
+   "rules": "Le gel compte comme une désactivation (Garde à vue, durées…). L'Orage et Neige parfaite ne gèlent pas. Une carte qui quitte le terrain dégèle. Un joueur qui a la Neige et la Canicule (Météo étrange) n'est pas touché.",
    "image": "MET-06.jpg",
-   "claude": "✏️ Modifiée v0.36 (demande du Prompt)"
+   "claude": "✏️ Modifiée v0.37 (demande du Prompt)"
   },
   "MET-07": {
    "id": "MET-07",

@@ -83,7 +83,7 @@ function freeze(x: Ctx, c: string, uid: string) {
 
 /** Neige parfaite : une carte arrive sur le terrain de `u` ; sous la Neige, 20 % qu'elle gèle. */
 function snowLanding(x: Ctx, self: string, c: string, u: string) {
-  if (c === self || c === ORAGE || x.p(u)?.out || !x.isWeather(u, "Neige") || E.locate(x.g, c)?.zone !== "terrain") return;
+  if (c === self || c === ORAGE || x.p(u)?.out || !x.isWeather(u, "Neige") || x.isWeather(u, "Canicule") || E.locate(x.g, c)?.zone !== "terrain") return;
   if (x.chance(u, 20, [`« ${card(c).name} » gèle`, "pas de gel"])) freeze(x, c, u);
 }
 
@@ -202,11 +202,12 @@ export const METEO: Record<string, CardScript> = {
 
   // Neige parfaite (passif) : au début du tour d'un joueur sous la Neige, chaque carte de son terrain a 20 % de geler ;
   // une carte qui arrive sur son terrain a aussi 20 % de geler. Dégel au changement de météo de ce joueur.
+  // Un joueur qui a aussi la Canicule (Météo étrange) n'est pas touché.
   "MET-06": {
     on: {
       // Début du tour d'un joueur sous la Neige : chaque carte de son terrain a 20 % de geler.
       turnStart: (x, self, e) => {
-        if (x.p(e.uid)?.out || !x.isWeather(e.uid, "Neige")) return;
+        if (x.p(e.uid)?.out || !x.isWeather(e.uid, "Neige") || x.isWeather(e.uid, "Canicule")) return;
         const pool = x.p(e.uid).terrain.filter((c) => c !== ORAGE && c !== self.id && !x.g.disabled?.[c]);
         if (!pool.length) return;
         const hit = pool.filter(() => x.rand() < 0.2);

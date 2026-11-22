@@ -43,7 +43,8 @@ type Props = {
   /** a joué son effet : grisée jusqu'à ce qu'elle puisse le rejouer */
   spent?: boolean;
   /** gold stockés sur la carte */
-  store?: number;
+  /** valeur gardée par la carte (gold de côté, compteur…) : voir stored.ts */
+  store?: { short: string; label: string } | null;
   /** verrouillée : ne peut pas être choisie */
   locked?: boolean;
   /** désactivée : son effet et ses passifs ne fonctionnent pas */
@@ -137,7 +138,7 @@ export default function CardView(p: Props) {
       {mark && <span className="card-claude" title={mark.label}>{mark.icon}</span>}
       <span className="card-name">{c.name}</span>
       {spent && <span className="card-spent" title="Effet déjà joué : se recharge au prochain tour de son joueur">✓</span>}
-      {!!store && <span className="card-store" title="Gold stockés sur cette carte">💰 {store}</span>}
+      {!!store && <span className="card-store" title={`${store.label} (détail : cliquer sur la carte)`}>{store.short}</span>}
       {locked && <span className="card-lock">🔒</span>}
       {disabled && <span className="card-disabled" title="Désactivée : son effet et ses passifs ne fonctionnent pas">⛔</span>}
       {chained && <Chains why={chained} />}

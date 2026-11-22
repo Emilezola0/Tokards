@@ -256,6 +256,22 @@ function Wheel({ spin }: { spin: Spin }) {
 }
 
 /** Joue les effets visuels (g.fx) les uns après les autres. */
+/**
+ * La carte est-elle face cachée pour ce joueur (main d'un autre, pioche, carte retournée, cachée sous une autre) ?
+ * Une carte que le joueur ne voit pas ne dit pas sa voiceline : sinon elle se trahirait.
+ */
+function hiddenFor(g: GameState, id: string, me: string): boolean {
+  const at = E.locate(g, id);
+  if (!at) {
+    for (const [host, list] of Object.entries(g.under ?? {})) if (list.includes(id)) return host === E.SNOW || g.marks?.[id] === "VIC-13";
+    return false;
+  }
+  if (at.zone === "deck") return !E.seeThrough(g);
+  if (at.zone === "hand") return at.uid !== me && !!g.players[me] && !g.revealed?.includes(id);
+  if (at.zone === "terrain") return !!g.facedown?.includes(id) && !E.seeThrough(g);
+  return false;
+}
+
 export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
   g: GameState; room: Room; me: string; fresh: boolean; startDelay: number; colorOf: (uid: string) => string;
 }) {
@@ -419,7 +435,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         await showCenter(f.card, speed);
         const el = centerCard.current?.el;
         sfx.activate();
-        playVoice(f.card);
+        if (!hiddenFor(g, f.card, me)) playVoice(f.card);
         if (el) flash(el, "glow", 900);
         ring(centerPoint(), colorOf(f.uid), 300);
         await wait(380 * speed);
@@ -443,7 +459,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
         }
         sfx.fail();
         // L'effet échoue : la carte parle comme une carte qui subit (plus grave, moins fort).
-        playVoice(f.card, 0.7, HURT_RATE);
+        if (!hiddenFor(g, f.card, me)) playVoice(f.card, 0.7, HURT_RATE);
         setBanner({ text: `✖ ${card(f.card).name} ne peut pas s'activer${f.reason ? ` : ${f.reason}` : ""}`, key: f.id, kind: "fail" });
         await wait((f.reason ? 1900 : 1000) * Math.max(speed, 0.6));
         break;
@@ -638,7 +654,7 @@ export default function FxLayer({ g, room, me, fresh, startDelay, colorOf }: {
       case "link": {
         // Une carte agit sur une autre : flèche de la carte source vers la carte touchée.
         // La carte qui subit parle une octave plus bas (hauteur divisée par deux).
-        playVoice(f.to, 0.7, HURT_RATE);
+        if (!hiddenFor(g, f.to, me)) playVoice(f.to, 0.7, HURT_RATE);
         const fromCenter = centerCard.current?.id === f.from;
         const from = fromCenter ? { x: center().cx, y: center().cy } : mid(q(`.arena [data-card="${css(f.from)}"]`));
         let dest = q(`.arena [data-card="${css(f.to)}"]`);

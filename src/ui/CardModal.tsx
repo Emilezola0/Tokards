@@ -9,6 +9,7 @@ import { isAutoVC, lettersOf, teamProgress, vcProgress, wordFits } from "../game
 import { Gauge } from "./PlayerBoard";
 import CardView from "./CardView";
 import VoiceButton from "./VoiceButton";
+import { storedOf } from "./stored";
 
 export type Placing = { id: string; from: "hand" | "terrain" | "discard" };
 type Run = (fn: (r: Room, g: GameState) => void) => void;
@@ -246,7 +247,8 @@ export function modifiersOf(room: Room, g: GameState, id: string): Mod[] {
   if (g.tempTags?.includes(id)) out.push({ icon: "🧠", label: "Tag Sentience ajouté", kind: "buff", details: [...origin("tag", "EMI-18"), "Durée : jusqu'à la fin du tour en cours."] });
   const chain = chainOf(g, id);
   if (chain) out.push({ icon: "🔗", label: "Enchaînée", kind: "debuff", details: [`Origine : ${cardName(chain.src)}${chain.src !== id && g.owner[chain.src] ? ` de ${name(g.owner[chain.src])}` : ""}.`, chain.why] });
-  if (g.cardStore?.[id]) out.push({ icon: "💰", label: `Réserve : ${g.cardStore[id]} gold`, kind: "info", details: ["Gold stockés sur cette carte par son effet."] });
+  const kept = storedOf(room, g, id);
+  if (kept) out.push({ icon: "📦", label: `${kept.short} · ${kept.label}`, kind: "info", details: kept.details });
   if (g.spent?.includes(id)) out.push({ icon: "⏳", label: "Effet utilisé", kind: "info", details: ["Elle rejouera au prochain tour de son joueur."] });
   if (g.armed?.includes(id)) {
     const m = g.marks?.[id];

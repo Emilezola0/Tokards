@@ -21,6 +21,58 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.37.0",
+    date: "22 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "📦 Ce que les cartes gardent",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip pn-glow">💰 15</span>
+            <span className="pn-chip pn-glow">💤 2/3</span>
+            <span className="pn-chip pn-glow">⏳ 3/5</span>
+          </div>
+        ),
+        text: <>Une carte qui garde une valeur l'affiche sur elle : gold de côté, compteur du Rêveur, tours de l'Orage, chance du trou noir favorisé, prévisions, météo de Nuage… Le détail de la carte l'explique dans « Effets en cours ».</>,
+      },
+      {
+        cat: "cartes",
+        title: "❄️ Neige parfaite et Canicule",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="MET-06" />
+            <Arrow />
+            <span className="pn-chip pn-glow">☀️ protégé</span>
+          </div>
+        ),
+        text: <>Un joueur qui a aussi la Canicule n'est pas touché par Neige parfaite : ses cartes ne gèlent pas.</>,
+      },
+      {
+        cat: "cartes",
+        title: "🔧 Ingénierie gobline",
+        scene: (
+          <div className="hg-scene hg-row">
+            <Img id="GOB-16" />
+          </div>
+        ),
+        text: <>Pioche 3 cartes au lieu de 6.</>,
+      },
+      {
+        cat: "visuel",
+        title: "🤫 Les cartes cachées se taisent",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-big">🂠</span>
+            <Arrow />
+            <span className="pn-chip">🔇</span>
+          </div>
+        ),
+        text: <>Une carte que tu vois face cachée (main d'un adversaire, pioche, carte retournée) ne dit plus sa voiceline chez toi : elle ne se trahit plus.</>,
+      },
+    ],
+  },
+  {
     version: "0.36.0",
     date: "21 novembre 2026",
     notes: [

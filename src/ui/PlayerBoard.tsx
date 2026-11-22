@@ -8,6 +8,7 @@ import { vcProgress } from "../game/victory";
 import CardView, { CardBack } from "./CardView";
 import { useFx } from "./fxStore";
 import { sfx } from "./sfx";
+import { storedOf } from "./stored";
 
 /** Dimensions fixes d'un plateau (avant mise à l'échelle). */
 export const BW = 600;
@@ -235,7 +236,7 @@ export default function PlayerBoard(p: Props) {
                     target={tgt("cards", id)}
                     auto={auto && isAutomated(id)}
                     spent={(g.spent ?? []).includes(id)}
-                    store={g.cardStore?.[id]}
+                    store={storedOf(p.room, g, id)}
                     disabled={E.isDisabled(g, id)}
                     under={g.under?.[id]}
                     extraSent={g.tempTags?.includes(id)}
