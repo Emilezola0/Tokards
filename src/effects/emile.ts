@@ -4,6 +4,7 @@ import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole } from "../game/types";
 import type { CardScript, Ctx, Self } from "./runtime";
+import { arm, disarm, isArmed, setMark, store } from "./helpers";
 
 const P: BlackHole = "Primordial";
 const Q: BlackHole = "Quasar";
@@ -14,16 +15,6 @@ const isGold = (id: string) => tags(id).gold;
 const isSent = (id: string) => tags(id).sentience;
 const isBH = (id: string) => tags(id).blackHole;
 
-const isArmed = (x: Ctx, id: string) => (x.g.armed ?? []).includes(id);
-const arm = (x: Ctx, id: string) => !isArmed(x, id) && (x.g.armed = [...(x.g.armed ?? []), id]);
-const disarm = (x: Ctx, id: string) => (x.g.armed = (x.g.armed ?? []).filter((c) => c !== id));
-const setMark = (x: Ctx, id: string, v: string | null) => {
-  const m = { ...(x.g.marks ?? {}) };
-  if (v == null) delete m[id];
-  else m[id] = v;
-  x.g.marks = m;
-};
-const store = (x: Ctx, id: string) => x.g.cardStore?.[id] ?? 0;
 const setStore = (x: Ctx, id: string, n: number) => {
   const s = { ...(x.g.cardStore ?? {}) };
   if (n) s[id] = n;

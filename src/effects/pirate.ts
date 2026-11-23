@@ -6,6 +6,7 @@ import * as E from "../game/engine";
 import type { BlackHole } from "../game/types";
 import { noPlayReason } from "./runtime";
 import type { CardScript, Ctx } from "./runtime";
+import { arm, disarm, isArmed, mark, setMark } from "./helpers";
 
 const P: BlackHole = "Primordial";
 const Q: BlackHole = "Quasar";
@@ -13,16 +14,6 @@ const B: BlackHole = "Blazard";
 const T: BlackHole = "Trou de ver";
 
 const isSent = (x: Ctx, id: string) => E.tagsOf(x.g, id).sentience;
-const isArmed = (x: Ctx, id: string) => (x.g.armed ?? []).includes(id);
-const arm = (x: Ctx, id: string) => !isArmed(x, id) && (x.g.armed = [...(x.g.armed ?? []), id]);
-const disarm = (x: Ctx, id: string) => (x.g.armed = (x.g.armed ?? []).filter((c) => c !== id));
-const mark = (x: Ctx, id: string) => x.g.marks?.[id];
-function setMark(x: Ctx, id: string, v: string | null) {
-  const m = { ...(x.g.marks ?? {}) };
-  if (v === null) delete m[id];
-  else m[id] = v;
-  x.g.marks = m;
-}
 /** Cartes d'une main qui peuvent être jouées (posées depuis la main). */
 const playableFromHand = (x: Ctx, hand: string[], except?: string) => hand.filter((c) => c !== except && !noPlayReason(x.g, c));
 

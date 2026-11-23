@@ -8,7 +8,7 @@ import { DEFAULT_REASON, REASONS } from "./reasons";
 import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole, DiceSnap, EffectAction, FxInput, GameState, Prompt, Room, TrailStep, Until, Weather, Zone } from "../game/types";
-import { BH_SYMBOL, BH_WEATHER, BLACK_HOLES, blackHoleLabel, weatherIcon, weatherLabel } from "../game/types";
+import { BH_SYMBOL, BH_WEATHER, BLACK_HOLES, weatherIcon, weatherLabel } from "../game/types";
 import { SCRIPTS } from "./scripts";
 import "../game/victory";
 
@@ -35,9 +35,9 @@ export type GameEvent =
   | { type: "steal"; thief: string; victim: string; card: string; src?: string | null; from?: Loc }
   /** `thief` vole `amount` gold à `victim` */
   | { type: "goldStolen"; thief: string; victim: string; amount: number; src: string | null }
-  /** début / fin du tour de `uid` */
   /** une carte change de place à cause d'un effet ou d'une défausse de main (to = null : elle a quitté les zones) */
   | { type: "cardMoved"; card: string; from: Loc; to: Loc | null; src: string | null }
+  /** début / fin du tour de `uid` */
   | { type: "turnStart"; uid: string }
   /** la météo de `uid` change (deck Météo) */
   | { type: "weather"; uid: string; from: Weather | null; to: Weather | null }
@@ -379,7 +379,7 @@ export class Ctx {
   }
   chooseBlackHole(chooser: string, text: string, exclude?: BlackHole, cardId?: string): BlackHole {
     const opts = BLACK_HOLES.filter((b) => b.id !== exclude);
-    return opts[this.chooseOption(chooser, text, opts.map((b) => `${BH_SYMBOL[b.id]} ${blackHoleLabel(b.id)}`), cardId)].id;
+    return opts[this.chooseOption(chooser, text, opts.map((b) => `${BH_SYMBOL[b.id]} ${b.id}`), cardId)].id;
   }
 
   // ----- événements & passifs -----
@@ -765,7 +765,7 @@ export class Ctx {
     this.trackBlackHole(uid, to);
     this.interact(uid, "trou noir");
     this.fx({ k: "bh", uid, to });
-    this.log(`${this.name(uid)} : trou noir ${blackHoleLabel(from)} → ${blackHoleLabel(to)}.`, { to: uid });
+    this.log(`${this.name(uid)} : trou noir ${from} → ${to}.`, { to: uid });
     this.emit({ type: "blackHole", uid, from, to });
     this.followBlackHole(uid);
   }
@@ -867,6 +867,18 @@ export class Ctx {
   }
 
   /**
+   * Cacapulte (VIC-17) : une carte qui doit aller dans la défausse de `holder` peut aller dans celle d'un autre joueur.
+   * Renvoie le joueur choisi s'il est différent de `holder` (null sinon).
+   */
+  cacapulte(id: string, holder: string): string | null {
+    if (id === "VIC-17" || !this.active("VIC-17", holder) || this.order.length < 2) return null;
+    const u = this.choosePlayer(holder, `Cacapulte : dans quelle défausse envoyer « ${card(id).name} » ?`, [holder, ...this.others(holder)], "VIC-17");
+    if (!u || u === holder) return null;
+    this.log(`💩 Cacapulte : « ${card(id).name} » part dans la défausse de ${this.name(u)}.`, { src: "VIC-17", dst: id, to: u });
+    return u;
+  }
+
+  /**
    * Déplace une carte. Une carte qui arrive sur un terrain depuis une autre zone active son effet
    * (pour le joueur du terrain, ou `opts.activate`), sauf `opts.activate === false`.
    * Un déplacement d'un terrain à un autre n'active rien.
@@ -879,14 +891,9 @@ export class Ctx {
     if (at.zone === "terrain" && this.trapped(at.uid)) return false;
     if (dest.zone === "terrain" && this.trapped(dest.uid)) return false;
     if (!this.canDisplace(id, at, dest)) return false;
-    // Cacapulte : une carte qui doit aller dans la défausse de son joueur peut aller dans celle d'un autre.
-    if (dest.zone === "discard" && id !== "VIC-17" && this.active("VIC-17", dest.uid) && this.order.length > 1) {
-      const holder = dest.uid;
-      const u = this.choosePlayer(holder, `Cacapulte : dans quelle défausse envoyer « ${card(id).name} » ?`, [holder, ...this.others(holder)], "VIC-17");
-      if (u && u !== holder) {
-        this.log(`💩 Cacapulte : « ${card(id).name} » part dans la défausse de ${this.name(u)}.`, { src: "VIC-17", dst: id, to: u });
-        dest = { ...dest, uid: u };
-      }
+    if (dest.zone === "discard") {
+      const u = this.cacapulte(id, dest.uid);
+      if (u) dest = { ...dest, uid: u };
     }
     if (at.zone === "terrain" && dest.zone !== "terrain") SCRIPTS[id]?.beforeLeave?.(this, { id, me: at.uid });
     if (!E.locate(this.g, id)) return false;
@@ -1342,13 +1349,10 @@ function perform(x: Ctx, a: EffectAction) {
       E.discardFromHand(x.room, x.g, a.by, a.card, false);
       // Cacapulte : la carte peut partir dans la défausse d'un autre joueur.
       const now = E.locate(x.g, a.card);
-      if (now?.zone === "discard" && a.card !== "VIC-17" && x.active("VIC-17", now.uid) && x.order.length > 1) {
-        const u = x.choosePlayer(now.uid, `Cacapulte : dans quelle défausse envoyer « ${card(a.card).name} » ?`, [now.uid, ...x.others(now.uid)], "VIC-17");
-        if (u && u !== now.uid) {
-          E.moveCard(x.room, x.g, a.card, { uid: u, zone: "discard" }, true);
-          x.take(a.card, u);
-          x.log(`💩 Cacapulte : « ${card(a.card).name} » part dans la défausse de ${x.name(u)}.`, { src: "VIC-17", dst: a.card, to: u });
-        }
+      const u = now?.zone === "discard" ? x.cacapulte(a.card, now.uid) : null;
+      if (u) {
+        E.moveCard(x.room, x.g, a.card, { uid: u, zone: "discard" }, true);
+        x.take(a.card, u);
       }
       x.emit({ type: "discard", uid: a.by, card: a.card, src: null });
       if (at) x.emit({ type: "cardMoved", card: a.card, from: at, to: E.locate(x.g, a.card), src: null });

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { PLACEHOLDER, cardImage, deckBack } from "../data/cards";
-import { sfx } from "./sfx";
+import { markPatchSeen } from "./Overlays";
 
 // Patch notes illustrées : on garde seulement les 5 dernières versions (la plus récente d'abord).
 function Img({ id, cls = "" }: { id: string; cls?: string }) {
@@ -931,74 +931,53 @@ const PATCHES_ALL: Patch[] = [
 /** Au plus 5 versions affichées. */
 const PATCHES = PATCHES_ALL.slice(0, 5);
 
-const SEEN = "tokards.patchSeen";
-const latest = PATCHES[0].version;
-const readSeen = () => {
-  try {
-    return localStorage.getItem(SEEN);
-  } catch {
-    return null;
-  }
-};
+/** Dernière version décrite : le bouton 📜 s'allume tant qu'elle n'a pas été lue (voir Overlays.tsx). */
+export const latest = PATCHES[0].version;
 
-export default function PatchNotes() {
-  const [open, setOpen] = useState(false);
+/** Les patch notes illustrées (chargées seulement quand on les ouvre, ou en tâche de fond pour la pastille). */
+export default function PatchNotes({ onClose }: { onClose: () => void }) {
   const [v, setV] = useState(0);
-  const [fresh, setFresh] = useState(() => readSeen() !== latest);
   useEffect(() => {
-    if (!open) return;
-    setFresh(false);
-    try {
-      localStorage.setItem(SEEN, latest);
-    } catch {
-      /* stockage indisponible */
-    }
+    markPatchSeen(latest);
     const k = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") setV((x) => Math.max(0, x - 1));
       if (e.key === "ArrowLeft") setV((x) => Math.min(PATCHES.length - 1, x + 1));
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") onClose();
     };
     addEventListener("keydown", k);
     return () => removeEventListener("keydown", k);
-  }, [open]);
+  }, [onClose]);
   const p = PATCHES[v];
   return (
-    <>
-      <button className={`patch-fab ${fresh ? "fresh" : ""}`} title="Nouveautés (patch notes)" onClick={() => (sfx.click(), setV(0), setOpen(true))}>
-        📜
-      </button>
-      {open && (
-        <div className="modal-bg" onClick={() => setOpen(false)}>
-          <div className="modal panel help-guide patch-notes" onClick={(e) => e.stopPropagation()}>
-            <div className="row">
-              <h2 className="grow">📜 Nouveautés</h2>
-              <button className="ghost" onClick={() => setOpen(false)}>✕</button>
-            </div>
-            <div className="pn-tabs">
-              {PATCHES.map((x, i) => (
-                <button key={x.version} className={i === v ? "primary" : "ghost"} onClick={() => setV(i)}>
-                  v{x.version}{i === 0 && <span className="pn-new">nouveau</span>}
-                </button>
-              ))}
-            </div>
-            <div key={p.version} className="pn-list">
-              <div className="small muted">{p.date}</div>
-              {CATS.filter((c) => p.notes.some((n) => n.cat === c.id)).map((c, ci) => (
-                <section key={c.id} className={`pn-cat pn-cat-${c.id}`} style={{ animationDelay: `${ci * 120}ms` }}>
-                  <h4 className="pn-cat-title">{c.label}</h4>
-                  {p.notes.filter((n) => n.cat === c.id).map((n, i) => (
-                    <div key={n.title} className="hg-slide pn-note" style={{ animationDelay: `${ci * 120 + i * 90}ms` }}>
-                      <h3>{n.title}</h3>
-                      {n.scene}
-                      <p>{n.text}</p>
-                    </div>
-                  ))}
-                </section>
-              ))}
-            </div>
-          </div>
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal panel help-guide patch-notes" onClick={(e) => e.stopPropagation()}>
+        <div className="row">
+          <h2 className="grow">📜 Nouveautés</h2>
+          <button className="ghost" onClick={onClose}>✕</button>
         </div>
-      )}
-    </>
+        <div className="pn-tabs">
+          {PATCHES.map((x, i) => (
+            <button key={x.version} className={i === v ? "primary" : "ghost"} onClick={() => setV(i)}>
+              v{x.version}{i === 0 && <span className="pn-new">nouveau</span>}
+            </button>
+          ))}
+        </div>
+        <div key={p.version} className="pn-list">
+          <div className="small muted">{p.date}</div>
+          {CATS.filter((c) => p.notes.some((n) => n.cat === c.id)).map((c, ci) => (
+            <section key={c.id} className={`pn-cat pn-cat-${c.id}`} style={{ animationDelay: `${ci * 120}ms` }}>
+              <h4 className="pn-cat-title">{c.label}</h4>
+              {p.notes.filter((n) => n.cat === c.id).map((n, i) => (
+                <div key={n.title} className="hg-slide pn-note" style={{ animationDelay: `${ci * 120 + i * 90}ms` }}>
+                  <h3>{n.title}</h3>
+                  {n.scene}
+                  <p>{n.text}</p>
+                </div>
+              ))}
+            </section>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

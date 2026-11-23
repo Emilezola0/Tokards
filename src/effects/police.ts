@@ -7,6 +7,7 @@ import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole } from "../game/types";
 import type { CardScript, Ctx, Self } from "./runtime";
+import { arm, disarm, isArmed, setMark } from "./helpers";
 
 const P: BlackHole = "Primordial";
 const Q: BlackHole = "Quasar";
@@ -15,9 +16,6 @@ const T: BlackHole = "Trou de ver";
 
 const pay = (x: Ctx, me: string) => x.spend(me, 10);
 const last = <T,>(a: T[]) => a[a.length - 1];
-const isArmed = (x: Ctx, id: string) => (x.g.armed ?? []).includes(id);
-const arm = (x: Ctx, id: string) => !isArmed(x, id) && (x.g.armed = [...(x.g.armed ?? []), id]);
-const disarm = (x: Ctx, id: string) => (x.g.armed = (x.g.armed ?? []).filter((c) => c !== id));
 /** Joueur chez qui se trouve la carte (ou son propriétaire si elle n'est plus en jeu). */
 const holderOf = (x: Ctx, id: string) => E.locate(x.g, id)?.uid ?? x.g.owner[id];
 /** Toutes les cartes des terrains sauf `except`. */
@@ -129,7 +127,7 @@ export const POLICE: Record<string, CardScript> = {
       const t = x.p(now.uid).terrain;
       const until = untilEndOfTurnOf(x, now.uid);
       for (const c of [t[now.index - 1], t[now.index + 1]]) if (c) x.disable(c, until);
-      x.g.marks = { ...(x.g.marks ?? {}), [id]: `${me}|${now.uid}` };
+      setMark(x, id, `${me}|${now.uid}`);
       arm(x, id);
       // Puis le gaz se désactive lui-même ; sa fin de tour se joue quand même (evenDisabled).
       if (E.locate(x.g, id)?.zone === "terrain") {
@@ -212,24 +210,20 @@ export const POLICE: Record<string, CardScript> = {
       }
       const c = pickCard(x, me, id, "Chef d'enquête : quelle carte mettre sous enquête ?", pool)!;
       x.disable(c, x.untilStartOfNext(E.locate(x.g, c)!.uid));
-      x.g.marks = { ...(x.g.marks ?? {}), [id]: c };
+      setMark(x, id, c);
     },
     on: {
       turnEnd: (x, self) => {
         const c = x.g.marks?.[self.id];
         if (!c) return;
         if (E.locate(x.g, c)?.zone !== "terrain") {
-          const m = { ...x.g.marks };
-          delete m[self.id];
-          x.g.marks = m;
+          setMark(x, self.id, null);
           return;
         }
         x.triggered(self, `enquête sur « ${card(c).name} » : 1d6.`);
         if (x.dice(self.me, 6, (v) => (v === 6 ? `« ${card(c).name} » est défaussée` : "l'enquête continue")) === 6) {
           x.discard(c);
-          const m = { ...x.g.marks };
-          delete m[self.id];
-          x.g.marks = m;
+          setMark(x, self.id, null);
         }
       },
     },

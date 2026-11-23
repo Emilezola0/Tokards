@@ -4,6 +4,7 @@ import { card } from "../data/cards";
 import * as E from "../game/engine";
 import { BLACK_HOLES, BH_SYMBOL, type BlackHole } from "../game/types";
 import type { CardScript, Ctx, Self } from "./runtime";
+import { mark, setMark, store } from "./helpers";
 
 const REVEUR = "REV-01";
 const DREAMS = ["REV-07", "REV-08", "REV-09", "REV-10", "REV-11", "REV-12", "REV-13", "REV-14"];
@@ -13,14 +14,6 @@ const isNightmare = (id: string) => NIGHTMARES.includes(id);
 /** Cycle du trou noir (ordre du dé trou noir). */
 const CYCLE: BlackHole[] = BLACK_HOLES.map((b) => b.id);
 
-const mark = (x: Ctx, id: string) => x.g.marks?.[id];
-function setMark(x: Ctx, id: string, v: string | null) {
-  const m = { ...(x.g.marks ?? {}) };
-  if (v === null) delete m[id];
-  else m[id] = v;
-  x.g.marks = m;
-}
-const store = (x: Ctx, id: string) => x.g.cardStore?.[id] ?? 0;
 function setStore(x: Ctx, id: string, n: number) {
   const s = { ...(x.g.cardStore ?? {}) };
   if (n) s[id] = n;

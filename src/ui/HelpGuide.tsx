@@ -1,6 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { PLACEHOLDER, cardImage } from "../data/cards";
-import { sfx } from "./sfx";
 
 // Cartes servant d'illustrations (les images du jeu).
 const A = "GOB-01";
@@ -140,48 +139,41 @@ const SLIDES: Slide[] = [
   },
 ];
 
-/** Bouton « ? » présent sur tous les écrans, qui ouvre le guide illustré. */
-export default function HelpGuide() {
-  const [open, setOpen] = useState(false);
+/** Le guide illustré (chargé seulement quand on l'ouvre : voir Overlays.tsx). */
+export default function HelpGuide({ onClose }: { onClose: () => void }) {
   const [i, setI] = useState(0);
   useEffect(() => {
-    if (!open) return;
     const k = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") setI((v) => Math.min(SLIDES.length - 1, v + 1));
       if (e.key === "ArrowLeft") setI((v) => Math.max(0, v - 1));
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") onClose();
     };
     addEventListener("keydown", k);
     return () => removeEventListener("keydown", k);
-  }, [open]);
+  }, [onClose]);
   const s = SLIDES[i];
   return (
-    <>
-      <button className="help-fab" title="Comment jouer" onClick={() => (sfx.click(), setOpen(true))}>?</button>
-      {open && (
-        <div className="modal-bg" onClick={() => setOpen(false)}>
-          <div className="modal panel help-guide" onClick={(e) => e.stopPropagation()}>
-            <div className="row">
-              <h2 className="grow">❔ Comment jouer <span className="muted small">{i + 1}/{SLIDES.length}</span></h2>
-              <button className="ghost" onClick={() => setOpen(false)}>✕</button>
-            </div>
-            <div key={i} className="hg-slide">
-              <h3>{s.title}</h3>
-              {s.scene}
-              <p>{s.text}</p>
-            </div>
-            <div className="row hg-nav">
-              <button disabled={i === 0} onClick={() => setI(i - 1)}>← Précédent</button>
-              <span className="grow hg-dots">
-                {SLIDES.map((_, k) => <span key={k} className={k === i ? "on" : ""} onClick={() => setI(k)} />)}
-              </span>
-              {i < SLIDES.length - 1
-                ? <button className="primary" onClick={() => setI(i + 1)}>Suivant →</button>
-                : <button className="primary" onClick={() => setOpen(false)}>C'est parti !</button>}
-            </div>
-          </div>
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal panel help-guide" onClick={(e) => e.stopPropagation()}>
+        <div className="row">
+          <h2 className="grow">❔ Comment jouer <span className="muted small">{i + 1}/{SLIDES.length}</span></h2>
+          <button className="ghost" onClick={onClose}>✕</button>
         </div>
-      )}
-    </>
+        <div key={i} className="hg-slide">
+          <h3>{s.title}</h3>
+          {s.scene}
+          <p>{s.text}</p>
+        </div>
+        <div className="row hg-nav">
+          <button disabled={i === 0} onClick={() => setI(i - 1)}>← Précédent</button>
+          <span className="grow hg-dots">
+            {SLIDES.map((_, k) => <span key={k} className={k === i ? "on" : ""} onClick={() => setI(k)} />)}
+          </span>
+          {i < SLIDES.length - 1
+            ? <button className="primary" onClick={() => setI(i + 1)}>Suivant →</button>
+            : <button className="primary" onClick={onClose}>C'est parti !</button>}
+        </div>
+      </div>
+    </div>
   );
 }

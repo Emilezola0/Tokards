@@ -5,6 +5,7 @@ import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole } from "../game/types";
 import type { CardScript, Ctx } from "./runtime";
+import { setMark } from "./helpers";
 
 const P: BlackHole = "Primordial";
 const Q: BlackHole = "Quasar";
@@ -270,11 +271,7 @@ export const GRENOUILLES: Record<string, CardScript> = {
       }
       x.putUnder(id, host);
       // Nouveau support : le vrai lanceur garde la main jusqu'au prochain début de tour.
-      if (x.g.marks?.["GRE-21"]) {
-        const m = { ...x.g.marks };
-        delete m["GRE-21"];
-        x.g.marks = m;
-      }
+      setMark(x, "GRE-21", null);
       x.log(`🐸 Crapaud stratège se place sous « ${card(host).name} » : ses choix se feront au hasard.`, { dst: host });
     },
   },

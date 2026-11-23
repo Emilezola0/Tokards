@@ -27,7 +27,6 @@ export const BH_SYMBOL: Record<BlackHole, string> = { Primordial: "🌑", Quasar
 let SHOW_WEATHER = true;
 export const setShowWeather = (v: boolean) => void (SHOW_WEATHER = v);
 export const showWeather = () => SHOW_WEATHER;
-export const blackHoleLabel = (b: BlackHole) => b;
 
 export type Zone = "deck" | "hand" | "terrain" | "discard";
 export const ZONE_LABEL: Record<Zone, string> = {
@@ -281,7 +280,6 @@ export interface GameState {
   temp?: { uid: string; kind: "bh" | "sent" | "wx"; prev: string }[];
   /** Garde à vue : les prochaines cartes désactivées vont sous `host` */
   custody?: { host: string; uid: string; at: number } | null;
-  /** Tung Tung Tung Sahur : les gold gagnés par les autres vont à `uid` jusqu'au tour global `until` */
   /** Voile (Primordial) : joueurs dont le prochain tour joue deux fois chaque carte, et joueur dont c'est le tour */
   double?: string[];
   doubleNow?: string | null;
@@ -289,6 +287,7 @@ export interface GameState {
   facedown?: string[];
   /** cartes qui lanceront un d2 au moment de se jouer (Hot) */
   hot?: string[];
+  /** Tung Tung Tung Sahur : les gold gagnés par les autres vont à `uid` jusqu'au tour global `until` */
   aspire?: { uid: string; until: number } | null;
   /** Rêve d'amitié / Cauchemar d'emprisonnement : pendant son prochain tour (après le tour global `after`), `by` ne peut pas
    * nuire à `prot` (« * » = ne peut toucher aucun autre joueur) */

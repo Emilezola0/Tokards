@@ -163,92 +163,73 @@ export function GlossAnim({ anim }: { anim: string }) {
   }
 }
 
-/** Bouton « 📖 » présent sur tous les écrans : le glossaire illustré des mots des cartes. */
-export default function Glossary() {
-  const [open, setOpen] = useState(false);
-  const [sel, setSel] = useState<string>(GLOSSARY[0]?.term ?? "");
+/** Le glossaire illustré des mots des cartes (chargé seulement quand on l'ouvre : voir Overlays.tsx). */
+export default function Glossary({ term, onClose }: { term: string | null; onClose: () => void }) {
+  const [sel, setSel] = useState<string>(term ?? GLOSSARY[0]?.term ?? "");
   const [cat, setCat] = useState<string>("");
   const [q, setQ] = useState("");
   useEffect(() => {
-    const h = (e: Event) => {
-      const t = (e as CustomEvent<string | null>).detail;
-      if (t) setSel(t);
-      setCat("");
-      setQ("");
-      setOpen(true);
-    };
-    addEventListener("tokards:glossary", h);
-    return () => removeEventListener("tokards:glossary", h);
-  }, []);
-  useEffect(() => {
-    if (!open) return;
-    const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     addEventListener("keydown", k);
     return () => removeEventListener("keydown", k);
-  }, [open]);
+  }, [onClose]);
   const list = useMemo(() => {
     const n = q.trim().toLowerCase();
     return GLOSSARY.filter((g) => (!cat || g.cat === cat) && (!n || `${g.term} ${g.def} ${g.words.join(" ")}`.toLowerCase().includes(n)));
   }, [cat, q]);
   const e = GLOSSARY.find((g) => g.term === sel) ?? list[0];
-  if (!GLOSSARY.length) return null;
   return (
-    <>
-      <button className="gloss-fab" title="Glossaire : le sens des mots des cartes" onClick={() => (sfx.click(), setOpen(true))}>📖</button>
-      {open && (
-        <div className="modal-bg" onClick={() => setOpen(false)}>
-          <div className="modal panel glossary" onClick={(ev) => ev.stopPropagation()}>
-            <div className="row">
-              <h2 className="grow">📖 Glossaire</h2>
-              <input className="gloss-search" placeholder="Rechercher…" value={q} onChange={(ev) => setQ(ev.target.value)} />
-              <button className="ghost" onClick={() => setOpen(false)}>✕</button>
-            </div>
-            <div className="gloss-cats">
-              <button className={!cat ? "on" : ""} onClick={() => setCat("")}>Tout</button>
-              {CATS.map((c) => (
-                <button key={c} className={`kw-${catClass(c)} ${cat === c ? "on" : ""}`} onClick={() => setCat(c)}>{c}</button>
-              ))}
-            </div>
-            <div className="gloss-body">
-              <ul className="gloss-list">
-                {CATS.map((c) => {
-                  // Rangé par catégorie, puis par ordre alphabétique.
-                  const items = list.filter((g) => g.cat === c).sort((a, b) => a.term.localeCompare(b.term, "fr"));
-                  if (!items.length) return null;
-                  return (
-                    <li key={c} className="gloss-group">
-                      <span className={`gloss-group-title kw-${catClass(c)}`}>{c} <i>{items.length}</i></span>
-                      <ul>
-                        {items.map((g) => (
-                          <li key={g.term}>
-                            <button className={`${e?.term === g.term ? "on" : ""}`} onClick={() => (sfx.click(), setSel(g.term))}>
-                              <span className={`gloss-dot kw-${catClass(g.cat)}`} />{g.term}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  );
-                })}
-                {!list.length && <li className="muted small">Aucun mot trouvé.</li>}
-              </ul>
-              {e && (
-                <div key={e.term} className="gloss-detail">
-                  <span className={`gloss-cat kw-${catClass(e.cat)}`}>{e.cat}</span>
-                  <h3>{e.term}</h3>
-                  <GlossAnim anim={e.anim} />
-                  <p className="gloss-def"><KwText text={e.def} /></p>
-                  {e.example && <p className="gloss-ex">Exemple : « <KwText text={e.example} /> »</p>}
-                  {!!e.words.length && (
-                    <p className="small muted">Sur les cartes : {e.words.map((w) => <span key={w} className={`kw kw-${catClass(e.cat)}`}>{w}</span>)}</p>
-                  )}
-                </div>
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal panel glossary" onClick={(ev) => ev.stopPropagation()}>
+        <div className="row">
+          <h2 className="grow">📖 Glossaire</h2>
+          <input className="gloss-search" placeholder="Rechercher…" value={q} onChange={(ev) => setQ(ev.target.value)} />
+          <button className="ghost" onClick={onClose}>✕</button>
+        </div>
+        <div className="gloss-cats">
+          <button className={!cat ? "on" : ""} onClick={() => setCat("")}>Tout</button>
+          {CATS.map((c) => (
+            <button key={c} className={`kw-${catClass(c)} ${cat === c ? "on" : ""}`} onClick={() => setCat(c)}>{c}</button>
+          ))}
+        </div>
+        <div className="gloss-body">
+          <ul className="gloss-list">
+            {CATS.map((c) => {
+              // Rangé par catégorie, puis par ordre alphabétique.
+              const items = list.filter((g) => g.cat === c).sort((a, b) => a.term.localeCompare(b.term, "fr"));
+              if (!items.length) return null;
+              return (
+                <li key={c} className="gloss-group">
+                  <span className={`gloss-group-title kw-${catClass(c)}`}>{c} <i>{items.length}</i></span>
+                  <ul>
+                    {items.map((g) => (
+                      <li key={g.term}>
+                        <button className={`${e?.term === g.term ? "on" : ""}`} onClick={() => (sfx.click(), setSel(g.term))}>
+                          <span className={`gloss-dot kw-${catClass(g.cat)}`} />{g.term}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              );
+            })}
+            {!list.length && <li className="muted small">Aucun mot trouvé.</li>}
+          </ul>
+          {e && (
+            <div key={e.term} className="gloss-detail">
+              <span className={`gloss-cat kw-${catClass(e.cat)}`}>{e.cat}</span>
+              <h3>{e.term}</h3>
+              <GlossAnim anim={e.anim} />
+              <p className="gloss-def"><KwText text={e.def} /></p>
+              {e.example && <p className="gloss-ex">Exemple : « <KwText text={e.example} /> »</p>}
+              {!!e.words.length && (
+                <p className="small muted">Sur les cartes : {e.words.map((w) => <span key={w} className={`kw kw-${catClass(e.cat)}`}>{w}</span>)}</p>
               )}
             </div>
-            <p className="small muted">Astuce : sur une carte, les mots en couleur renvoient ici (survol = définition, clic = glossaire).</p>
-          </div>
+          )}
         </div>
-      )}
-    </>
+        <p className="small muted">Astuce : sur une carte, les mots en couleur renvoient ici (survol = définition, clic = glossaire).</p>
+      </div>
+    </div>
   );
 }

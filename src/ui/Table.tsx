@@ -279,7 +279,7 @@ export default function Table({ room: rawRoom, uid }: { room: Room; uid: string 
     if (!hover || !auto) return null;
     const at = E.locate(g, hover.id);
     if (!at || (at.zone !== "terrain" && at.zone !== "hand")) return null;
-    return previewEffect(room, hover.id, at.zone === "hand" ? at.uid : at.uid);
+    return previewEffect(room, hover.id, at.uid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hover?.id, g]);
 

@@ -1,8 +1,8 @@
-// Moteur de la table virtuelle : fonctions pures qui modifient l'état du salon.
-// Les effets des cartes ne sont pas automatisés : les joueurs les appliquent avec les outils manuels.
+// Moteur de la table virtuelle : fonctions qui modifient l'état du salon (tour, zones, ressources, victoire).
+// Les effets des cartes sont dans src/effects (mode auto) ; en mode manuel, les joueurs les appliquent avec les outils de la table.
 import { BASE_VCS, DECKS, card } from "../data/cards";
 import type { BlackHole, Fx, FxInput, GameState, LogEntry, Phase, PlayerState, Room, Stats, Until, Vote, Zone, Weather } from "./types";
-import { BH_WEATHER, blackHoleLabel, ZONE_LABEL } from "./types";
+import { BH_WEATHER, ZONE_LABEL } from "./types";
 
 export const START_GOLD = 10;
 export const HAND_SIZE = 4;
@@ -88,13 +88,13 @@ export function neighbours(g: GameState, uid: string): [string, string] {
   return [o[(i - 1 + o.length) % o.length], o[(i + 1) % o.length]];
 }
 
-/** La carte est-elle désactivée (son effet et ses passifs ne fonctionnent pas) ? */
 /** Voyant voyou voyeur : tant qu'il est actif sur un terrain, les cartes face cachée (sauf les mains) sont visibles. */
 export const SEER = "VIC-16";
 export function seeThrough(g: GameState): boolean {
   return Object.values(g.players).some((p) => p.terrain.includes(SEER)) && !isDisabled(g, SEER);
 }
 
+/** La carte est-elle désactivée (son effet et ses passifs ne fonctionnent pas) ? */
 export function isDisabled(g: GameState, id: string): boolean {
   if (g.disabled?.[id]) return true;
   const at = locate(g, id);
@@ -181,7 +181,7 @@ function expire(room: Room, g: GameState, uid: string, edge: "start" | "end") {
     }
     if (t.kind === "bh") p.blackHole = t.prev as BlackHole;
     else p.sentience = t.prev === "true";
-    log(g, `⏪ ${nameOf(room, uid)} retrouve ${t.kind === "bh" ? `son trou noir ${blackHoleLabel(t.prev as BlackHole)}` : `sa sentience ${t.prev === "true" ? "Vraie" : "Fausse"}`} (valeur provisoire terminée).`);
+    log(g, `⏪ ${nameOf(room, uid)} retrouve ${t.kind === "bh" ? `son trou noir ${t.prev}` : `sa sentience ${t.prev === "true" ? "Vraie" : "Fausse"}`} (valeur provisoire terminée).`);
   }
   if (g.temp?.length) g.temp = g.temp.filter((t) => t.uid !== uid);
 }
@@ -658,7 +658,7 @@ export function setBlackHole(room: Room, g: GameState, uid: string, b: BlackHole
   if (g.players[uid].locked || bhLocked(g, uid)) return log(g, `🔒 ${nameOf(room, uid)} est bloqué : son trou noir ne peut pas changer.`);
   const before = g.players[uid].blackHole;
   g.players[uid].blackHole = b;
-  log(g, `${nameOf(room, uid)} : trou noir ${blackHoleLabel(before)} → ${blackHoleLabel(b)}.`);
+  log(g, `${nameOf(room, uid)} : trou noir ${before} → ${b}.`);
   if (g.meteo && before !== b) {
     g.players[uid].weather = BH_WEATHER[b];
     g.players[uid].weather2 = null;

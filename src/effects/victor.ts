@@ -3,14 +3,9 @@
 // Les choix d'interprétation sont notés dans l'onglet « Interprétations » du tableau.
 import { card } from "../data/cards";
 import * as E from "../game/engine";
-import type { CardScript, Ctx } from "./runtime";
+import type { CardScript } from "./runtime";
+import { setMark } from "./helpers";
 
-function setMark(x: Ctx, id: string, v: string | null) {
-  const m = { ...(x.g.marks ?? {}) };
-  if (v === null) delete m[id];
-  else m[id] = v;
-  x.g.marks = m;
-}
 
 export const VICTOR: Record<string, CardScript> = {
   // Marathon : gagne de quoi égaler le plus riche, puis part (mélangé) dans la pioche du plus pauvre

@@ -9,6 +9,7 @@ import * as E from "../game/engine";
 import type { BlackHole, Weather } from "../game/types";
 import { BH_WEATHER, weatherIcon, weatherLabel } from "../game/types";
 import type { CardScript, Ctx } from "./runtime";
+import { alive, arm, disarm, isArmed, setMark } from "./helpers";
 
 const ORAGE = E.ORAGE;
 /** Météos qu'une carte peut choisir ou tirer (l'Orage ne vient que de sa carte). */
@@ -20,17 +21,7 @@ const FAV_BASE = 40;
 const FAV_STEP = 20;
 
 const num = (x: Ctx, key: string) => Number(x.g.marks?.[key] ?? 0) || 0;
-function setMark(x: Ctx, key: string, v: string | number | null) {
-  const m = { ...(x.g.marks ?? {}) };
-  if (v === null) delete m[key];
-  else m[key] = String(v);
-  x.g.marks = m;
-}
-const isArmed = (x: Ctx, id: string) => (x.g.armed ?? []).includes(id);
-const arm = (x: Ctx, id: string) => !isArmed(x, id) && (x.g.armed = [...(x.g.armed ?? []), id]);
-const disarm = (x: Ctx, id: string) => (x.g.armed = (x.g.armed ?? []).filter((c) => c !== id));
 
-const alive = (x: Ctx) => x.turnOrder().filter((u) => !x.p(u).out);
 /** Joueurs encore en jeu qui ont la météo `w`. */
 const under = (x: Ctx, w: Weather) => alive(x).filter((u) => x.isWeather(u, w));
 const wxText = (w: Weather | null) => `${weatherIcon(w)} ${weatherLabel(w)}`;

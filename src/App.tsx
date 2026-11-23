@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import type { User } from "firebase/auth";
 import { ensureSignedIn } from "./firebase";
 import { joinRoom, watchRoom } from "./game/room";
 import type { Room } from "./game/types";
 import Home from "./ui/Home";
 import Lobby from "./ui/Lobby";
-import Table from "./ui/Table";
 
 import { getName, rememberRoom } from "./ui/name";
 import UpdatePrompt from "./ui/UpdatePrompt";
-import HelpGuide from "./ui/HelpGuide";
-import Glossary from "./ui/Glossary";
-import PatchNotes from "./ui/PatchNotes";
+import Overlays from "./ui/Overlays";
+
+// La table (plateau, animations, dé 3D…) n'est chargée qu'en entrant dans une partie.
+const Table = lazy(() => import("./ui/Table"));
 
 const codeFromHash = () => location.hash.replace(/^#\/?/, "").toUpperCase().slice(0, 5);
 
@@ -20,9 +20,7 @@ export default function App() {
     <>
       <Screen />
       <UpdatePrompt />
-      <HelpGuide />
-      <Glossary />
-      <PatchNotes />
+      <Overlays />
     </>
   );
 }
@@ -58,6 +56,12 @@ function Screen() {
     );
   }, [user, code]);
 
+  // Dans un salon : la table se télécharge en avance pour s'afficher tout de suite au lancement.
+  const inRoom = !!room;
+  useEffect(() => {
+    if (inRoom) void import("./ui/Table");
+  }, [inRoom]);
+
   if (error) return <div className="center"><p className="error">{error}</p><a href="#" onClick={() => setError("")}>Retour</a></div>;
   if (!user) return <div className="center muted">Connexion…</div>;
   if (!code || room === null || (room && !room.players[user.uid] && !getName()))
@@ -72,5 +76,9 @@ function Screen() {
   if (room === undefined || !room.players[user.uid]) return <div className="center muted">Chargement du salon…</div>;
   rememberRoom(room.code);
   if (room.status === "lobby") return <Lobby room={room} uid={user.uid} />;
-  return <Table room={room} uid={user.uid} />;
+  return (
+    <Suspense fallback={<div className="center muted">Chargement de la table…</div>}>
+      <Table room={room} uid={user.uid} />
+    </Suspense>
+  );
 }
