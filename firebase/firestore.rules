@@ -29,6 +29,80 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow read, update, delete: if false;
     }
+
+    // ——— Atelier (#/admin) : modifier les cartes, decks, images et sons du site ———
+    // Les membres de l'équipe se connectent avec Google ; leur fiche est admins/{uid}.
+    function google() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function adminDoc() {
+      return /databases/$(database)/documents/admins/$(request.auth.uid);
+    }
+    function isAdmin() {
+      return google() && exists(adminDoc());
+    }
+    function isOwner() {
+      return isAdmin() && get(adminDoc()).data.role == 'owner';
+    }
+
+    // Contenu modifié : lu par tout le monde au chargement du site, écrit par l'équipe.
+    match /content/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    // Fichiers (images, voix, sons) en base64, un document par fichier.
+    match /assets/{key} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['data', 'mime', 'size', 'by', 'at'])
+        && request.resource.data.data is string && request.resource.data.data.size() < 1000000
+        && request.resource.data.by == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+    // Journal des modifications.
+    match /history/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.by == request.auth.uid;
+      allow update, delete: if false;
+    }
+    // Propriétaire du site : réclamé une seule fois (premier passage dans l'Atelier).
+    match /config/owner {
+      allow read: if true;
+      allow create: if google() && request.resource.data.uid == request.auth.uid
+        && getAfter(adminDoc()).data.role == 'owner';
+      allow update, delete: if false;
+    }
+    // Équipe.
+    match /admins/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow create: if google() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['role', 'name', 'email', 'photo', 'since', 'invite'])
+        && (
+          // le tout premier propriétaire
+          (request.resource.data.role == 'owner'
+            && !exists(/databases/$(database)/documents/config/owner)
+            && getAfter(/databases/$(database)/documents/config/owner).data.uid == uid)
+          // un invité : code valide, pas expiré, consommé dans la même écriture
+          || (request.resource.data.role == 'editor'
+            && request.resource.data.invite is string
+            && exists(/databases/$(database)/documents/invites/$(request.resource.data.invite))
+            && get(/databases/$(database)/documents/invites/$(request.resource.data.invite)).data.expiresAt > request.time
+            && !existsAfter(/databases/$(database)/documents/invites/$(request.resource.data.invite)))
+        );
+      // Le propriétaire gère les rôles ; chacun peut mettre à jour son nom ou sa photo, pas son rôle.
+      allow update: if isOwner()
+        || (isAdmin() && request.auth.uid == uid && request.resource.data.role == resource.data.role);
+      // Le propriétaire retire des membres (pas lui-même) ; un éditeur peut quitter l'équipe.
+      allow delete: if (isOwner() && request.auth.uid != uid)
+        || (isAdmin() && request.auth.uid == uid && resource.data.role != 'owner');
+    }
+    // Invitations : créées par le propriétaire, consommées par l'invité qui rejoint.
+    match /invites/{code} {
+      allow read, create: if isOwner();
+      allow delete: if isOwner()
+        || (google() && getAfter(adminDoc()).data.invite == code);
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

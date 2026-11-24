@@ -12,10 +12,32 @@ import Overlays from "./ui/Overlays";
 
 // La table (plateau, animations, dé 3D…) n'est chargée qu'en entrant dans une partie.
 const Table = lazy(() => import("./ui/Table"));
+// L'Atelier (édition du site) n'est chargé que si on l'ouvre : #/admin, ou #/admin/<invitation>.
+const Admin = lazy(() => import("./admin/Admin"));
 
+/** null = pas dans l'Atelier ; sinon le code d'invitation (vide s'il n'y en a pas). */
+const adminFromHash = () => {
+  const m = location.hash.match(/^#\/?admin(?:\/([A-Za-z0-9]+))?\/?$/i);
+  return m ? (m[1] ?? "").toUpperCase() : null;
+};
 const codeFromHash = () => location.hash.replace(/^#\/?/, "").toUpperCase().slice(0, 5);
 
 export default function App() {
+  const [admin, setAdmin] = useState(adminFromHash());
+  useEffect(() => {
+    const onHash = () => setAdmin(adminFromHash());
+    addEventListener("hashchange", onHash);
+    return () => removeEventListener("hashchange", onHash);
+  }, []);
+  if (admin !== null)
+    return (
+      <>
+        <Suspense fallback={<div className="center muted">Ouverture de l'Atelier…</div>}>
+          <Admin invite={admin} />
+        </Suspense>
+        <UpdatePrompt />
+      </>
+    );
   return (
     <>
       <Screen />

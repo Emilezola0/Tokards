@@ -1,7 +1,8 @@
 // Voicelines des cartes : un fichier par carte dans src/assets/voices/<ID>.mp3 (ou .ogg / .wav / .m4a / .webm).
 // Une carte sans fichier ne joue rien. Au plus 2 voicelines en même temps : la plus ancienne et la plus faible s'arrête.
 import { useSyncExternalStore } from "react";
-import { CARDS } from "../data/cards";
+import { CARDS, CUSTOM_URLS } from "../data/cards";
+import { voiceRemoved } from "../data/overrides";
 import { isMuted } from "./sfx";
 
 const FILES = import.meta.glob("../assets/voices/*.{mp3,ogg,wav,m4a,webm}", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
@@ -33,8 +34,12 @@ let volume = (() => {
 const subs = new Set<() => void>();
 const playing: { el: HTMLAudioElement; at: number; gain: number }[] = [];
 
-export const hasVoice = (id: string) => !!URLS[id];
-export const voiceCount = () => Object.keys(URLS).length;
+/** Fichier de la voiceline : celui de l'Atelier s'il y en a un, sinon celui du projet (null = pas de voix). */
+export const voiceUrl = (id: string): string | null => (voiceRemoved(id) ? null : CUSTOM_URLS[`voice~${id}`] ?? URLS[id] ?? null);
+/** Voiceline d'origine (fichier du projet). */
+export const defaultVoiceUrl = (id: string): string | null => URLS[id] ?? null;
+export const hasVoice = (id: string) => !!voiceUrl(id);
+export const voiceCount = () => Object.keys(CARDS).filter(hasVoice).length;
 
 export function setVoiceVolume(v: number) {
   volume = Math.max(0, Math.min(1, v));
@@ -80,7 +85,7 @@ export const HURT_RATE = 0.7;
  * `rate` : vitesse de lecture ; HURT_RATE = voix plus grave (carte qui subit un effet).
  */
 export function playVoice(id: string, gain = 1, rate = 1) {
-  const url = URLS[id];
+  const url = voiceUrl(id);
   if (!url || isMuted() || !volume || document.hidden) return;
   gain = Math.min(1, gain * cardVolume(id) * jitter());
   rate *= jitter();
@@ -123,6 +128,6 @@ function fade(el: HTMLAudioElement, target: number) {
 
 /** Joue la voiceline d'une carte au hasard du deck (choix du deck dans le salon). */
 export function playDeckVoice(deck: string) {
-  const ids = Object.values(CARDS).filter((c) => c.deck === deck && URLS[c.id]).map((c) => c.id);
+  const ids = Object.values(CARDS).filter((c) => c.deck === deck && hasVoice(c.id)).map((c) => c.id);
   if (ids.length) playVoice(ids[Math.floor(Math.random() * ids.length)]);
 }

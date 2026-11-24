@@ -21,6 +21,25 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.39.0",
+    date: "24 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "✏️ L'Atelier",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">🃏 Cartes</span>
+            <span className="pn-chip">📦 Decks</span>
+            <span className="pn-chip">🔊 Sons</span>
+            <span className="pn-chip pn-glow">👥 Équipe</span>
+          </div>
+        ),
+        text: <>Un espace d'édition du site (lien « ✏️ Atelier » en bas de l'accueil), réservé à l'équipe connectée avec Google : noms et textes des cartes, images, voicelines, infos et dos des decks, sons du jeu. Les changements arrivent chez tous les joueurs au prochain chargement.</>,
+      },
+    ],
+  },
+  {
     version: "0.38.0",
     date: "22 novembre 2026",
     notes: [

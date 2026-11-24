@@ -71,7 +71,18 @@ export const PLACEHOLDER = `${BASE}cards/placeholder.svg`;
 /** Une image peut être un lien (https://…) : elle est alors chargée telle quelle, sans fichier dans le projet. */
 const isUrl = (s: string) => /^https?:\/\//i.test(s);
 
+/**
+ * Fichiers remplacés depuis l'Atelier (images, voix, sons) : clé → lien local (blob:).
+ * Clés : `card~<ID>`, `voice~<ID>`, `back~<CODE deck>`, `sfx~<nom>`. Rempli par overrides.ts.
+ */
+export const CUSTOM_URLS: Record<string, string> = {};
+
 export function cardImage(id: string): string {
+  return CUSTOM_URLS[`card~${id}`] ?? defaultCardImage(id);
+}
+
+/** Image d'origine de la carte (sans le remplacement de l'Atelier). */
+export function defaultCardImage(id: string): string {
   const img = CARDS[id]?.image;
   if (!img) return PLACEHOLDER;
   return isUrl(img) ? img : `${BASE}cards/${id}.webp`;
@@ -79,6 +90,13 @@ export function cardImage(id: string): string {
 
 /** Image du dos des cartes d'un deck (null = dos dessiné par défaut). */
 export function deckBack(deck?: string): string | null {
+  const d = DECKS.find((x) => x.name === deck);
+  if (d && CUSTOM_URLS[`back~${d.code}`]) return CUSTOM_URLS[`back~${d.code}`];
+  return defaultDeckBack(deck);
+}
+
+/** Dos d'origine d'un deck (sans le remplacement de l'Atelier). */
+export function defaultDeckBack(deck?: string): string | null {
   const d = DECKS.find((x) => x.name === deck);
   if (!d?.back) return null;
   return isUrl(d.back) ? d.back : `${BASE}cards/${d.back.replace(/\.[^.]+$/, "")}.webp`;

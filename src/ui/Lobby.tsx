@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { PLACEHOLDER, cardImage, deckBack } from "../data/cards";
 import { kickPlayer, launch, leaveRoom, transferHost, update } from "../game/room";
 import type { Room } from "../game/types";
-import { LOBBY_DECKS } from "../effects/ready";
+import { lobbyDecks } from "../effects/ready";
 import { playDeckVoice } from "./voice";
 import { DeckModal, VictoryModal } from "./Viewers";
 import { deckColor, playerColor } from "./pose";
@@ -18,7 +18,7 @@ const TEAMS: { name: string; color: string }[] = [
 
 /** Ordre d'affichage des decks : les plus faciles d'abord, les decks en cours à la fin. */
 const DIFF_RANK: Record<string, number> = { facile: 0, moyen: 1, difficile: 2 };
-const SORTED_DECKS = [...LOBBY_DECKS].sort(
+const sortedDecks = () => lobbyDecks().sort(
   (a, b) =>
     Number(!a.status.ready) - Number(!b.status.ready) ||
     (DIFF_RANK[a.deck.difficulty?.toLowerCase() ?? ""] ?? 3) - (DIFF_RANK[b.deck.difficulty?.toLowerCase() ?? ""] ?? 3),
@@ -26,6 +26,7 @@ const SORTED_DECKS = [...LOBBY_DECKS].sort(
 
 export default function Lobby({ room, uid }: { room: Room; uid: string }) {
   const me = room.players[uid];
+  const SORTED_DECKS = sortedDecks();
   const players = Object.values(room.players).sort((a, b) => a.joinedAt - b.joinedAt);
   const isHost = room.hostUid === uid;
   const [team, setTeam] = useState(me.team);
@@ -66,7 +67,7 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
   const run = (p: Promise<unknown>) => p.catch((e) => setErr((e as Error).message));
   const pickDeck = (deck: string | null) =>
     run(update(room.code, (r) => {
-      if (deck && !LOBBY_DECKS.find((d) => d.deck.name === deck)?.status.ready) throw new Error("Ce deck est encore en cours de création.");
+      if (deck && !SORTED_DECKS.find((d) => d.deck.name === deck)?.status.ready) throw new Error("Ce deck est encore en cours de création.");
       const taken = Object.values(r.players).some((p) => p.uid !== uid && p.deck === deck);
       if (deck && taken) throw new Error("Ce deck vient d'être pris.");
       r.players[uid].deck = deck;
@@ -130,7 +131,7 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
             {players.map((p) => (
               <li key={p.uid} className={`lobby-player ${p.ready || p.uid === room.hostUid ? "is-ready" : ""}`} style={{ ["--pc" as string]: playerColor(room, p.uid) }}>
                 <span className="lp-deck">
-                  {p.deck ? <img src={deckBack(p.deck) ?? cardImage(LOBBY_DECKS.find((d) => d.deck.name === p.deck)?.deck.cards[0] ?? "")} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} /> : <i>?</i>}
+                  {p.deck ? <img src={deckBack(p.deck) ?? cardImage(SORTED_DECKS.find((d) => d.deck.name === p.deck)?.deck.cards[0] ?? "")} alt="" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} /> : <i>?</i>}
                 </span>
                 <span className="lp-body">
                   <span className="lp-top">

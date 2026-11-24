@@ -18,7 +18,10 @@ export function deckStatus(d: DeckDef): DeckStatus {
   return { ready: !why, auto, total, why };
 }
 
-/** Decks affichés dans le salon : les jouables d'abord, puis ceux « en cours ». */
-export const LOBBY_DECKS = DECKS.filter((d) => d.name !== BASE_DECK && d.cards.length)
+/**
+ * Decks affichés dans le salon : les jouables d'abord, puis ceux « en cours ».
+ * Calculé à chaque appel : l'Atelier peut changer les decks après le chargement du site.
+ */
+export const lobbyDecks = () => DECKS.filter((d) => d.name !== BASE_DECK && d.cards.length)
   .map((d) => ({ deck: d, status: deckStatus(d) }))
   .sort((a, b) => +b.status.ready - +a.status.ready || b.status.auto / b.status.total - a.status.auto / a.status.total);

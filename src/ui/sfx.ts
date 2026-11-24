@@ -1,5 +1,7 @@
 // Effets sonores synthétisés (Web Audio) : aucun fichier à télécharger.
+// Chacun peut être remplacé par un fichier audio depuis l'Atelier (clé `sfx~<nom>`).
 import { useSyncExternalStore } from "react";
+import { CUSTOM_URLS } from "../data/cards";
 
 const KEY = "tokards.muted";
 const VKEY = "tokards.volume";
@@ -103,7 +105,8 @@ function noise(d: number, v = 0.3, hp = 1200, t = 0) {
 }
 
 let lastCard = 0;
-export const sfx = {
+/** Sons d'origine, synthétisés. */
+export const synth = {
   /** carte qui glisse */
   card() {
     const n = performance.now();
@@ -151,3 +154,56 @@ export const sfx = {
   },
   click: () => tones([{ f: 1200, d: 0.03, type: "square", v: 0.05 }]),
 };
+
+export type SfxName = keyof typeof synth;
+/** Noms affichés dans l'Atelier. */
+export const SFX_LABELS: Record<SfxName, string> = {
+  card: "Carte qui glisse",
+  pick: "Prendre une carte",
+  drop: "Poser une carte",
+  coin: "Pièce d'or",
+  loss: "Perte d'or",
+  activate: "Activation d'un effet",
+  fail: "Effet raté",
+  sentience: "Sentience",
+  blackHole: "Trou noir",
+  turn: "Tour suivant",
+  myTurn: "C'est ton tour",
+  phase: "Changement de phase",
+  dice: "Lancer de dé",
+  link: "Lien / ciblage",
+  vc: "Condition de victoire",
+  victory: "Victoire",
+  shuffle: "Mélange",
+  enter: "Arrivée dans la partie",
+  click: "Clic sur un bouton",
+};
+
+/** Joue un fichier remplacé depuis l'Atelier. */
+function playFile(url: string, evenHidden = false) {
+  if (muted || !volume || (document.hidden && !evenHidden)) return;
+  const el = new Audio(url);
+  el.volume = Math.min(1, 0.8 * volume);
+  void el.play().catch(() => {});
+}
+/** Joue un son de l'Atelier depuis son lien (aperçu, sans tenir compte de l'onglet caché). */
+export const previewFile = (url: string) => playFile(url, true);
+
+const lastFile: Record<string, number> = {};
+/** Sons du jeu : le fichier de l'Atelier s'il existe, sinon le son synthétisé. */
+export const sfx = Object.fromEntries(
+  (Object.keys(synth) as SfxName[]).map((name) => [
+    name,
+    (...args: unknown[]) => {
+      const url = CUSTOM_URLS[`sfx~${name}`];
+      if (url) {
+        // Un même fichier n'est pas relancé plusieurs fois d'affilée (ex. plusieurs cartes qui glissent ensemble).
+        const now = performance.now();
+        if (now - (lastFile[name] ?? 0) < 60) return;
+        lastFile[name] = now;
+        return playFile(url, name === "myTurn");
+      }
+      return (synth[name] as (...a: unknown[]) => void)(...args);
+    },
+  ]),
+) as typeof synth;

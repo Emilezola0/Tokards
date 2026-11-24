@@ -104,7 +104,7 @@ export default function Home({ uid, roomCode, notFound }: { uid: string; roomCod
           })}
         </div>
       )}
-      <p className="small"><VersionTag /></p>
+      <p className="small"><VersionTag /> · <a href="#/admin" className="muted" title="Modifier les cartes, decks, images et sons (réservé à l'équipe)">✏️ Atelier</a></p>
       <Takedown />
     </div>
   );
