@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { DECKS, PLACEHOLDER, cardImage, deckBack, defaultDeckBack, type DeckDef } from "../data/cards";
-import { CONTENT, ORIGINAL_CARDS, ORIGINAL_DECKS, type DeckEdit } from "../data/overrides";
+import { CONTENT, ORIGINAL_DECKS, isNewCard, type DeckEdit } from "../data/overrides";
+import { CARDS } from "../data/cards";
+import { SCRIPTS } from "../effects/scripts";
 import { deckStatus, MIN_DECK } from "../effects/ready";
 import { deckColor } from "../ui/pose";
 import { deleteAsset, prepareImage, saveDeck, uploadAsset } from "./api";
@@ -85,8 +87,8 @@ function DeckEditor({ name, rev, onDirty }: { name: string; rev: number; onDirty
   // Aperçu du statut avec le brouillon (jouable ou non).
   const preview: DeckDef = { ...orig, ...d, back: orig.back } as DeckDef;
   const st = deckStatus(preview);
-  const allCards = orig.cards.concat(Object.values(ORIGINAL_CARDS).filter((c) => c.deck === name && c.kind === "card" && !orig.cards.includes(c.id)).map((c) => c.id));
-  const allVcs = orig.vcs.concat(Object.values(ORIGINAL_CARDS).filter((c) => c.deck === name && c.kind === "victory" && !orig.vcs.includes(c.id)).map((c) => c.id));
+  const allCards = orig.cards.concat(Object.values(CARDS).filter((c) => c.deck === name && c.kind === "card" && !orig.cards.includes(c.id)).map((c) => c.id));
+  const allVcs = orig.vcs.concat(Object.values(CARDS).filter((c) => c.deck === name && c.kind === "victory" && !orig.vcs.includes(c.id)).map((c) => c.id));
   const toggleIn = (k: "cards" | "vcs", id: string, all: string[]) =>
     set(k, d[k].includes(id) ? d[k].filter((x) => x !== id) : all.filter((x) => x === id || d[k].includes(x)));
 
@@ -218,12 +220,14 @@ function DeckEditor({ name, rev, onDirty }: { name: string; rev: number; onDirty
             </div>
           </Field>
           <Field label={`Cartes du deck (${d.cards.length}/${allCards.length})`} changed={!same(d.cards, orig.cards)} onReset={() => set("cards", [...orig.cards])}
-            hint="Clique sur une carte pour la retirer du deck ou la remettre.">
+            hint="Clique sur une carte pour la retirer du deck ou la remettre. ⚠ = pas encore automatisée (le deck ne sera plus jouable tant qu'elle y est).">
             <div className="adm-pick-grid">
               {allCards.map((id) => (
-                <button key={id} className={`adm-pick ${d.cards.includes(id) ? "in" : "out"}`} onClick={() => toggleIn("cards", id, allCards)} title={ORIGINAL_CARDS[id]?.name}>
+                <button key={id} className={`adm-pick ${d.cards.includes(id) ? "in" : "out"}`} onClick={() => toggleIn("cards", id, allCards)} title={`${CARDS[id]?.name}${SCRIPTS[id] ? "" : " — pas encore automatisée"}`}>
+                  {!SCRIPTS[id] && <i className="adm-pick-warn">⚠</i>}
+                  {isNewCard(id) && <i className="adm-pick-new">🆕</i>}
                   <img src={cardImage(id)} alt="" loading="lazy" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
-                  <span>{ORIGINAL_CARDS[id]?.name}</span>
+                  <span>{CARDS[id]?.name}</span>
                 </button>
               ))}
             </div>
@@ -232,9 +236,9 @@ function DeckEditor({ name, rev, onDirty }: { name: string; rev: number; onDirty
             <Field label={`Conditions de victoire (${d.vcs.length}/${allVcs.length})`} changed={!same(d.vcs, orig.vcs)} onReset={() => set("vcs", [...orig.vcs])}>
               <div className="adm-pick-grid">
                 {allVcs.map((id) => (
-                  <button key={id} className={`adm-pick ${d.vcs.includes(id) ? "in" : "out"}`} onClick={() => toggleIn("vcs", id, allVcs)} title={ORIGINAL_CARDS[id]?.name}>
+                  <button key={id} className={`adm-pick ${d.vcs.includes(id) ? "in" : "out"}`} onClick={() => toggleIn("vcs", id, allVcs)} title={CARDS[id]?.name}>
                     <img src={cardImage(id)} alt="" loading="lazy" onError={(e) => (e.currentTarget.src = PLACEHOLDER)} />
-                    <span>{ORIGINAL_CARDS[id]?.name}</span>
+                    <span>{CARDS[id]?.name}</span>
                   </button>
                 ))}
               </div>

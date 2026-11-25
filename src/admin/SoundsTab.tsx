@@ -1,12 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CUSTOM_URLS } from "../data/cards";
 import { CONTENT } from "../data/overrides";
-import { SFX_LABELS, previewFile, synth, useMuted, type SfxName } from "../ui/sfx";
-import { deleteAsset, prepareAudio, saveSfx, uploadAsset } from "./api";
+import { SFX_LABELS, previewFile, sfxGain, synth, useMuted, type SfxName } from "../ui/sfx";
+import { deleteAsset, prepareAudio, saveSfx, saveSfxVol, uploadAsset } from "./api";
 import { DropZone, fmtDate, useToast } from "./bits";
 
+/** Volume d'un son remplacé : enregistré quand on lâche le curseur, et joué pour l'entendre. */
+function VolSlider({ name, url, rev }: { name: SfxName; url: string; rev: number }) {
+  const toast = useToast();
+  const saved = sfxGain(name);
+  const [v, setV] = useState(saved);
+  useEffect(() => setV(sfxGain(name)), [name, rev]);
+  const commit = () => {
+    previewFile(url, v);
+    if (Math.abs(v - saved) < 0.005) return;
+    saveSfxVol(name, v, SFX_LABELS[name]).then(() => toast(`Volume enregistré : ${Math.round(v * 100)} %`), (e) => toast(`Échec : ${(e as Error).message}`, true));
+  };
+  return (
+    <label className="adm-vol" title="Volume de ce son dans le jeu (multiplié par le volume choisi par chaque joueur)">
+      <span>🔉</span>
+      <input type="range" min={0} max={100} value={Math.round(v * 100)} onChange={(e) => setV(Number(e.target.value) / 100)} onPointerUp={commit} onKeyUp={commit} />
+      <b>{Math.round(v * 100)} %</b>
+    </label>
+  );
+}
+
 export default function SoundsTab({ rev }: { rev: number }) {
-  void rev;
   const toast = useToast();
   const muted = useMuted();
   const [busy, setBusy] = useState<string | null>(null);
@@ -60,9 +79,10 @@ export default function SoundsTab({ rev }: { rev: number }) {
                 <span className="small muted">{at ? `Fichier personnalisé · ${fmtDate(at)}` : "Son d'origine"}</span>
               </div>
               <button title="Écouter le son d'origine" onClick={() => (synth[n] as () => void)()}>▶ Origine</button>
-              <button title="Écouter le fichier personnalisé" disabled={!url} onClick={() => url && previewFile(url)}>▶ Perso</button>
+              <button title="Écouter le fichier personnalisé" disabled={!url} onClick={() => url && previewFile(url, sfxGain(n))}>▶ Perso</button>
               <DropZone accept="audio/*,.mp3,.ogg,.wav,.m4a,.webm" label={busy === n ? "⏳ Envoi…" : at ? "🎵 Changer" : "🎵 Remplacer"} onFile={(f) => upload(n, f)} compact />
               <button className="adm-link" disabled={!at || busy === n} onClick={() => reset(n)}>↺ Origine</button>
+              {at && url && <VolSlider name={n} url={url} rev={rev} />}
             </div>
           );
         })}

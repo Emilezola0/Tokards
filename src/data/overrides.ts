@@ -10,6 +10,10 @@ export type CardEdit = {
   text?: string;
   rules?: string;
   tags?: Tags;
+  /** affichage du déclenchement (modifiable seulement pour les cartes créées dans l'Atelier) */
+  trigger?: string;
+  event?: string;
+  target?: string;
   /** image remplacée (date du changement, sert à ne pas recharger un fichier déjà en cache) */
   img?: number;
   /** voiceline remplacée (date), ou -1 = voiceline coupée */
@@ -33,10 +37,16 @@ export type Content = {
   decks?: Record<string, DeckEdit>;
   /** sons du jeu remplacés : nom du son → date */
   sfx?: Record<string, number>;
+  /** volume des sons remplacés (0 à 1, 0,8 par défaut) */
+  sfxVol?: Record<string, number>;
+  /** cartes créées dans l'Atelier (leur version de départ ; les retouches vont dans `cards` comme pour les autres) */
+  newCards?: Record<string, CardDef>;
   updatedAt?: number;
 };
 
-export const CARD_FIELDS = ["name", "text", "rules", "tags"] as const;
+export const CARD_FIELDS = ["name", "text", "rules", "tags", "trigger", "event", "target"] as const;
+/** Volume par défaut d'un son remplacé. */
+export const SFX_GAIN = 0.8;
 export const DECK_FIELDS = ["description", "summary", "keywords", "difficulty", "color", "inGame", "cards", "vcs"] as const;
 
 /** Version d'origine (cards.json), pour pouvoir revenir en arrière. */
@@ -46,9 +56,22 @@ export const ORIGINAL_DECKS: DeckDef[] = structuredClone(DECKS);
 /** Contenu actuellement appliqué. */
 export let CONTENT: Content = {};
 
+/** Version de départ d'une carte : celle de cards.json, ou celle de sa création dans l'Atelier. */
+export const baseCard = (id: string): CardDef | undefined => ORIGINAL_CARDS[id] ?? CONTENT.newCards?.[id];
+/** Carte créée dans l'Atelier (pas dans cards.json). */
+export const isNewCard = (id: string) => !ORIGINAL_CARDS[id] && !!CONTENT.newCards?.[id];
+
 /** Applique (ou ré-applique) les modifications : on repart toujours de l'original. */
 export function applyContent(c: Content) {
   CONTENT = c;
+  // Cartes créées : ajoutées au catalogue (et retirées si elles ont été supprimées).
+  for (const id of Object.keys(CARDS)) if (!ORIGINAL_CARDS[id] && !c.newCards?.[id]) delete CARDS[id];
+  for (const [id, def] of Object.entries(c.newCards ?? {})) {
+    if (ORIGINAL_CARDS[id]) continue;
+    const e = c.cards?.[id] ?? {};
+    CARDS[id] = structuredClone({ ...def, id, image: "", claude: "" });
+    for (const f of CARD_FIELDS) if (e[f] !== undefined) (CARDS[id] as Record<string, unknown>)[f] = structuredClone(e[f]);
+  }
   for (const [id, orig] of Object.entries(ORIGINAL_CARDS)) {
     const e = c.cards?.[id] ?? {};
     const cur = CARDS[id];
@@ -62,8 +85,8 @@ export function applyContent(c: Content) {
     Object.assign(cur, structuredClone(orig));
     for (const f of DECK_FIELDS) if (e[f] !== undefined) (cur as Record<string, unknown>)[f] = structuredClone(e[f]);
     // Une carte ne peut être que dans son propre deck.
-    cur.cards = cur.cards.filter((id) => ORIGINAL_CARDS[id]?.deck === orig.name);
-    cur.vcs = cur.vcs.filter((id) => ORIGINAL_CARDS[id]?.deck === orig.name);
+    cur.cards = cur.cards.filter((id) => CARDS[id]?.deck === orig.name && CARDS[id].kind === "card");
+    cur.vcs = cur.vcs.filter((id) => CARDS[id]?.deck === orig.name && CARDS[id].kind === "victory");
   }
 }
 

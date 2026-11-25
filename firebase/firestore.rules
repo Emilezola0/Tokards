@@ -65,6 +65,20 @@ service cloud.firestore {
       allow create: if isAdmin() && request.resource.data.by == request.auth.uid;
       allow update, delete: if false;
     }
+    // Demandes de changement d'effet (Claude les lit et les traite quand on le lui demande).
+    match /requests/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['card', 'cardName', 'text', 'by', 'name', 'status', 'at'])
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.status == 'ouvert'
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 2000;
+      // L'équipe peut seulement annuler ou rouvrir une demande (« fait » / « refusé » : réservé à Claude, via la console).
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['ouvert', 'annulé'];
+      allow delete: if false;
+    }
     // Propriétaire du site : réclamé une seule fois (premier passage dans l'Atelier).
     match /config/owner {
       allow read: if true;

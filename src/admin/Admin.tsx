@@ -4,20 +4,21 @@ import type { User } from "firebase/auth";
 import { CONTENT, applyContent, assetKeys, dropUnused, loadAsset, type Content } from "../data/overrides";
 import { DECKS } from "../data/cards";
 import {
-  adminDb, claimOwner, hasOwner, joinWithInvite, login, logout, ROLE_LABEL, watchContent, watchMember, watchUser, type Member,
+  REQ_LABEL, adminDb, claimOwner, useRequests, type ReqStatus, hasOwner, joinWithInvite, login, logout, ROLE_LABEL, watchContent, watchMember, watchUser, type Member,
 } from "./api";
 import { ToastHost } from "./bits";
-import CardsTab from "./CardsTab";
+import CardsTab, { RequestList } from "./CardsTab";
 import DecksTab from "./DecksTab";
 import SoundsTab from "./SoundsTab";
 import TeamTab, { HistoryTab } from "./TeamTab";
 import "./admin.css";
 
-type Tab = "cards" | "decks" | "sounds" | "team" | "history";
+type Tab = "cards" | "decks" | "sounds" | "changes" | "team" | "history";
 const TABS: { id: Tab; icon: string; label: string; sub: string }[] = [
   { id: "cards", icon: "🃏", label: "Cartes", sub: "Textes, images, voix" },
   { id: "decks", icon: "📦", label: "Decks", sub: "Infos, dos, composition" },
   { id: "sounds", icon: "🔊", label: "Sons", sub: "Effets sonores du jeu" },
+  { id: "changes", icon: "🛠", label: "Changements", sub: "Effets à programmer" },
   { id: "team", icon: "👥", label: "Équipe", sub: "Membres et invitations" },
   { id: "history", icon: "📜", label: "Historique", sub: "Qui a changé quoi" },
 ];
@@ -193,9 +194,40 @@ function Workspace({ user, member }: { user: User; member: Member }) {
         {tab === "cards" && <CardsTab rev={rev} />}
         {tab === "decks" && <DecksTab rev={rev} />}
         {tab === "sounds" && <SoundsTab rev={rev} />}
+        {tab === "changes" && <ChangesTab />}
         {tab === "team" && <TeamTab me={member} />}
         {tab === "history" && <HistoryTab />}
       </main>
+    </div>
+  );
+}
+
+/** Toutes les demandes de changement, par statut. */
+function ChangesTab() {
+  const list = useRequests();
+  const [status, setStatus] = useState<ReqStatus | "">("ouvert");
+  const shown = (list ?? []).filter((r) => !status || r.status === status);
+  const count = (st: ReqStatus) => (list ?? []).filter((r) => r.status === st).length;
+  return (
+    <div className="adm-page">
+      <header className="adm-page-head">
+        <div>
+          <h2>🛠 Changements demandés</h2>
+          <p className="muted">
+            Les demandes se font depuis la fiche d'une carte (onglet Cartes, en bas). Quand il y en a, dis à Claude d'« aller voir les changements » :
+            il les lit, programme les effets, puis les marque ✅ Fait avec un mot d'explication.
+          </p>
+        </div>
+      </header>
+      <div className="adm-chips">
+        {(["ouvert", "fait", "refusé", "annulé"] as ReqStatus[]).map((st) => (
+          <button key={st} className={`adm-chip ${status === st ? "on" : ""}`} onClick={() => setStatus(st)}>{REQ_LABEL[st]} ({count(st)})</button>
+        ))}
+        <button className={`adm-chip ${status === "" ? "on" : ""}`} onClick={() => setStatus("")}>Toutes ({list?.length ?? 0})</button>
+      </div>
+      <div className="adm-card">
+        {list === null ? <p className="muted">Chargement…</p> : shown.length ? <RequestList list={shown} showCard /> : <p className="muted">Aucune demande ici.</p>}
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 // Chacun peut être remplacé par un fichier audio depuis l'Atelier (clé `sfx~<nom>`).
 import { useSyncExternalStore } from "react";
 import { CUSTOM_URLS } from "../data/cards";
+import { CONTENT, SFX_GAIN } from "../data/overrides";
 
 const KEY = "tokards.muted";
 const VKEY = "tokards.volume";
@@ -179,15 +180,22 @@ export const SFX_LABELS: Record<SfxName, string> = {
   click: "Clic sur un bouton",
 };
 
+/** Volume d'un son remplacé (réglé dans l'Atelier). */
+export const sfxGain = (name: string) => CONTENT.sfxVol?.[name] ?? SFX_GAIN;
+
 /** Joue un fichier remplacé depuis l'Atelier. */
-function playFile(url: string, evenHidden = false) {
-  if (muted || !volume || (document.hidden && !evenHidden)) return;
+function playFile(url: string, gain: number, evenHidden = false) {
+  if (muted || !volume || !gain || (document.hidden && !evenHidden)) return;
   const el = new Audio(url);
-  el.volume = Math.min(1, 0.8 * volume);
+  el.volume = Math.max(0, Math.min(1, gain * volume));
   void el.play().catch(() => {});
 }
-/** Joue un son de l'Atelier depuis son lien (aperçu, sans tenir compte de l'onglet caché). */
-export const previewFile = (url: string) => playFile(url, true);
+/** Aperçu dans l'Atelier : joue le fichier au volume donné, même si le son du jeu est coupé. */
+export function previewFile(url: string, gain = SFX_GAIN) {
+  const el = new Audio(url);
+  el.volume = Math.max(0, Math.min(1, gain));
+  void el.play().catch(() => {});
+}
 
 const lastFile: Record<string, number> = {};
 /** Sons du jeu : le fichier de l'Atelier s'il existe, sinon le son synthétisé. */
@@ -201,7 +209,7 @@ export const sfx = Object.fromEntries(
         const now = performance.now();
         if (now - (lastFile[name] ?? 0) < 60) return;
         lastFile[name] = now;
-        return playFile(url, name === "myTurn");
+        return playFile(url, sfxGain(name), name === "myTurn");
       }
       return (synth[name] as (...a: unknown[]) => void)(...args);
     },

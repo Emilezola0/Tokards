@@ -21,6 +21,24 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.40.0",
+    date: "25 novembre 2026",
+    notes: [
+      {
+        cat: "cartes",
+        title: "🆕 Nouvelles cartes et demandes de changement",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip pn-glow">＋ Nouvelle carte</span>
+            <Arrow />
+            <span className="pn-chip">🛠 Changements</span>
+          </div>
+        ),
+        text: <>Dans l'Atelier, l'équipe peut créer des cartes dans un deck et décrire, sur chaque carte, l'effet voulu ou une correction. Ces demandes sont ensuite programmées dans le jeu. Les sons remplacés ont aussi leur propre réglage de volume.</>,
+      },
+    ],
+  },
+  {
     version: "0.39.0",
     date: "24 novembre 2026",
     notes: [

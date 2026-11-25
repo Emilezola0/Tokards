@@ -1,4 +1,5 @@
 // Atelier : connexion Google (séparée de l'identité anonyme du jeu), rôles et écritures dans Firestore.
+import { useSyncExternalStore } from "react";
 import { initializeApp } from "firebase/app";
 import {
   browserLocalPersistence, browserPopupRedirectResolver, connectAuthEmulator, GoogleAuthProvider, indexedDBLocalPersistence,
@@ -9,6 +10,7 @@ import {
   onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, writeBatch,
 } from "firebase/firestore";
 import { app } from "../firebase";
+import type { CardDef } from "../data/cards";
 import type { CardEdit, Content, DeckEdit } from "../data/overrides";
 
 // Une seconde instance Firebase : se connecter à l'Atelier ne change pas l'identité de joueur (salons en cours).
@@ -105,16 +107,77 @@ export const watchHistory = (cb: (h: HistoryEntry[]) => void) =>
     cb(s.docs.map((d) => ({ id: d.id, ...d.data() }) as HistoryEntry)),
   );
 
-/** Remplace (ou efface si vide) les modifications d'une carte, d'un deck ou des sons. */
-async function writeEntry(section: "cards" | "decks" | "sfx", key: string, value: unknown, what: string) {
-  const path = new FieldPath(section, key);
-  const empty = value === undefined || (typeof value === "object" && value !== null && !Object.keys(value).length);
-  await setDoc(LIVE(), { [section]: { [key]: empty ? deleteField() : value }, updatedAt: Date.now() }, { mergeFields: [path, "updatedAt"] });
-  await logChange(what);
+type Section = "cards" | "decks" | "sfx" | "sfxVol" | "newCards";
+/** Une entrée du contenu : [rubrique, clé, valeur] (valeur vide ou undefined = effacée). */
+export type Entry = [Section, string, unknown];
+
+/** Remplace (ou efface si vide) plusieurs entrées du contenu en une seule écriture. */
+export async function saveMany(entries: Entry[], what: string | null) {
+  const data: Record<string, Record<string, unknown>> = {};
+  const paths: (FieldPath | string)[] = ["updatedAt"];
+  for (const [section, key, value] of entries) {
+    const empty = value === undefined || (typeof value === "object" && value !== null && !Object.keys(value).length);
+    (data[section] ??= {})[key] = empty ? deleteField() : value;
+    paths.push(new FieldPath(section, key));
+  }
+  await setDoc(LIVE(), { ...data, updatedAt: Date.now() }, { mergeFields: paths });
+  if (what) await logChange(what);
 }
-export const saveCard = (id: string, e: CardEdit, what: string) => writeEntry("cards", id, e, what);
-export const saveDeck = (name: string, e: DeckEdit, what: string) => writeEntry("decks", name, e, what);
-export const saveSfx = (name: string, at: number | undefined, what: string) => writeEntry("sfx", name, at, what);
+export const saveCard = (id: string, e: CardEdit, what: string, extra: Entry[] = []) => saveMany([["cards", id, e], ...extra], what);
+export const saveDeck = (name: string, e: DeckEdit, what: string) => saveMany([["decks", name, e]], what);
+export const saveSfx = (name: string, at: number | undefined, what: string) =>
+  saveMany(at ? [["sfx", name, at]] : [["sfx", name, undefined], ["sfxVol", name, undefined]], what);
+export const saveSfxVol = (name: string, v: number, label: string) =>
+  saveMany([["sfxVol", name, Math.round(v * 100) / 100]], `Son « ${label} » : volume ${Math.round(v * 100)} %`);
+/** Nouvelle carte (et, si `deckEdit` est donné, le deck qui la contient désormais). */
+export const createCard = (def: CardDef, deckEdit: DeckEdit | null) =>
+  saveMany([["newCards", def.id, def], ...(deckEdit ? [["decks", def.deck, deckEdit] as Entry] : [])], `Nouvelle carte « ${def.name} » (${def.id}) dans ${def.deck}`);
+
+// ——— Demandes de changement (lues par Claude quand on le lui demande : scripts/changements.mjs) ———
+export type ReqStatus = "ouvert" | "fait" | "refusé" | "annulé";
+export type ChangeRequest = {
+  id: string; card: string; cardName: string; text: string; by: string; name: string; status: ReqStatus; reply?: string;
+  at?: Timestamp; doneAt?: Timestamp;
+};
+export const REQ_LABEL: Record<ReqStatus, string> = { ouvert: "⏳ En attente", fait: "✅ Fait", "refusé": "✋ Refusé", "annulé": "✕ Annulé" };
+export async function addRequest(card: string, cardName: string, text: string) {
+  const u = me();
+  await addDoc(collection(adminDb, "requests"), {
+    card, cardName, text: text.slice(0, 2000), by: u.uid, name: u.displayName ?? "?", status: "ouvert", at: serverTimestamp(),
+  });
+}
+// Un seul abonnement partagé par tout l'Atelier (ouvrir/fermer des écoutes en boucle sur une collection refusée fait planter le SDK).
+let reqList: ChangeRequest[] | null = null;
+let reqStarted = false;
+const reqSubs = new Set<(r: ChangeRequest[] | null) => void>();
+function startRequests() {
+  if (reqStarted) return;
+  reqStarted = true;
+  onSnapshot(
+    query(collection(adminDb, "requests"), orderBy("at", "desc"), limit(300)),
+    (s) => {
+      reqList = s.docs.map((d) => ({ id: d.id, ...d.data() }) as ChangeRequest);
+      reqSubs.forEach((f) => f(reqList));
+    },
+    () => {
+      reqList = [];
+      reqSubs.forEach((f) => f(reqList));
+    },
+  );
+}
+/** Demandes de changement, à jour en direct (null = pas encore chargées). */
+export function useRequests() {
+  return useSyncExternalStore(
+    (f) => {
+      startRequests();
+      reqSubs.add(f);
+      return () => void reqSubs.delete(f);
+    },
+    () => reqList,
+  );
+}
+export const cancelRequest = (id: string) => setDoc(doc(adminDb, "requests", id), { status: "annulé" }, { merge: true });
+export const reopenRequest = (id: string) => setDoc(doc(adminDb, "requests", id), { status: "ouvert" }, { merge: true });
 
 // ——— Fichiers ———
 /** Taille max d'un fichier (il est stocké en base64 dans un document Firestore, limité à 1 Mo). */
