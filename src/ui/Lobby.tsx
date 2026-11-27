@@ -194,7 +194,7 @@ export default function Lobby({ room, uid }: { room: Room; uid: string }) {
           {isHost ? (
             <>
               <button className="primary big" disabled={!withDeck.length || notReady.length > 0} onClick={() => run(launch(room.code))}>
-                Lancer la partie ({withDeck.length} joueur{withDeck.length > 1 ? "s" : ""})
+                {withDeck.length ? `Lancer la partie (${withDeck.length} joueur${withDeck.length > 1 ? "s" : ""})` : "Choisis un deck pour lancer"}
               </button>
               {notReady.length > 0 && <p className="muted small">En attente : {notReady.map((p) => p.name).join(", ")} (pas encore prêt).</p>}
               {notReady.length > 0 && withDeck.some((p) => p.uid === room.hostUid || p.ready) && (

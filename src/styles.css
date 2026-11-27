@@ -139,6 +139,14 @@ fieldset { border: 0; padding: 0; margin: 0; }
 .steps { display: inline-flex; gap: 4px; }
 .step { font-size: 11px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
 .step.on { color: var(--text); border-color: var(--gold); background: #ffcf5a22; }
+.step:not(.on) .step-name { display: none; }
+/* Grand écran : une seule ligne, la consigne se raccourcit (texte complet au survol). */
+@media (min-width: 900px) { .topbar { flex-wrap: nowrap; } .topbar > * { flex-shrink: 0; } .topbar > .hint-text { flex: 1 1 auto; } .topbar > .hint-text ~ .grow { display: none; } }
+@media (max-width: 640px) {
+  .topbar { gap: 6px 8px; padding: 6px 10px; }
+  .topbar .hint-text { flex-basis: 100%; order: 1; font-size: 12px; }
+  .topbar button, .topbar .die { padding: 4px 9px; font-size: 13px; min-height: 0; }
+}
 
 .arena { position: relative; flex: 1; min-height: 0; overflow: hidden; }
 .table-felt {
@@ -1277,3 +1285,14 @@ button.danger:hover { border-color: var(--bad); }
 .lobby-note { padding: 8px 14px; border-radius: 10px; background: #1a1233f2; border: 1px solid var(--line); box-shadow: 0 6px 18px #000a; animation: note-in 0.3s ease-out; }
 @keyframes note-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .lobby-note { animation: none; } }
+
+/* En partie, les boutons d'aide se font discrets pour ne pas couvrir les plateaux ; les nouveautés attendent l'accueil. */
+body:has(.table) .help-fab, body:has(.table) .gloss-fab { width: 32px; height: 32px; font-size: 15px; bottom: 10px; opacity: 0.6; box-shadow: none; }
+body:has(.table) .help-fab { left: 10px; }
+body:has(.table) .gloss-fab { left: 48px; }
+body:has(.table) .help-fab:hover, body:has(.table) .gloss-fab:hover, body:has(.table) .help-fab:focus-visible, body:has(.table) .gloss-fab:focus-visible { opacity: 1; }
+body:has(.table) .patch-fab { display: none; }
+@media (max-width: 640px) {
+  body:has(.table) .help-fab, body:has(.table) .gloss-fab { left: 8px; bottom: auto; top: 42vh; }
+  body:has(.table) .gloss-fab { top: calc(42vh + 40px); }
+}

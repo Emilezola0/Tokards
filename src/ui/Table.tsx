@@ -323,7 +323,9 @@ export default function Table({ room: rawRoom, uid }: { room: Room; uid: string 
         </span>
         <span className="steps">
           {(["activation", "action", "end"] as const).map((ph, i) => (
-            <span key={ph} className={`step ${g.phase === ph ? "on" : ""}`}>{i + 1}. {PHASE_LABEL[ph]}</span>
+            <span key={ph} className={`step ${g.phase === ph ? "on" : ""}`} title={`Phase ${i + 1} : ${PHASE_LABEL[ph]}`}>
+              {i + 1}<span className="step-name">. {PHASE_LABEL[ph]}</span>
+            </span>
           ))}
         </span>
         <TurnControls g={g} room={room} uid={uid} myTurn={myTurn && isPlayer} auto={auto} autoEnd={autoEnd} busy={fx.busy} run={run} runAuto={runAuto} />
@@ -583,12 +585,11 @@ function TurnControls({ g, room, uid, myTurn, auto, autoEnd, busy, run, runAuto 
       </span>
     );
   if (g.phase === "activation") return <span className="controls muted">{busy || pending ? "…" : "Activation de tes cartes…"}</span>;
+  const hint = g.players[uid].cantPlay ? `🤧 ${g.players[uid].cantPlay}`
+    : g.players[uid].hand.length ? "Pose ou défausse une carte (glisse-la depuis ta main)" : "Main vide";
   if (g.phase === "action")
     return (
-      <span className="controls hint-text">
-        {g.players[uid].cantPlay ? `🤧 ${g.players[uid].cantPlay}`
-          : g.players[uid].hand.length ? "Glisse une carte de ta main sur ton terrain (pose) ou sur ta défausse" : "Main vide"}
-      </span>
+      <span className="controls hint-text" title={hint}>{hint}</span>
     );
   return (
     <span className="controls">

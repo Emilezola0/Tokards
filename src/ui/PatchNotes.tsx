@@ -21,6 +21,24 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.41.1",
+    date: "27 novembre 2026",
+    notes: [
+      {
+        cat: "jeu",
+        title: "🧹 Une table plus lisible",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip">1</span>
+            <span className="pn-chip pn-glow">2. Poser / défausser</span>
+            <span className="pn-chip">3</span>
+          </div>
+        ),
+        text: <>La barre du haut tient sur une seule ligne et laisse plus de place aux plateaux. En partie, les boutons d'aide se font discrets et ne couvrent plus ta main sur mobile. Dans le salon, le bouton indique qu'il faut choisir un deck avant de lancer.</>,
+      },
+    ],
+  },
+  {
     version: "0.41.0",
     date: "27 novembre 2026",
     notes: [
