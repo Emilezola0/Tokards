@@ -517,6 +517,20 @@ export class Ctx {
     this.reason = "Piège à Gobelin : l'action est empêchée.";
     return true;
   }
+  /**
+   * IGPN (Police) : pendant l'enquête, le joueur ciblé ne subit aucune défausse imposée par un autre joueur
+   * (ses propres défausses restent possibles). Renvoie true si la défausse est empêchée.
+   */
+  igpnProtects(uid: string): boolean {
+    const host = "POL-27";
+    if (this.source === host || !(this.g.armed ?? []).includes(host)) return false;
+    const target = (this.g.marks?.[host] ?? "").split("|")[0];
+    if (target !== uid || !this.actor || this.actor === uid) return false;
+    const why = `IGPN : ${this.name(uid)} est sous enquête, ses cartes ne peuvent pas être défaussées.`;
+    this.log(`🛡 ${why}`, { src: host, to: uid });
+    this.reason = why;
+    return true;
+  }
   /** L'acteur peut-il changer l'ordre du terrain de `uid` ? (protections, Piège à Gobelin) */
   canReorder(uid: string) {
     return !this.shielded(uid, true) && !this.trapped(uid);
@@ -891,6 +905,7 @@ export class Ctx {
     if (at.zone === "terrain" && this.trapped(at.uid)) return false;
     if (dest.zone === "terrain" && this.trapped(dest.uid)) return false;
     if (!this.canDisplace(id, at, dest)) return false;
+    if (dest.zone === "discard" && this.igpnProtects(at.uid)) return false;
     if (dest.zone === "discard") {
       const u = this.cacapulte(id, dest.uid);
       if (u) dest = { ...dest, uid: u };

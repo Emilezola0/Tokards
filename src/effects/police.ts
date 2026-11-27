@@ -7,7 +7,7 @@ import { card } from "../data/cards";
 import * as E from "../game/engine";
 import type { BlackHole } from "../game/types";
 import type { CardScript, Ctx, Self } from "./runtime";
-import { arm, disarm, isArmed, setMark } from "./helpers";
+import { arm, disarm, isArmed, mark, setMark } from "./helpers";
 
 const P: BlackHole = "Primordial";
 const Q: BlackHole = "Quasar";
@@ -543,6 +543,82 @@ export const POLICE: Record<string, CardScript> = {
       const c = x.chooseCard(me, "Quelle carte de ta main poser (sans activer son effet) ?", x.p(me).hand, id)!;
       const slot = x.chooseSlot(me, `Où poser « ${card(c).name} » ?`, me, c, id);
       x.move(c, { uid: me, zone: "terrain", index: slot }, { activate: false });
+    },
+  },
+
+  // BRAV-M (passif, créée dans l'Atelier) : au début de chaque tour de son possesseur, 10 gold ; un terrain est tiré
+  // au hasard, le possesseur y choisit une carte ; la BRAV-M se place juste devant elle, puis les deux sont désactivées
+  // jusqu'à la fin du tour du joueur chez qui se trouve la cible.
+  "POL-26": {
+    on: {
+      turnStart: (x, self, e) => {
+        const owner = x.g.owner[self.id] ?? self.me;
+        if (e.uid !== owner) return;
+        const pool = x.turnOrder().filter((u) => x.p(u).terrain.some((c) => c !== self.id));
+        if (!pool.length) {
+          x.log("BRAV-M : aucune carte à cibler sur les terrains.", { src: self.id });
+          return;
+        }
+        x.triggered(self, "patrouille (10 gold).");
+        if (!pay(x, owner)) return;
+        const u = x.random(pool);
+        x.log(`🏍️ BRAV-M : le terrain de ${x.name(u)} est tiré au sort.`, { src: self.id, to: u });
+        const c = x.chooseCard(owner, `BRAV-M : quelle carte de ${x.name(u)} cibler ?`, x.p(u).terrain.filter((v) => v !== self.id), self.id);
+        if (!c) return;
+        const t = E.locate(x.g, c)!;
+        const at = E.locate(x.g, self.id);
+        // Se place juste devant la cible (position d'insertion : le moteur gère le décalage dans un même terrain).
+        if (at?.zone === "terrain" && (at.uid !== t.uid || (t.index !== at.index && t.index !== at.index + 1)))
+          x.move(self.id, { uid: t.uid, zone: "terrain", index: t.index });
+        const until = untilEndOfTurnOf(x, t.uid);
+        x.disable(c, until);
+        if (E.locate(x.g, self.id)?.zone === "terrain") x.disable(self.id, until);
+      },
+    },
+  },
+
+  // IGPN (créée dans l'Atelier) : 10 gold, cible un joueur ; la carte va en première position de son terrain. Pendant
+  // un tour de table, ce joueur ne subit aucune défausse imposée par les autres et paie 10 gold au début de son tour.
+  // Au début du tour suivant de son possesseur (fin du tour de table), l'IGPN va dans la défausse de son possesseur.
+  "POL-27": {
+    evenDisabled: true,
+    activate: (x, { id, me }) => {
+      if (isArmed(x, id)) {
+        x.log("🕵️ IGPN : l'enquête est déjà en cours.", { src: id });
+        return;
+      }
+      if (!pay(x, me)) return false;
+      const u = x.choosePlayer(me, "IGPN : quel joueur placer sous enquête ?", x.turnOrder(), id)!;
+      const at = E.locate(x.g, id);
+      if (at?.zone === "terrain" && (at.uid !== u || at.index !== 0)) x.move(id, { uid: u, zone: "terrain", index: 0 });
+      if (E.locate(x.g, id)?.zone !== "terrain") return;
+      setMark(x, id, `${u}|${E.pos(x.g)}|0`);
+      arm(x, id);
+      x.log(`🕵️ IGPN : ${x.name(u)} est sous enquête pendant un tour de table : aucune défausse ne peut lui être imposée, et il paiera 10 gold au début de son tour.`, { src: id, to: u });
+    },
+    beforeLeave: (x, self) => {
+      if (!isArmed(x, self.id)) return;
+      disarm(x, self.id);
+      setMark(x, self.id, null);
+    },
+    on: {
+      turnStart: (x, self, e) => {
+        if (!isArmed(x, self.id)) return;
+        const [target, since, paid] = (mark(x, self.id) ?? "").split("|");
+        if (E.pos(x.g) <= Number(since)) return;
+        if (e.uid === target && paid !== "1") {
+          x.triggered(self, `${x.name(target)} est sous enquête : il dépense 10 gold.`);
+          if (x.canPay(target, 10)) x.spend(target, 10);
+          else x.lose(target, 10);
+          setMark(x, self.id, `${target}|${since}|1`);
+        }
+        const owner = x.g.owner[self.id] ?? self.me;
+        if (e.uid !== owner) return;
+        disarm(x, self.id);
+        setMark(x, self.id, null);
+        x.triggered(self, "fin du tour de table : l'enquête est close, l'IGPN retourne dans la défausse de son possesseur.");
+        x.move(self.id, { uid: owner, zone: "discard" });
+      },
     },
   },
 

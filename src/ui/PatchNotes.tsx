@@ -21,6 +21,23 @@ type Patch = { version: string; date: string; notes: Note[] };
 
 const PATCHES_ALL: Patch[] = [
   {
+    version: "0.41.0",
+    date: "27 novembre 2026",
+    notes: [
+      {
+        cat: "cartes",
+        title: "🚔 Deux nouvelles cartes Police",
+        scene: (
+          <div className="hg-scene hg-row">
+            <span className="pn-chip pn-glow">🏍️ BRAV-M</span>
+            <span className="pn-chip pn-glow">🕵️ IGPN</span>
+          </div>
+        ),
+        text: <>Créées dans l'Atelier par l'équipe. BRAV-M : à chacun de tes tours, 10 gold, un terrain tiré au sort ; elle se place devant la carte choisie et vous neutralise toutes les deux. IGPN : 10 gold, un joueur passe sous enquête pendant un tour de table (personne ne peut lui faire défausser de carte, il paie 10 gold à son tour). Avec leurs voicelines.</>,
+      },
+    ],
+  },
+  {
     version: "0.40.0",
     date: "25 novembre 2026",
     notes: [
